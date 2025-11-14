@@ -3,6 +3,14 @@ class AuthController extends Controller
 {
 
     public function login()
+
+    {
+    // 🔥 Si ya está logueado, no mostrar login
+    if (isset($_SESSION['user'])) {
+        $this->redirect('home/index');
+        exit;
+    }
+
     {
         $errores = [];
 
@@ -21,10 +29,10 @@ class AuthController extends Controller
                     $_SESSION['user'] = [
                         'id'       => $user['id'],
                         'nombre'   => $user['nombre'],
-                        'apellido' => $user['apellido'],
-                        'cargo'    => $user['cargo'],
-                        'foto'     => $user['foto'],
+                        'cargo'    => $user['cargo']    ?? null,
+                        'foto'     => $user['foto']     ?? null,
                     ];
+
                     $this->redirect('home/index');
                 } else {
                     $errores[] = "Credenciales inválidas.";
@@ -39,21 +47,22 @@ class AuthController extends Controller
             'isLoginPage' => true
         ]);
     }
+    }
 
     public function register()
     {
         $errores = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $nombre    = trim($_POST['nombre'] ?? '');
-            $apellido  = trim($_POST['apellido'] ?? '');
-            $correo    = trim($_POST['correo'] ?? '');
-            $password  = $_POST['password'] ?? '';
-            $password2 = $_POST['password2'] ?? '';
-            $terminos  = isset($_POST['terminos']);
 
-            // Validaciones básicas
-            if ($nombre === '' || $apellido === '' || $correo === '' || $password === '' || $password2 === '') {
+            $nombre_completo = trim($_POST['nombre_completo'] ?? '');
+            $correo          = trim($_POST['correo'] ?? '');
+            $password        = $_POST['password']  ?? '';
+            $password2       = $_POST['password2'] ?? '';
+            $terminos        = isset($_POST['terminos']);
+
+            // ---------- Validaciones básicas ----------
+            if ($nombre_completo === '' || $correo === '' || $password === '' || $password2 === '') {
                 $errores[] = "Todos los campos son obligatorios.";
             }
 
@@ -85,17 +94,28 @@ class AuthController extends Controller
                 $errores[] = "Ya existe un usuario registrado con ese correo.";
             }
 
+            // ---------- Si todo está OK, preparamos nombre y apellido ----------
             if (empty($errores)) {
+
+                // Separar nombre completo en nombre y apellido (simple)
+                $nombre   = '';
+                $apellido = '';
+
+                if ($nombre_completo !== '') {
+                    // separa por espacios
+                    $partes = preg_split('/\s+/', $nombre_completo);
+                    $nombre = array_shift($partes);          // primer nombre
+                    $apellido = implode(' ', $partes);       // resto como apellido (puede quedar vacío)
+                }
+
                 $hash = password_hash($password, PASSWORD_DEFAULT);
 
-                // Si tu tabla aún tiene más columnas (nombre_usuario, celular, cargo, foto),
-                // puedes generar valores por defecto aquí, o haberlas hecho opcionales en la BD.
+                $nombre = $nombre_completo;
+
                 $userModel->create([
                     'nombre'         => $nombre,
-                    'apellido'       => $apellido,
                     'correo'         => $correo,
-                    // valores dummy si tu create() actual los pide:
-                    'nombre_usuario' => $correo,   // por ejemplo usar el correo como username
+                    'nombre_usuario' => $correo,   // o genera uno a partir del nombre si quieres
                     'celular'        => null,
                     'cargo'          => null,
                     'foto'           => null,
@@ -108,13 +128,12 @@ class AuthController extends Controller
         }
 
         $this->view('auth/register', [
-            'errores'       => $errores,
-            'pageStyles'    => ['register'],
-            'pageScripts'   => ['register'],
+            'errores'        => $errores,
+            'pageStyles'     => ['register'],
+            'pageScripts'    => ['register'],
             'isRegisterPage' => true
         ]);
     }
-
 
     public function logout()
     {

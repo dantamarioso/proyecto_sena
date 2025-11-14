@@ -17,18 +17,11 @@
                 <?php endif; ?>
 
                 <form method="post">
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Nombres</label>
-                            <input type="text" name="nombre" class="form-control" required>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Apellidos</label>
-                            <input type="text" name="apellido" class="form-control" required>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre completo</label>
+                        <input type="text" name="nombre_completo" class="form-control" required>
                     </div>
+
 
                     <div class="mb-3">
                         <label class="form-label">Correo electrónico</label>
@@ -72,7 +65,7 @@
                     <div class="form-check my-3">
                         <input class="form-check-input" type="checkbox" id="terminos" name="terminos" required>
                         <label class="form-check-label" for="terminos">
-                            Acepto los 
+                            Acepto los
                             <a href="<?= BASE_URL ?>/?url=auth/terminos" target="_blank">
                                 términos y condiciones
                             </a>

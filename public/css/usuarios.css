@@ -1,0 +1,16 @@
+.table img {
+    border: 2px solid #ddd;
+}
+
+.card {
+    border-radius: 14px;
+}
+
+.btn {
+    border-radius: 8px;
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px;
+}
