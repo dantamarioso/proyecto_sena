@@ -1,0 +1,31 @@
+/* Estilos solo para la pantalla de registro */
+.password-checklist ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.password-checklist li {
+    font-size: 14px;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.password-checklist .valid {
+    color: #0f9d09;
+}
+
+.password-checklist .invalid {
+    color: #d00;
+}
+body {
+    background: #f5f5f5;
+}
+
+.card {
+    border-radius: 0.75rem;
+}
+
+.navbar-brand {
+    font-weight: 600;
+}
+
