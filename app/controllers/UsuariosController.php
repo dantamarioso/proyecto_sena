@@ -2,16 +2,44 @@
 class UsuariosController extends Controller
 {
     /* =========================================================
-       CREAR USUARIO
+       HELPERS
     ========================================================== */
-    public function crear()
+
+    private function requireAdmin()
+    {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'admin') {
+            http_response_code(403);
+            echo "Acceso denegado.";
+            exit;
+        }
+    }
+
+    /* =========================================================
+       LISTAR / INDEX
+    ========================================================== */
+    public function index()
     {
         if (!isset($_SESSION['user'])) {
             $this->redirect('auth/login');
             return;
         }
 
-        $errores = [];
+        // Carga la vista de usuarios y asegura que los estilos y scripts
+        // específicos de la página se incluyan (usuarios.css, usuarios.js)
+        $this->view('usuarios/index', [
+            'pageStyles'  => ['usuarios'],
+            'pageScripts' => ['usuarios'],
+        ]);
+    }
+
+    /* =========================================================
+       CREAR USUARIO
+    ========================================================== */
+    public function crear()
+    {
+        $this->requireAdmin(); // solo admin crea usuarios
+
+        $errores   = [];
         $userModel = new User();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -24,11 +52,11 @@ class UsuariosController extends Controller
             $password        = $_POST['password']  ?? '';
             $password2       = $_POST['password2'] ?? '';
             $estado          = intval($_POST['estado'] ?? 1);
+            $rol             = $_POST['rol'] ?? 'usuario';
 
             /* =========================
-           VALIDACIONES
-        ========================== */
-
+               VALIDACIONES
+            ========================== */
             if (
                 $nombre_completo === '' || $correo === '' || $nombreUsuario === '' ||
                 $password === '' || $password2 === ''
@@ -44,7 +72,7 @@ class UsuariosController extends Controller
                 $errores[] = "Las contraseñas no coinciden.";
             }
 
-            // Checklist igual al registro
+            // Reglas de contraseña
             $hasLength  = strlen($password) >= 8;
             $hasUpper   = preg_match('/[A-Z]/', $password);
             $hasSpecial = preg_match('/[!@#$%^&*(),.?\":{}|<>_\-]/', $password);
@@ -53,7 +81,7 @@ class UsuariosController extends Controller
                 $errores[] = "La contraseña no cumple con los requisitos mínimos.";
             }
 
-            // Validaciones de duplicados
+            // Duplicados
             if ($userModel->existsByCorreo($correo)) {
                 $errores[] = "Ese correo ya está registrado.";
             }
@@ -63,8 +91,8 @@ class UsuariosController extends Controller
             }
 
             /* =========================
-            SUBIR FOTO (OPCIONAL)
-        ========================== */
+               SUBIR FOTO (OPCIONAL)
+            ========================== */
             $fotoRuta = null;
 
             if (!empty($_FILES['foto']['name'])) {
@@ -75,7 +103,7 @@ class UsuariosController extends Controller
                 if (!in_array($ext, $permitidas)) {
                     $errores[] = "Formato de imagen no permitido (solo JPG y PNG).";
                 } else {
-                    $nombreFoto = "uploads/fotos/" . uniqid("foto_") . "." . $ext;
+                    $nombreFoto  = "uploads/fotos/" . uniqid("foto_") . "." . $ext;
                     $rutaSistema = __DIR__ . "/../../public/" . $nombreFoto;
 
                     if (!is_dir(__DIR__ . "/../../public/uploads/fotos")) {
@@ -88,8 +116,8 @@ class UsuariosController extends Controller
             }
 
             /* =========================
-            SI TODO OK → CREAR USUARIO
-        ========================== */
+               SI TODO OK → CREAR USUARIO
+            ========================== */
             if (empty($errores)) {
 
                 $userModel->create([
@@ -100,7 +128,8 @@ class UsuariosController extends Controller
                     'cargo'          => $cargo,
                     'foto'           => $fotoRuta,
                     'password'       => password_hash($password, PASSWORD_DEFAULT),
-                    'estado'         => $estado
+                    'estado'         => $estado,
+                    'rol'            => $rol,
                 ]);
 
                 $this->redirect('home/index');
@@ -109,22 +138,18 @@ class UsuariosController extends Controller
         }
 
         $this->view('usuarios/crear', [
-            'errores'    => $errores,
-            'pageStyles' => ['usuarios'],
-            'pageScripts' => ['usuarios']
+            'errores'     => $errores,
+            'pageStyles'  => ['usuarios'],
+            'pageScripts' => ['usuarios'],
         ]);
     }
-
 
     /* =========================================================
        EDITAR USUARIO
     ========================================================== */
     public function editar()
     {
-        if (!isset($_SESSION['user'])) {
-            $this->redirect('auth/login');
-            return;
-        }
+        $this->requireAdmin();
 
         $userModel = new User();
         $errores   = [];
@@ -139,6 +164,7 @@ class UsuariosController extends Controller
             $cargo         = trim($_POST['cargo'] ?? '');
             $estado        = intval($_POST['estado'] ?? 1);
             $password      = trim($_POST['password'] ?? '');
+            $rol           = $_POST['rol'] ?? 'usuario';
 
             if ($id <= 0) {
                 $errores[] = "Usuario inválido.";
@@ -153,8 +179,8 @@ class UsuariosController extends Controller
             }
 
             /* ==========================
-            SUBIR FOTO (OPCIONAL)
-        =========================== */
+               SUBIR FOTO (OPCIONAL)
+            =========================== */
             $fotoRuta = null;
 
             if (!empty($_FILES['foto']['name'])) {
@@ -165,7 +191,7 @@ class UsuariosController extends Controller
                 if (!in_array($ext, $permitidas)) {
                     $errores[] = "Formato de imagen no permitido. Solo JPG o PNG.";
                 } else {
-                    $nombreFoto = "uploads/fotos/" . uniqid("foto_") . "." . $ext;
+                    $nombreFoto      = "uploads/fotos/" . uniqid("foto_") . "." . $ext;
                     $fotoRutaSistema = __DIR__ . "/../../public/" . $nombreFoto;
 
                     if (!is_dir(__DIR__ . "/../../public/uploads/fotos")) {
@@ -187,7 +213,8 @@ class UsuariosController extends Controller
                     'cargo'          => $cargo,
                     'estado'         => $estado,
                     'password'       => $password,  // si viene vacío NO se cambia
-                    'foto'           => $fotoRuta   // si es null NO se cambia
+                    'foto'           => $fotoRuta,  // si es null NO se cambia
+                    'rol'            => $rol,
                 ]);
 
                 $this->redirect('home/index');
@@ -207,19 +234,20 @@ class UsuariosController extends Controller
         }
 
         $this->view('usuarios/editar', [
-            'usuario' => $usuario,
-            'errores' => $errores,
-            'pageStyles' => ['usuarios'],
-            'pageScripts' => ['usuarios']
+            'usuario'     => $usuario,
+            'errores'     => $errores,
+            'pageStyles'  => ['usuarios'],
+            'pageScripts' => ['usuarios'],
         ]);
     }
-
 
     /* =========================================================
        BLOQUEAR
     ========================================================== */
     public function bloquear()
     {
+        $this->requireAdmin();
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = intval($_POST['id'] ?? 0);
 
@@ -237,6 +265,8 @@ class UsuariosController extends Controller
     ========================================================== */
     public function desbloquear()
     {
+        $this->requireAdmin();
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = intval($_POST['id'] ?? 0);
 
@@ -254,6 +284,8 @@ class UsuariosController extends Controller
     ========================================================== */
     public function eliminar()
     {
+        $this->requireAdmin();
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = intval($_POST['id'] ?? 0);
 
@@ -264,5 +296,37 @@ class UsuariosController extends Controller
         }
 
         $this->redirect('home/index');
+    }
+
+    /* =========================================================
+       BUSCAR (AJAX) — Búsqueda, filtros, paginación
+    ========================================================== */
+    public function buscar()
+    {
+        $this->requireAdmin();
+
+        header('Content-Type: application/json; charset=utf-8');
+
+        $q      = trim($_GET['q']      ?? '');
+        $estado = $_GET['estado']      ?? '';
+        $rol    = $_GET['rol']         ?? '';
+        $page   = max(1, (int)($_GET['page'] ?? 1));
+        $perPage = 10;
+
+        $offset = ($page - 1) * $perPage;
+
+        $userModel = new User();
+
+        $data  = $userModel->searchUsers($q, $estado, $rol, $perPage, $offset);
+        $total = $userModel->countUsersFiltered($q, $estado, $rol);
+
+        echo json_encode([
+            'data'       => $data,
+            'total'      => $total,
+            'page'       => $page,
+            'perPage'    => $perPage,
+            'totalPages' => max(1, ceil($total / $perPage)),
+        ]);
+        exit;
     }
 }

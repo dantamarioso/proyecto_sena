@@ -1,89 +1,129 @@
-<div class="row">
-    <div class="col-12">
-        <h3 class="mb-4">Gestión de usuarios</h3>
+<?php
+if (!isset($_SESSION['user'])) {
+    header("Location: " . BASE_URL . "/?url=auth/login");
+    exit;
+}
 
-        <div class="card">
-            <div class="card-body table-responsive">
-                <table class="table table-striped align-middle">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Nombre</th>
-                        <th>Correo</th>
-                        <th>Usuario</th>
-                        <th>Estado</th>
-                        <th>Creado</th>
-                        <th class="text-end">Acciones</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($usuarios as $u): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($u['id']) ?></td>
-                            <td><?= htmlspecialchars($u['nombre']) ?></td>
-                            <td><?= htmlspecialchars($u['correo']) ?></td>
-                            <td><?= htmlspecialchars($u['nombre_usuario']) ?></td>
-                            <td>
-                                <?php if ((int)$u['estado'] === 1): ?>
-                                    <span class="badge bg-success">Activo</span>
-                                <?php else: ?>
-                                    <span class="badge bg-danger">Bloqueado</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= htmlspecialchars($u['created_at'] ?? '') ?></td>
-                            <td class="text-end">
-                                <!-- Editar -->
-                                <a href="<?= BASE_URL ?>/?url=usuarios/editar&id=<?= $u['id'] ?>"
-                                   class="btn btn-sm btn-primary">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
+require_once __DIR__ . "/../../models/User.php";
+$userModel  = new User();
+$currentId  = $_SESSION['user']['id'] ?? null;
+$rolActual  = $_SESSION['user']['rol'] ?? 'usuario';
 
-                                <!-- Bloquear / Desbloquear -->
-                                <?php if ((int)$u['estado'] === 1): ?>
-                                    <form method="post" action="<?= BASE_URL ?>/?url=usuarios/bloquear"
-                                          class="d-inline">
-                                        <input type="hidden" name="id" value="<?= $u['id'] ?>">
-                                        <button class="btn btn-sm btn-warning" type="submit"
-                                                onclick="return confirm('¿Bloquear este usuario?');">
-                                            <i class="bi bi-ban"></i>
-                                        </button>
-                                    </form>
-                                <?php else: ?>
-                                    <form method="post" action="<?= BASE_URL ?>/?url=usuarios/desbloquear"
-                                          class="d-inline">
-                                        <input type="hidden" name="id" value="<?= $u['id'] ?>">
-                                        <button class="btn btn-sm btn-success" type="submit"
-                                                onclick="return confirm('¿Desbloquear este usuario?');">
-                                            <i class="bi bi-unlock"></i>
-                                        </button>
-                                    </form>
-                                <?php endif; ?>
+// Carga inicial solo por compatibilidad (AJAX se encargará después)
+if ($currentId) {
+    $usuarios = $userModel->allExceptId($currentId);
+} else {
+    $usuarios = $userModel->all();
+}
+?>
 
-                                <!-- Eliminar -->
-                                <form method="post" action="<?= BASE_URL ?>/?url=usuarios/eliminar"
-                                      class="d-inline">
-                                    <input type="hidden" name="id" value="<?= $u['id'] ?>">
-                                    <button class="btn btn-sm btn-danger" type="submit"
-                                            onclick="return confirm('¿Eliminar definitivamente este usuario?');">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+<script>
+    const BASE_URL = "<?= BASE_URL ?>";
+</script>
 
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
+<div class="row justify-content-center">
+    <div class="col-md-11">
 
-                    <?php if (empty($usuarios)): ?>
-                        <tr>
-                            <td colspan="7" class="text-center text-muted">
-                                No hay usuarios registrados todavía.
-                            </td>
-                        </tr>
-                    <?php endif; ?>
+        <!-- HEADER PANEL -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Panel de Usuarios</h3>
 
-                    </tbody>
-                </table>
+            <?php if ($rolActual === 'admin'): ?>
+                <a href="<?= BASE_URL ?>/?url=usuarios/crear" class="btn btn-success">
+                    <i class="bi bi-plus-lg"></i> Nuevo usuario
+                </a>
+            <?php endif; ?>
+        </div>
+
+        <!-- FILTROS / BÚSQUEDA -->
+        <div class="card mb-3">
+            <div class="card-body row g-2 align-items-end">
+
+                <div class="col-md-4">
+                    <label class="form-label">Buscar</label>
+                    <input type="text" id="busqueda" class="form-control"
+                           placeholder="Nombre, correo o usuario">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Estado</label>
+                    <select id="filtro-estado" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="1">Activos</option>
+                        <option value="0">Bloqueados</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Rol</label>
+                    <select id="filtro-rol" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="admin">Admin</option>
+                        <option value="usuario">Usuario</option>
+                        <option value="invitado">Invitado</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 text-end">
+                    <button class="btn btn-outline-secondary w-100" id="btn-limpiar">
+                        Limpiar
+                    </button>
+                </div>
             </div>
         </div>
+
+        <!-- TABLA -->
+        <div class="card">
+            <div class="card-body table-responsive">
+
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Foto</th>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Usuario</th>
+                            <th>Celular</th>
+                            <th>Cargo</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Creado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="usuarios-body">
+                        <!-- Contenido generado por AJAX (usuarios.js) -->
+                        <?php if (empty($usuarios)): ?>
+                            <tr>
+                                <td colspan="11" class="text-center text-muted">
+                                    No hay usuarios registrados.
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+
+                <!-- PAGINACIÓN -->
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <small id="usuarios-info" class="text-muted">Total: 0 usuario(s)</small>
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary me-1" id="btn-prev">
+                            &laquo;
+                        </button>
+                        <span id="pagina-actual" class="me-1">1 / 1</span>
+                        <button class="btn btn-sm btn-outline-secondary" id="btn-next">
+                            &raquo;
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- CONTENEDOR DE TOASTS -->
+        <div class="toast-container" id="toast-container"></div>
+
     </div>
 </div>

@@ -31,51 +31,26 @@
     ?>
 
     <?php
-    // Si la vista define $isLoginPage o $isRegisterPage → ocultamos la navbar
-    $isLogin  = isset($isLoginPage) && $isLoginPage === true;
-    $isRegister = isset($isRegisterPage) && $isRegisterPage === true;
+    $isLogin     = isset($isLoginPage) && $isLoginPage === true;
+    $isRegister  = isset($isRegisterPage) && $isRegisterPage === true;
 
     if (!$isLogin && !$isRegister):
     ?>
         <!-- NAVBAR -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
-
-                <a class="navbar-brand" href="<?= BASE_URL ?>/?url=home/index">
-                    Inventario
-                </a>
+                <a class="navbar-brand" href="<?= BASE_URL ?>/?url=home/index">Inventario</a>
 
                 <div class="d-flex">
                     <?php if (isset($_SESSION['user'])): ?>
-                        <a class="btn btn-outline-light btn-sm" href="<?= BASE_URL ?>/?url=auth/logout">
-                            Salir
-                        </a>
+                        <a class="btn btn-outline-light btn-sm" href="<?= BASE_URL ?>/?url=auth/logout">Salir</a>
                     <?php endif; ?>
                 </div>
-
             </div>
         </nav>
     <?php endif; ?>
 
-    <?php if (isset($_SESSION['user'])): ?>
-        <a class="btn btn-outline-light btn-sm me-2" href="<?= BASE_URL ?>/?url=usuarios/index">
-            Usuarios
-        </a>
-        <a class="btn btn-outline-light btn-sm" href="<?= BASE_URL ?>/?url=auth/logout">Salir</a>
-    <?php endif; ?>
-    <?php if (!empty($pageStyles)) {
-        foreach ($pageStyles as $css) {
-            echo '<link rel="stylesheet" href="' . BASE_URL . '/public/css/' . $css . '.css">';
-        }
-    } ?>
-
-    <?php if (!empty($pageScripts)) {
-        foreach ($pageScripts as $js) {
-            echo '<script src="' . BASE_URL . '/public/js/' . $js . '.js"></script>';
-        }
-    } ?>
-
-
+    <!-- Enlaces directos opcionales (se eliminó el enlace flotante 'Usuarios') -->
 
     <!-- Contenido principal -->
     <div class="container py-4">

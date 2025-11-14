@@ -28,21 +28,22 @@ class User extends Model
             estado = :estado
     ";
 
-        // Si hay nueva foto
         if (!empty($data['foto'])) {
             $sql .= ", foto = :foto";
         }
 
-        // Si hay nueva contraseña
         if (!empty($data['password'])) {
             $sql .= ", password = :password";
+        }
+
+        if (!empty($data['rol'])) {
+            $sql .= ", rol = :rol";
         }
 
         $sql .= " WHERE id = :id";
 
         $stmt = $this->db->prepare($sql);
 
-        // Parámetros obligatorios
         $params = [
             ':nombre'         => $data['nombre'],
             ':correo'         => $data['correo'],
@@ -61,8 +62,13 @@ class User extends Model
             $params[':password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         }
 
+        if (!empty($data['rol'])) {
+            $params[':rol'] = $data['rol'];
+        }
+
         return $stmt->execute($params);
     }
+
 
 
     /* =========================================
@@ -73,6 +79,84 @@ class User extends Model
         $stmt = $this->db->query("SELECT * FROM usuarios ORDER BY id DESC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function searchUsers($q, $estado, $rol, $limit, $offset)
+    {
+        $currentId = $_SESSION['user']['id'] ?? 0;
+
+        $sql = "SELECT * FROM usuarios WHERE id <> :currentId";
+        $params = [
+            ':currentId' => $currentId
+        ];
+
+        if ($q !== '') {
+            $sql .= " AND (nombre LIKE :q OR correo LIKE :q OR nombre_usuario LIKE :q)";
+            $params[':q'] = '%' . $q . '%';
+        }
+
+        if ($estado === '0' || $estado === '1') {
+            $sql .= " AND estado = :estado";
+            $params[':estado'] = (int)$estado;
+        }
+
+        if (in_array($rol, ['admin', 'usuario', 'invitado'], true)) {
+            $sql .= " AND rol = :rol";
+            $params[':rol'] = $rol;
+        }
+
+        $sql .= " ORDER BY id DESC LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->db->prepare($sql);
+
+        foreach ($params as $k => $v) {
+            $stmt->bindValue($k, $v);
+        }
+
+        $stmt->bindValue(':limit',  (int)$limit,  PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    public function countUsersFiltered($q, $estado, $rol)
+    {
+        $currentId = $_SESSION['user']['id'] ?? 0;
+
+        $sql = "SELECT COUNT(*) AS total FROM usuarios WHERE id <> :currentId";
+        $params = [
+            ':currentId' => $currentId
+        ];
+
+        if ($q !== '') {
+            $sql .= " AND (nombre LIKE :q OR correo LIKE :q OR nombre_usuario LIKE :q)";
+            $params[':q'] = '%' . $q . '%';
+        }
+
+        if ($estado === '0' || $estado === '1') {
+            $sql .= " AND estado = :estado";
+            $params[':estado'] = (int)$estado;
+        }
+
+        if (in_array($rol, ['admin', 'usuario', 'invitado'], true)) {
+            $sql .= " AND rol = :rol";
+            $params[':rol'] = $rol;
+        }
+
+        $stmt = $this->db->prepare($sql);
+
+        foreach ($params as $k => $v) {
+            $stmt->bindValue($k, $v);
+        }
+
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)($row['total'] ?? 0);
+    }
+
+
 
     /* =========================================
        BUSCAR POR ID
@@ -189,11 +273,11 @@ class User extends Model
     public function create($data)
     {
         $stmt = $this->db->prepare("
-            INSERT INTO usuarios 
-                (nombre, correo, nombre_usuario, celular, cargo, foto, password, estado)
-            VALUES 
-                (:nombre, :correo, :nombre_usuario, :celular, :cargo, :foto, :password, :estado)
-        ");
+        INSERT INTO usuarios 
+            (nombre, correo, nombre_usuario, celular, cargo, foto, password, estado, rol)
+        VALUES 
+            (:nombre, :correo, :nombre_usuario, :celular, :cargo, :foto, :password, :estado, :rol)
+    ");
 
         return $stmt->execute([
             ':nombre'         => $data['nombre'],
@@ -204,6 +288,7 @@ class User extends Model
             ':foto'           => $data['foto']           ?? null,
             ':password'       => $data['password'],
             ':estado'         => $data['estado']         ?? 1,
+            ':rol'            => $data['rol']            ?? 'usuario',
         ]);
     }
 }

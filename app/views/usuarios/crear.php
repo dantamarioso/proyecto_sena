@@ -1,6 +1,6 @@
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-body">
 
                 <h3 class="mb-3">Crear nuevo usuario</h3>
@@ -15,7 +15,7 @@
                     </div>
                 <?php endif; ?>
 
-                <form method="post" enctype="multipart/form-data">
+                <form method="post" enctype="multipart/form-data" id="crear-usuario-form">
 
                     <!-- Nombre -->
                     <div class="mb-3">
@@ -50,30 +50,48 @@
                     <!-- Foto -->
                     <div class="mb-3">
                         <label class="form-label">Foto de perfil (opcional)</label>
-                        <input type="file" name="foto" class="form-control">
-                        <small class="text-muted">Formatos permitidos: JPG, PNG.</small>
+                        <input type="file" name="foto" id="foto_crear" class="form-control" accept="image/*">
+                        <small class="text-muted">Formatos permitidos: JPG, PNG — Máximo 2MB.</small>
+
+                        <!-- PREVIEW -->
+                        <div class="mt-2 d-none" id="previewContainerCrear">
+                            <img id="preview_crear" src="" 
+                                 width="70" height="70"
+                                 style="object-fit:cover;border-radius:50%;border:2px solid #ddd;">
+                        </div>
                     </div>
 
-                    <!-- Password -->
+                    <!-- Contraseña -->
                     <div class="mb-3">
                         <label class="form-label">Contraseña</label>
                         <div class="input-group">
                             <input type="password" name="password" id="password_crear" class="form-control" required>
-                            <span class="input-group-text" id="togglePasswordCrear">
+                            <span class="input-group-text pointer" id="togglePasswordCrear">
                                 <i class="bi bi-eye-fill"></i>
                             </span>
                         </div>
                     </div>
 
-                    <!-- Password 2 -->
+                    <!-- Repetir contraseña -->
                     <div class="mb-3">
                         <label class="form-label">Repetir contraseña</label>
                         <div class="input-group">
                             <input type="password" name="password2" id="password2_crear" class="form-control" required>
-                            <span class="input-group-text" id="togglePassword2Crear">
+                            <span class="input-group-text pointer" id="togglePassword2Crear">
                                 <i class="bi bi-eye-fill"></i>
                             </span>
                         </div>
+                        <small id="matchMessageCrear" class="text-danger"></small>
+                    </div>
+
+                    <!-- Rol -->
+                    <div class="mb-3">
+                        <label class="form-label">Rol</label>
+                        <select name="rol" class="form-select">
+                            <option value="usuario" selected>Usuario</option>
+                            <option value="admin">Admin</option>
+                            <option value="invitado">Invitado</option>
+                        </select>
                     </div>
 
                     <!-- Estado -->
@@ -86,8 +104,12 @@
                     </div>
 
                     <div class="d-flex justify-content-between">
-                        <a href="<?= BASE_URL ?>/?url=home/index" class="btn btn-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-success">Crear usuario</button>
+                        <a href="<?= BASE_URL ?>/?url=home/index" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            Crear usuario
+                        </button>
                     </div>
 
                 </form>

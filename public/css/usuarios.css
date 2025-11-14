@@ -1,16 +1,127 @@
-.table img {
-    border: 2px solid #ddd;
-}
+/* ============================================================
+   ESTILO MODERNO - DASHBOARD / GLASS / ADMIN PANEL
+   ============================================================ */
+
+/* --- CONTENEDORES --- */
+
+
+
+
 
 .card {
-    border-radius: 14px;
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+    border: none;
 }
 
+/* --- TÍTULOS --- */
+.card h3 {
+    font-weight: 700;
+    color: #333;
+}
+
+/* --- TABLAS --- */
+.table {
+    border-spacing: 0 12px;
+}
+
+.table thead th {
+    background: #f7f7f7;
+    border: none;
+    font-weight: 600;
+    color: #444;
+    padding: 12px;
+}
+
+.table tbody tr {
+    background: #fff;
+    border-radius: 12px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.table tbody tr:hover {
+    transform: scale(1.01);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.09);
+}
+
+.table td {
+    padding: 14px 12px;
+    vertical-align: middle;
+    border: none;
+}
+
+/* --- BOTONES --- */
 .btn {
-    border-radius: 8px;
+    border-radius: 10px;
+    padding: 6px 12px;
 }
 
-.form-control,
-.form-select {
+.btn-primary {
+    background: #4e73df;
+    border: none;
+}
+.btn-primary:hover {
+    background: #3b5cca;
+}
+
+.btn-warning {
+    background: #f6c23e;
+    border: none;
+}
+.btn-warning:hover {
+    background: #dda927;
+}
+
+.btn-success {
+    background: #1cc88a;
+    border: none;
+}
+.btn-danger {
+    background: #e74a3b;
+    border: none;
+}
+
+/* --- FILTROS / SEARCHBAR --- */
+.search-bar input {
+    border-radius: 12px;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+}
+
+.filters select {
+    border-radius: 12px;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+/* --- PAGINACIÓN --- */
+.pagination-controls button {
     border-radius: 10px;
+}
+
+#pagina-actual {
+    font-weight: 700;
+}
+
+/* --- TOASTS --- */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast-custom {
+    background: rgba(0,0,0,0.85);
+    color: white;
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: 10px;
+    animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
 }

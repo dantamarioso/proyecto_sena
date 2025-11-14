@@ -10,6 +10,10 @@ class HomeController extends Controller {
     public function index() {
         $this->checkAuth();
         $usuario = $_SESSION['user'];
-        $this->view('home/index', ['usuario' => $usuario]);
+        $this->view('home/index', [
+            'usuario'     => $usuario,
+            'pageStyles'  => ['usuarios'],
+            'pageScripts' => ['usuarios'],
+        ]);
     }
 }
