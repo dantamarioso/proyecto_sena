@@ -39,7 +39,7 @@
                     <!-- Formulario de login -->
                     <form method="post">
                         <div class="mb-3">
-                            <label class="form-label">Correo o nombre de usuario</label>
+                            <label class="form-label">Correo</label>
                             <input type="text" name="login" class="form-control" required>
                         </div>
 

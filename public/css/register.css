@@ -11,7 +11,7 @@
 }
 
 .password-checklist .valid {
-    color: #0f9d09;
+    color: #033801;
 }
 
 .password-checklist .invalid {
@@ -29,3 +29,193 @@ body {
     font-weight: 600;
 }
 
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+body {
+    position: relative;
+    overflow: hidden;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* IMAGEN ENCIMA DE LOS CONTENEDORES */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+
+    background: url("../img/subfondo.jpg") center top no-repeat;
+
+    /* ⬇️ AUMENTAMOS EL TAMAÑO SIN DISTORSIÓN ⬇️ */
+    background-size: auto 10%;   /* aumenta la altura al 120% */
+
+    z-index: -2;
+}
+
+
+/* FONDO DEBAJO DIFUMINADO */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+
+    background: url("../img/fondo.jpg") center center no-repeat;
+    background-size: cover;
+
+    z-index: -3;
+}
+
+/* =======================================================
+   CONTENEDOR PRINCIPAL — Igual que login
+======================================================= */
+.register-page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
+}
+
+/* =======================================================
+   TARJETA DE REGISTRO (Glassmorphism igual que login)
+======================================================= */
+.register-wrapper {
+    flex: 0 0 560px;   /* Aumentamos el ancho */
+    display: flex;
+    justify-content: center;
+}
+
+
+.card.register-card {
+    width: 100%;
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    border-radius: 18px;
+    padding: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+}
+
+/* Inputs */
+.form-control {
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0,0,0,0.15);
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #0d6efd;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* Botón */
+.btn-register {
+    background: #0d6efd;
+    color: white;
+    border-radius: 10px;
+    font-weight: 600;
+    padding: 10px 0;
+    border: none;
+    transition: 0.25s;
+}
+
+.btn-register:hover {
+    background: #084ec1;
+}
+
+/* Link login */
+.login-link a {
+    color: #005eff !important;
+    font-weight: 600;
+}
+.login-link a:hover {
+    color: #003cbe !important;
+}
+
+/* =======================================================
+   RESPONSIVE
+======================================================= */
+@media (max-width: 992px) {
+    .register-container {
+        flex-direction: column;
+        gap: 24px;
+        max-width: 420px;
+    }
+
+    .register-wrapper {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+}
+/* Ocultar el icono nativo de mostrar contraseña en Edge */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+input[type="password"]::-webkit-credentials-auto-fill-button {
+    visibility: hidden;
+    display: none !important;
+    pointer-events: none;
+}
+
+#match-message {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-top: 4px;
+    display: block;
+}
+
+#match-message.text-danger {
+    color: #350202 !important;
+}
+
+#match-message.text-success {
+    color: #2ecc71 !important;
+}
+.form-check-label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #f1f1f1;
+}
+
+.form-check-label a {
+    color: #013969;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.form-check-label a:hover {
+    color: #0354a0;
+}
+.login-link {
+    font-size: 0.95rem;
+    color: #011a50;
+    margin-top: 10px;
+}
+.login-link a {
+    color: #020f25 !important;
+    font-weight: 600;
+}

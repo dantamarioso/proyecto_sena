@@ -1,7 +1,9 @@
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
+<div class="register-page">
+    <div class="register-container">
+
+        <div class="register-wrapper">
+            <div class="card register-card">
+
                 <h3 class="text-center mb-4">Registro de usuario</h3>
 
                 <?php if (!empty($errores)): ?>
@@ -14,14 +16,16 @@
                     </div>
                 <?php endif; ?>
 
-                <form method="post" enctype="multipart/form-data">
+                <form method="post">
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Nombre</label>
+                            <label class="form-label">Nombres</label>
                             <input type="text" name="nombre" class="form-control" required>
                         </div>
+
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Apellido</label>
+                            <label class="form-label">Apellidos</label>
                             <input type="text" name="apellido" class="form-control" required>
                         </div>
                     </div>
@@ -31,8 +35,8 @@
                         <input type="email" name="correo" class="form-control" required>
                     </div>
 
-                    <!-- Contraseña + ojo -->
-                    <div class="mb-3 position-relative">
+                    <!-- Contraseña -->
+                    <div class="mb-3">
                         <label class="form-label">Contraseña</label>
                         <div class="input-group">
                             <input type="password" name="password" id="password" class="form-control" required>
@@ -42,7 +46,8 @@
                         </div>
                     </div>
 
-                    <div class="mb-3 position-relative">
+                    <!-- Repetir contraseña -->
+                    <div class="mb-3">
                         <label class="form-label">Repetir contraseña</label>
                         <div class="input-group">
                             <input type="password" name="password2" id="password2" class="form-control" required>
@@ -63,28 +68,30 @@
                         </ul>
                     </div>
 
-                    <!-- Términos y condiciones -->
+                    <!-- Términos -->
                     <div class="form-check my-3">
                         <input class="form-check-input" type="checkbox" id="terminos" name="terminos" required>
-
                         <label class="form-check-label" for="terminos">
-                            Acepto los
+                            Acepto los 
                             <a href="<?= BASE_URL ?>/?url=auth/terminos" target="_blank">
                                 términos y condiciones
                             </a>
                         </label>
-
                     </div>
 
                     <div class="d-grid mb-2">
-                        <button class="btn btn-success" type="submit">Registrarse</button>
+                        <button class="btn-register" type="submit">Registrarse</button>
                     </div>
-                    <div class="text-center">
+
+                    <div class="text-center login-link">
                         ¿Ya tienes cuenta?
                         <a href="<?= BASE_URL ?>/?url=auth/login">Inicia sesión</a>
                     </div>
+
                 </form>
-            </div>
-        </div>
-    </div>
-</div>
+
+            </div><!-- card -->
+        </div><!-- wrapper -->
+
+    </div><!-- container -->
+</div><!-- page -->

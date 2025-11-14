@@ -16,34 +16,41 @@ body {
     align-items: center;
 }
 
-/* Imagen real completa, sin zoom, sin estirar */
+/* IMAGEN ENCIMA DE LOS CONTENEDORES */
 body::before {
     content: "";
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    position: fixed;
+    inset: 0;
 
-    width: auto;
-    height: 100vh;   /* alto completo */
-    
-    background: url("../img/fondo-login.jpg") no-repeat center top;
-    background-size: contain; /* No estira, no recorta */
+    background: url("../img/subfondo.jpg") center top no-repeat;
 
-    z-index: 5; /* 🔥 ENCIMA DE TODO */
+    /* ⬇️ AUMENTAMOS EL TAMAÑO SIN DISTORSIÓN ⬇️ */
+    background-size: auto 20%;   /* aumenta la altura al 120% */
+
+    z-index: -2;
 }
 
-/* Difuminado suave para rellenar el espacio vacío */
+
+/* FONDO DEBAJO DIFUMINADO */
 body::after {
     content: "";
     position: fixed;
     inset: 0;
 
     background: url("../img/fondo.jpg") center center no-repeat;
-    background-size: cover;     /* Rellena todo sin importar recorte */
+    background-size: cover;
 
-   
     z-index: -3;
+}
+
+/* FORZAMOS EL LOGIN A ESTAR DEBAJO DEL SUBFONDO */
+.login-page,
+.login-container,
+.login-wrapper,
+.card,
+.login-carousel {
+    position: relative;
+    z-index: 100; /* 🔥 por debajo del subfondo (9999) */
 }
 
 /* ================================
@@ -167,4 +174,14 @@ body::after {
         max-width: 100%;
         text-align: center;
     }
+}
+/* Ocultar el icono nativo de mostrar contraseña en Edge */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+input[type="password"]::-webkit-credentials-auto-fill-button {
+    visibility: hidden;
+    display: none !important;
+    pointer-events: none;
 }
