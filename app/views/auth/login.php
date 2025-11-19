@@ -62,6 +62,14 @@
                             ¿No tienes cuenta?
                             <a href="<?= BASE_URL ?>/?url=auth/register">Regístrate aquí</a>
                         </p>
+
+                        <div class="text-center mt-3">
+                            <a href="<?= BASE_URL ?>/?url=auth/forgot" class="text-decoration-none">
+                                ¿Olvidaste tu contraseña?
+                            </a>
+                        </div>
+
+
                     </form>
 
                 </div>

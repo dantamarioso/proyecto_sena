@@ -6,6 +6,9 @@
     <title>Sistema Inventario</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- Sidebar CSS -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/sidebar.css">
+
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -27,62 +30,27 @@
 </head>
 
 <body>
-    <?php
-    header("Cache-Control: no-cache, no-store, must-revalidate");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-    ?>
 
-    <?php
-    $isLogin     = isset($isLoginPage) && $isLoginPage === true;
-    $isRegister  = isset($isRegisterPage) && $isRegisterPage === true;
+<?php
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
 
-    if (!$isLogin && !$isRegister):
-    ?>
-        <!-- NAVBAR -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="container-fluid">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+$isLogin     = isset($isLoginPage) && $isLoginPage === true;
+$isRegister  = isset($isRegisterPage) && $isRegisterPage === true;
+?>
 
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto">
-                        <?php if (isset($_SESSION['user']) && ($_SESSION['user']['rol'] ?? 'usuario') === 'admin'): ?>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-menu-button-wide"></i> Menú
-                                </a>
-                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li>
-                                        <a class="dropdown-item" href="<?= BASE_URL ?>/?url=usuarios/gestionDeUsuarios">
-                                            <i class="bi bi-people"></i> Gestión de Usuarios
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        <?php endif; ?>
-                    </ul>
-                </div>
+<?php if (!$isLogin && !$isRegister): ?>
 
-                <a class="navbar-brand mx-auto mx-lg-0" href="<?= BASE_URL ?>/?url=home/index">
-                    <i class="bi bi-house"></i>
-                </a>
+    <!-- SIDEBAR -->
+    <?php include __DIR__ . "/sidebar.php"; ?>
 
-                <div class="d-flex">
-                    <?php if (isset($_SESSION['user'])): ?>
-                        <a class="btn btn-outline-light btn-sm" href="<?= BASE_URL ?>/?url=auth/logout">
-                            <i class="bi bi-box-arrow-right"></i> Salir
-                        </a>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </nav>
-    <?php endif; ?>
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-content container py-4">
 
-    <!-- Enlaces directos opcionales (se eliminó el enlace flotante 'Usuarios') -->
+<?php else: ?>
 
-    <!-- Contenido principal -->
+    <!-- LOGIN O REGISTER -->
     <div class="container py-4">
+
+<?php endif; ?>

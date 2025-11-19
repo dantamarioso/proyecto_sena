@@ -267,6 +267,146 @@ class User extends Model
         return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
     }
 
+
+    public function saveRecoveryCode($id, $code)
+    {
+        $stmt = $this->db->prepare("
+        UPDATE usuarios SET 
+            recovery_code = :code,
+            recovery_expire = DATE_ADD(NOW(), INTERVAL 10 MINUTE)
+        WHERE id = :id
+    ");
+        return $stmt->execute([':code' => $code, ':id' => $id]);
+    }
+
+    public function clearRecoveryCode($id)
+    {
+        $stmt = $this->db->prepare("
+        UPDATE usuarios SET 
+            recovery_code = NULL,
+            recovery_expire = NULL
+        WHERE id = :id
+    ");
+        return $stmt->execute([':id' => $id]);
+    }
+
+    public function findByCorreo($correo)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM usuarios WHERE correo = :c LIMIT 1");
+        $stmt->execute([':c' => $correo]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function verifyCode($correo, $code)
+    {
+        $stmt = $this->db->prepare("
+        SELECT * FROM usuarios 
+        WHERE correo = :correo AND recovery_code = :code 
+              AND recovery_expire > NOW()
+        LIMIT 1
+    ");
+        $stmt->execute([':correo' => $correo, ':code' => $code]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function setNewPassword($id, $pass)
+    {
+        $stmt = $this->db->prepare("
+        UPDATE usuarios SET password = :p WHERE id = :id
+    ");
+        return $stmt->execute([
+            ':p' => password_hash($pass, PASSWORD_DEFAULT),
+            ':id' => $id
+        ]);
+    }
+
+    /* =========================================
+       VERIFICACIÓN DE EMAIL EN REGISTRO
+    ========================================= */
+    public function saveVerificationCode($id, $code)
+    {
+        $stmt = $this->db->prepare("
+        UPDATE usuarios SET 
+            verification_code = :code,
+            verification_expire = DATE_ADD(NOW(), INTERVAL 10 MINUTE)
+        WHERE id = :id
+    ");
+        return $stmt->execute([':code' => $code, ':id' => $id]);
+    }
+
+    public function verifyEmailCode($correo, $code)
+    {
+        $stmt = $this->db->prepare("
+        SELECT * FROM usuarios 
+        WHERE correo = :correo AND verification_code = :code 
+              AND verification_expire > NOW()
+        LIMIT 1
+    ");
+        $stmt->execute([':correo' => $correo, ':code' => $code]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function markEmailAsVerified($id)
+    {
+        $stmt = $this->db->prepare("
+        UPDATE usuarios SET 
+            email_verified = 1,
+            verification_code = NULL,
+            verification_expire = NULL
+        WHERE id = :id
+    ");
+        return $stmt->execute([':id' => $id]);
+    }
+
+    public function canResendVerificationCode($id)
+    {
+        $stmt = $this->db->prepare("
+        SELECT verification_expire FROM usuarios WHERE id = :id LIMIT 1
+    ");
+        $stmt->execute([':id' => $id]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$user || !$user['verification_expire']) {
+            return true;
+        }
+
+        // Permite reenvío si han pasado más de 90 segundos desde el último envío
+        // verification_expire es cuando vence el código (10 minutos desde que se creó)
+        // Así que restamos 600 - 90 = 510 segundos (8.5 minutos) para permitir reenvío después de 90 segundos
+        $expireTime = strtotime($user['verification_expire']) - 510;
+        return time() > $expireTime;
+    }
+
+    public function getRemainingCooldownTime($id)
+    {
+        $stmt = $this->db->prepare("
+        SELECT verification_expire FROM usuarios WHERE id = :id LIMIT 1
+    ");
+        $stmt->execute([':id' => $id]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$user || !$user['verification_expire']) {
+            return 0;
+        }
+
+        $expireTime = strtotime($user['verification_expire']) - 510;
+        $remaining = $expireTime - time();
+        
+        return max(0, $remaining);
+    }
+
+    public function clearVerificationCode($id)
+    {
+        $stmt = $this->db->prepare("
+        UPDATE usuarios SET 
+            verification_code = NULL,
+            verification_expire = NULL
+        WHERE id = :id
+    ");
+        return $stmt->execute([':id' => $id]);
+    }
+
+
     /* =========================================
        CREAR USUARIO (registro o desde dashboard)
     ========================================= */

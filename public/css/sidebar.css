@@ -1,0 +1,150 @@
+/* Sidebar base */
+.sidebar {
+    width: 260px;
+    background: #111827;
+    height: 100vh;
+    padding: 15px;
+    color: #fff;
+    position: fixed;
+    overflow-x: hidden;
+    transition: width 0.3s ease;
+}
+
+/* Sidebar colapsado */
+.sidebar.collapsed {
+    width: 80px;
+}
+
+/* Header */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.sidebar-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.sidebar-user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ocultar información en colapsado */
+.sidebar.collapsed .sidebar-user-info {
+    display: none;
+}
+
+/* Búsqueda */
+.sidebar-search {
+    margin-bottom: 20px;
+}
+
+.sidebar.collapsed .sidebar-search {
+    display: none;
+}
+
+/* Links */
+.sidebar-nav li {
+    list-style: none;
+    margin-bottom: 10px;
+}
+
+.sidebar-nav li a,
+.submenu-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    width: 100%;
+    text-decoration: none;
+    color: #fff;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+/* Hover */
+.sidebar-nav li a:hover,
+.submenu-btn:hover {
+    background: #1f2937;
+}
+
+/* ---- ICONOS BIEN CENTRADOS ---- */
+.sidebar.collapsed a,
+.sidebar.collapsed .submenu-btn {
+    justify-content: center !important;
+    padding: 12px 0 !important;
+}
+
+/* Oculta textos */
+.sidebar.collapsed a span,
+.sidebar.collapsed .submenu-btn span,
+.sidebar.collapsed .arrow {
+    display: none;
+}
+
+/* Submenú */
+.submenu-items {
+    display: none;
+    margin-left: 20px;
+    flex-direction: column;
+}
+
+.submenu.open .submenu-items {
+    display: flex;
+}
+
+.arrow {
+    margin-left: auto;
+}
+
+/* Botón plegar */
+.toggle-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 15px;
+    right: 15px;
+    background: #1f2937;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    color: #fff;
+}
+
+.sidebar.collapsed .toggle-btn {
+    width: 50px;
+    left: 15px;
+    right: auto;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        z-index: 999;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+}
+/* FORZAR CENTRADO PERFECTO EN EL MODO COLAPSADO */
+.sidebar.collapsed .sidebar-nav li a,
+.sidebar.collapsed .submenu-btn {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 12px 0 !important;
+}
+
+.sidebar-nav li a i,
+.submenu-btn i {
+    width: 24px;
+    text-align: center;
+}
