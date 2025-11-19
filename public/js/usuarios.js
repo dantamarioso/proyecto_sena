@@ -1,55 +1,47 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // ====== TOGGLE PASSWORD EN CREAR/EDITAR ======
-    function togglePass(btnId, fieldId) {
-        const btn = document.getElementById(btnId);
-        const field = document.getElementById(fieldId);
-        if (!btn || !field) return;
-
-        btn.addEventListener("click", () => {
-            const isPass = field.type === "password";
-            field.type = isPass ? "text" : "password";
-            btn.innerHTML = isPass
-                ? '<i class="bi bi-eye-slash-fill"></i>'
-                : '<i class="bi bi-eye-fill"></i>';
-        });
-    }
-
-    togglePass("togglePasswordCrear", "password_crear");
-    togglePass("togglePassword2Crear", "password2_crear");
-    togglePass("togglePasswordEdit", "password_edit");
+    /* ======================================================
+       ====  TOGGLE PASSWORD - Manejado por password_toggle.js
+       ====  (Se comentó aquí para evitar conflictos)
+    ====================================================== */
+    // Ver password_toggle.js para la funcionalidad de toggle
 
     // ====== PREVIEW IMAGEN Y TAMAÑO MÁXIMO (2MB) ======
     const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
-    function handleImagePreview(inputId, previewId) {
+    function handleImagePreview(inputId, previewId, containerId = null) {
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
+        const container = containerId ? document.getElementById(containerId) : null;
 
         if (!input || !preview) return;
 
         input.addEventListener("change", () => {
             const file = input.files[0];
-            if (!file) return;
+            if (!file) {
+                preview.src = "";
+                if (container) container.classList.add("d-none");
+                return;
+            }
 
             if (file.size > MAX_SIZE) {
                 alert("La imagen supera el tamaño máximo de 2MB.");
                 input.value = "";
                 preview.src = "";
-                preview.style.display = "none";
+                if (container) container.classList.add("d-none");
                 return;
             }
 
             const reader = new FileReader();
             reader.onload = (e) => {
                 preview.src = e.target.result;
-                preview.style.display = "block";
+                if (container) container.classList.remove("d-none");
             };
             reader.readAsDataURL(file);
         });
     }
 
-    handleImagePreview("foto_crear", "preview_crear");
-    handleImagePreview("foto_editar", "preview_editar");
+    handleImagePreview("foto_crear", "preview_crear", "previewContainerCrear");
+    handleImagePreview("foto_editar", "preview_editar", "previewContainerEditar");
 
     // ====== BÚSQUEDA / FILTROS / PAGINACIÓN (AJAX) ======
     const tbody = document.getElementById("usuarios-body");

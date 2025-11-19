@@ -2,6 +2,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Script para toggle de contraseña -->
+<script src="<?= BASE_URL ?>/js/password_toggle.js"></script>
+
 <!-- JS global -->
 <script src="<?= BASE_URL ?>/js/app.js"></script>
 

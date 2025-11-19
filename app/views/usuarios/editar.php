@@ -99,7 +99,7 @@
                     </div>
 
                     <div class="d-flex justify-content-between">
-                        <a href="<?= BASE_URL ?>/?url=home/index" class="btn btn-secondary">Volver</a>
+                        <a href="<?= BASE_URL ?>/?url=usuarios/gestionDeUsuarios" class="btn btn-secondary">Volver</a>
                         <button type="submit" class="btn btn-primary">Guardar cambios</button>
                     </div>
                 </form>

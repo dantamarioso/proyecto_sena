@@ -33,6 +33,41 @@ class UsuariosController extends Controller
     }
 
     /* =========================================================
+       GESTIÓN DE USUARIOS
+    ========================================================== */
+    public function gestionDeUsuarios()
+    {
+        if (!isset($_SESSION['user'])) {
+            $this->redirect('auth/login');
+            return;
+        }
+
+        // Verificar que sea admin
+        if (($_SESSION['user']['rol'] ?? 'usuario') !== 'admin') {
+            http_response_code(403);
+            echo "Acceso denegado. Solo administradores pueden acceder a la gestión de usuarios.";
+            exit;
+        }
+
+        require_once __DIR__ . "/../models/User.php";
+        $userModel = new User();
+        $currentId = $_SESSION['user']['id'] ?? null;
+
+        // Carga inicial (page 1, sin filtros)
+        if ($currentId) {
+            $usuarios = $userModel->allExceptId($currentId);
+        } else {
+            $usuarios = $userModel->all();
+        }
+
+        $this->view('usuarios/gestion_de_usuarios', [
+            'usuarios'    => $usuarios,
+            'pageStyles'  => ['usuarios'],
+            'pageScripts' => ['usuarios'],
+        ]);
+    }
+
+    /* =========================================================
        CREAR USUARIO
     ========================================================== */
     public function crear()
@@ -132,7 +167,7 @@ class UsuariosController extends Controller
                     'rol'            => $rol,
                 ]);
 
-                $this->redirect('home/index');
+                $this->redirect('usuarios/gestionDeUsuarios');
                 return;
             }
         }
@@ -217,7 +252,7 @@ class UsuariosController extends Controller
                     'rol'            => $rol,
                 ]);
 
-                $this->redirect('home/index');
+                $this->redirect('usuarios/gestionDeUsuarios');
                 return;
             }
 
@@ -227,7 +262,7 @@ class UsuariosController extends Controller
             $id = intval($_GET['id'] ?? 0);
 
             if ($id <= 0) {
-                $this->redirect('home/index');
+                $this->redirect('usuarios/gestionDeUsuarios');
             }
 
             $usuario = $userModel->findById($id);
@@ -257,7 +292,7 @@ class UsuariosController extends Controller
             }
         }
 
-        $this->redirect('home/index');
+        $this->redirect('usuarios/gestionDeUsuarios');
     }
 
     /* =========================================================
@@ -276,7 +311,7 @@ class UsuariosController extends Controller
             }
         }
 
-        $this->redirect('home/index');
+        $this->redirect('usuarios/gestionDeUsuarios');
     }
 
     /* =========================================================
@@ -295,7 +330,7 @@ class UsuariosController extends Controller
             }
         }
 
-        $this->redirect('home/index');
+        $this->redirect('usuarios/gestionDeUsuarios');
     }
 
     /* =========================================================

@@ -1,25 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     /* ======================================================
-       ====  TOGGLE PASSWORD (CREAR / EDITAR)
+       ====  TOGGLE PASSWORD - Manejado por password_toggle.js
+       ====  (Se comentó aquí para evitar conflictos)
     ====================================================== */
-    function togglePass(btnId, fieldId) {
-        const btn = document.getElementById(btnId);
-        const field = document.getElementById(fieldId);
-        if (!btn || !field) return;
-
-        btn.addEventListener("click", () => {
-            const isPass = field.type === "password";
-            field.type = isPass ? "text" : "password";
-            btn.innerHTML = isPass
-                ? '<i class="bi bi-eye-slash-fill"></i>'
-                : '<i class="bi bi-eye-fill"></i>';
-        });
-    }
-
-    togglePass("togglePasswordCrear", "password_crear");
-    togglePass("togglePassword2Crear", "password2_crear");
-    togglePass("togglePasswordEdit", "password_edit");
+    // Ver password_toggle.js para la funcionalidad de toggle
 
 
 
@@ -28,22 +13,27 @@ document.addEventListener("DOMContentLoaded", () => {
     ====================================================== */
     const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
-    function handleImagePreview(inputId, previewId) {
+    function handleImagePreview(inputId, previewId, containerId = null) {
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
+        const container = containerId ? document.getElementById(containerId) : null;
 
         if (!input || !preview) return;
 
         input.addEventListener("change", () => {
             const file = input.files[0];
-            if (!file) return;
+            if (!file) {
+                preview.src = "";
+                if (container) container.classList.add("d-none");
+                return;
+            }
 
             // Validación tamaño
             if (file.size > MAX_SIZE) {
                 alert("La imagen supera el tamaño máximo permitido (2MB).");
                 input.value = "";
                 preview.src = "";
-                preview.style.display = "none";
+                if (container) container.classList.add("d-none");
                 return;
             }
 
@@ -51,10 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 preview.src = e.target.result;
-                preview.style.display = "block";
-
-                // Mostrar contenedor si estaba oculto
-                if (preview.parentElement) {
+                if (container) {
+                    container.classList.remove("d-none");
+                } else if (preview.parentElement) {
                     preview.parentElement.classList.remove("d-none");
                 }
             };
@@ -62,8 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    handleImagePreview("foto_crear", "preview_crear");
-    handleImagePreview("foto_editar", "preview_editar");
+    handleImagePreview("foto_crear", "preview_crear", "previewContainerCrear");
+    handleImagePreview("foto_editar", "preview_editar", "previewContainerEditar");
 
 
 
