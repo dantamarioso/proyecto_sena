@@ -17,32 +17,26 @@
 .password-checklist .invalid {
     color: #d00;
 }
-body {
-    background: #f5f5f5;
-}
-
-.card {
-    border-radius: 0.75rem;
-}
-
-.navbar-brand {
-    font-weight: 600;
-}
-
 
 html, body {
     margin: 0;
     padding: 0;
     height: 100%;
+    display: flex !important;
+    grid-template-columns: unset !important;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
 body {
     position: relative;
-    overflow: hidden;
+}
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Ocultar sidebar completamente en register */
+.sidebar,
+body > .sidebar {
+    display: none !important;
 }
 
 /* IMAGEN ENCIMA DE LOS CONTENEDORES */
@@ -50,33 +44,24 @@ body::before {
     content: "";
     position: fixed;
     inset: 0;
-
     background: url("../img/subfondo.jpg") center top no-repeat;
-
-    /* ⬇️ AUMENTAMOS EL TAMAÑO SIN DISTORSIÓN ⬇️ */
-    background-size: auto 10%;   /* aumenta la altura al 120% */
-
+    background-size: auto 10%;
     z-index: -2;
 }
-
 
 /* FONDO DEBAJO DIFUMINADO */
 body::after {
     content: "";
     position: fixed;
     inset: 0;
-
     background: 
         linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)), 
         url("../img/fondo.jpg") center center no-repeat;
     background-size: cover;
-
     z-index: -3;
 }
 
-/* =======================================================
-   CONTENEDOR PRINCIPAL — Igual que login
-======================================================= */
+/* CONTENEDOR PRINCIPAL */
 .register-page {
     width: 100%;
     height: 100%;
@@ -90,21 +75,17 @@ body::after {
     justify-content: center;
     align-items: center;
     gap: 40px;
-
     width: 100%;
     max-width: 900px;
     padding: 20px;
 }
 
-/* =======================================================
-   TARJETA DE REGISTRO (Glassmorphism igual que login)
-======================================================= */
+/* TARJETA DE REGISTRO (Glassmorphism) */
 .register-wrapper {
-    flex: 0 0 560px;   /* Aumentamos el ancho */
+    flex: 0 0 560px;
     display: flex;
     justify-content: center;
 }
-
 
 .card.register-card {
     width: 100%;
@@ -112,11 +93,9 @@ body::after {
     background: rgba(255, 255, 255, 0.18);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-
     border-radius: 18px;
     padding: 32px;
     border: 1px solid rgba(255, 255, 255, 0.25);
-
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
 }
 
@@ -141,6 +120,20 @@ body::after {
     font-weight: 400;
 }
 
+.input-group-text {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1.5px solid rgba(0,0,0,0.15);
+    border-left: none;
+    cursor: pointer;
+    color: #495057;
+    transition: 0.2s;
+}
+
+.input-group-text:hover {
+    background: rgba(255, 255, 255, 0.95);
+    color: #0d6efd;
+}
+
 /* Botón */
 .btn-register {
     background: #0d6efd;
@@ -152,6 +145,8 @@ body::after {
     transition: 0.25s;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    cursor: pointer;
+    width: 100%;
 }
 
 .btn-register:hover {
@@ -159,61 +154,29 @@ body::after {
     box-shadow: 0 6px 16px rgba(13, 110, 253, 0.4);
 }
 
-/* Link login */
-.login-link a {
-    color: #005eff !important;
-    font-weight: 700;
-    text-decoration: none;
-}
-.login-link a:hover {
-    color: #0047cc !important;
-    text-decoration: underline;
+/* Checkbox Terms */
+.form-check-input {
+    border: 1.5px solid rgba(0,0,0,0.2);
+    background: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
 }
 
-/* =======================================================
-   RESPONSIVE
-======================================================= */
-@media (max-width: 992px) {
-    .register-container {
-        flex-direction: column;
-        gap: 24px;
-        max-width: 420px;
-    }
-
-    .register-wrapper {
-        flex: 0 0 auto;
-        width: 100%;
-    }
-}
-/* Ocultar el icono nativo de mostrar contraseña en Edge */
-input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear {
-    display: none;
-}
-input[type="password"]::-webkit-credentials-auto-fill-button {
-    visibility: hidden;
-    display: none !important;
-    pointer-events: none;
+.form-check-input:checked {
+    background: #0d6efd;
+    border-color: #0d6efd;
 }
 
-#match-message {
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-top: 4px;
-    display: block;
+.form-check-input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-#match-message.text-danger {
-    color: #350202 !important;
-}
-
-#match-message.text-success {
-    color: #2ecc71 !important;
-}
 .form-check-label {
     font-size: 0.95rem;
     font-weight: 600;
     color: #f1f1f1;
+    cursor: pointer;
+    margin-bottom: 0;
 }
 
 .form-check-label a {
@@ -225,11 +188,15 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 .form-check-label a:hover {
     color: #96dcff;
 }
+
+/* Links */
 .login-link {
     font-size: 0.95rem;
     color: #e2e8f0;
     margin-top: 10px;
+    text-align: center;
 }
+
 .login-link a {
     color: #60a5fa !important;
     font-weight: 700;
@@ -239,4 +206,89 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 .login-link a:hover {
     color: #93c5fd !important;
     text-decoration: underline;
+}
+
+/* Ocultar icono nativo de contraseña */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button {
+    visibility: hidden;
+    display: none !important;
+    pointer-events: none;
+}
+
+/* Mensajes */
+#match-message {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-top: 4px;
+    display: block;
+}
+
+#match-message.text-danger {
+    color: #fca5a5 !important;
+}
+
+#match-message.text-success {
+    color: #86efac !important;
+}
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+    .register-container {
+        flex-direction: column;
+        gap: 24px;
+        max-width: 420px;
+    }
+
+    .register-wrapper {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    .card.register-card {
+        padding: 24px;
+    }
+}
+
+@media (max-width: 576px) {
+    .register-container {
+        padding: 10px;
+    }
+
+    .card.register-card {
+        padding: 18px;
+        border-radius: 12px;
+    }
+
+    .form-control,
+    .form-select,
+    .input-group-text {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    .btn-register {
+        padding: 8px 0;
+        font-size: 14px;
+    }
+
+    .mb-3 {
+        margin-bottom: 12px !important;
+    }
+
+    h3 {
+        font-size: 20px;
+    }
+
+    .form-check-label {
+        font-size: 14px;
+    }
+
+    .login-link {
+        font-size: 13px;
+    }
 }

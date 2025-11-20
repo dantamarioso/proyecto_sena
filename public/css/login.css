@@ -5,15 +5,21 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
+    display: flex !important;
+    grid-template-columns: unset !important;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
 body {
     position: relative;
-    overflow: hidden;
+}
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Ocultar sidebar completamente en login */
+.sidebar,
+body > .sidebar {
+    display: none !important;
 }
 
 /* IMAGEN ENCIMA DE LOS CONTENEDORES */

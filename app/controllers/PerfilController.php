@@ -61,6 +61,9 @@ class PerfilController extends Controller
             $estado = $currentRol === 'admin' ? intval($_POST['estado'] ?? 1) : null;
             $rol = $currentRol === 'admin' ? ($_POST['rol'] ?? 'usuario') : null;
 
+            // Obtener datos anteriores para comparación
+            $usuarioAnterior = $userModel->findById($id);
+
             // Validaciones básicas
             if ($nombre === '' || $correo === '') {
                 $errores[] = "Nombre y correo son obligatorios.";
@@ -68,6 +71,11 @@ class PerfilController extends Controller
 
             if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
                 $errores[] = "El correo no es válido.";
+            }
+
+            // Verificar si el correo ya existe (solo si es diferente al actual)
+            if ($correo !== $usuarioAnterior['correo'] && $userModel->existsByCorreo($correo)) {
+                $errores[] = "Este correo ya está registrado en otra cuenta.";
             }
 
             // Subir foto (opcional)
@@ -95,19 +103,24 @@ class PerfilController extends Controller
 
             if (empty($errores)) {
 
-                // Obtener datos anteriores
-                $usuarioAnterior = $userModel->findById($id);
+                // Detectar si el correo cambió
+                $correoAhora = $usuarioAnterior['correo'];
+                $correoCambio = ($correo !== $correoAhora);
 
                 // Preparar datos para actualizar
                 $dataActualizar = [
                     'nombre' => $nombre,
-                    'correo' => $correo,
                     'nombre_usuario' => $nombreUsuario,
                     'celular' => $celular,
                     'cargo' => $cargo,
                     'password' => $password,
                     'foto' => $fotoRuta
                 ];
+
+                // Solo actualizar correo si no cambió
+                if (!$correoCambio) {
+                    $dataActualizar['correo'] = $correo;
+                }
 
                 // Si es admin, puede cambiar estado y rol
                 if ($currentRol === 'admin') {
@@ -116,6 +129,29 @@ class PerfilController extends Controller
                 }
 
                 $userModel->updateFull($id, $dataActualizar);
+
+                // Si el correo cambió, enviar verificación y redirigir
+                if ($correoCambio) {
+                    $verificationCode = rand(100000, 999999);
+                    $userModel->saveVerificationCode($id, $verificationCode);
+
+                    MailHelper::sendCode(
+                        $correo,
+                        "Código de verificación de nuevo email - Sistema Inventario",
+                        $verificationCode,
+                        'verificacion'
+                    );
+
+                    $_SESSION['pending_email_change'] = [
+                        'user_id' => $id,
+                        'new_email' => $correo,
+                        'old_email' => $correoAhora
+                    ];
+
+                    $_SESSION['flash_success'] = "Se ha enviado un código de verificación al nuevo correo. Verifica tu bandeja de entrada.";
+                    $this->redirect("perfil/verificarCambioCorreo");
+                    return;
+                }
 
                 // Registrar en auditoría
                 $auditModel = new Audit();
@@ -309,5 +345,104 @@ class PerfilController extends Controller
             echo json_encode(['success' => false, 'message' => 'Error al subir la foto']);
         }
         exit;
+    }
+
+    /* =========================================================
+       VERIFICAR CAMBIO DE CORREO
+    ========================================================== */
+    public function verificarCambioCorreo()
+    {
+        if (!isset($_SESSION['user'])) {
+            $this->redirect('auth/login');
+            return;
+        }
+
+        if (!isset($_SESSION['pending_email_change'])) {
+            $this->redirect('perfil/ver');
+            return;
+        }
+
+        $userModel = new User();
+        $remainingCooldown = 0;
+        $userId = $_SESSION['pending_email_change']['user_id'];
+        $newEmail = $_SESSION['pending_email_change']['new_email'];
+
+        $user = $userModel->findById($userId);
+        if ($user) {
+            $remainingCooldown = $userModel->getRemainingCooldownTime($userId);
+        }
+
+        // POST: Verificar código
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $codigo = trim($_POST['codigo'] ?? '');
+
+            if ($codigo === '') {
+                $_SESSION['flash_error'] = "Ingresa el código de verificación.";
+                $this->redirect('perfil/verificarCambioCorreo');
+                return;
+            }
+
+            // Verificar código
+            if ($userModel->verifyCode($userId, $codigo)) {
+                // Actualizar correo en la BD
+                $userModel->updateFull($userId, [
+                    'correo' => $newEmail
+                ]);
+
+                // Actualizar sesión
+                $_SESSION['user']['correo'] = $newEmail;
+
+                // Registrar en auditoría
+                $auditModel = new Audit();
+                $auditModel->registrarCambio(
+                    $userId,
+                    'usuarios',
+                    $userId,
+                    'actualizar',
+                    [
+                        'correo' => [
+                            'anterior' => $_SESSION['pending_email_change']['old_email'],
+                            'nuevo' => $newEmail
+                        ]
+                    ],
+                    $_SESSION['user']['id']
+                );
+
+                unset($_SESSION['pending_email_change']);
+                $_SESSION['flash_success'] = "Correo verificado y actualizado exitosamente.";
+                $this->redirect('perfil/ver');
+                return;
+            } else {
+                $_SESSION['flash_error'] = "Código inválido o expirado.";
+            }
+        }
+
+        // GET: Reenviar código
+        if (isset($_GET['reenviar'])) {
+            if (!$userModel->canResendVerificationCode($userId)) {
+                $_SESSION['flash_error'] = "Debes esperar 90 segundos antes de reenviar el código.";
+            } else {
+                $verificationCode = rand(100000, 999999);
+                $userModel->saveVerificationCode($userId, $verificationCode);
+
+                MailHelper::sendCode(
+                    $newEmail,
+                    "Código de verificación de nuevo email - Sistema Inventario",
+                    $verificationCode,
+                    'verificacion'
+                );
+
+                $_SESSION['flash_success'] = "Código reenviado al correo.";
+            }
+            $this->redirect('perfil/verificarCambioCorreo');
+            return;
+        }
+
+        $this->view('perfil/verificarCambioCorreo', [
+            'newEmail' => $newEmail,
+            'remainingCooldown' => $remainingCooldown,
+            'pageStyles'  => ['login', 'recovery'],
+            'pageScripts' => ['recovery']
+        ]);
     }
 }

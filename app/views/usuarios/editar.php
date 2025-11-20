@@ -4,6 +4,8 @@
             <div class="card-body">
                 <h3 class="mb-3">Editar usuario</h3>
 
+                <script>const BASE_URL = "<?= BASE_URL ?>";</script>
+
                 <?php if (!empty($errores)): ?>
                     <div class="alert alert-danger">
                         <ul class="mb-0">
@@ -34,8 +36,14 @@
                     <!-- Usuario -->
                     <div class="mb-3">
                         <label class="form-label">Nombre de usuario</label>
-                        <input type="text" name="nombre_usuario" class="form-control"
-                               value="<?= htmlspecialchars($usuario['nombre_usuario']) ?>" required>
+                        <div class="input-group">
+                            <input type="text" name="nombre_usuario" id="nombre_usuario_edit" class="form-control" 
+                                   value="<?= htmlspecialchars($usuario['nombre_usuario']) ?>" required>
+                            <span class="input-group-text" id="iconoUsuarioEdit" style="cursor:default;">
+                                <i class="bi bi-question-circle"></i>
+                            </span>
+                        </div>
+                        <small id="mensajeUsuarioEdit" class="form-text"></small>
                     </div>
 
                     <!-- Celular -->
@@ -91,6 +99,16 @@
                             </span>
                         </div>
                         <small class="text-muted">Déjalo vacío para no cambiarla.</small>
+                    </div>
+
+                    <!-- Checklist de Contraseña -->
+                    <div id="checklistEdit" class="password-checklist mb-3" style="display:none;">
+                        <p class="mb-1" style="font-size:0.9rem; font-weight:600;">La contraseña debe incluir:</p>
+                        <ul>
+                            <li id="chk-length-edit" class="invalid">✖ Mínimo 8 caracteres</li>
+                            <li id="chk-uppercase-edit" class="invalid">✖ Al menos una letra mayúscula</li>
+                            <li id="chk-special-edit" class="invalid">✖ Al menos un carácter especial (!@#$%&*)</li>
+                        </ul>
                     </div>
 
                     <!-- Estado -->

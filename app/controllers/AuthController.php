@@ -31,8 +31,9 @@ class AuthController extends Controller
 
         MailHelper::sendCode(
             $correo,
-            "Código de recuperación",
-            "Tu código es: $code \n\nVence en 10 minutos"
+            "Código de recuperación - Sistema Inventario",
+            $code,
+            'recuperacion'
         );
 
         $_SESSION['recovery_correo'] = $correo;
@@ -66,8 +67,9 @@ class AuthController extends Controller
 
         MailHelper::sendCode(
             $correo,
-            "Código de recuperación",
-            "Tu código es: $code \n\nVence en 10 minutos"
+            "Código de recuperación - Sistema Inventario",
+            $code,
+            'recuperacion'
         );
 
         $_SESSION['flash_success'] = "Código reenviado correctamente.";
@@ -274,8 +276,9 @@ class AuthController extends Controller
                 // Enviar código de verificación
                 MailHelper::sendCode(
                     $correo,
-                    "Código de verificación de email",
-                    "Tu código es: $verificationCode \n\nVence en 10 minutos"
+                    "Código de verificación de email - Sistema Inventario",
+                    $verificationCode,
+                    'verificacion'
                 );
 
                 $_SESSION['register_correo'] = $correo;
@@ -361,8 +364,9 @@ class AuthController extends Controller
 
         MailHelper::sendCode(
             $correo,
-            "Código de verificación de email",
-            "Tu código es: $verificationCode \n\nVence en 10 minutos"
+            "Código de verificación de email - Sistema Inventario",
+            $verificationCode,
+            'verificacion'
         );
 
         $_SESSION['flash_success'] = "Código reenviado al correo.";

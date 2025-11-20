@@ -5,6 +5,8 @@
 
                 <h3 class="mb-3">Crear nuevo usuario</h3>
 
+                <script>const BASE_URL = "<?= BASE_URL ?>";</script>
+
                 <?php if (!empty($errores)): ?>
                     <div class="alert alert-danger">
                         <ul class="mb-0">
@@ -32,7 +34,13 @@
                     <!-- Usuario -->
                     <div class="mb-3">
                         <label class="form-label">Nombre de usuario</label>
-                        <input type="text" name="nombre_usuario" class="form-control" required>
+                        <div class="input-group">
+                            <input type="text" name="nombre_usuario" id="nombre_usuario_crear" class="form-control" required>
+                            <span class="input-group-text" id="iconoUsuarioCrear" style="cursor:default;">
+                                <i class="bi bi-question-circle"></i>
+                            </span>
+                        </div>
+                        <small id="mensajeUsuarioCrear" class="form-text"></small>
                     </div>
 
                     <!-- Celular -->
@@ -83,6 +91,16 @@
                             </span>
                         </div>
                         <small id="matchMessageCrear" class="text-danger d-none">Las contraseñas no coinciden</small>
+                    </div>
+
+                    <!-- Checklist de Contraseña -->
+                    <div id="checklistCrear" class="password-checklist mb-3">
+                        <p class="mb-1" style="font-size:0.9rem; font-weight:600;">La contraseña debe incluir:</p>
+                        <ul>
+                            <li id="chk-length-crear" class="invalid">✖ Mínimo 8 caracteres</li>
+                            <li id="chk-uppercase-crear" class="invalid">✖ Al menos una letra mayúscula</li>
+                            <li id="chk-special-crear" class="invalid">✖ Al menos un carácter especial (!@#$%&*)</li>
+                        </ul>
                     </div>
 
                     <!-- Rol -->

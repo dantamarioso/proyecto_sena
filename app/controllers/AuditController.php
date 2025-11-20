@@ -37,8 +37,8 @@ class AuditController extends Controller
         $total = $auditModel->contarHistorial($filtro);
         $totalPages = max(1, ceil($total / $perPage));
 
-        // Obtener lista de usuarios para el filtro
-        $usuarios = $userModel->allExceptId($_SESSION['user']['id'] ?? 0);
+        // Obtener lista de todos los usuarios para el filtro (incluyendo el propio)
+        $usuarios = $userModel->all();
 
         $this->view('audit/historial', [
             'cambios' => $cambios,

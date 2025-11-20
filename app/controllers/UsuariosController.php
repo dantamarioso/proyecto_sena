@@ -236,6 +236,12 @@ class UsuariosController extends Controller
                 $errores[] = "Correo inválido.";
             }
 
+            // Validar nombre de usuario (no debe existir otro igual, excepto el actual)
+            $usuarioActual = $userModel->findById($id);
+            if ($usuarioActual['nombre_usuario'] !== $nombreUsuario && $userModel->existsByNombreUsuario($nombreUsuario)) {
+                $errores[] = "Ese nombre de usuario ya existe.";
+            }
+
             /* ==========================
                SUBIR FOTO (OPCIONAL)
             =========================== */
@@ -385,7 +391,24 @@ class UsuariosController extends Controller
 
             if ($id > 0) {
                 $userModel = new User();
+                $usuarioActual = $userModel->findById($id);
+                
                 $userModel->updateEstado($id, 0);
+                
+                // Registrar en auditoría con acción "desactivar/activar"
+                $auditModel = new Audit();
+                $auditModel->registrarCambio(
+                    $id,
+                    'usuarios',
+                    $id,
+                    'desactivar/activar',
+                    [
+                        'Acción' => 'Desactivado',
+                        'Estado Anterior' => 'Activo',
+                        'Estado Nuevo' => 'Inactivo'
+                    ],
+                    $_SESSION['user']['id']
+                );
             }
         }
 
@@ -404,7 +427,24 @@ class UsuariosController extends Controller
 
             if ($id > 0) {
                 $userModel = new User();
+                $usuarioActual = $userModel->findById($id);
+                
                 $userModel->updateEstado($id, 1);
+                
+                // Registrar en auditoría con acción "desactivar/activar"
+                $auditModel = new Audit();
+                $auditModel->registrarCambio(
+                    $id,
+                    'usuarios',
+                    $id,
+                    'desactivar/activar',
+                    [
+                        'Acción' => 'Activado',
+                        'Estado Anterior' => 'Inactivo',
+                        'Estado Nuevo' => 'Activo'
+                    ],
+                    $_SESSION['user']['id']
+                );
             }
         }
 
@@ -425,9 +465,7 @@ class UsuariosController extends Controller
                 $userModel = new User();
                 $usuario = $userModel->findById($id);
                 
-                $userModel->deleteById($id);
-
-                // Registrar en auditoría con datos del usuario eliminado
+                // Registrar en auditoría ANTES de eliminar el usuario
                 $auditModel = new Audit();
                 $auditModel->registrarCambio(
                     $id,
@@ -458,6 +496,9 @@ class UsuariosController extends Controller
                     ],
                     $_SESSION['user']['id'] ?? null
                 );
+                
+                // DESPUÉS eliminar el usuario
+                $userModel->deleteById($id);
             }
         }
 
@@ -492,6 +533,42 @@ class UsuariosController extends Controller
             'page'       => $page,
             'perPage'    => $perPage,
             'totalPages' => max(1, ceil($total / $perPage)),
+        ]);
+        exit;
+    }
+
+    /* =========================================================
+       VERIFICAR NOMBRE DE USUARIO (AJAX)
+    ========================================================== */
+    public function verificarNombreUsuario()
+    {
+        $this->requireAdmin();
+
+        $nombreUsuario = trim($_GET['nombre_usuario'] ?? '');
+        $usuarioActualId = intval($_GET['usuario_id'] ?? 0);
+
+        if (empty($nombreUsuario)) {
+            echo json_encode(['existe' => false, 'mensaje' => '']);
+            exit;
+        }
+
+        $userModel = new User();
+
+        // Si es edición, no marcar como duplicado el mismo usuario
+        if ($usuarioActualId > 0) {
+            $usuarioActual = $userModel->findById($usuarioActualId);
+            if ($usuarioActual && $usuarioActual['nombre_usuario'] === $nombreUsuario) {
+                echo json_encode(['existe' => false, 'mensaje' => '']);
+                exit;
+            }
+        }
+
+        // Verificar si existe otro usuario con ese nombre
+        $existe = $userModel->existsByNombreUsuario($nombreUsuario);
+
+        echo json_encode([
+            'existe' => (bool) $existe,
+            'mensaje' => $existe ? 'Este nombre de usuario ya existe' : 'Nombre disponible'
         ]);
         exit;
     }

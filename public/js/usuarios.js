@@ -1,8 +1,177 @@
 document.addEventListener("DOMContentLoaded", () => {
     /* ======================================================
-       ====  TOGGLE PASSWORD - Manejado por password_toggle.js
-       ====  (Se comentó aquí para evitar conflictos)
+       ====  VALIDACIÓN DE NOMBRE DE USUARIO - CREAR Y EDITAR
     ====================================================== */
+
+    // Verificar nombre de usuario en formulario CREAR
+    const nombreUsuarioCrear = document.getElementById("nombre_usuario_crear");
+    const iconoUsuarioCrear = document.getElementById("iconoUsuarioCrear");
+    const mensajeUsuarioCrear = document.getElementById("mensajeUsuarioCrear");
+
+    if (nombreUsuarioCrear) {
+        nombreUsuarioCrear.addEventListener("input", () => verificarNombreUsuario("crear", null));
+    }
+
+    // Verificar nombre de usuario en formulario EDITAR
+    const nombreUsuarioEdit = document.getElementById("nombre_usuario_edit");
+    const iconoUsuarioEdit = document.getElementById("iconoUsuarioEdit");
+    const mensajeUsuarioEdit = document.getElementById("mensajeUsuarioEdit");
+    let usuarioIdActual = null;
+
+    // Obtener el ID del usuario actual desde el input hidden en editar
+    if (nombreUsuarioEdit) {
+        const inputId = document.querySelector('input[name="id"]');
+        if (inputId) {
+            usuarioIdActual = inputId.value;
+        }
+        nombreUsuarioEdit.addEventListener("input", () => verificarNombreUsuario("edit", usuarioIdActual));
+    }
+
+    function verificarNombreUsuario(form, usuarioId) {
+        let input, icono, mensaje;
+
+        if (form === "crear") {
+            input = document.getElementById("nombre_usuario_crear");
+            icono = document.getElementById("iconoUsuarioCrear");
+            mensaje = document.getElementById("mensajeUsuarioCrear");
+        } else {
+            input = document.getElementById("nombre_usuario_edit");
+            icono = document.getElementById("iconoUsuarioEdit");
+            mensaje = document.getElementById("mensajeUsuarioEdit");
+        }
+
+        const nombreUsuario = input.value.trim();
+
+        if (!nombreUsuario) {
+            icono.innerHTML = '<i class="bi bi-question-circle" style="color:#6c757d;"></i>';
+            mensaje.textContent = "";
+            input.classList.remove("is-valid", "is-invalid");
+            return;
+        }
+
+        // Hacer petición AJAX
+        const url = new URL(BASE_URL + "/?url=usuarios/verificarNombreUsuario", window.location.origin);
+        url.searchParams.append("nombre_usuario", nombreUsuario);
+        if (usuarioId) {
+            url.searchParams.append("usuario_id", usuarioId);
+        }
+
+        fetch(url.toString())
+            .then(response => response.json())
+            .then(data => {
+                if (data.existe) {
+                    // Usuario ya existe
+                    icono.innerHTML = '<i class="bi bi-x-circle" style="color:#dc3545;"></i>';
+                    mensaje.textContent = data.mensaje;
+                    mensaje.classList.remove("text-success", "text-muted");
+                    mensaje.classList.add("text-danger");
+                    input.classList.remove("is-valid");
+                    input.classList.add("is-invalid");
+                } else {
+                    // Usuario disponible
+                    icono.innerHTML = '<i class="bi bi-check-circle" style="color:#198754;"></i>';
+                    mensaje.textContent = data.mensaje;
+                    mensaje.classList.remove("text-danger", "text-muted");
+                    mensaje.classList.add("text-success");
+                    input.classList.remove("is-invalid");
+                    input.classList.add("is-valid");
+                }
+            })
+            .catch(err => {
+                console.error("Error verificando nombre de usuario:", err);
+                icono.innerHTML = '<i class="bi bi-exclamation-circle" style="color:#ffc107;"></i>';
+                mensaje.textContent = "Error al verificar";
+                mensaje.classList.add("text-warning");
+            });
+    }
+
+    /* ======================================================
+       ====  VALIDACIÓN DE CONTRASEÑA - CREAR Y EDITAR
+    ====================================================== */
+
+    // Validar contraseña en formulario CREAR
+    const passwordCrear = document.getElementById("password_crear");
+    const password2Crear = document.getElementById("password2_crear");
+
+    if (passwordCrear && password2Crear) {
+        passwordCrear.addEventListener("input", () => validatePasswordForm("crear"));
+        password2Crear.addEventListener("input", () => validatePasswordForm("crear"));
+    }
+
+    // Validar contraseña en formulario EDITAR
+    const passwordEdit = document.getElementById("password_edit");
+    if (passwordEdit) {
+        passwordEdit.addEventListener("input", () => validatePasswordForm("edit"));
+    }
+
+    function validatePasswordForm(form) {
+        let pass, pass2, chkLength, chkUpper, chkSpecial, matchMessage;
+
+        if (form === "crear") {
+            pass = document.getElementById("password_crear")?.value || "";
+            pass2 = document.getElementById("password2_crear")?.value || "";
+            chkLength = document.getElementById("chk-length-crear");
+            chkUpper = document.getElementById("chk-uppercase-crear");
+            chkSpecial = document.getElementById("chk-special-crear");
+            matchMessage = document.getElementById("matchMessageCrear");
+        } else {
+            pass = document.getElementById("password_edit")?.value || "";
+            pass2 = ""; // En editar, no comparamos con otro campo
+            chkLength = document.getElementById("chk-length-edit");
+            chkUpper = document.getElementById("chk-uppercase-edit");
+            chkSpecial = document.getElementById("chk-special-edit");
+
+            // Mostrar/ocultar checklist solo si hay contenido
+            const checklist = document.getElementById("checklistEdit");
+            if (checklist) {
+                checklist.style.display = pass.length > 0 ? "block" : "none";
+            }
+        }
+
+        const hasLength = pass.length >= 8;
+        const hasUpper = /[A-Z]/.test(pass);
+        const hasSpecial = /[!@#$%^&*(),.?":{}|<>_\-]/.test(pass);
+
+        updateStatus(chkLength, hasLength);
+        updateStatus(chkUpper, hasUpper);
+        updateStatus(chkSpecial, hasSpecial);
+
+        // Validar coincidencia en formulario CREAR
+        if (form === "crear" && matchMessage) {
+            const matches = pass !== "" && pass === pass2;
+            if (matches) {
+                matchMessage.textContent = "✔ Las contraseñas coinciden";
+                matchMessage.classList.remove("text-danger", "d-none");
+                matchMessage.classList.add("text-success");
+            } else if (pass2 !== "") {
+                matchMessage.textContent = "✖ Las contraseñas no coinciden";
+                matchMessage.classList.remove("text-success", "d-none");
+                matchMessage.classList.add("text-danger");
+            } else {
+                matchMessage.classList.add("d-none");
+            }
+        }
+    }
+
+    function updateStatus(element, condition) {
+        if (!element) return;
+
+        if (condition) {
+            element.classList.remove("invalid");
+            element.classList.add("valid");
+            if (!element.textContent.includes("✔")) {
+                element.textContent = "✔ " + element.textContent.replace("✖ ", "");
+            }
+        } else {
+            element.classList.remove("valid");
+            element.classList.add("invalid");
+            if (!element.textContent.includes("✖")) {
+                element.textContent = "✖ " + element.textContent.replace("✔ ", "");
+            }
+        }
+    }
+
+    // ====== TOGGLE PASSWORD - Manejado por password_toggle.js
     // Ver password_toggle.js para la funcionalidad de toggle
 
     // ====== PREVIEW IMAGEN Y TAMAÑO MÁXIMO (2MB) ======

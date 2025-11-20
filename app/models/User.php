@@ -226,7 +226,18 @@ class User extends Model
     public function deleteById($id)
     {
         $stmt = $this->db->prepare("DELETE FROM usuarios WHERE id = :id");
-        return $stmt->execute([':id' => $id]);
+        $result = $stmt->execute([':id' => $id]);
+        
+        // Reiniciar AUTO_INCREMENT después de eliminar
+        if ($result) {
+            $maxId = $this->db->query("SELECT MAX(id) as max_id FROM usuarios")->fetch(PDO::FETCH_ASSOC);
+            $nextId = ($maxId['max_id'] ?? 0) + 1;
+            
+            // Reiniciar el contador AUTO_INCREMENT
+            $this->db->exec("ALTER TABLE usuarios AUTO_INCREMENT = " . $nextId);
+        }
+        
+        return $result;
     }
 
     /* =========================================

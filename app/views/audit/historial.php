@@ -36,6 +36,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                             <option value="">Todas</option>
                             <option value="crear" <?= $filtro['accion'] == 'crear' ? 'selected' : '' ?>>Crear</option>
                             <option value="actualizar" <?= $filtro['accion'] == 'actualizar' ? 'selected' : '' ?>>Actualizar</option>
+                            <option value="desactivar/activar" <?= $filtro['accion'] == 'desactivar/activar' ? 'selected' : '' ?>>Desactivar/Activar</option>
                             <option value="eliminar" <?= $filtro['accion'] == 'eliminar' ? 'selected' : '' ?>>Eliminar</option>
                         </select>
                     </div>
@@ -52,11 +53,6 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                value="<?= htmlspecialchars($filtro['fecha_fin']) ?>">
                     </div>
 
-                    <div class="col-12 col-md-2">
-                        <button class="btn btn-outline-secondary w-100" id="btn-filtrar">
-                            Filtrar
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -76,31 +72,39 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                     </thead>
                     <tbody id="historial-body">
                     <?php foreach ($cambios as $cambio): ?>
+                        <?php 
+                        $detalles = json_decode($cambio['detalles'], true) ?? [];
+                        $tieneDetalles = !empty($detalles);
+                        $detallesId = 'detalles-' . $cambio['id'] . '-0';
+                        $acciones = [
+                            'crear' => ['badge bg-success', 'Creado'],
+                            'actualizar' => ['badge bg-info', 'Actualizado'],
+                            'desactivar/activar' => ['badge bg-warning', 'Desactivar/Activar'],
+                            'eliminar' => ['badge bg-danger', 'Eliminado']
+                        ];
+                        $accion = $cambio['accion'];
+                        [$clase, $texto] = $acciones[$accion] ?? ['badge bg-secondary', $accion];
+                        ?>
                         <tr>
                             <td><?= $cambio['id'] ?></td>
                             <td><small class="text-muted"><?= htmlspecialchars($cambio['fecha_creacion']) ?></small></td>
                             <td><?= htmlspecialchars($cambio['usuario_modificado'] ?? 'N/A') ?></td>
                             <td>
-                                <?php
-                                $acciones = [
-                                    'crear' => ['badge bg-success', 'Creado'],
-                                    'actualizar' => ['badge bg-info', 'Actualizado'],
-                                    'eliminar' => ['badge bg-danger', 'Eliminado']
-                                ];
-                                $accion = $cambio['accion'];
-                                [$clase, $texto] = $acciones[$accion] ?? ['badge bg-secondary', $accion];
-                                ?>
                                 <span class="badge <?= $clase ?>"><?= $texto ?></span>
+                                <?php if ($accion === 'desactivar/activar' && isset($detalles['Acción'])): ?>
+                                    <?php if (strpos($detalles['Acción'], 'Desactivado') !== false): ?>
+                                        <span class="badge bg-danger ms-1"><i class="bi bi-lock"></i> Desactivado</span>
+                                    <?php elseif (strpos($detalles['Acción'], 'Activado') !== false): ?>
+                                        <span class="badge bg-success ms-1"><i class="bi bi-unlock"></i> Activado</span>
+                                    <?php endif; ?>
+                                <?php endif; ?>
                             </td>
                             <td>
-                                <?php 
-                                $detalles = json_decode($cambio['detalles'], true) ?? [];
-                                if (!empty($detalles)):
-                                ?>
-                                    <button class="btn btn-sm btn-info" onclick="verDetalles(this)">
+                                <?php if ($tieneDetalles): ?>
+                                    <button class="btn btn-sm btn-info" onclick="window.toggleDetalles('<?= $detallesId ?>', event)" type="button">
                                         <i class="bi bi-eye"></i> Ver cambios
                                     </button>
-                                    <div class="detalles-modal" style="display:none; margin-top:10px; padding:12px; background:#f9fafb; border-radius:6px; border-left:3px solid #0d6efd;">
+                                    <div id="<?= $detallesId ?>" class="detalles-modal" style="display:none; margin-top:10px; padding:12px; background:#f9fafb; border-radius:6px; border-left:3px solid #0d6efd;">
                                         <?php foreach ($detalles as $campo => $valor): ?>
                                             <div style="margin-bottom:8px; padding:8px; background:white; border-radius:4px;">
                                                 <strong style="color:#0d6efd;"><?= htmlspecialchars($campo) ?></strong>
