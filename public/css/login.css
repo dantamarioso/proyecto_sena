@@ -100,13 +100,21 @@ body::after {
 /* Inputs */
 .form-control {
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(0,0,0,0.15);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1.5px solid rgba(0,0,0,0.15);
+    color: #212529;
+    font-weight: 500;
 }
 .form-control:focus {
     box-shadow: none;
     border-color: #0d6efd;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
+    color: #212529;
+}
+
+.form-control::placeholder {
+    color: #6c757d;
+    font-weight: 400;
 }
 
 /* Botón login */
@@ -114,22 +122,27 @@ body::after {
     background: #0d6efd;
     color: white;
     border-radius: 10px;
-    font-weight: 600;
+    font-weight: 700;
     padding: 10px 0;
     border: none;
     transition: 0.25s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 .btn-login:hover {
     background: #084ec1;
+    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.4);
 }
 
 /* Link registro */
 .register-link a {
     color: #005eff !important;
-    font-weight: 600;
+    font-weight: 700;
+    text-decoration: none;
 }
 .register-link a:hover {
-    color: #003cbe !important;
+    color: #0047cc !important;
+    text-decoration: underline;
 }
 
 /* ================================

@@ -74,10 +74,7 @@ if (!isset($_SESSION['user'])) {
                         <th class="d-none d-xl-table-cell">Cargo</th>
                         <th class="d-none d-lg-table-cell">Rol</th>
                         <th>Estado</th>
-                        <th>Creado</th>
-                        <th>Actualizado</th>
                         <th class="text-center">Acciones</th>
-                    </tr>
                     </thead>
                     <tbody id="usuarios-body">
                     <?php foreach ($usuarios as $u): ?>
@@ -105,12 +102,10 @@ if (!isset($_SESSION['user'])) {
                                     <span class="badge bg-danger">Bloqueado</span>
                                 <?php endif; ?>
                             </td>
-                            <td class="d-none d-lg-table-cell"><small class="text-muted"><?= htmlspecialchars($u['created_at'] ?? '') ?></small></td>
-                            <td class="d-none d-lg-table-cell"><small class="text-muted"><?= htmlspecialchars($u['updated_at'] ?? '') ?></small></td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a href="<?= BASE_URL ?>/?url=usuarios/editar&id=<?= $u['id'] ?>"
-                                       class="btn btn-primary" title="Editar">
+                                       class="btn btn-primary btn-sm" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </a>
 
@@ -147,7 +142,7 @@ if (!isset($_SESSION['user'])) {
 
                     <?php if (empty($usuarios)): ?>
                         <tr>
-                            <td colspan="12" class="text-center text-muted py-3">No hay usuarios registrados.</td>
+                            <td colspan="10" class="text-center text-muted py-3">No hay usuarios registrados.</td>
                         </tr>
                     <?php endif; ?>
 

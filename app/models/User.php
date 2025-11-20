@@ -419,7 +419,7 @@ class User extends Model
             (:nombre, :correo, :nombre_usuario, :celular, :cargo, :foto, :password, :estado, :rol)
     ");
 
-        return $stmt->execute([
+        $success = $stmt->execute([
             ':nombre'         => $data['nombre'],
             ':correo'         => $data['correo'],
             ':nombre_usuario' => $data['nombre_usuario'] ?? $data['correo'],
@@ -430,5 +430,10 @@ class User extends Model
             ':estado'         => $data['estado']         ?? 1,
             ':rol'            => $data['rol']            ?? 'usuario',
         ]);
+
+        if ($success) {
+            return (int)$this->db->lastInsertId();
+        }
+        return false;
     }
 }

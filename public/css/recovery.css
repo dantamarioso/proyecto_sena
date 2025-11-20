@@ -149,28 +149,31 @@ body::after {
 }
 
 .form-label {
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 500;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 700;
     margin-bottom: 8px;
 }
 
 .form-control {
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1.5px solid rgba(0, 0, 0, 0.15);
     padding: 10px 14px;
     transition: all 0.25s;
-    color: #333;
+    color: #212529;
+    font-weight: 500;
 }
 
 .form-control:focus {
     box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
     border-color: #0d6efd;
     background: rgba(255, 255, 255, 0.95);
+    color: #212529;
 }
 
 .form-control::placeholder {
-    color: rgba(0, 0, 0, 0.4);
+    color: #6c757d;
+    font-weight: 400;
 }
 
 /* ================================
@@ -181,20 +184,16 @@ body::after {
 .btn-reset,
 .btn-primary-recovery {
     border-radius: 10px;
-    font-weight: 600;
+    font-weight: 700;
     padding: 11px 20px;
     border: none;
     transition: all 0.25s;
     width: 100%;
     margin-bottom: 12px;
-}
-
-.btn-recovery,
-.btn-verify,
-.btn-reset,
-.btn-primary-recovery {
     background: #0d6efd;
     color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .btn-recovery:hover,
@@ -203,7 +202,7 @@ body::after {
 .btn-primary-recovery:hover {
     background: #084ec1;
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.3);
+    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.4);
 }
 
 .btn-recovery:active,
@@ -217,20 +216,23 @@ body::after {
 .btn-reenviar {
     background: transparent;
     color: white;
-    border: 2px solid rgba(255, 255, 255, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.6);
     border-radius: 10px;
-    font-weight: 600;
+    font-weight: 700;
     padding: 10px 20px;
     transition: all 0.25s;
     width: 100%;
     margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .btn-outline-recovery:hover:not(:disabled),
 .btn-reenviar:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.8);
     transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
 }
 
 .btn-outline-recovery:disabled,
@@ -252,26 +254,27 @@ body::after {
    TEXTO DE CONTADOR
 ================================ */
 #contadorText {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.9);
     font-size: 0.9rem;
     margin-top: 8px;
     display: block;
     text-align: center;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 /* ================================
    TEXTO MUTED / INFORMACIÓN
 ================================ */
 .text-muted {
-    color: rgba(255, 255, 255, 0.75) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
     font-size: 0.95rem;
     line-height: 1.5;
+    font-weight: 500;
 }
 
 .text-muted strong {
-    color: rgba(255, 255, 255, 0.95);
-    font-weight: 600;
+    color: rgba(255, 255, 255, 0.98);
+    font-weight: 700;
 }
 
 /* ================================
@@ -279,10 +282,10 @@ body::after {
 ================================ */
 .text-decoration-none,
 .link-recovery {
-    color: rgba(100, 200, 255, 0.9);
+    color: rgba(100, 200, 255, 1);
     text-decoration: none;
     transition: color 0.25s;
-    font-weight: 500;
+    font-weight: 700;
 }
 
 .text-decoration-none:hover,
@@ -292,11 +295,13 @@ body::after {
 }
 
 .text-center a {
-    color: rgba(100, 200, 255, 0.9);
+    color: rgba(100, 200, 255, 1);
+    font-weight: 700;
 }
 
 .text-center a:hover {
     color: rgba(150, 220, 255, 1);
+    text-decoration: underline;
 }
 
 /* ================================
@@ -407,16 +412,19 @@ body::after {
    ICONOS
 ================================ */
 .input-group-text {
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1.5px solid rgba(0, 0, 0, 0.15);
     border-radius: 0 10px 10px 0;
     cursor: pointer;
     transition: all 0.25s;
-    color: #333;
+    color: #212529;
+    font-weight: 600;
 }
 
 .input-group-text:hover {
     background: rgba(255, 255, 255, 0.95);
+    border-color: #0d6efd;
+    color: #0d6efd;
 }
 
 .input-group-text i {

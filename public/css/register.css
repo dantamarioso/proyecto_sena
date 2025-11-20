@@ -123,14 +123,22 @@ body::after {
 /* Inputs */
 .form-control {
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(0,0,0,0.15);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1.5px solid rgba(0,0,0,0.15);
+    color: #212529;
+    font-weight: 500;
 }
 
 .form-control:focus {
     box-shadow: none;
     border-color: #0d6efd;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
+    color: #212529;
+}
+
+.form-control::placeholder {
+    color: #6c757d;
+    font-weight: 400;
 }
 
 /* Botón */
@@ -138,23 +146,28 @@ body::after {
     background: #0d6efd;
     color: white;
     border-radius: 10px;
-    font-weight: 600;
+    font-weight: 700;
     padding: 10px 0;
     border: none;
     transition: 0.25s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .btn-register:hover {
     background: #084ec1;
+    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.4);
 }
 
 /* Link login */
 .login-link a {
     color: #005eff !important;
-    font-weight: 600;
+    font-weight: 700;
+    text-decoration: none;
 }
 .login-link a:hover {
-    color: #003cbe !important;
+    color: #0047cc !important;
+    text-decoration: underline;
 }
 
 /* =======================================================
@@ -199,25 +212,31 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 }
 .form-check-label {
     font-size: 0.95rem;
-    font-weight: 500;
+    font-weight: 600;
     color: #f1f1f1;
 }
 
 .form-check-label a {
-    color: #013969;
-    font-weight: 600;
+    color: #64c8ff;
+    font-weight: 700;
     text-decoration: underline;
 }
 
 .form-check-label a:hover {
-    color: #0354a0;
+    color: #96dcff;
 }
 .login-link {
     font-size: 0.95rem;
-    color: #011a50;
+    color: #e2e8f0;
     margin-top: 10px;
 }
 .login-link a {
-    color: #020f25 !important;
-    font-weight: 600;
+    color: #60a5fa !important;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    color: #93c5fd !important;
+    text-decoration: underline;
 }

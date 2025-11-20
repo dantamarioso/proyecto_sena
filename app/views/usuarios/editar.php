@@ -103,7 +103,7 @@
                     </div>
 
                     <div class="d-flex justify-content-between gap-2">
-                        <a href="<?= BASE_URL ?>/?url=usuarios/gestion_de_usuarios" class="btn btn-secondary flex-grow-1">
+                        <a href="<?= BASE_URL ?>/?url=usuarios/gestionDeUsuarios" class="btn btn-secondary flex-grow-1">
                             <i class="bi bi-arrow-left"></i> Volver
                         </a>
                         <button type="submit" class="btn btn-primary flex-grow-1">

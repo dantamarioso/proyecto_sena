@@ -98,11 +98,29 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                 if (!empty($detalles)):
                                 ?>
                                     <button class="btn btn-sm btn-info" onclick="verDetalles(this)">
-                                        <i class="bi bi-eye"></i> Ver
+                                        <i class="bi bi-eye"></i> Ver cambios
                                     </button>
-                                    <div class="detalles-modal" style="display:none; margin-top:10px; padding:10px; background:#f9fafb; border-radius:6px;">
+                                    <div class="detalles-modal" style="display:none; margin-top:10px; padding:12px; background:#f9fafb; border-radius:6px; border-left:3px solid #0d6efd;">
                                         <?php foreach ($detalles as $campo => $valor): ?>
-                                            <div><strong><?= htmlspecialchars($campo) ?>:</strong> <?= htmlspecialchars($valor) ?></div>
+                                            <div style="margin-bottom:8px; padding:8px; background:white; border-radius:4px;">
+                                                <strong style="color:#0d6efd;"><?= htmlspecialchars($campo) ?></strong>
+                                                <div style="margin-top:4px; font-size:0.9rem;">
+                                                    <?php if (is_array($valor)): ?>
+                                                        <div style="display:flex; gap:12px; margin-top:4px;">
+                                                            <div>
+                                                                <span style="color:#666; font-size:0.85rem;">Anterior:</span><br>
+                                                                <span style="color:#dc3545;"><?= htmlspecialchars($valor['anterior'] ?? '-') ?></span>
+                                                            </div>
+                                                            <div style="border-left:1px solid #ddd; padding-left:12px;">
+                                                                <span style="color:#666; font-size:0.85rem;">Nuevo:</span><br>
+                                                                <span style="color:#198754;"><?= htmlspecialchars($valor['nuevo'] ?? '-') ?></span>
+                                                            </div>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <?= htmlspecialchars($valor) ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
                                         <?php endforeach; ?>
                                     </div>
                                 <?php else: ?>

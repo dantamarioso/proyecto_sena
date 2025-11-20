@@ -19,17 +19,8 @@ class UsuariosController extends Controller
     ========================================================== */
     public function index()
     {
-        if (!isset($_SESSION['user'])) {
-            $this->redirect('auth/login');
-            return;
-        }
-
-        // Carga la vista de usuarios y asegura que los estilos y scripts
-        // específicos de la página se incluyan (usuarios.css, usuarios.js)
-        $this->view('usuarios/index', [
-            'pageStyles'  => ['usuarios'],
-            'pageScripts' => ['usuarios'],
-        ]);
+        // Redirige a gestionDeUsuarios para mantener una sola vista consistente
+        $this->redirect('usuarios/gestionDeUsuarios');
     }
 
     /* =========================================================
@@ -175,11 +166,26 @@ class UsuariosController extends Controller
                     $nuevoUsuarioId,
                     'crear',
                     [
-                        'nombre' => $nombre_completo,
-                        'correo' => $correo,
-                        'usuario' => $nombreUsuario,
-                        'rol' => $rol,
-                        'estado' => $estado == 1 ? 'Activo' : 'Bloqueado'
+                        'nombre' => [
+                            'anterior' => 'N/A',
+                            'nuevo' => $nombre_completo
+                        ],
+                        'correo' => [
+                            'anterior' => 'N/A',
+                            'nuevo' => $correo
+                        ],
+                        'nombre_usuario' => [
+                            'anterior' => 'N/A',
+                            'nuevo' => $nombreUsuario
+                        ],
+                        'rol' => [
+                            'anterior' => 'N/A',
+                            'nuevo' => $rol
+                        ],
+                        'estado' => [
+                            'anterior' => 'N/A',
+                            'nuevo' => $estado == 1 ? 'Activo' : 'Bloqueado'
+                        ]
                     ],
                     $_SESSION['user']['id'] ?? null
                 );
@@ -257,6 +263,9 @@ class UsuariosController extends Controller
 
             if (empty($errores)) {
 
+                // Obtener datos anteriores antes de actualizar
+                $usuarioAnterior = $userModel->findById($id);
+
                 $userModel->updateFull($id, [
                     'nombre'         => $nombre,
                     'correo'         => $correo,
@@ -269,32 +278,76 @@ class UsuariosController extends Controller
                     'rol'            => $rol,
                 ]);
 
-                // Registrar en auditoría
+                // Registrar en auditoría con antes y después
                 $auditModel = new Audit();
-                $cambios = [
-                    'nombre' => $nombre,
-                    'correo' => $correo,
-                    'usuario' => $nombreUsuario,
-                    'celular' => $celular,
-                    'cargo' => $cargo,
-                    'rol' => $rol,
-                    'estado' => $estado == 1 ? 'Activo' : 'Bloqueado'
-                ];
+                $cambios = [];
+
+                // Comparar y registrar solo lo que cambió
+                if ($usuarioAnterior['nombre'] !== $nombre) {
+                    $cambios['nombre'] = [
+                        'anterior' => $usuarioAnterior['nombre'],
+                        'nuevo' => $nombre
+                    ];
+                }
+                if ($usuarioAnterior['correo'] !== $correo) {
+                    $cambios['correo'] = [
+                        'anterior' => $usuarioAnterior['correo'],
+                        'nuevo' => $correo
+                    ];
+                }
+                if ($usuarioAnterior['nombre_usuario'] !== $nombreUsuario) {
+                    $cambios['nombre_usuario'] = [
+                        'anterior' => $usuarioAnterior['nombre_usuario'],
+                        'nuevo' => $nombreUsuario
+                    ];
+                }
+                if ($usuarioAnterior['celular'] !== $celular) {
+                    $cambios['celular'] = [
+                        'anterior' => $usuarioAnterior['celular'] ?? '(vacío)',
+                        'nuevo' => $celular ?: '(vacío)'
+                    ];
+                }
+                if ($usuarioAnterior['cargo'] !== $cargo) {
+                    $cambios['cargo'] = [
+                        'anterior' => $usuarioAnterior['cargo'] ?? '(vacío)',
+                        'nuevo' => $cargo ?: '(vacío)'
+                    ];
+                }
+                if ($usuarioAnterior['rol'] !== $rol) {
+                    $cambios['rol'] = [
+                        'anterior' => $usuarioAnterior['rol'],
+                        'nuevo' => $rol
+                    ];
+                }
+                if ($usuarioAnterior['estado'] != $estado) {
+                    $cambios['estado'] = [
+                        'anterior' => $usuarioAnterior['estado'] == 1 ? 'Activo' : 'Bloqueado',
+                        'nuevo' => $estado == 1 ? 'Activo' : 'Bloqueado'
+                    ];
+                }
                 if (!empty($password)) {
-                    $cambios['contraseña'] = 'Actualizada';
+                    $cambios['contraseña'] = [
+                        'anterior' => '***',
+                        'nuevo' => '***'
+                    ];
                 }
                 if (!empty($fotoRuta)) {
-                    $cambios['foto'] = 'Actualizada';
+                    $cambios['foto'] = [
+                        'anterior' => $usuarioAnterior['foto'] ?? '(ninguna)',
+                        'nuevo' => $fotoRuta
+                    ];
                 }
 
-                $auditModel->registrarCambio(
-                    $id,
-                    'usuarios',
-                    $id,
-                    'actualizar',
-                    $cambios,
-                    $_SESSION['user']['id'] ?? null
-                );
+                if (!empty($cambios)) {
+                    $auditModel->registrarCambio(
+                        $id,
+                        'usuarios',
+                        $id,
+                        'actualizar',
+                        $cambios,
+                        $_SESSION['user']['id'] ?? null
+                    );
+                }
 
                 $this->redirect('usuarios/gestionDeUsuarios');
                 return;
@@ -374,7 +427,7 @@ class UsuariosController extends Controller
                 
                 $userModel->deleteById($id);
 
-                // Registrar en auditoría
+                // Registrar en auditoría con datos del usuario eliminado
                 $auditModel = new Audit();
                 $auditModel->registrarCambio(
                     $id,
@@ -382,9 +435,26 @@ class UsuariosController extends Controller
                     $id,
                     'eliminar',
                     [
-                        'usuario_eliminado' => $usuario['nombre'] ?? 'Desconocido',
-                        'correo' => $usuario['correo'] ?? '',
-                        'rol' => $usuario['rol'] ?? ''
+                        'nombre' => [
+                            'anterior' => $usuario['nombre'] ?? 'Desconocido',
+                            'nuevo' => 'N/A'
+                        ],
+                        'correo' => [
+                            'anterior' => $usuario['correo'] ?? '',
+                            'nuevo' => 'N/A'
+                        ],
+                        'nombre_usuario' => [
+                            'anterior' => $usuario['nombre_usuario'] ?? '',
+                            'nuevo' => 'N/A'
+                        ],
+                        'rol' => [
+                            'anterior' => $usuario['rol'] ?? 'usuario',
+                            'nuevo' => 'N/A'
+                        ],
+                        'estado' => [
+                            'anterior' => ($usuario['estado'] ?? 1) == 1 ? 'Activo' : 'Bloqueado',
+                            'nuevo' => 'N/A'
+                        ]
                     ],
                     $_SESSION['user']['id'] ?? null
                 );

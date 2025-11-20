@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (rows.length === 0) {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="11" class="text-center text-muted">No hay usuarios que coincidan.</td>
+                            <td colspan="10" class="text-center text-muted">No hay usuarios que coincidan.</td>
                         </tr>
                     `;
                 } else {
@@ -144,8 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <td class="d-none d-xl-table-cell">${car}</td>
                                 <td class="d-none d-lg-table-cell"><span class="badge bg-info">${escapeHtml(rol)}</span></td>
                                 <td>${estadoHtml}</td>
-                                <td class="d-none d-lg-table-cell"><small class="text-muted">${u.created_at ?? ""}</small></td>
-                                <td class="d-none d-lg-table-cell"><small class="text-muted">${u.updated_at ?? u.created_at ?? ""}</small></td>
                                 <td class="text-center">
                                     <a href="${BASE_URL}/?url=usuarios/editar&id=${u.id}" class="btn btn-sm btn-primary">
                                         <i class="bi bi-pencil"></i>

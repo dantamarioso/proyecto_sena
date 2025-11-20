@@ -88,8 +88,6 @@ if ($currentId) {
                             <th>Cargo</th>
                             <th>Rol</th>
                             <th>Estado</th>
-                            <th>Creado</th>
-                            <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
 
@@ -97,7 +95,7 @@ if ($currentId) {
                         <!-- Contenido generado por AJAX (usuarios.js) -->
                         <?php if (empty($usuarios)): ?>
                             <tr>
-                                <td colspan="11" class="text-center text-muted">
+                                <td colspan="10" class="text-center text-muted">
                                     No hay usuarios registrados.
                                 </td>
                             </tr>
