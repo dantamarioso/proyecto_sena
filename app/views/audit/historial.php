@@ -144,21 +144,12 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
                     <small class="text-muted">Total: <?= $total ?> cambio(s)</small>
                     <div class="d-flex gap-2 align-items-center">
-                        <button class="btn btn-sm btn-outline-secondary" id="btn-prev">&laquo;</button>
+                        <button class="btn btn-sm btn-outline-secondary" id="btn-prev">&laquo; Anterior</button>
                         <span id="pagina-actual" class="mx-2"><?= $page ?> / <?= $totalPages ?></span>
-                        <button class="btn btn-sm btn-outline-secondary" id="btn-next">&raquo;</button>
+                        <button class="btn btn-sm btn-outline-secondary" id="btn-next">Siguiente &raquo;</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-function verDetalles(btn) {
-    const modal = btn.nextElementSibling;
-    if (modal && modal.classList.contains('detalles-modal')) {
-        modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
-    }
-}
-</script>
