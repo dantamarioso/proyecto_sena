@@ -4,10 +4,10 @@ $nombre = $_SESSION['user']['nombre'] ?? 'Usuario';
 
 // Imagen por defecto si no existe avatar
 $avatar = $_SESSION['user']['avatar'] ?? null;
-$avatar = (!empty($avatar)) ? $avatar : BASE_URL . "/assets/default_user.png";
+$avatar = (!empty($avatar)) ? $avatar : BASE_URL . "/img/default_user.png";
 ?>
 
-<nav id="sidebar" class="sidebar expanded">
+<nav id="sidebar" class="sidebar">
 
     <!-- Header -->
     <div class="sidebar-header">
@@ -32,18 +32,6 @@ $avatar = (!empty($avatar)) ? $avatar : BASE_URL . "/assets/default_user.png";
             </a>
         </li>
 
-        <li class="submenu">
-            <button class="submenu-btn">
-                <i class="bi bi-speedometer2"></i>
-                <span>Dashboard</span>
-                <i class="bi bi-chevron-down arrow"></i>
-            </button>
-
-            <ul class="submenu-items">
-                <li><a href="#">Panel General</a></li>
-                <li><a href="#">Reportes</a></li>
-            </ul>
-        </li>
 
         <?php if ($rol === 'admin'): ?>
         <li>
@@ -52,14 +40,16 @@ $avatar = (!empty($avatar)) ? $avatar : BASE_URL . "/assets/default_user.png";
                 <span>Gestión de Usuarios</span>
             </a>
         </li>
-        <?php endif; ?>
 
         <li>
-            <a href="<?= BASE_URL ?>/?url=inventario/index">
-                <i class="bi bi-box-seam"></i>
-                <span>Inventario</span>
+            <a href="<?= BASE_URL ?>/?url=audit/historial">
+                <i class="bi bi-clock-history"></i>
+                <span>Historial de Cambios</span>
             </a>
         </li>
+        <?php endif; ?>
+
+
 
         <li>
             <a href="<?= BASE_URL ?>/?url=auth/logout" class="logout">
@@ -69,9 +59,5 @@ $avatar = (!empty($avatar)) ? $avatar : BASE_URL . "/assets/default_user.png";
         </li>
 
     </ul>
-
-    <button id="toggleSidebar" class="toggle-btn">
-        <i class="bi bi-chevron-double-left"></i>
-    </button>
 
 </nav>

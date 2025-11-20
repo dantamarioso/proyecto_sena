@@ -19,12 +19,27 @@ document.addEventListener("DOMContentLoaded", () => {
             const file = input.files[0];
             if (!file) {
                 preview.src = "";
-                if (container) container.classList.add("d-none");
+                if (container) {
+                    if (containerId === "previewContainerEditar") {
+                        // En editar, mostrar la foto anterior o default
+                        container.style.display = "block";
+                    } else {
+                        container.classList.add("d-none");
+                    }
+                }
+                return;
+            }
+
+            // Validar tipo de archivo
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                alert("Por favor selecciona una imagen válida (JPG, PNG, GIF, WebP)");
+                input.value = "";
                 return;
             }
 
             if (file.size > MAX_SIZE) {
-                alert("La imagen supera el tamaño máximo de 2MB.");
+                alert("La imagen supera el tamaño máximo de 2MB. Tamaño actual: " + (file.size / 1024 / 1024).toFixed(2) + "MB");
                 input.value = "";
                 preview.src = "";
                 if (container) container.classList.add("d-none");
@@ -34,7 +49,17 @@ document.addEventListener("DOMContentLoaded", () => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 preview.src = e.target.result;
-                if (container) container.classList.remove("d-none");
+                if (container) {
+                    if (container.classList) {
+                        container.classList.remove("d-none");
+                    } else {
+                        container.style.display = "block";
+                    }
+                }
+            };
+            reader.onerror = () => {
+                alert("Error al leer la imagen. Intenta de nuevo.");
+                input.value = "";
             };
             reader.readAsDataURL(file);
         });
@@ -87,9 +112,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     `;
                 } else {
                     rows.forEach(u => {
+                        let fotoUrl = "";
+                        if (u.foto) {
+                            // La foto ya tiene la ruta completa: uploads/fotos/...
+                            // Solo agregar BASE_URL al inicio
+                            fotoUrl = `${BASE_URL}/${u.foto}`;
+                        } else {
+                            fotoUrl = `${BASE_URL}/img/default_user.png`;
+                        }
+
                         const fotoHtml = u.foto
-                            ? `<img src="${BASE_URL}/${u.foto}" width="40" height="40" class="rounded-circle" style="object-fit:cover;">`
-                            : `<span class="text-muted">Sin foto</span>`;
+                            ? `<img src="${fotoUrl}" width="40" height="40" class="rounded-circle" style="object-fit:cover;" onerror="this.src='${BASE_URL}/img/default_user.png'">`
+                            : `<img src="${BASE_URL}/img/default_user.png" width="40" height="40" class="rounded-circle" style="object-fit:cover;" alt="Usuario sin foto">`;
 
                         const estadoHtml = u.estado == 1
                             ? `<span class="badge bg-success">Activo</span>`
@@ -102,16 +136,17 @@ document.addEventListener("DOMContentLoaded", () => {
                         const rowHtml = `
                             <tr>
                                 <td>${u.id}</td>
+                                <td class="d-none d-md-table-cell">${fotoHtml}</td>
                                 <td>${escapeHtml(u.nombre)}</td>
-                                <td>${escapeHtml(u.correo)}</td>
-                                <td>${escapeHtml(u.nombre_usuario)}</td>
-                                <td>${cel}</td>
-                                <td>${car}</td>
-                                <td>${fotoHtml}</td>
-                                <td>${rol}</td>
+                                <td class="d-none d-md-table-cell">${escapeHtml(u.correo)}</td>
+                                <td class="d-none d-lg-table-cell">${escapeHtml(u.nombre_usuario)}</td>
+                                <td class="d-none d-xl-table-cell">${cel}</td>
+                                <td class="d-none d-xl-table-cell">${car}</td>
+                                <td class="d-none d-lg-table-cell"><span class="badge bg-info">${escapeHtml(rol)}</span></td>
                                 <td>${estadoHtml}</td>
-                                <td>${u.created_at ?? ""}</td>
-                                <td class="text-end">
+                                <td class="d-none d-lg-table-cell"><small class="text-muted">${u.created_at ?? ""}</small></td>
+                                <td class="d-none d-lg-table-cell"><small class="text-muted">${u.updated_at ?? u.created_at ?? ""}</small></td>
+                                <td class="text-center">
                                     <a href="${BASE_URL}/?url=usuarios/editar&id=${u.id}" class="btn btn-sm btn-primary">
                                         <i class="bi bi-pencil"></i>
                                     </a>
@@ -212,6 +247,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // Cargar usuarios automáticamente al abrir la página
+    fetchUsuarios(1);
 });
 /* ======================================================
    TOASTS

@@ -12,8 +12,8 @@ class HomeController extends Controller {
         $usuario = $_SESSION['user'];
         $this->view('home/index', [
             'usuario'     => $usuario,
-            'pageStyles'  => ['usuarios'],
-            'pageScripts' => ['usuarios'],
+            'pageStyles'  => [],
+            'pageScripts' => [],
         ]);
     }
 }

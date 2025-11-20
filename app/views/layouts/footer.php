@@ -1,4 +1,5 @@
-    </div><!-- cierre de main-content o container -->
+            </div><!-- cierre de main-content -->
+    </div><!-- cierre de main-wrapper -->
 
     <!-- JS de Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -16,7 +17,7 @@
         <?php endforeach; ?>
     <?php endif; ?>
 
-    <!-- Sidebar (DEBE IR AL FINAL, DESPUÉS DE TODO) -->
+    <!-- Sidebar -->
     <script src="<?= BASE_URL ?>/js/sidebar.js"></script>
 
 </body>

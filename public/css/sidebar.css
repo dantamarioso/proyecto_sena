@@ -1,27 +1,28 @@
-/* Sidebar base */
+/* ===================== SIDEBAR BASE ===================== */
 .sidebar {
     width: 260px;
-    background: #111827;
+    background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
     height: 100vh;
     padding: 15px;
     color: #fff;
-    position: fixed;
+    position: relative;
+    left: 0;
+    top: 0;
     overflow-x: hidden;
-    transition: width 0.3s ease;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Sidebar colapsado */
-.sidebar.collapsed {
-    width: 80px;
-}
-
-/* Header */
+/* ===================== HEADER DEL SIDEBAR ===================== */
 .sidebar-header {
     display: flex;
     align-items: center;
     gap: 12px;
     margin-bottom: 20px;
     overflow: hidden;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #1f2937;
 }
 
 .sidebar-avatar {
@@ -29,31 +30,69 @@
     height: 45px;
     border-radius: 50%;
     object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid #3b82f6;
 }
 
 .sidebar-user-info {
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
-/* Ocultar información en colapsado */
-.sidebar.collapsed .sidebar-user-info {
-    display: none;
+.sidebar-welcome {
+    font-size: 11px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* Búsqueda */
+.sidebar-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+/* ===================== BÚSQUEDA ===================== */
 .sidebar-search {
     margin-bottom: 20px;
 }
 
-.sidebar.collapsed .sidebar-search {
-    display: none;
+.search-input {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    transition: all 0.2s;
 }
 
-/* Links */
-.sidebar-nav li {
+.search-input::placeholder {
+    color: #9ca3af;
+}
+
+.search-input:focus {
+    outline: none;
+    background-color: #374151;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ===================== NAVEGACIÓN ===================== */
+.sidebar-nav {
     list-style: none;
-    margin-bottom: 10px;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.sidebar-nav li {
+    margin-bottom: 8px;
 }
 
 .sidebar-nav li a,
@@ -64,87 +103,135 @@
     padding: 12px;
     width: 100%;
     text-decoration: none;
-    color: #fff;
+    color: #d1d5db;
     border-radius: 8px;
-    transition: background 0.2s ease;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
 }
 
-/* Hover */
 .sidebar-nav li a:hover,
 .submenu-btn:hover {
-    background: #1f2937;
-}
-
-/* ---- ICONOS BIEN CENTRADOS ---- */
-.sidebar.collapsed a,
-.sidebar.collapsed .submenu-btn {
-    justify-content: center !important;
-    padding: 12px 0 !important;
-}
-
-/* Oculta textos */
-.sidebar.collapsed a span,
-.sidebar.collapsed .submenu-btn span,
-.sidebar.collapsed .arrow {
-    display: none;
-}
-
-/* Submenú */
-.submenu-items {
-    display: none;
-    margin-left: 20px;
-    flex-direction: column;
-}
-
-.submenu.open .submenu-items {
-    display: flex;
-}
-
-.arrow {
-    margin-left: auto;
-}
-
-/* Botón plegar */
-.toggle-btn {
-    position: absolute;
-    bottom: 20px;
-    left: 15px;
-    right: 15px;
-    background: #1f2937;
-    border: none;
-    padding: 12px;
-    border-radius: 8px;
+    background-color: #1f2937;
     color: #fff;
 }
 
-.sidebar.collapsed .toggle-btn {
-    width: 50px;
-    left: 15px;
-    right: auto;
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    .sidebar {
-        position: fixed;
-        z-index: 999;
-    }
-
-    .main-content {
-        margin-left: 0 !important;
-    }
-}
-/* FORZAR CENTRADO PERFECTO EN EL MODO COLAPSADO */
-.sidebar.collapsed .sidebar-nav li a,
-.sidebar.collapsed .submenu-btn {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    padding: 12px 0 !important;
+.sidebar-nav li a.active {
+    background-color: #3b82f6;
+    color: #fff;
 }
 
 .sidebar-nav li a i,
 .submenu-btn i {
     width: 24px;
     text-align: center;
+    flex-shrink: 0;
+}
+
+/* ===================== SUBMENÚS ===================== */
+.submenu {
+    position: relative;
+}
+
+.submenu-items {
+    display: none;
+    margin-left: 0;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.submenu.open .submenu-items {
+    display: flex;
+}
+
+.submenu-items .submenu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px 10px 36px;
+    color: #9ca3af;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.submenu-items .submenu-item:hover {
+    background-color: #1f2937;
+    color: #fff;
+    padding-left: 40px;
+}
+
+.arrow {
+    margin-left: auto;
+    transition: transform 0.2s;
+    font-size: 12px;
+}
+
+.submenu.open .arrow {
+    transform: rotate(180deg);
+}
+
+/* ===================== SCROLLBAR PERSONALIZADO ===================== */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: #111827;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: #4b5563;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    body {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        position: fixed;
+        width: 260px;
+        height: 100vh;
+        left: 0;
+        top: 0;
+        z-index: 1030;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.mobile-open {
+        transform: translateX(0);
+    }
+
+    body > .main-wrapper {
+        grid-column: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        width: 250px;
+    }
+
+    .sidebar-avatar {
+        width: 40px;
+        height: 40px;
+    }
+
+    .sidebar-nav li a,
+    .submenu-btn {
+        padding: 10px;
+        gap: 10px;
+    }
 }

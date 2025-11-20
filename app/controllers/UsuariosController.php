@@ -155,7 +155,7 @@ class UsuariosController extends Controller
             ========================== */
             if (empty($errores)) {
 
-                $userModel->create([
+                $nuevoUsuarioId = $userModel->create([
                     'nombre'         => $nombre_completo,
                     'correo'         => $correo,
                     'nombre_usuario' => $nombreUsuario,
@@ -166,6 +166,23 @@ class UsuariosController extends Controller
                     'estado'         => $estado,
                     'rol'            => $rol,
                 ]);
+
+                // Registrar en auditoría
+                $auditModel = new Audit();
+                $auditModel->registrarCambio(
+                    $nuevoUsuarioId,
+                    'usuarios',
+                    $nuevoUsuarioId,
+                    'crear',
+                    [
+                        'nombre' => $nombre_completo,
+                        'correo' => $correo,
+                        'usuario' => $nombreUsuario,
+                        'rol' => $rol,
+                        'estado' => $estado == 1 ? 'Activo' : 'Bloqueado'
+                    ],
+                    $_SESSION['user']['id'] ?? null
+                );
 
                 $this->redirect('usuarios/gestionDeUsuarios');
                 return;
@@ -252,6 +269,33 @@ class UsuariosController extends Controller
                     'rol'            => $rol,
                 ]);
 
+                // Registrar en auditoría
+                $auditModel = new Audit();
+                $cambios = [
+                    'nombre' => $nombre,
+                    'correo' => $correo,
+                    'usuario' => $nombreUsuario,
+                    'celular' => $celular,
+                    'cargo' => $cargo,
+                    'rol' => $rol,
+                    'estado' => $estado == 1 ? 'Activo' : 'Bloqueado'
+                ];
+                if (!empty($password)) {
+                    $cambios['contraseña'] = 'Actualizada';
+                }
+                if (!empty($fotoRuta)) {
+                    $cambios['foto'] = 'Actualizada';
+                }
+
+                $auditModel->registrarCambio(
+                    $id,
+                    'usuarios',
+                    $id,
+                    'actualizar',
+                    $cambios,
+                    $_SESSION['user']['id'] ?? null
+                );
+
                 $this->redirect('usuarios/gestionDeUsuarios');
                 return;
             }
@@ -326,7 +370,24 @@ class UsuariosController extends Controller
 
             if ($id > 0) {
                 $userModel = new User();
+                $usuario = $userModel->findById($id);
+                
                 $userModel->deleteById($id);
+
+                // Registrar en auditoría
+                $auditModel = new Audit();
+                $auditModel->registrarCambio(
+                    $id,
+                    'usuarios',
+                    $id,
+                    'eliminar',
+                    [
+                        'usuario_eliminado' => $usuario['nombre'] ?? 'Desconocido',
+                        'correo' => $usuario['correo'] ?? '',
+                        'rol' => $usuario['rol'] ?? ''
+                    ],
+                    $_SESSION['user']['id'] ?? null
+                );
             }
         }
 

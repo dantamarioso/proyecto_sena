@@ -1,0 +1,146 @@
+<?php
+if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'admin') {
+    header("Location: " . BASE_URL . "/?url=auth/login");
+    exit;
+}
+?>
+
+<script>
+    const BASE_URL = "<?= BASE_URL ?>";
+</script>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+
+        <h3 class="mb-3">Historial de Cambios</h3>
+
+        <!-- Filtros -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row g-2 align-items-end">
+                    <div class="col-12 col-md-4">
+                        <label class="form-label">Usuario</label>
+                        <select id="filtro-usuario" class="form-select">
+                            <option value="">Todos los usuarios</option>
+                            <?php foreach ($usuarios as $u): ?>
+                                <option value="<?= $u['id'] ?>" <?= $filtro['usuario_id'] == $u['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($u['nombre']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-2">
+                        <label class="form-label">Acción</label>
+                        <select id="filtro-accion" class="form-select">
+                            <option value="">Todas</option>
+                            <option value="crear" <?= $filtro['accion'] == 'crear' ? 'selected' : '' ?>>Crear</option>
+                            <option value="actualizar" <?= $filtro['accion'] == 'actualizar' ? 'selected' : '' ?>>Actualizar</option>
+                            <option value="eliminar" <?= $filtro['accion'] == 'eliminar' ? 'selected' : '' ?>>Eliminar</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-2">
+                        <label class="form-label">Desde</label>
+                        <input type="date" id="filtro-fecha-inicio" class="form-control" 
+                               value="<?= htmlspecialchars($filtro['fecha_inicio']) ?>">
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-2">
+                        <label class="form-label">Hasta</label>
+                        <input type="date" id="filtro-fecha-fin" class="form-control"
+                               value="<?= htmlspecialchars($filtro['fecha_fin']) ?>">
+                    </div>
+
+                    <div class="col-12 col-md-2">
+                        <button class="btn btn-outline-secondary w-100" id="btn-filtrar">
+                            Filtrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla Historial -->
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-striped align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Fecha</th>
+                        <th>Usuario</th>
+                        <th>Acción</th>
+                        <th>Detalles</th>
+                    </tr>
+                    </thead>
+                    <tbody id="historial-body">
+                    <?php foreach ($cambios as $cambio): ?>
+                        <tr>
+                            <td><?= $cambio['id'] ?></td>
+                            <td><small class="text-muted"><?= htmlspecialchars($cambio['fecha_creacion']) ?></small></td>
+                            <td><?= htmlspecialchars($cambio['usuario_modificado'] ?? 'N/A') ?></td>
+                            <td>
+                                <?php
+                                $acciones = [
+                                    'crear' => ['badge bg-success', 'Creado'],
+                                    'actualizar' => ['badge bg-info', 'Actualizado'],
+                                    'eliminar' => ['badge bg-danger', 'Eliminado']
+                                ];
+                                $accion = $cambio['accion'];
+                                [$clase, $texto] = $acciones[$accion] ?? ['badge bg-secondary', $accion];
+                                ?>
+                                <span class="badge <?= $clase ?>"><?= $texto ?></span>
+                            </td>
+                            <td>
+                                <?php 
+                                $detalles = json_decode($cambio['detalles'], true) ?? [];
+                                if (!empty($detalles)):
+                                ?>
+                                    <button class="btn btn-sm btn-info" onclick="verDetalles(this)">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </button>
+                                    <div class="detalles-modal" style="display:none; margin-top:10px; padding:10px; background:#f9fafb; border-radius:6px;">
+                                        <?php foreach ($detalles as $campo => $valor): ?>
+                                            <div><strong><?= htmlspecialchars($campo) ?>:</strong> <?= htmlspecialchars($valor) ?></div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-muted">Sin detalles</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+
+                    <?php if (empty($cambios)): ?>
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-3">No hay cambios registrados.</td>
+                        </tr>
+                    <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <div class="card-footer bg-light">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+                    <small class="text-muted">Total: <?= $total ?> cambio(s)</small>
+                    <div class="d-flex gap-2 align-items-center">
+                        <button class="btn btn-sm btn-outline-secondary" id="btn-prev">&laquo;</button>
+                        <span id="pagina-actual" class="mx-2"><?= $page ?> / <?= $totalPages ?></span>
+                        <button class="btn btn-sm btn-outline-secondary" id="btn-next">&raquo;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function verDetalles(btn) {
+    const modal = btn.nextElementSibling;
+    if (modal && modal.classList.contains('detalles-modal')) {
+        modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+    }
+}
+</script>

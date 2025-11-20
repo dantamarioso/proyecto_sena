@@ -9,6 +9,12 @@ if (!isset($_SESSION['user'])) {
     const BASE_URL = "<?= BASE_URL ?>";
 </script>
 
+<style>
+    tbody tr:only-child td {
+        display: table-cell !important;
+    }
+</style>
+
 <div class="row justify-content-center">
     <div class="col-12">
 
@@ -60,15 +66,16 @@ if (!isset($_SESSION['user'])) {
                     <thead>
                     <tr>
                         <th>#</th>
+                        <th class="d-none d-md-table-cell">Foto</th>
                         <th>Nombre</th>
                         <th class="d-none d-md-table-cell">Correo</th>
                         <th class="d-none d-lg-table-cell">Usuario</th>
                         <th class="d-none d-xl-table-cell">Celular</th>
                         <th class="d-none d-xl-table-cell">Cargo</th>
-                        <th class="d-none d-md-table-cell">Foto</th>
                         <th class="d-none d-lg-table-cell">Rol</th>
                         <th>Estado</th>
-                        <th class="d-none d-lg-table-cell">Creado</th>
+                        <th>Creado</th>
+                        <th>Actualizado</th>
                         <th class="text-center">Acciones</th>
                     </tr>
                     </thead>
@@ -76,19 +83,20 @@ if (!isset($_SESSION['user'])) {
                     <?php foreach ($usuarios as $u): ?>
                         <tr>
                             <td><?= $u['id'] ?></td>
-                            <td><?= htmlspecialchars($u['nombre']) ?></td>
-                            <td class="d-none d-md-table-cell"><?= htmlspecialchars($u['correo']) ?></td>
-                            <td class="d-none d-lg-table-cell"><?= htmlspecialchars($u['nombre_usuario']) ?></td>
-                            <td class="d-none d-xl-table-cell"><?= $u['celular'] ? htmlspecialchars($u['celular']) : '<span class="text-muted">N/A</span>' ?></td>
-                            <td class="d-none d-xl-table-cell"><?= $u['cargo'] ? htmlspecialchars($u['cargo']) : '<span class="text-muted">Sin cargo</span>' ?></td>
                             <td class="d-none d-md-table-cell">
                                 <?php if ($u['foto']): ?>
                                     <img src="<?= BASE_URL . '/' . htmlspecialchars($u['foto']) ?>"
                                          width="40" height="40" class="rounded-circle" style="object-fit:cover;">
                                 <?php else: ?>
-                                    <span class="text-muted">—</span>
+                                    <img src="<?= BASE_URL ?>/img/default_user.png"
+                                         width="40" height="40" class="rounded-circle" style="object-fit:cover;" alt="Usuario sin foto">
                                 <?php endif; ?>
                             </td>
+                            <td><?= htmlspecialchars($u['nombre']) ?></td>
+                            <td class="d-none d-md-table-cell"><?= htmlspecialchars($u['correo']) ?></td>
+                            <td class="d-none d-lg-table-cell"><?= htmlspecialchars($u['nombre_usuario']) ?></td>
+                            <td class="d-none d-xl-table-cell"><?= $u['celular'] ? htmlspecialchars($u['celular']) : '<span class="text-muted">N/A</span>' ?></td>
+                            <td class="d-none d-xl-table-cell"><?= $u['cargo'] ? htmlspecialchars($u['cargo']) : '<span class="text-muted">Sin cargo</span>' ?></td>
                             <td class="d-none d-lg-table-cell"><span class="badge bg-info"><?= htmlspecialchars($u['rol'] ?? 'usuario') ?></span></td>
                             <td>
                                 <?php if ($u['estado'] == 1): ?>
@@ -98,6 +106,7 @@ if (!isset($_SESSION['user'])) {
                                 <?php endif; ?>
                             </td>
                             <td class="d-none d-lg-table-cell"><small class="text-muted"><?= htmlspecialchars($u['created_at'] ?? '') ?></small></td>
+                            <td class="d-none d-lg-table-cell"><small class="text-muted"><?= htmlspecialchars($u['updated_at'] ?? '') ?></small></td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a href="<?= BASE_URL ?>/?url=usuarios/editar&id=<?= $u['id'] ?>"
@@ -138,7 +147,7 @@ if (!isset($_SESSION['user'])) {
 
                     <?php if (empty($usuarios)): ?>
                         <tr>
-                            <td colspan="11" class="text-center text-muted py-3">No hay usuarios registrados.</td>
+                            <td colspan="12" class="text-center text-muted py-3">No hay usuarios registrados.</td>
                         </tr>
                     <?php endif; ?>
 

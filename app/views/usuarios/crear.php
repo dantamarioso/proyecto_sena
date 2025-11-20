@@ -1,5 +1,5 @@
 <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
+    <div class="col-12 col-sm-10 col-md-8 col-lg-6">
         <div class="card shadow-sm">
             <div class="card-body">
 
@@ -38,13 +38,13 @@
                     <!-- Celular -->
                     <div class="mb-3">
                         <label class="form-label">Celular (opcional)</label>
-                        <input type="text" name="celular" class="form-control">
+                        <input type="text" name="celular" class="form-control" placeholder="Ej: +57 123 456 7890">
                     </div>
 
                     <!-- Cargo -->
                     <div class="mb-3">
                         <label class="form-label">Cargo (opcional)</label>
-                        <input type="text" name="cargo" class="form-control">
+                        <input type="text" name="cargo" class="form-control" placeholder="Ej: Gerente">
                     </div>
 
                     <!-- Foto -->
@@ -54,10 +54,11 @@
                         <small class="text-muted">Formatos permitidos: JPG, PNG — Máximo 2MB.</small>
 
                         <!-- PREVIEW -->
-                        <div class="mt-2 d-none" id="previewContainerCrear">
+                        <div class="mt-3 d-none" id="previewContainerCrear">
+                            <label class="form-label">Vista previa</label>
                             <img id="preview_crear" src="" 
-                                 width="70" height="70"
-                                 style="object-fit:cover;border-radius:50%;border:2px solid #ddd;">
+                                 width="80" height="80"
+                                 style="object-fit:cover;border-radius:50%;border:3px solid #3b82f6;display:block;">
                         </div>
                     </div>
 
@@ -66,7 +67,7 @@
                         <label class="form-label">Contraseña</label>
                         <div class="input-group">
                             <input type="password" name="password" id="password_crear" class="form-control" required>
-                            <span class="input-group-text pointer" id="togglePasswordCrear">
+                            <span class="input-group-text" id="togglePasswordCrear" style="cursor:pointer;">
                                 <i class="bi bi-eye-fill"></i>
                             </span>
                         </div>
@@ -77,11 +78,11 @@
                         <label class="form-label">Repetir contraseña</label>
                         <div class="input-group">
                             <input type="password" name="password2" id="password2_crear" class="form-control" required>
-                            <span class="input-group-text pointer" id="togglePassword2Crear">
+                            <span class="input-group-text" id="togglePassword2Crear" style="cursor:pointer;">
                                 <i class="bi bi-eye-fill"></i>
                             </span>
                         </div>
-                        <small id="matchMessageCrear" class="text-danger"></small>
+                        <small id="matchMessageCrear" class="text-danger d-none">Las contraseñas no coinciden</small>
                     </div>
 
                     <!-- Rol -->
@@ -103,12 +104,12 @@
                         </select>
                     </div>
 
-                    <div class="d-flex justify-content-between">
-                        <a href="<?= BASE_URL ?>/?url=usuarios/gestionDeUsuarios" class="btn btn-secondary">
-                            Volver
+                    <div class="d-flex justify-content-between gap-2">
+                        <a href="<?= BASE_URL ?>/?url=usuarios/gestion_de_usuarios" class="btn btn-secondary flex-grow-1">
+                            <i class="bi bi-arrow-left"></i> Volver
                         </a>
-                        <button type="submit" class="btn btn-success">
-                            Crear usuario
+                        <button type="submit" class="btn btn-success flex-grow-1">
+                            <i class="bi bi-check-lg"></i> Crear usuario
                         </button>
                     </div>
 

@@ -9,6 +9,9 @@
     <!-- Sidebar CSS -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/sidebar.css">
 
+    <!-- Header y Footer CSS -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/layout.css">
+
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -20,6 +23,9 @@
 
     <!-- CSS responsive -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/usuarios_responsive.css">
+
+    <!-- CSS formularios de usuarios -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/usuarios_form.css">
 
     <!-- CSS por vista -->
     <?php if (!empty($pageStyles) && is_array($pageStyles)): ?>
@@ -46,11 +52,9 @@ $isRegister  = isset($isRegisterPage) && $isRegisterPage === true;
     <?php include __DIR__ . "/sidebar.php"; ?>
 
     <!-- CONTENIDO PRINCIPAL -->
-    <div class="main-content container py-4">
-
+    <div class="main-wrapper">
+        <div class="main-content">
 <?php else: ?>
-
     <!-- LOGIN O REGISTER -->
     <div class="container py-4">
-
 <?php endif; ?>

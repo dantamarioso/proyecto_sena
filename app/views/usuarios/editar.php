@@ -1,5 +1,5 @@
 <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
+    <div class="col-12 col-sm-10 col-md-8 col-lg-6">
         <div class="card shadow-sm">
             <div class="card-body">
                 <h3 class="mb-3">Editar usuario</h3>
@@ -42,14 +42,16 @@
                     <div class="mb-3">
                         <label class="form-label">Celular</label>
                         <input type="text" name="celular" class="form-control"
-                               value="<?= htmlspecialchars($usuario['celular'] ?? '') ?>">
+                               value="<?= htmlspecialchars($usuario['celular'] ?? '') ?>"
+                               placeholder="Ej: +57 123 456 7890">
                     </div>
 
                     <!-- Cargo -->
                     <div class="mb-3">
                         <label class="form-label">Cargo</label>
                         <input type="text" name="cargo" class="form-control"
-                               value="<?= htmlspecialchars($usuario['cargo'] ?? '') ?>">
+                               value="<?= htmlspecialchars($usuario['cargo'] ?? '') ?>"
+                               placeholder="Ej: Gerente">
                     </div>
 
                     <!-- Rol -->
@@ -68,12 +70,13 @@
                         <input type="file" name="foto" id="foto_editar" class="form-control" accept="image/*">
                         <small class="text-muted">Formatos permitidos: JPG, PNG — Máximo 2MB.</small>
 
-                        <div class="mt-2" id="previewContainerEditar"
-                             style="<?= !empty($usuario['foto']) ? '' : 'display:none;' ?>">
+                        <!-- PREVIEW ACTUAL O NUEVA -->
+                        <div class="mt-3" id="previewContainerEditar" style="<?= !empty($usuario['foto']) ? '' : 'display:none;' ?>">
+                            <label class="form-label">Foto actual/nueva</label>
                             <img id="preview_editar"
-                                 src="<?= !empty($usuario['foto']) ? BASE_URL . '/' . htmlspecialchars($usuario['foto']) : '' ?>"
-                                 width="70" height="70"
-                                 style="object-fit:cover;border-radius:50%;border:2px solid #ddd;">
+                                 src="<?= !empty($usuario['foto']) ? BASE_URL . '/' . htmlspecialchars($usuario['foto']) : BASE_URL . '/img/default_user.png' ?>"
+                                 width="80" height="80"
+                                 style="object-fit:cover;border-radius:50%;border:3px solid #3b82f6;display:block;">
                         </div>
                     </div>
 
@@ -81,8 +84,9 @@
                     <div class="mb-3">
                         <label class="form-label">Nueva contraseña (opcional)</label>
                         <div class="input-group">
-                            <input type="password" id="password_edit" name="password" class="form-control">
-                            <span class="input-group-text pointer" id="togglePasswordEdit">
+                            <input type="password" id="password_edit" name="password" class="form-control"
+                                   placeholder="Dejar vacío para mantener la actual">
+                            <span class="input-group-text" id="togglePasswordEdit" style="cursor:pointer;">
                                 <i class="bi bi-eye-fill"></i>
                             </span>
                         </div>
@@ -98,9 +102,13 @@
                         </select>
                     </div>
 
-                    <div class="d-flex justify-content-between">
-                        <a href="<?= BASE_URL ?>/?url=usuarios/gestionDeUsuarios" class="btn btn-secondary">Volver</a>
-                        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                    <div class="d-flex justify-content-between gap-2">
+                        <a href="<?= BASE_URL ?>/?url=usuarios/gestion_de_usuarios" class="btn btn-secondary flex-grow-1">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </a>
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="bi bi-check-lg"></i> Guardar cambios
+                        </button>
                     </div>
                 </form>
 
