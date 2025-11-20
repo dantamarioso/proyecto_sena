@@ -126,15 +126,6 @@ if (!isset($_SESSION['user'])) {
                                             </button>
                                         </form>
                                     <?php endif; ?>
-
-                                    <form class="d-inline" method="post"
-                                          action="<?= BASE_URL ?>/?url=usuarios/eliminar">
-                                        <input type="hidden" name="id" value="<?= $u['id'] ?>">
-                                        <button class="btn btn-danger btn-sm" type="submit" title="Eliminar"
-                                                onclick="return confirm('¿Eliminar usuario definitivamente?');">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
                                 </div>
                             </td>
                         </tr>

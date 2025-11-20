@@ -333,14 +333,6 @@ document.addEventListener("DOMContentLoaded", () => {
                                                 </button>
                                            </form>`
                                     }
-
-                                    <form class="d-inline" method="post" action="${BASE_URL}/?url=usuarios/eliminar">
-                                        <input type="hidden" name="id" value="${u.id}">
-                                        <button class="btn btn-sm btn-danger" type="submit"
-                                                onclick="return confirm('¿Eliminar usuario definitivamente?');">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
                                 </td>
                             </tr>
                         `;

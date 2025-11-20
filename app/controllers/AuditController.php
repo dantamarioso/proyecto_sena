@@ -39,6 +39,20 @@ class AuditController extends Controller
 
         // Obtener lista de todos los usuarios para el filtro (incluyendo el propio)
         $usuarios = $userModel->all();
+        
+        // Obtener también usuarios que aparecen en auditoría pero fueron eliminados
+        $usuariosEliminados = $auditModel->obtenerUsuariosEliminados();
+        $usuarios = array_merge($usuarios, $usuariosEliminados);
+        
+        // Eliminar duplicados por ID y ordenar por nombre
+        $usuariosUnicos = [];
+        foreach ($usuarios as $u) {
+            $usuariosUnicos[$u['id']] = $u;
+        }
+        $usuarios = array_values($usuariosUnicos);
+        usort($usuarios, function($a, $b) {
+            return strcmp($a['nombre'], $b['nombre']);
+        });
 
         $this->view('audit/historial', [
             'cambios' => $cambios,

@@ -103,7 +103,20 @@ class Audit extends Model
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Procesar resultados para mostrar nombre de usuario eliminado
+        foreach ($resultados as &$cambio) {
+            // Si el usuario fue eliminado, extraer nombre de los detalles
+            if (empty($cambio['usuario_modificado'])) {
+                $detalles = json_decode($cambio['detalles'], true) ?? [];
+                if (!empty($detalles['nombre']['anterior'])) {
+                    $cambio['usuario_modificado'] = $detalles['nombre']['anterior'] . ' (Eliminado)';
+                }
+            }
+        }
+        
+        return $resultados;
     }
 
     /**
@@ -140,5 +153,38 @@ class Audit extends Model
         
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['total'] ?? 0;
+    }
+
+    /**
+     * Obtener usuarios que fueron eliminados pero aparecen en auditoría
+     */
+    public function obtenerUsuariosEliminados()
+    {
+        $sql = "SELECT DISTINCT 
+                    a.usuario_id as id,
+                    a.detalles
+                FROM auditoria a
+                WHERE a.tabla = 'usuarios'
+                AND a.accion = 'eliminar'
+                AND a.usuario_id NOT IN (SELECT id FROM usuarios)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Procesar en PHP para extraer nombres de los detalles
+        $usuarios = [];
+        foreach ($results as $row) {
+            $detalles = json_decode($row['detalles'], true) ?? [];
+            $nombre = $detalles['nombre']['anterior'] ?? 'Usuario Eliminado';
+            
+            $usuarios[] = [
+                'id' => $row['id'],
+                'nombre' => $nombre . ' (Eliminado)'
+            ];
+        }
+        
+        return $usuarios;
     }
 }

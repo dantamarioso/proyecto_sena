@@ -37,7 +37,6 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                             <option value="crear" <?= $filtro['accion'] == 'crear' ? 'selected' : '' ?>>Crear</option>
                             <option value="actualizar" <?= $filtro['accion'] == 'actualizar' ? 'selected' : '' ?>>Actualizar</option>
                             <option value="desactivar/activar" <?= $filtro['accion'] == 'desactivar/activar' ? 'selected' : '' ?>>Desactivar/Activar</option>
-                            <option value="eliminar" <?= $filtro['accion'] == 'eliminar' ? 'selected' : '' ?>>Eliminar</option>
                         </select>
                     </div>
 
@@ -79,8 +78,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                         $acciones = [
                             'crear' => ['badge bg-success', 'Creado'],
                             'actualizar' => ['badge bg-info', 'Actualizado'],
-                            'desactivar/activar' => ['badge bg-warning', 'Desactivar/Activar'],
-                            'eliminar' => ['badge bg-danger', 'Eliminado']
+                            'desactivar/activar' => ['badge bg-warning', 'Desactivar/Activar']
                         ];
                         $accion = $cambio['accion'];
                         [$clase, $texto] = $acciones[$accion] ?? ['badge bg-secondary', $accion];
