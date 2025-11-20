@@ -92,6 +92,9 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                 </form>
             </div>
         </div>
+
+        <!-- Sección de Archivos -->
+        <?php include __DIR__ . '/partials/archivos.php'; ?>
     </div>
 </div>
 

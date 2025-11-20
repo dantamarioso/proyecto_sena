@@ -312,9 +312,17 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <td class="d-none d-xl-table-cell">${cel}</td>
                                 <td class="d-none d-xl-table-cell">${car}</td>
                                 <td class="d-none d-lg-table-cell"><span class="badge bg-info">${escapeHtml(rol)}</span></td>
+                                <td class="d-none d-lg-table-cell">
+                                    <span class="badge bg-secondary" id="docs-${u.id}">
+                                        <i class="bi bi-hourglass-split"></i>
+                                    </span>
+                                </td>
                                 <td>${estadoHtml}</td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
+                                        <a href="${BASE_URL}/?url=usuarios/detalles&id=${u.id}" class="btn btn-sm btn-info" title="Ver detalles">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
                                         <a href="${BASE_URL}/?url=usuarios/editar&id=${u.id}" class="btn btn-sm btn-primary" title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </a>
@@ -342,6 +350,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             </tr>
                         `;
                         tbody.insertAdjacentHTML("beforeend", rowHtml);
+                        
+                        // Cargar conteo de documentos para este usuario
+                        cargarDocumentos(u.id);
+                    });
                     });
                 }
 
@@ -428,6 +440,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Cargar usuarios automáticamente al abrir la página
     fetchUsuarios(1);
+    
+    // Cargar conteo de documentos para usuarios iniciales
+    if (tbody) {
+        const badges = tbody.querySelectorAll('[id^="docs-"]');
+        badges.forEach(badge => {
+            const match = badge.id.match(/docs-(\d+)/);
+            if (match) {
+                const usuarioId = match[1];
+                cargarDocumentos(usuarioId);
+            }
+        });
+    }
 });
 
 /* ======================================================
@@ -482,3 +506,28 @@ function showToast(msg, type = "success") {
         setTimeout(() => toast.remove(), 400);
     }, 2500);
 }
+
+/* ======================================================
+   CARGAR CONTEO DE DOCUMENTOS
+====================================================== */
+function cargarDocumentos(usuarioId) {
+    const badgeElement = document.getElementById(`docs-${usuarioId}`);
+    if (!badgeElement) return;
+
+    fetch(`${BASE_URL}/?url=usuarios/contarDocumentos&usuario_id=${usuarioId}`)
+        .then(response => response.json())
+        .then(data => {
+            let badge = '';
+            if (data.count === 0) {
+                badge = '<span class="badge bg-secondary">Sin docs</span>';
+            } else {
+                badge = `<span class="badge bg-primary">${data.count} doc${data.count !== 1 ? 's' : ''}</span>`;
+            }
+            badgeElement.innerHTML = badge;
+        })
+        .catch(err => {
+            console.error("Error cargando documentos:", err);
+            badgeElement.innerHTML = '<span class="badge bg-danger">Error</span>';
+        });
+}
+

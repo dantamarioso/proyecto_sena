@@ -575,4 +575,75 @@ class UsuariosController extends Controller
         ]);
         exit;
     }
+
+    /* =========================================================
+       VER DETALLES DE USUARIO
+    ========================================================== */
+    public function detalles()
+    {
+        if (!isset($_SESSION['user'])) {
+            $this->redirect('auth/login');
+            return;
+        }
+
+        $userId = intval($_GET['id'] ?? 0);
+        
+        // Validar que sea admin o que vea su propio perfil
+        if (($_SESSION['user']['rol'] ?? 'usuario') !== 'admin' && $_SESSION['user']['id'] !== $userId) {
+            http_response_code(403);
+            echo "Acceso denegado.";
+            exit;
+        }
+
+        if ($userId <= 0) {
+            http_response_code(404);
+            echo "Usuario no encontrado.";
+            exit;
+        }
+
+        $userModel = new User();
+        $usuario = $userModel->getById($userId);
+
+        if (!$usuario) {
+            http_response_code(404);
+            echo "Usuario no encontrado.";
+            exit;
+        }
+
+        // Obtener archivos subidos por este usuario
+        require_once __DIR__ . '/../models/MaterialArchivo.php';
+        $archivoModel = new MaterialArchivo();
+        $archivos = $archivoModel->getByUsuario($userId);
+
+        $this->view('usuarios/detalles', [
+            'usuario'     => $usuario,
+            'archivos'    => $archivos,
+            'pageStyles'  => ['perfil'],
+            'pageScripts' => [],
+        ]);
+    }
+
+    /* =========================================================
+       CONTAR DOCUMENTOS POR USUARIO (AJAX)
+    ========================================================== */
+    public function contarDocumentos()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $this->requireAdmin();
+
+        $usuarioId = intval($_GET['usuario_id'] ?? 0);
+
+        if ($usuarioId <= 0) {
+            echo json_encode(['count' => 0, 'error' => 'Usuario inválido']);
+            exit;
+        }
+
+        require_once __DIR__ . '/../models/MaterialArchivo.php';
+        $archivoModel = new MaterialArchivo();
+        $count = $archivoModel->countByUsuario($usuarioId);
+
+        echo json_encode(['count' => $count]);
+        exit;
+    }
 }

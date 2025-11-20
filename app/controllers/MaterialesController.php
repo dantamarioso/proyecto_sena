@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../core/Database.php';
+require_once __DIR__ . '/../models/MaterialArchivo.php';
 
 class MaterialesController extends Controller
 {
@@ -145,7 +146,7 @@ class MaterialesController extends Controller
 
                     // Registrar en auditoría
                     $this->registrarAuditoria('CREATE', 'materiales', $data['nombre'], $data);
-                    echo json_encode(['success' => true, 'message' => 'Material creado exitosamente']);
+                    echo json_encode(['success' => true, 'message' => 'Material creado exitosamente', 'id' => $materialId]);
                     exit;
                 } else {
                     $errores[] = "Error al crear el material. Intenta de nuevo.";
@@ -191,6 +192,10 @@ class MaterialesController extends Controller
         $lineas = $materialModel->getLineas();
         $errores = [];
 
+        // Obtener archivos del material
+        $archivoModel = new MaterialArchivo();
+        $archivos = $archivoModel->getByMaterial($id);
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Content-Type: application/json; charset=utf-8');
             $data = [
@@ -230,6 +235,7 @@ class MaterialesController extends Controller
         $this->view('materiales/editar', [
             'material'    => $material,
             'lineas'      => $lineas,
+            'archivos'    => $archivos,
             'errores'     => $errores,
             'pageStyles'  => ['materiales', 'usuarios', 'materiales_form'],
             'pageScripts' => ['materiales'],
@@ -536,5 +542,169 @@ class MaterialesController extends Controller
         } catch (Exception $e) {
             // Log silencioso si falla auditoría
         }
+    }
+
+    /* =========================================================
+       ARCHIVOS DE MATERIAL
+    ========================================================== */
+
+    public function subirArchivo()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $this->requireAdmin();
+
+        $materialId = intval($_POST['material_id'] ?? 0);
+        
+        if ($materialId <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Material inválido']);
+            exit;
+        }
+
+        if (empty($_FILES['archivo'])) {
+            echo json_encode(['success' => false, 'message' => 'No se envió archivo']);
+            exit;
+        }
+
+        $materialModel = new Material();
+        $material = $materialModel->getById($materialId);
+
+        if (!$material) {
+            echo json_encode(['success' => false, 'message' => 'Material no encontrado']);
+            exit;
+        }
+
+        $archivo = $_FILES['archivo'];
+        $nombreOriginal = $archivo['name'];
+        $ext = strtolower(pathinfo($nombreOriginal, PATHINFO_EXTENSION));
+
+        // Extensiones permitidas (documentos planos)
+        $extensionesPermitidas = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv'];
+        
+        if (!in_array($ext, $extensionesPermitidas)) {
+            echo json_encode(['success' => false, 'message' => 'Tipo de archivo no permitido. Solo documentos planos.']);
+            exit;
+        }
+
+        // Validar tamaño (máximo 10MB)
+        if ($archivo['size'] > 10 * 1024 * 1024) {
+            echo json_encode(['success' => false, 'message' => 'El archivo supera el tamaño máximo de 10MB.']);
+            exit;
+        }
+
+        $nombreArchivo = "uploads/materiales/" . uniqid("archivo_") . "." . $ext;
+        $rutaSistema = __DIR__ . "/../../public/" . $nombreArchivo;
+
+        if (!is_dir(__DIR__ . "/../../public/uploads/materiales")) {
+            mkdir(__DIR__ . "/../../public/uploads/materiales", 0777, true);
+        }
+
+        if (move_uploaded_file($archivo['tmp_name'], $rutaSistema)) {
+            $archivoModel = new MaterialArchivo();
+            $archivoModel->create([
+                'material_id' => $materialId,
+                'nombre_original' => $nombreOriginal,
+                'nombre_archivo' => $nombreArchivo,
+                'tipo_archivo' => $archivo['type'],
+                'tamaño' => $archivo['size'],
+                'usuario_id' => $_SESSION['user']['id']
+            ]);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Archivo subido exitosamente'
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Error al subir el archivo']);
+        }
+        exit;
+    }
+
+    public function eliminarArchivo()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $this->requireAdmin();
+
+        $archivoId = intval($_POST['id'] ?? 0);
+
+        if ($archivoId <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID inválido']);
+            exit;
+        }
+
+        $archivoModel = new MaterialArchivo();
+        $archivo = $archivoModel->getById($archivoId);
+
+        if (!$archivo) {
+            echo json_encode(['success' => false, 'message' => 'Archivo no encontrado']);
+            exit;
+        }
+
+        // Eliminar archivo del sistema
+        $rutaArchivo = __DIR__ . "/../../public/" . $archivo['nombre_archivo'];
+        if (file_exists($rutaArchivo)) {
+            unlink($rutaArchivo);
+        }
+
+        // Eliminar registro de BD
+        $archivoModel->delete($archivoId);
+
+        echo json_encode(['success' => true, 'message' => 'Archivo eliminado exitosamente']);
+        exit;
+    }
+
+    public function obtenerArchivos()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $this->requireAuth();
+
+        $materialId = intval($_GET['material_id'] ?? 0);
+
+        if ($materialId <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Material inválido']);
+            exit;
+        }
+
+        $archivoModel = new MaterialArchivo();
+        $archivos = $archivoModel->getByMaterial($materialId);
+
+        echo json_encode([
+            'success' => true,
+            'archivos' => $archivos
+        ]);
+        exit;
+    }
+
+    /* =========================================================
+       VER DETALLES DE MATERIAL
+    ========================================================== */
+    public function detalles()
+    {
+        $this->requireAuth();
+
+        $materialId = intval($_GET['id'] ?? 0);
+
+        if ($materialId <= 0) {
+            http_response_code(404);
+            echo "Material no encontrado.";
+            exit;
+        }
+
+        $materialModel = new Material();
+        $material = $materialModel->getById($materialId);
+
+        if (!$material) {
+            http_response_code(404);
+            echo "Material no encontrado.";
+            exit;
+        }
+
+        $this->view('materiales/detalles', [
+            'material'    => $material,
+            'pageStyles'  => ['materiales'],
+            'pageScripts' => [],
+        ]);
     }
 }

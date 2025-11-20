@@ -73,6 +73,7 @@ if (!isset($_SESSION['user'])) {
                         <th class="d-none d-xl-table-cell">Celular</th>
                         <th class="d-none d-xl-table-cell">Cargo</th>
                         <th class="d-none d-lg-table-cell">Rol</th>
+                        <th class="d-none d-lg-table-cell">Documentos</th>
                         <th>Estado</th>
                         <th class="text-center">Acciones</th>
                     </thead>
@@ -95,6 +96,11 @@ if (!isset($_SESSION['user'])) {
                             <td class="d-none d-xl-table-cell"><?= $u['celular'] ? htmlspecialchars($u['celular']) : '<span class="text-muted">N/A</span>' ?></td>
                             <td class="d-none d-xl-table-cell"><?= $u['cargo'] ? htmlspecialchars($u['cargo']) : '<span class="text-muted">Sin cargo</span>' ?></td>
                             <td class="d-none d-lg-table-cell"><span class="badge bg-info"><?= htmlspecialchars($u['rol'] ?? 'usuario') ?></span></td>
+                            <td class="d-none d-lg-table-cell">
+                                <span class="badge bg-secondary" data-user-id="<?= $u['id'] ?>" id="docs-<?= $u['id'] ?>">
+                                    <i class="bi bi-hourglass-split"></i>
+                                </span>
+                            </td>
                             <td>
                                 <?php if ($u['estado'] == 1): ?>
                                     <span class="badge bg-success">Activo</span>
@@ -104,6 +110,10 @@ if (!isset($_SESSION['user'])) {
                             </td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm" role="group">
+                                    <a href="<?= BASE_URL ?>/?url=usuarios/detalles&id=<?= $u['id'] ?>"
+                                       class="btn btn-info btn-sm" title="Ver detalles">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                     <a href="<?= BASE_URL ?>/?url=usuarios/editar&id=<?= $u['id'] ?>"
                                        class="btn btn-primary btn-sm" title="Editar">
                                         <i class="bi bi-pencil"></i>

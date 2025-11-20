@@ -7,6 +7,7 @@ require_once __DIR__ . '/../app/core/Database.php';
 require_once __DIR__ . '/../app/core/Model.php';
 require_once __DIR__ . '/../app/core/Controller.php';
 require_once __DIR__ . '/../app/helpers/MailHelper.php';
+require_once __DIR__ . '/../app/helpers/ViewHelpers.php';
 
 // Autocarga simple de controllers y models
 spl_autoload_register(function ($class) {
