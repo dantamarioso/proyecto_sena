@@ -39,6 +39,20 @@ $avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . "/img/defaul
             </a>
         </li>
 
+        <!-- Inventario -->
+        <li>
+            <a href="<?= BASE_URL ?>/?url=materiales/index">
+                <i class="bi bi-box2-heart"></i>
+                <span>Gestión de Inventario</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="<?= BASE_URL ?>/?url=materiales/historialInventario">
+                <i class="bi bi-clock-history"></i>
+                <span>Historial de Inventario</span>
+            </a>
+        </li>
 
         <?php if ($rol === 'admin'): ?>
         <li>
@@ -51,7 +65,7 @@ $avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . "/img/defaul
         <li>
             <a href="<?= BASE_URL ?>/?url=audit/historial">
                 <i class="bi bi-clock-history"></i>
-                <span>Historial de Cambios</span>
+                <span>Historial de Cambios Usuarios</span>
             </a>
         </li>
         <?php endif; ?>

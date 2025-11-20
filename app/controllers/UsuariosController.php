@@ -456,53 +456,54 @@ class UsuariosController extends Controller
     ========================================================== */
     public function eliminar()
     {
+        header('Content-Type: application/json; charset=utf-8');
+        
         $this->requireAdmin();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = intval($_POST['id'] ?? 0);
 
-            if ($id > 0) {
-                $userModel = new User();
-                $usuario = $userModel->findById($id);
-                
-                // Registrar en auditoría ANTES de eliminar el usuario
-                $auditModel = new Audit();
-                $auditModel->registrarCambio(
-                    $id,
-                    'usuarios',
-                    $id,
-                    'eliminar',
-                    [
-                        'nombre' => [
-                            'anterior' => $usuario['nombre'] ?? 'Desconocido',
-                            'nuevo' => 'N/A'
-                        ],
-                        'correo' => [
-                            'anterior' => $usuario['correo'] ?? '',
-                            'nuevo' => 'N/A'
-                        ],
-                        'nombre_usuario' => [
-                            'anterior' => $usuario['nombre_usuario'] ?? '',
-                            'nuevo' => 'N/A'
-                        ],
-                        'rol' => [
-                            'anterior' => $usuario['rol'] ?? 'usuario',
-                            'nuevo' => 'N/A'
-                        ],
-                        'estado' => [
-                            'anterior' => ($usuario['estado'] ?? 1) == 1 ? 'Activo' : 'Bloqueado',
-                            'nuevo' => 'N/A'
-                        ]
-                    ],
-                    $_SESSION['user']['id'] ?? null
-                );
-                
-                // DESPUÉS eliminar el usuario
-                $userModel->deleteById($id);
+            if ($id <= 0) {
+                echo json_encode(['success' => false, 'message' => 'ID de usuario inválido']);
+                exit;
             }
+
+            $userModel = new User();
+            $usuario = $userModel->findById($id);
+            
+            if (!$usuario) {
+                echo json_encode(['success' => false, 'message' => 'Usuario no encontrado']);
+                exit;
+            }
+            
+            // Registrar en auditoría ANTES de eliminar el usuario
+            require_once __DIR__ . '/../models/Audit.php';
+            $auditModel = new Audit();
+            $auditModel->registrarCambio(
+                $_SESSION['user']['id'],
+                'usuarios',
+                $id,
+                'eliminar',
+                json_encode([
+                    'id' => $usuario['id'],
+                    'nombre' => $usuario['nombre'] ?? 'Desconocido',
+                    'correo' => $usuario['correo'] ?? '',
+                    'nombre_usuario' => $usuario['nombre_usuario'] ?? '',
+                    'rol' => $usuario['rol'] ?? 'usuario',
+                    'estado' => ($usuario['estado'] ?? 1) == 1 ? 'Activo' : 'Bloqueado'
+                ]),
+                $_SESSION['user']['id']
+            );
+            
+            // DESPUÉS eliminar el usuario
+            $userModel->deleteById($id);
+            
+            echo json_encode(['success' => true, 'message' => 'Usuario eliminado exitosamente']);
+            exit;
         }
 
-        $this->redirect('usuarios/gestionDeUsuarios');
+        echo json_encode(['success' => false, 'message' => 'Método no permitido']);
+        exit;
     }
 
     /* =========================================================
@@ -510,9 +511,9 @@ class UsuariosController extends Controller
     ========================================================== */
     public function buscar()
     {
-        $this->requireAdmin();
-
         header('Content-Type: application/json; charset=utf-8');
+        
+        $this->requireAdmin();
 
         $q      = trim($_GET['q']      ?? '');
         $estado = $_GET['estado']      ?? '';
@@ -542,6 +543,8 @@ class UsuariosController extends Controller
     ========================================================== */
     public function verificarNombreUsuario()
     {
+        header('Content-Type: application/json; charset=utf-8');
+        
         $this->requireAdmin();
 
         $nombreUsuario = trim($_GET['nombre_usuario'] ?? '');

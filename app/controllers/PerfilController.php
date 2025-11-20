@@ -230,8 +230,16 @@ class PerfilController extends Controller
                 // Actualizar sesión si es el usuario actual
                 if ($id === $currentId) {
                     $_SESSION['user']['nombre'] = $nombre;
+                    // SIEMPRE actualizar la foto: si hay nueva, usar esa; si no, usar la existente
                     if (!empty($fotoRuta)) {
-                        $_SESSION['user']['foto'] = $fotoRuta;
+                        $_SESSION['user']['foto'] = $fotoRuta . '?t=' . time();
+                    } else {
+                        // Asegurar que la foto en sesión esté sincronizada con BD
+                        $usuarioActualizado = $userModel->findById($id);
+                        if ($usuarioActualizado && !empty($usuarioActualizado['foto'])) {
+                            // Agregar timestamp para evitar caché
+                            $_SESSION['user']['foto'] = $usuarioActualizado['foto'] . '?t=' . time();
+                        }
                     }
                 }
 
@@ -317,8 +325,8 @@ class PerfilController extends Controller
                 'foto' => $nombreFoto
             ]);
 
-            // Actualizar sesión
-            $_SESSION['user']['foto'] = $nombreFoto;
+            // Actualizar sesión con timestamp para evitar caché
+            $_SESSION['user']['foto'] = $nombreFoto . '?t=' . time();
 
             // Registrar en auditoría
             $auditModel = new Audit();
@@ -383,11 +391,14 @@ class PerfilController extends Controller
             }
 
             // Verificar código
-            if ($userModel->verifyCode($userId, $codigo)) {
+            if ($userModel->verifyEmailCodeById($userId, $codigo)) {
                 // Actualizar correo en la BD
                 $userModel->updateFull($userId, [
                     'correo' => $newEmail
                 ]);
+
+                // Limpiar los campos de verificación
+                $userModel->clearVerificationCode($userId);
 
                 // Actualizar sesión
                 $_SESSION['user']['correo'] = $newEmail;

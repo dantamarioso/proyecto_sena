@@ -126,6 +126,9 @@ if (!isset($_SESSION['user'])) {
                                             </button>
                                         </form>
                                     <?php endif; ?>
+                                    <button class="btn btn-danger btn-sm btn-eliminar" data-id="<?= $u['id'] ?>" data-nombre="<?= htmlspecialchars($u['nombre']) ?>" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>

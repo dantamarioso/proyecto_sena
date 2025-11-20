@@ -12,7 +12,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
 <div class="row justify-content-center">
     <div class="col-12">
 
-        <h3 class="mb-3">Historial de Cambios</h3>
+        <h3 class="mb-3">Historial de Cambios Usuario</h3>
 
         <!-- Filtros -->
         <div class="card mb-3">
@@ -37,6 +37,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                             <option value="crear" <?= $filtro['accion'] == 'crear' ? 'selected' : '' ?>>Crear</option>
                             <option value="actualizar" <?= $filtro['accion'] == 'actualizar' ? 'selected' : '' ?>>Actualizar</option>
                             <option value="desactivar/activar" <?= $filtro['accion'] == 'desactivar/activar' ? 'selected' : '' ?>>Desactivar/Activar</option>
+                            <option value="eliminar" <?= $filtro['accion'] == 'eliminar' ? 'selected' : '' ?>>Eliminar</option>
                         </select>
                     </div>
 
@@ -50,6 +51,12 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                         <label class="form-label">Hasta</label>
                         <input type="date" id="filtro-fecha-fin" class="form-control"
                                value="<?= htmlspecialchars($filtro['fecha_fin']) ?>">
+                    </div>
+
+                    <div class="col-12 col-md-2">
+                        <button type="button" class="btn btn-outline-secondary w-100" id="btn-limpiar-filtros">
+                            <i class="bi bi-x-circle"></i> Limpiar
+                        </button>
                     </div>
 
                 </div>
@@ -72,13 +79,15 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                     <tbody id="historial-body">
                     <?php foreach ($cambios as $cambio): ?>
                         <?php 
-                        $detalles = json_decode($cambio['detalles'], true) ?? [];
+                        $detallesRaw = json_decode($cambio['detalles'], true);
+                        $detalles = is_array($detallesRaw) ? $detallesRaw : [];
                         $tieneDetalles = !empty($detalles);
                         $detallesId = 'detalles-' . $cambio['id'] . '-0';
                         $acciones = [
                             'crear' => ['badge bg-success', 'Creado'],
                             'actualizar' => ['badge bg-info', 'Actualizado'],
-                            'desactivar/activar' => ['badge bg-warning', 'Desactivar/Activar']
+                            'desactivar/activar' => ['badge bg-warning', 'Desactivar/Activar'],
+                            'eliminar' => ['badge bg-danger', 'Eliminado']
                         ];
                         $accion = $cambio['accion'];
                         [$clase, $texto] = $acciones[$accion] ?? ['badge bg-secondary', $accion];

@@ -25,6 +25,7 @@ let totalPages = 1;
 document.addEventListener('DOMContentLoaded', function() {
     const btnPrev = document.getElementById('btn-prev');
     const btnNext = document.getElementById('btn-next');
+    const btnLimpiar = document.getElementById('btn-limpiar-filtros');
     const filtroUsuario = document.getElementById('filtro-usuario');
     const filtroAccion = document.getElementById('filtro-accion');
     const filtroFechaInicio = document.getElementById('filtro-fecha-inicio');
@@ -59,6 +60,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (filtroFechaFin) {
         filtroFechaFin.addEventListener('change', function() {
+            aplicarFiltros(1);
+        });
+    }
+    
+    // Evento: Limpiar filtros
+    if (btnLimpiar) {
+        btnLimpiar.addEventListener('click', function() {
+            filtroUsuario.value = '';
+            filtroAccion.value = '';
+            filtroFechaInicio.value = '';
+            filtroFechaFin.value = '';
             aplicarFiltros(1);
         });
     }
@@ -227,7 +239,10 @@ function actualizarPaginacion(data) {
     paginaActual = data.page;
     totalPages = data.totalPages;
     
-    document.getElementById('pagina-actual').textContent = `${paginaActual} / ${totalPages}`;
+    const paginaActualElement = document.getElementById('pagina-actual');
+    if (paginaActualElement) {
+        paginaActualElement.textContent = `${paginaActual} / ${totalPages}`;
+    }
     
     const btnPrev = document.getElementById('btn-prev');
     const btnNext = document.getElementById('btn-next');

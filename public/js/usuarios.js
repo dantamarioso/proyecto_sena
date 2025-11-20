@@ -314,25 +314,30 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <td class="d-none d-lg-table-cell"><span class="badge bg-info">${escapeHtml(rol)}</span></td>
                                 <td>${estadoHtml}</td>
                                 <td class="text-center">
-                                    <a href="${BASE_URL}/?url=usuarios/editar&id=${u.id}" class="btn btn-sm btn-primary">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="${BASE_URL}/?url=usuarios/editar&id=${u.id}" class="btn btn-sm btn-primary" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
 
-                                    ${
-                                        u.estado == 1
-                                        ? `<form class="d-inline" method="post" action="${BASE_URL}/?url=usuarios/bloquear">
-                                                <input type="hidden" name="id" value="${u.id}">
-                                                <button class="btn btn-sm btn-warning" type="submit">
-                                                    <i class="bi bi-ban"></i>
-                                                </button>
-                                           </form>`
-                                        : `<form class="d-inline" method="post" action="${BASE_URL}/?url=usuarios/desbloquear">
-                                                <input type="hidden" name="id" value="${u.id}">
-                                                <button class="btn btn-sm btn-success" type="submit">
-                                                    <i class="bi bi-unlock"></i>
-                                                </button>
-                                           </form>`
-                                    }
+                                        ${
+                                            u.estado == 1
+                                            ? `<form class="d-inline" method="post" action="${BASE_URL}/?url=usuarios/bloquear">
+                                                    <input type="hidden" name="id" value="${u.id}">
+                                                    <button class="btn btn-sm btn-warning" type="submit" title="Bloquear">
+                                                        <i class="bi bi-ban"></i>
+                                                    </button>
+                                               </form>`
+                                            : `<form class="d-inline" method="post" action="${BASE_URL}/?url=usuarios/desbloquear">
+                                                    <input type="hidden" name="id" value="${u.id}">
+                                                    <button class="btn btn-sm btn-success" type="submit" title="Desbloquear">
+                                                        <i class="bi bi-unlock"></i>
+                                                    </button>
+                                               </form>`
+                                        }
+                                        <button class="btn btn-sm btn-danger btn-eliminar" data-id="${u.id}" data-nombre="${escapeHtml(u.nombre)}" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -407,9 +412,53 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Manejador para botones de eliminar usuario
+    document.addEventListener("click", (e) => {
+        if (e.target.closest(".btn-eliminar")) {
+            const btn = e.target.closest(".btn-eliminar");
+            const usuarioId = btn.getAttribute("data-id");
+            const usuarioNombre = btn.getAttribute("data-nombre");
+            
+            // Confirmación
+            if (confirm(`¿Estás seguro de que deseas eliminar a ${usuarioNombre}? Esta acción no se puede deshacer.`)) {
+                eliminarUsuario(usuarioId);
+            }
+        }
+    });
+
     // Cargar usuarios automáticamente al abrir la página
     fetchUsuarios(1);
 });
+
+/* ======================================================
+   FUNCIONES ADICIONALES - ELIMINAR USUARIO
+====================================================== */
+
+function eliminarUsuario(usuarioId) {
+    const formData = new FormData();
+    formData.append("id", usuarioId);
+
+    fetch(BASE_URL + "/?url=usuarios/eliminar", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message || "Usuario eliminado exitosamente", "success");
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showToast(data.message || "Error al eliminar usuario", "error");
+        }
+    })
+    .catch(err => {
+        console.error("Error eliminando usuario:", err);
+        showToast("Error al eliminar usuario", "error");
+    });
+}
+
 /* ======================================================
    TOASTS
 ====================================================== */

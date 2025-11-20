@@ -45,12 +45,12 @@ class User extends Model
         $stmt = $this->db->prepare($sql);
 
         $params = [
-            ':nombre'         => $data['nombre'],
-            ':correo'         => $data['correo'],
-            ':nombre_usuario' => $data['nombre_usuario'],
-            ':celular'        => $data['celular'],
-            ':cargo'          => $data['cargo'],
-            ':estado'         => $data['estado'],
+            ':nombre'         => $data['nombre'] ?? null,
+            ':correo'         => $data['correo'] ?? null,
+            ':nombre_usuario' => $data['nombre_usuario'] ?? null,
+            ':celular'        => $data['celular'] ?? null,
+            ':cargo'          => $data['cargo'] ?? null,
+            ':estado'         => $data['estado'] ?? null,
             ':id'             => $id
         ];
 
@@ -225,6 +225,10 @@ class User extends Model
     ========================================= */
     public function deleteById($id)
     {
+        // Establecer variable de sesión para el trigger
+        $userId = $_SESSION['user']['id'] ?? 1;
+        $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
+        
         $stmt = $this->db->prepare("DELETE FROM usuarios WHERE id = :id");
         $result = $stmt->execute([':id' => $id]);
         
@@ -357,6 +361,29 @@ class User extends Model
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function verifyEmailCodeById($userId, $code)
+    {
+        $stmt = $this->db->prepare("
+        SELECT * FROM usuarios 
+        WHERE id = :id AND verification_code = :code 
+              AND verification_expire > NOW()
+        LIMIT 1
+    ");
+        $stmt->execute([':id' => $userId, ':code' => $code]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function clearVerificationCode($id)
+    {
+        $stmt = $this->db->prepare("
+        UPDATE usuarios SET 
+            verification_code = NULL,
+            verification_expire = NULL
+        WHERE id = :id
+    ");
+        return $stmt->execute([':id' => $id]);
+    }
+
     public function markEmailAsVerified($id)
     {
         $stmt = $this->db->prepare("
@@ -404,17 +431,6 @@ class User extends Model
         $remaining = $expireTime - time();
         
         return max(0, $remaining);
-    }
-
-    public function clearVerificationCode($id)
-    {
-        $stmt = $this->db->prepare("
-        UPDATE usuarios SET 
-            verification_code = NULL,
-            verification_expire = NULL
-        WHERE id = :id
-    ");
-        return $stmt->execute([':id' => $id]);
     }
 
 

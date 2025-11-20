@@ -192,13 +192,32 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(r => r.json())
             .then(json => {
                 if (json.success) {
-                    // Actualizar foto en la vista actual
-                    fotoPerfil.src = json.foto;
+                    console.log('✅ Foto actualizada en servidor');
+                    console.log('URL de foto:', json.foto);
                     
-                    // Actualizar foto en el sidebar
+                    // Agregar timestamp para evitar caché
+                    const fotoConTimestamp = json.foto + '?t=' + new Date().getTime();
+                    
+                    // Actualizar foto en la vista actual (perfil)
+                    if (fotoPerfil) {
+                        fotoPerfil.src = fotoConTimestamp;
+                        console.log('✅ Foto actualizada en perfil');
+                    }
+                    
+                    // Actualizar foto en el sidebar - buscar por múltiples selectores
                     const sidebarAvatar = document.querySelector('.sidebar-avatar');
                     if (sidebarAvatar) {
-                        sidebarAvatar.src = json.foto;
+                        sidebarAvatar.src = fotoConTimestamp;
+                        console.log('✅ Foto actualizada en sidebar (.sidebar-avatar)');
+                    } else {
+                        console.warn('⚠️ No se encontró .sidebar-avatar');
+                    }
+                    
+                    // También buscar por atributo específico si existe
+                    const avatarImg = document.querySelector('img[class*="sidebar-avatar"], .sidebar-header img');
+                    if (avatarImg && avatarImg !== sidebarAvatar) {
+                        avatarImg.src = fotoConTimestamp;
+                        console.log('✅ Foto actualizada en avatar alternativo');
                     }
                     
                     inputFoto.value = "";
@@ -210,16 +229,19 @@ document.addEventListener("DOMContentLoaded", () => {
                     // Mostrar éxito
                     showToast("Foto de perfil actualizada exitosamente", "success");
 
-                    // Recargar página después de 1.5 segundos para sincronizar sesión
+                    // Recargar página después de 2 segundos para sincronizar sesión completa
+                    console.log('⏳ Recargando página en 2 segundos...');
                     setTimeout(() => {
+                        console.log('🔄 Recargando...');
                         location.reload();
-                    }, 1500);
+                    }, 2000);
                 } else {
+                    console.error('❌ Error del servidor:', json.message);
                     alert("Error: " + json.message);
                 }
             })
             .catch(err => {
-                console.error(err);
+                console.error('❌ Error en fetch:', err);
                 alert("Error al cambiar la foto");
             })
             .finally(() => {
