@@ -5,6 +5,10 @@ if (!isset($_SESSION['user'])) {
 }
 ?>
 
+<script>
+    const BASE_URL = "<?= BASE_URL ?>";
+</script>
+
 <style>
     tbody tr:only-child td {
         display: table-cell !important;
@@ -75,6 +79,7 @@ if (!isset($_SESSION['user'])) {
                             <th class="text-center">Cantidad</th>
                             <th class="d-none d-lg-table-cell">Usuario</th>
                             <th class="d-none d-lg-table-cell">Descripción</th>
+                            <th class="d-none d-lg-table-cell">Documentos</th>
                             <th>Fecha</th>
                             <th class="text-center">Acciones</th>
                         </tr>
@@ -131,6 +136,13 @@ if (!isset($_SESSION['user'])) {
                                             <small class="text-muted">Material eliminado del inventario</small>
                                         <?php endif; ?>
                                     </td>
+                                    <td class="d-none d-lg-table-cell">
+                                        <a href="<?= BASE_URL ?>/?url=materiales/detalles&id=<?= $mov['material_id'] ?? 0 ?>" class="text-decoration-none" title="Ver detalles y archivos">
+                                            <span class="badge bg-secondary" id="docs-historial-<?= $mov['id'] ?>" data-material-id="<?= $mov['material_id'] ?? 0 ?>" style="cursor: pointer;">
+                                                <i class="bi bi-hourglass-split"></i>
+                                            </span>
+                                        </a>
+                                    </td>
                                     <td>
                                         <small>
                                             <?php $fecha = $mov['tipo_registro'] === 'movimiento' ? $mov['fecha_movimiento'] : $mov['fecha_creacion']; ?>
@@ -153,7 +165,7 @@ if (!isset($_SESSION['user'])) {
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="9" class="text-center text-muted py-3">
+                                <td colspan="10" class="text-center text-muted py-3">
                                     <i class="bi bi-inbox"></i> No hay movimientos registrados.
                                 </td>
                             </tr>
@@ -205,8 +217,6 @@ if (!isset($_SESSION['user'])) {
 </div>
 
 <script>
-    const BASE_URL = "<?= BASE_URL ?>";
-
     // Función para escapar HTML
     function escapeHtml(text) {
         if (!text) return '';
@@ -509,5 +519,34 @@ if (!isset($_SESSION['user'])) {
                 window.location.href = urlDestino;
             });
         }
+
+        // Cargar conteo de documentos para cada material
+        const documentosBadges = document.querySelectorAll('[id^="docs-historial-"]');
+        documentosBadges.forEach(badge => {
+            const materialId = badge.dataset.materialId;
+            if (materialId && materialId > 0) {
+                cargarDocumentosHistorial(materialId, badge.id);
+            }
+        });
     });
+
+    // Función para cargar conteo de documentos en historial
+    function cargarDocumentosHistorial(materialId, badgeId) {
+        const badgeElement = document.getElementById(badgeId);
+        if (!badgeElement) return;
+
+        fetch(`${BASE_URL}/?url=materiales/contarDocumentos&material_id=${materialId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.count === 0) {
+                    badgeElement.innerHTML = '<span class="badge bg-secondary">Sin docs</span>';
+                } else {
+                    badgeElement.innerHTML = `<span class="badge bg-primary">${data.count} doc${data.count !== 1 ? 's' : ''}</span>`;
+                }
+            })
+            .catch(err => {
+                console.error("Error cargando documentos:", err);
+                badgeElement.innerHTML = '<span class="badge bg-danger">Error</span>';
+            });
+    }
 </script>

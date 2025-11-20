@@ -11,7 +11,7 @@ class Material extends Model
             SELECT m.*, l.nombre as linea_nombre 
             FROM materiales m 
             LEFT JOIN lineas l ON m.linea_id = l.id 
-            ORDER BY m.fecha_creacion DESC
+            ORDER BY m.fecha_actualizacion DESC
         ");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -93,8 +93,8 @@ class Material extends Model
     {
         $stmt = $this->db->prepare("
             INSERT INTO materiales 
-            (codigo, nombre, descripcion, linea_id, cantidad, estado, fecha_creacion) 
-            VALUES (:codigo, :nombre, :descripcion, :linea_id, :cantidad, :estado, NOW())
+            (codigo, nombre, descripcion, linea_id, cantidad, estado) 
+            VALUES (:codigo, :nombre, :descripcion, :linea_id, :cantidad, :estado)
         ");
 
         if ($stmt->execute([
@@ -326,29 +326,29 @@ class Material extends Model
                 a.tabla,
                 a.accion,
                 a.detalles,
-                a.fecha_creacion,
+                a.fecha_cambio,
                 u.nombre as usuario_nombre,
                 u.foto as usuario_foto,
                 JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.nombre')) as material_nombre,
                 JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.codigo')) as material_codigo,
-                JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.linea_nombre')) as linea_nombre
+                JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.nombre')) as linea_nombre
             FROM auditoria a
             LEFT JOIN usuarios u ON a.usuario_id = u.id
-            WHERE a.tabla = 'materiales' AND a.accion = 'eliminar'
+            WHERE a.tabla = 'materiales' AND a.accion = 'DELETE'
         ";
         $params = [];
 
         if (!empty($filtros['fecha_inicio'])) {
-            $sql .= " AND a.fecha_creacion >= :fecha_inicio";
+            $sql .= " AND a.fecha_cambio >= :fecha_inicio";
             $params[':fecha_inicio'] = $filtros['fecha_inicio'] . ' 00:00:00';
         }
 
         if (!empty($filtros['fecha_fin'])) {
-            $sql .= " AND a.fecha_creacion <= :fecha_fin";
+            $sql .= " AND a.fecha_cambio <= :fecha_fin";
             $params[':fecha_fin'] = $filtros['fecha_fin'] . ' 23:59:59';
         }
 
-        $sql .= " ORDER BY a.fecha_creacion DESC";
+        $sql .= " ORDER BY a.fecha_cambio DESC";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);

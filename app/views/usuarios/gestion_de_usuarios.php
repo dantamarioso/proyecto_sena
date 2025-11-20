@@ -73,7 +73,6 @@ if (!isset($_SESSION['user'])) {
                         <th class="d-none d-xl-table-cell">Celular</th>
                         <th class="d-none d-xl-table-cell">Cargo</th>
                         <th class="d-none d-lg-table-cell">Rol</th>
-                        <th class="d-none d-lg-table-cell">Documentos</th>
                         <th>Estado</th>
                         <th class="text-center">Acciones</th>
                     </thead>
@@ -96,11 +95,6 @@ if (!isset($_SESSION['user'])) {
                             <td class="d-none d-xl-table-cell"><?= $u['celular'] ? htmlspecialchars($u['celular']) : '<span class="text-muted">N/A</span>' ?></td>
                             <td class="d-none d-xl-table-cell"><?= $u['cargo'] ? htmlspecialchars($u['cargo']) : '<span class="text-muted">Sin cargo</span>' ?></td>
                             <td class="d-none d-lg-table-cell"><span class="badge bg-info"><?= htmlspecialchars($u['rol'] ?? 'usuario') ?></span></td>
-                            <td class="d-none d-lg-table-cell">
-                                <span class="badge bg-secondary" data-user-id="<?= $u['id'] ?>" id="docs-<?= $u['id'] ?>">
-                                    <i class="bi bi-hourglass-split"></i>
-                                </span>
-                            </td>
                             <td>
                                 <?php if ($u['estado'] == 1): ?>
                                     <span class="badge bg-success">Activo</span>
@@ -146,7 +140,7 @@ if (!isset($_SESSION['user'])) {
 
                     <?php if (empty($usuarios)): ?>
                         <tr>
-                            <td colspan="10" class="text-center text-muted py-3">No hay usuarios registrados.</td>
+                            <td colspan="9" class="text-center text-muted py-3">No hay usuarios registrados.</td>
                         </tr>
                     <?php endif; ?>
 

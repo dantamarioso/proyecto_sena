@@ -47,8 +47,8 @@ class MaterialArchivo extends Model
     {
         $stmt = $this->db->prepare("
             INSERT INTO material_archivos 
-            (material_id, nombre_original, nombre_archivo, tipo_archivo, tamaño, usuario_id, fecha_creacion)
-            VALUES (:material_id, :nombre_original, :nombre_archivo, :tipo_archivo, :tamaño, :usuario_id, NOW())
+            (material_id, nombre_original, nombre_archivo, tipo_archivo, tamaño, usuario_id)
+            VALUES (:material_id, :nombre_original, :nombre_archivo, :tipo_archivo, :tamaño, :usuario_id)
         ");
 
         return $stmt->execute([

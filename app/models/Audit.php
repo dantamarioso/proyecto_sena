@@ -7,14 +7,13 @@ class Audit extends Model
      */
     public function registrarCambio($usuario_id, $tabla, $registro_id, $accion, $detalles = [], $admin_id = null)
     {
-        $sql = "INSERT INTO auditoria (usuario_id, tabla, registro_id, accion, detalles, admin_id) 
-                VALUES (:usuario_id, :tabla, :registro_id, :accion, :detalles, :admin_id)";
+        $sql = "INSERT INTO auditoria (usuario_id, tabla, accion, detalles, admin_id) 
+                VALUES (:usuario_id, :tabla, :accion, :detalles, :admin_id)";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             ':usuario_id' => $usuario_id,
             ':tabla' => $tabla,
-            ':registro_id' => $registro_id,
             ':accion' => $accion,
             ':detalles' => json_encode($detalles),
             ':admin_id' => $admin_id
@@ -32,14 +31,14 @@ class Audit extends Model
                     a.id,
                     a.accion,
                     a.detalles,
-                    a.fecha_creacion,
+                    a.fecha_cambio,
                     u.nombre as usuario_modificado,
                     admin.nombre as admin_nombre
                 FROM auditoria a
                 LEFT JOIN usuarios u ON a.usuario_id = u.id
                 LEFT JOIN usuarios admin ON a.admin_id = admin.id
                 WHERE a.usuario_id = :usuario_id AND a.tabla = 'usuarios'
-                ORDER BY a.fecha_creacion DESC
+                ORDER BY a.fecha_cambio DESC
                 LIMIT :limit OFFSET :offset";
         
         $stmt = $this->db->prepare($sql);
@@ -60,7 +59,7 @@ class Audit extends Model
                     a.id,
                     a.accion,
                     a.detalles,
-                    a.fecha_creacion,
+                    a.fecha_cambio,
                     u.nombre as usuario_modificado,
                     u.id as usuario_id,
                     admin.nombre as admin_nombre
@@ -82,16 +81,16 @@ class Audit extends Model
         }
         
         if (!empty($filtro['fecha_inicio'])) {
-            $sql .= " AND DATE(a.fecha_creacion) >= :fecha_inicio";
+            $sql .= " AND DATE(a.fecha_cambio) >= :fecha_inicio";
             $params[':fecha_inicio'] = $filtro['fecha_inicio'];
         }
         
         if (!empty($filtro['fecha_fin'])) {
-            $sql .= " AND DATE(a.fecha_creacion) <= :fecha_fin";
+            $sql .= " AND DATE(a.fecha_cambio) <= :fecha_fin";
             $params[':fecha_fin'] = $filtro['fecha_fin'];
         }
         
-        $sql .= " ORDER BY a.fecha_creacion DESC LIMIT :limit OFFSET :offset";
+        $sql .= " ORDER BY a.fecha_cambio DESC LIMIT :limit OFFSET :offset";
         
         $stmt = $this->db->prepare($sql);
         
@@ -139,12 +138,12 @@ class Audit extends Model
         }
         
         if (!empty($filtro['fecha_inicio'])) {
-            $sql .= " AND DATE(fecha_creacion) >= :fecha_inicio";
+            $sql .= " AND DATE(fecha_cambio) >= :fecha_inicio";
             $params[':fecha_inicio'] = $filtro['fecha_inicio'];
         }
         
         if (!empty($filtro['fecha_fin'])) {
-            $sql .= " AND DATE(fecha_creacion) <= :fecha_fin";
+            $sql .= " AND DATE(fecha_cambio) <= :fecha_fin";
             $params[':fecha_fin'] = $filtro['fecha_fin'];
         }
         
@@ -165,7 +164,7 @@ class Audit extends Model
                     a.detalles
                 FROM auditoria a
                 WHERE a.tabla = 'usuarios'
-                AND a.accion = 'eliminar'
+                AND a.accion = 'DELETE'
                 AND a.usuario_id NOT IN (SELECT id FROM usuarios)";
         
         $stmt = $this->db->prepare($sql);
@@ -177,7 +176,7 @@ class Audit extends Model
         $usuarios = [];
         foreach ($results as $row) {
             $detalles = json_decode($row['detalles'], true) ?? [];
-            $nombre = $detalles['nombre']['anterior'] ?? 'Usuario Eliminado';
+            $nombre = $detalles['nombre'] ?? 'Usuario Eliminado';
             
             $usuarios[] = [
                 'id' => $row['id'],

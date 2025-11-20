@@ -94,7 +94,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                         ?>
                         <tr>
                             <td><?= $cambio['id'] ?></td>
-                            <td><small class="text-muted"><?= htmlspecialchars($cambio['fecha_creacion']) ?></small></td>
+                            <td><small class="text-muted"><?= htmlspecialchars($cambio['fecha_cambio']) ?></small></td>
                             <td><?= htmlspecialchars($cambio['usuario_modificado'] ?? 'N/A') ?></td>
                             <td>
                                 <span class="badge <?= $clase ?>"><?= $texto ?></span>

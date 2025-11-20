@@ -84,6 +84,7 @@ if (!isset($_SESSION['user'])) {
                             <th class="d-none d-md-table-cell">Descripción</th>
                             <th>Línea</th>
                             <th class="text-center">Cantidad</th>
+                            <th class="d-none d-lg-table-cell">Documentos</th>
                             <th>Estado</th>
                             <th class="text-center">Acciones</th>
                         </tr>
@@ -102,6 +103,13 @@ if (!isset($_SESSION['user'])) {
                                 </td>
                                 <td class="text-center">
                                     <strong><?= intval($m['cantidad']) ?></strong>
+                                </td>
+                                <td class="d-none d-lg-table-cell">
+                                    <a href="<?= BASE_URL ?>/?url=materiales/detalles&id=<?= $m['id'] ?>" class="text-decoration-none" title="Ver detalles y archivos">
+                                        <span class="badge bg-secondary" id="docs-<?= $m['id'] ?>" style="cursor: pointer;">
+                                            <i class="bi bi-hourglass-split"></i>
+                                        </span>
+                                    </a>
                                 </td>
                                 <td>
                                     <?php if ($m['estado'] == 1): ?>
@@ -137,7 +145,7 @@ if (!isset($_SESSION['user'])) {
 
                         <?php if (empty($materiales)): ?>
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-3">
+                                <td colspan="9" class="text-center text-muted py-3">
                                     <i class="bi bi-inbox"></i> No hay materiales registrados.
                                 </td>
                             </tr>
@@ -219,3 +227,39 @@ if (!isset($_SESSION['user'])) {
         </div>
     </div>
 </div>
+
+<script>
+// Cargar conteo de documentos para cada material
+document.addEventListener('DOMContentLoaded', () => {
+    const materials = document.querySelectorAll('[id^="docs-"]');
+    materials.forEach(badge => {
+        const match = badge.id.match(/docs-(\d+)/);
+        if (match) {
+            const materialId = match[1];
+            cargarDocumentos(materialId);
+        }
+    });
+});
+
+function cargarDocumentos(materialId) {
+    const badgeElement = document.getElementById(`docs-${materialId}`);
+    if (!badgeElement) return;
+
+    fetch(`${BASE_URL}/?url=materiales/contarDocumentos&material_id=${materialId}`)
+        .then(response => response.json())
+        .then(data => {
+            let badge = '';
+            if (data.count === 0) {
+                badge = '<span class="badge bg-secondary">Sin docs</span>';
+            } else {
+                badge = `<span class="badge bg-primary">${data.count} doc${data.count !== 1 ? 's' : ''}</span>`;
+            }
+            badgeElement.innerHTML = badge;
+        })
+        .catch(err => {
+            console.error("Error cargando documentos:", err);
+            badgeElement.innerHTML = '<span class="badge bg-danger">Error</span>';
+        });
+}
+</script>
+

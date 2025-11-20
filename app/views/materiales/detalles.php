@@ -78,10 +78,10 @@ $archivos = $archivoModel->getByMaterial($materialId);
                                         <?= htmlspecialchars($archivo['nombre_original']) ?>
                                     </div>
                                     <small class="text-muted">
-                                        <?= formatearBytes($archivo['tamaño']) ?> • <?= date('d/m/Y H:i', strtotime($archivo['fecha_creacion'])) ?>
+                                        <?= formatearBytes($archivo['tamano']) ?> • <?= date('d/m/Y H:i', strtotime($archivo['fecha_creacion'])) ?>
                                     </small>
                                 </div>
-                                <a href="/<?= $archivo['nombre_archivo'] ?>" class="btn btn-sm btn-outline-primary" target="_blank" title="Descargar">
+                                <a href="/<?= htmlspecialchars($archivo['nombre_archivo']) ?>" class="btn btn-sm btn-outline-primary" target="_blank" title="Descargar">
                                     <i class="bi bi-download"></i> Descargar
                                 </a>
                             </div>

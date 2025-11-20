@@ -422,8 +422,8 @@ class MaterialesController extends Controller
         
         // Ordenar por fecha descendente
         usort($historialCompleto, function($a, $b) {
-            $fechaA = strtotime($a['fecha_movimiento'] ?? $a['fecha_creacion']);
-            $fechaB = strtotime($b['fecha_movimiento'] ?? $b['fecha_creacion']);
+            $fechaA = strtotime($a['fecha_movimiento'] ?? $a['fecha_cambio'] ?? $a['fecha_creacion'] ?? 'now');
+            $fechaB = strtotime($b['fecha_movimiento'] ?? $b['fecha_cambio'] ?? $b['fecha_creacion'] ?? 'now');
             return $fechaB - $fechaA;
         });
         
@@ -592,7 +592,8 @@ class MaterialesController extends Controller
             exit;
         }
 
-        $nombreArchivo = "uploads/materiales/" . uniqid("archivo_") . "." . $ext;
+        // Guardar con el mismo nombre pero en carpeta segura con timestamp para evitar conflictos
+        $nombreArchivo = "uploads/materiales/" . date('YmdHis_') . $nombreOriginal;
         $rutaSistema = __DIR__ . "/../../public/" . $nombreArchivo;
 
         if (!is_dir(__DIR__ . "/../../public/uploads/materiales")) {
@@ -601,7 +602,7 @@ class MaterialesController extends Controller
 
         if (move_uploaded_file($archivo['tmp_name'], $rutaSistema)) {
             $archivoModel = new MaterialArchivo();
-            $archivoModel->create([
+            $result = $archivoModel->create([
                 'material_id' => $materialId,
                 'nombre_original' => $nombreOriginal,
                 'nombre_archivo' => $nombreArchivo,
@@ -609,6 +610,27 @@ class MaterialesController extends Controller
                 'tamaño' => $archivo['size'],
                 'usuario_id' => $_SESSION['user']['id']
             ]);
+
+            // Registrar en auditoría
+            try {
+                require_once __DIR__ . '/../models/Audit.php';
+                $audit = new Audit();
+                $audit->registrarCambio(
+                    $_SESSION['user']['id'],
+                    'material_archivos',
+                    $materialId,
+                    'subir_archivo',
+                    [
+                        'material_id' => $materialId,
+                        'nombre_original' => $nombreOriginal,
+                        'nombre_archivo' => $nombreArchivo,
+                        'tamaño' => $archivo['size']
+                    ],
+                    $_SESSION['user']['id']
+                );
+            } catch (Exception $e) {
+                // Log silencioso si falla auditoría
+            }
 
             echo json_encode([
                 'success' => true,
@@ -678,6 +700,29 @@ class MaterialesController extends Controller
     }
 
     /* =========================================================
+       CONTAR DOCUMENTOS POR MATERIAL (AJAX)
+    ========================================================== */
+    public function contarDocumentos()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $this->requireAuth();
+
+        $materialId = intval($_GET['material_id'] ?? 0);
+
+        if ($materialId <= 0) {
+            echo json_encode(['count' => 0, 'error' => 'Material inválido']);
+            exit;
+        }
+
+        $archivoModel = new MaterialArchivo();
+        $count = $archivoModel->countByMaterial($materialId);
+
+        echo json_encode(['count' => $count]);
+        exit;
+    }
+
+    /* =========================================================
        VER DETALLES DE MATERIAL
     ========================================================== */
     public function detalles()
@@ -701,8 +746,13 @@ class MaterialesController extends Controller
             exit;
         }
 
+        // Obtener archivos del material
+        $archivoModel = new MaterialArchivo();
+        $archivos = $archivoModel->getByMaterial($materialId);
+
         $this->view('materiales/detalles', [
             'material'    => $material,
+            'archivos'    => $archivos,
             'pageStyles'  => ['materiales'],
             'pageScripts' => [],
         ]);

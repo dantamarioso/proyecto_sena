@@ -6,7 +6,9 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
 }
 ?>
 
-<div class="row justify-content-center">
+<script>
+    const BASE_URL = "<?= BASE_URL ?>";
+</script>
     <div class="col-12 col-lg-8">
         <div class="d-flex align-items-center gap-2 mb-4">
             <a href="<?= BASE_URL ?>/?url=materiales/index" class="btn btn-outline-secondary btn-sm">
@@ -99,8 +101,6 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
 </div>
 
 <script>
-    const BASE_URL = "<?= BASE_URL ?>";
-
 document.getElementById('form-editar-material').addEventListener('submit', async (e) => {
     e.preventDefault();
 
