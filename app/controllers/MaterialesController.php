@@ -349,6 +349,17 @@ class MaterialesController extends Controller
             exit;
         }
 
+        // Validar que en salidas no se retire más de lo disponible
+        if ($tipo === 'salida' && $cantidad > $material['cantidad']) {
+            echo json_encode([
+                'success' => false,
+                'errors' => [
+                    "No hay suficiente stock. Disponible: {$material['cantidad']}, Solicitado: {$cantidad}"
+                ]
+            ]);
+            exit;
+        }
+
         // Registrar movimiento
         $movimientoData = [
             'material_id'      => $id,
@@ -362,7 +373,7 @@ class MaterialesController extends Controller
             // Actualizar cantidad del material
             $nuevaCantidad = $tipo === 'entrada'
                 ? $material['cantidad'] + $cantidad
-                : max(0, $material['cantidad'] - $cantidad);
+                : $material['cantidad'] - $cantidad;
 
             $materialModel->actualizarCantidad($id, $nuevaCantidad);
 
