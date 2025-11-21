@@ -18,8 +18,35 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
+    <!-- CSS Mejoras (responsive & diseño) -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/mejoras.css">
+
+    <!-- CSS Formularios -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/formularios.css">
+
+    <!-- CSS Tablas -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/tablas.css">
+
+    <!-- CSS Modales y Notificaciones -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/modales.css">
+
+    <!-- CSS Utilidades y Componentes -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/utilidades.css">
+
     <!-- CSS global -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
+
+    <!-- CSS Gestión de Usuarios -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/usuarios_gestion.css">
+
+    <!-- CSS Perfil de Usuario -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/perfil_mejorado.css">
+
+    <!-- CSS Auditoría -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/audit_mejorado.css">
+
+    <!-- CSS Autenticación -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/auth_mejorado.css">
 
     <!-- CSS responsive -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/usuarios_responsive.css">

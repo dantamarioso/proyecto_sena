@@ -1,0 +1,381 @@
+/* =====================================================
+   MEJORAS RESPONSIVE & DISEÑO - PROYECTO SENA
+===================================================== */
+
+/* =====================================================
+   VARIABLES CSS (Custom Properties)
+===================================================== */
+:root {
+    --bs-primary: #0d6efd;
+    --bs-success: #198754;
+    --bs-danger: #dc3545;
+    --bs-warning: #ffc107;
+    --bs-info: #0dcaf0;
+    --bs-light: #f8f9fa;
+    --bs-dark: #212529;
+    
+    /* Spacing */
+    --spacing-xs: 8px;
+    --spacing-sm: 12px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    
+    /* Border radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.18);
+}
+
+/* =====================================================
+   OPTIMIZACIONES GLOBALES
+===================================================== */
+
+/* Mejora de legibilidad */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    line-height: 1.5;
+    color: var(--bs-dark);
+}
+
+/* Botones mejorados */
+.btn {
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Cards mejoradas */
+.card {
+    border: 1px solid #dee2e6;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Inputs mejorados */
+.form-control,
+.form-select {
+    border-radius: var(--radius-md);
+    border: 1px solid #dee2e6;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Labels mejorados */
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--bs-dark);
+    font-size: 0.9rem;
+}
+
+/* Badges mejorados */
+.badge {
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* Tablas mejoradas */
+.table {
+    margin-bottom: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.table thead {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table thead th {
+    font-weight: 700;
+    color: var(--bs-dark);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    padding: 1rem;
+    letter-spacing: 0.5px;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    padding: 0.85rem 1rem;
+    border-color: #f0f0f0;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* =====================================================
+   MEJORAS MOBILE-FIRST
+===================================================== */
+
+/* Mobile base (< 576px) */
+@media (max-width: 575px) {
+    /* Reducir padding en contenedores */
+    .main-content {
+        padding: 12px 10px !important;
+    }
+    
+    /* Formularios compactos */
+    .form-control,
+    .form-select {
+        font-size: 16px; /* Evita zoom en iOS */
+        padding: 0.75rem 0.85rem;
+    }
+    
+    /* Botones de ancho completo */
+    .btn-block,
+    .w-100 {
+        width: 100%;
+        display: block;
+    }
+    
+    /* Cards compactas */
+    .card {
+        border-radius: var(--radius-md);
+        margin-bottom: 12px;
+    }
+    
+    .card-body {
+        padding: 12px;
+    }
+    
+    .card-header {
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+    
+    /* Espaciado reducido */
+    .mb-3 { margin-bottom: 0.75rem !important; }
+    .mt-3 { margin-top: 0.75rem !important; }
+    .p-3 { padding: 0.75rem !important; }
+    
+    /* Tablas apiladas */
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    /* Filas de grid a una columna */
+    .row > [class*="col-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .row.g-2 {
+        gap: 0.5rem !important;
+    }
+    
+    /* Títulos más pequeños */
+    h3 {
+        font-size: 1.25rem;
+    }
+    
+    h4 {
+        font-size: 1.1rem;
+    }
+    
+    /* Badges más legibles */
+    .badge {
+        display: inline-block;
+        padding: 0.4rem 0.65rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Modales responsivos */
+    .modal-dialog {
+        margin: 1rem 0.5rem;
+    }
+    
+    /* Alertas responsivas */
+    .alert {
+        padding: 12px;
+        margin-bottom: 12px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Tabletas (576px - 768px) */
+@media (min-width: 576px) and (max-width: 767px) {
+    .form-control,
+    .form-select {
+        font-size: 0.95rem;
+        padding: 0.65rem 0.9rem;
+    }
+    
+    .card-body {
+        padding: 14px;
+    }
+    
+    .table {
+        font-size: 0.92rem;
+    }
+    
+    .badge {
+        padding: 0.45rem 0.7rem;
+        font-size: 0.78rem;
+    }
+}
+
+/* Tablets medianos (768px - 992px) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .form-control,
+    .form-select {
+        font-size: 0.96rem;
+        padding: 0.7rem 0.95rem;
+    }
+    
+    .table {
+        font-size: 0.93rem;
+    }
+}
+
+/* Desktop (≥ 992px) */
+@media (min-width: 992px) {
+    .form-control,
+    .form-select {
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .table {
+        font-size: 0.95rem;
+    }
+    
+    .card-body {
+        padding: 16px;
+    }
+}
+
+/* =====================================================
+   UTILIDADES RESPONSIVAS
+===================================================== */
+
+/* Flex responsive */
+.flex-mobile-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+@media (min-width: 576px) {
+    .flex-mobile-column {
+        flex-direction: row;
+        gap: 1rem;
+    }
+}
+
+/* Grid responsive */
+.grid-mobile-1 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+@media (min-width: 576px) {
+    .grid-mobile-1 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .grid-mobile-1 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* =====================================================
+   ACCESIBILIDAD
+===================================================== */
+
+/* Focus visible para navegación por teclado */
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+/* Contrast mejorado */
+.text-muted {
+    color: #666 !important;
+}
+
+/* Tamaño mínimo de touch targets */
+.btn,
+.form-control,
+.form-select,
+[type="checkbox"],
+[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* =====================================================
+   ANIMACIONES SUAVES
+===================================================== */
+
+* {
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+/* Desactiva transiciones en preferencias del usuario */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+    }
+}
+
+/* =====================================================
+   IMPRESIÓN
+===================================================== */
+
+@media print {
+    .sidebar,
+    .btn,
+    .btn-group,
+    .main-wrapper nav {
+        display: none;
+    }
+    
+    .main-content {
+        padding: 0;
+        background: white;
+    }
+}
