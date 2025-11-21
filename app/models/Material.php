@@ -91,6 +91,10 @@ class Material extends Model
      */
     public function create($data)
     {
+        // Establecer variable de sesión para el trigger
+        $userId = $_SESSION['user']['id'] ?? 1;
+        $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
+        
         $stmt = $this->db->prepare("
             INSERT INTO materiales 
             (codigo, nombre, descripcion, linea_id, cantidad, estado) 
@@ -115,6 +119,10 @@ class Material extends Model
      */
     public function update($id, $data)
     {
+        // Establecer variable de sesión para el trigger
+        $userId = $_SESSION['user']['id'] ?? 1;
+        $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
+        
         $stmt = $this->db->prepare("
             UPDATE materiales SET
                 codigo = :codigo,
@@ -160,6 +168,10 @@ class Material extends Model
      */
     public function registrarMovimiento($data)
     {
+        // Establecer variable de sesión para el trigger
+        $userId = $_SESSION['user']['id'] ?? $data['usuario_id'] ?? 1;
+        $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
+        
         $stmt = $this->db->prepare("
             INSERT INTO movimientos_inventario 
             (material_id, usuario_id, tipo_movimiento, cantidad, descripcion, fecha_movimiento) 
@@ -327,16 +339,23 @@ class Material extends Model
                 a.accion,
                 a.detalles,
                 a.fecha_cambio,
+                a.fecha_cambio as fecha_creacion,
                 u.nombre as usuario_nombre,
                 u.foto as usuario_foto,
                 JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.nombre')) as material_nombre,
                 JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.codigo')) as material_codigo,
+                CAST(JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.id')) AS UNSIGNED) as material_id,
                 JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.nombre')) as linea_nombre
             FROM auditoria a
             LEFT JOIN usuarios u ON a.usuario_id = u.id
             WHERE a.tabla = 'materiales' AND a.accion = 'DELETE'
         ";
         $params = [];
+
+        if (!empty($filtros['material_id'])) {
+            $sql .= " AND CAST(JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.id')) AS UNSIGNED) = :material_id";
+            $params[':material_id'] = (int)$filtros['material_id'];
+        }
 
         if (!empty($filtros['fecha_inicio'])) {
             $sql .= " AND a.fecha_cambio >= :fecha_inicio";

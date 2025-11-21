@@ -7,16 +7,36 @@ class Audit extends Model
      */
     public function registrarCambio($usuario_id, $tabla, $registro_id, $accion, $detalles = [], $admin_id = null)
     {
+        // Validar que usuario_id existe en la tabla usuarios, si no usar NULL
+        $usuarioValido = null;
+        if ($usuario_id !== null) {
+            $stmt = $this->db->prepare("SELECT id FROM usuarios WHERE id = :id LIMIT 1");
+            $stmt->execute([':id' => $usuario_id]);
+            if ($stmt->fetch()) {
+                $usuarioValido = $usuario_id;
+            }
+        }
+
+        // Validar que admin_id existe en la tabla usuarios, si no usar NULL
+        $adminValido = null;
+        if ($admin_id !== null) {
+            $stmt = $this->db->prepare("SELECT id FROM usuarios WHERE id = :id LIMIT 1");
+            $stmt->execute([':id' => $admin_id]);
+            if ($stmt->fetch()) {
+                $adminValido = $admin_id;
+            }
+        }
+
         $sql = "INSERT INTO auditoria (usuario_id, tabla, accion, detalles, admin_id) 
                 VALUES (:usuario_id, :tabla, :accion, :detalles, :admin_id)";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            ':usuario_id' => $usuario_id,
+            ':usuario_id' => $usuarioValido,
             ':tabla' => $tabla,
             ':accion' => $accion,
             ':detalles' => json_encode($detalles),
-            ':admin_id' => $admin_id
+            ':admin_id' => $adminValido
         ]);
         
         return $this->db->lastInsertId();

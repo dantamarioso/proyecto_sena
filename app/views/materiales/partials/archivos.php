@@ -45,15 +45,16 @@ $archivos = isset($archivos) ? $archivos : [];
                                     <?= htmlspecialchars($archivo['nombre_original']) ?>
                                 </div>
                                 <small class="text-muted">
-                                    <?= formatearBytes($archivo['tamaño']) ?> • 
-                                    <?= date('d/m/Y H:i', strtotime($archivo['fecha_creacion'])) ?>
+                                    <?= formatearBytes($archivo['tamano'] ?? $archivo['tamaño'] ?? 0) ?> • 
+                                    <?= date('d/m/Y H:i', strtotime($archivo['fecha_creacion'])) ?> •
+                                    Por: <strong><?= htmlspecialchars($archivo['usuario_nombre'] ?? $archivo['usuario_correo'] ?? 'N/A') ?></strong>
                                 </small>
                             </div>
                             <div class="btn-group" role="group">
-                                <a href="/<?= $archivo['nombre_archivo'] ?>" class="btn btn-sm btn-outline-primary" target="_blank" title="Descargar">
+                                <a href="<?= BASE_URL ?>/<?= $archivo['nombre_archivo'] ?>" class="btn btn-sm btn-outline-primary" target="_blank" title="Descargar">
                                     <i class="bi bi-download"></i>
                                 </a>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarArchivo(<?= $archivo['id'] ?>)" title="Eliminar">
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarArchivo(<?= $archivo['id'] ?>, <?= $materialId ?>)" title="Eliminar">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>
@@ -73,10 +74,19 @@ $archivos = isset($archivos) ? $archivos : [];
 </div>
 
 <script>
+// Definir BASE_URL en scope global
+if (typeof window.BASE_URL === 'undefined') {
+    window.BASE_URL = "<?= BASE_URL ?>";
+}
+
 function subirArchivo(materialId) {
     const input = document.getElementById(`input-archivo-${materialId}`);
+    if (!input) {
+        alert('Error: No se encontró el campo de archivo');
+        return;
+    }
+    
     const archivo = input.files[0];
-
     if (!archivo) {
         alert('Por favor selecciona un archivo');
         return;
@@ -87,36 +97,47 @@ function subirArchivo(materialId) {
     formData.append('archivo', archivo);
 
     const progreso = document.getElementById(`progreso-carga-${materialId}`);
-    progreso.style.display = 'block';
+    if (progreso) {
+        progreso.style.display = 'block';
+    }
 
-    fetch(`${BASE_URL}/?url=materiales/subirArchivo`, {
+    fetch(window.BASE_URL + '/?url=materiales/subirArchivo', {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
-        progreso.style.display = 'none';
+        if (progreso) {
+            progreso.style.display = 'none';
+        }
         if (data.success) {
-            alert(data.message);
+            alert(data.message || 'Archivo subido exitosamente');
             recargarArchivos(materialId);
             input.value = '';
         } else {
-            alert('Error: ' + data.message);
+            alert('Error: ' + (data.message || 'Error desconocido'));
         }
     })
     .catch(error => {
-        progreso.style.display = 'none';
+        if (progreso) {
+            progreso.style.display = 'none';
+        }
         console.error('Error:', error);
-        alert('Error al subir el archivo');
+        alert('Error al subir el archivo: ' + error.message);
     });
 }
 
-function eliminarArchivo(archivoId) {
+function eliminarArchivo(archivoId, materialId) {
     if (!confirm('¿Eliminar este archivo? Esta acción no se puede deshacer.')) {
         return;
     }
 
-    fetch(`${BASE_URL}/?url=materiales/eliminarArchivo`, {
+    fetch(`${window.BASE_URL}/?url=materiales/eliminarArchivo`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -127,7 +148,7 @@ function eliminarArchivo(archivoId) {
     .then(data => {
         if (data.success) {
             document.getElementById(`archivo-${archivoId}`).remove();
-            recargarArchivos(MATERIAL_ID);
+            recargarArchivos(materialId);
         } else {
             alert('Error: ' + data.message);
         }
@@ -139,12 +160,14 @@ function eliminarArchivo(archivoId) {
 }
 
 function recargarArchivos(materialId) {
-    fetch(`${BASE_URL}/?url=materiales/obtenerArchivos&material_id=${materialId}`)
+    fetch(`${window.BASE_URL}/?url=materiales/obtenerArchivos&material_id=${materialId}`)
     .then(response => response.json())
     .then(data => {
         if (data.success && data.archivos.length > 0) {
             let html = '<div class="list-group">';
             data.archivos.forEach(archivo => {
+                const tamanio = archivo.tamano ?? archivo.tamaño ?? 0;
+                const usuario = archivo.usuario_nombre ?? archivo.usuario_correo ?? 'N/A';
                 html += `
                     <div class="list-group-item d-flex justify-content-between align-items-center" id="archivo-${archivo.id}">
                         <div>
@@ -153,15 +176,16 @@ function recargarArchivos(materialId) {
                                 ${escapeHtml(archivo.nombre_original)}
                             </div>
                             <small class="text-muted">
-                                ${formatearBytes(archivo.tamaño)} • 
-                                ${new Date(archivo.fecha_creacion).toLocaleDateString('es-ES')}
+                                ${formatearBytes(tamanio)} • 
+                                ${new Date(archivo.fecha_creacion).toLocaleDateString('es-ES')} •
+                                Por: <strong>${escapeHtml(usuario)}</strong>
                             </small>
                         </div>
                         <div class="btn-group" role="group">
-                            <a href="/${archivo.nombre_archivo}" class="btn btn-sm btn-outline-primary" target="_blank" title="Descargar">
+                            <a href="${window.BASE_URL}/${archivo.nombre_archivo}" class="btn btn-sm btn-outline-primary" target="_blank" title="Descargar">
                                 <i class="bi bi-download"></i>
                             </a>
-                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarArchivo(${archivo.id})" title="Eliminar">
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarArchivo(${archivo.id}, ${materialId})" title="Eliminar">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>

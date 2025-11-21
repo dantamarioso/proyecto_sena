@@ -1,7 +1,9 @@
 <?php
 
 require_once __DIR__ . '/../core/Database.php';
+require_once __DIR__ . '/../models/Material.php';
 require_once __DIR__ . '/../models/MaterialArchivo.php';
+require_once __DIR__ . '/../models/User.php';
 
 class MaterialesController extends Controller
 {
@@ -406,6 +408,7 @@ class MaterialesController extends Controller
         // Obtener eliminaciones de materiales
         $eliminaciones = [];
         if (empty($filtros['tipo_movimiento']) || $filtros['tipo_movimiento'] === 'eliminado') {
+            $filtros['material_id'] = $material_id;
             $eliminaciones = $materialModel->getEliminacionesMateriales($filtros);
         }
         
@@ -533,14 +536,16 @@ class MaterialesController extends Controller
             require_once __DIR__ . '/../models/Audit.php';
             $audit = new Audit();
             $audit->registrarCambio(
-                $_SESSION['user']['id'],
+                $_SESSION['user']['id'] ?? null,
                 $tabla,
+                null,  // registro_id (no usado en este contexto)
                 $accion,
-                json_encode($detalles),
-                $_SESSION['user']['id']
+                $detalles,
+                $_SESSION['user']['id'] ?? null  // admin_id
             );
         } catch (Exception $e) {
             // Log silencioso si falla auditoría
+            error_log("Error al registrar auditoría: " . $e->getMessage());
         }
     }
 
@@ -552,10 +557,21 @@ class MaterialesController extends Controller
     {
         header('Content-Type: application/json; charset=utf-8');
         
-        $this->requireAdmin();
+        // Validar sesión
+        if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id'])) {
+            echo json_encode(['success' => false, 'message' => 'No autorizado']);
+            http_response_code(401);
+            exit;
+        }
+        
+        // Validar rol admin
+        if (($_SESSION['user']['rol'] ?? 'usuario') !== 'admin') {
+            echo json_encode(['success' => false, 'message' => 'Acceso denegado']);
+            http_response_code(403);
+            exit;
+        }
 
         $materialId = intval($_POST['material_id'] ?? 0);
-        
         if ($materialId <= 0) {
             echo json_encode(['success' => false, 'message' => 'Material inválido']);
             exit;
@@ -568,7 +584,6 @@ class MaterialesController extends Controller
 
         $materialModel = new Material();
         $material = $materialModel->getById($materialId);
-
         if (!$material) {
             echo json_encode(['success' => false, 'message' => 'Material no encontrado']);
             exit;
@@ -578,67 +593,89 @@ class MaterialesController extends Controller
         $nombreOriginal = $archivo['name'];
         $ext = strtolower(pathinfo($nombreOriginal, PATHINFO_EXTENSION));
 
-        // Extensiones permitidas (documentos planos)
+        // Validar extensión
         $extensionesPermitidas = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv'];
-        
         if (!in_array($ext, $extensionesPermitidas)) {
-            echo json_encode(['success' => false, 'message' => 'Tipo de archivo no permitido. Solo documentos planos.']);
+            echo json_encode(['success' => false, 'message' => 'Tipo de archivo no permitido']);
             exit;
         }
 
         // Validar tamaño (máximo 10MB)
         if ($archivo['size'] > 10 * 1024 * 1024) {
-            echo json_encode(['success' => false, 'message' => 'El archivo supera el tamaño máximo de 10MB.']);
+            echo json_encode(['success' => false, 'message' => 'El archivo supera el tamaño máximo de 10MB']);
             exit;
         }
 
-        // Guardar con el mismo nombre pero en carpeta segura con timestamp para evitar conflictos
+        // Preparar ruta del archivo
         $nombreArchivo = "uploads/materiales/" . date('YmdHis_') . $nombreOriginal;
         $rutaSistema = __DIR__ . "/../../public/" . $nombreArchivo;
+        $uploadDir = __DIR__ . "/../../public/uploads/materiales/";
 
-        if (!is_dir(__DIR__ . "/../../public/uploads/materiales")) {
-            mkdir(__DIR__ . "/../../public/uploads/materiales", 0777, true);
+        // Crear directorio si no existe
+        if (!is_dir($uploadDir)) {
+            if (!@mkdir($uploadDir, 0777, true)) {
+                echo json_encode(['success' => false, 'message' => 'Error al crear directorio de uploads']);
+                exit;
+            }
         }
 
-        if (move_uploaded_file($archivo['tmp_name'], $rutaSistema)) {
+        // Mover archivo
+        if (!move_uploaded_file($archivo['tmp_name'], $rutaSistema)) {
+            echo json_encode(['success' => false, 'message' => 'Error al subir el archivo']);
+            exit;
+        }
+
+        // Guardar en BD
+        try {
+            $userModel = new User();
+            $userId = $_SESSION['user']['id'];
+            $usuario = $userModel->getById($userId);
+            
+            if (!$usuario) {
+                $userId = 1;
+            }
+            
             $archivoModel = new MaterialArchivo();
             $result = $archivoModel->create([
                 'material_id' => $materialId,
                 'nombre_original' => $nombreOriginal,
                 'nombre_archivo' => $nombreArchivo,
                 'tipo_archivo' => $archivo['type'],
-                'tamaño' => $archivo['size'],
-                'usuario_id' => $_SESSION['user']['id']
+                'tamano' => $archivo['size'],
+                'usuario_id' => $userId
             ]);
 
-            // Registrar en auditoría
-            try {
-                require_once __DIR__ . '/../models/Audit.php';
-                $audit = new Audit();
-                $audit->registrarCambio(
-                    $_SESSION['user']['id'],
-                    'material_archivos',
-                    $materialId,
-                    'subir_archivo',
-                    [
-                        'material_id' => $materialId,
-                        'nombre_original' => $nombreOriginal,
-                        'nombre_archivo' => $nombreArchivo,
-                        'tamaño' => $archivo['size']
-                    ],
-                    $_SESSION['user']['id']
-                );
-            } catch (Exception $e) {
-                // Log silencioso si falla auditoría
+            if ($result) {
+                // Registrar en auditoría
+                try {
+                    require_once __DIR__ . '/../models/Audit.php';
+                    $audit = new Audit();
+                    $audit->registrarCambio(
+                        $_SESSION['user']['id'],
+                        'material_archivos',
+                        $materialId,
+                        'subir_archivo',
+                        [
+                            'material_id' => $materialId,
+                            'nombre_original' => $nombreOriginal,
+                            'nombre_archivo' => $nombreArchivo,
+                            'tamaño' => $archivo['size']
+                        ],
+                        $_SESSION['user']['id']
+                    );
+                } catch (Exception $e) {
+                    // Auditoría fallida, pero el archivo se guardó
+                }
+                
+                echo json_encode(['success' => true, 'message' => 'Archivo subido exitosamente']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Error al guardar en base de datos']);
             }
-
-            echo json_encode([
-                'success' => true,
-                'message' => 'Archivo subido exitosamente'
-            ]);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Error al subir el archivo']);
+            
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
         }
+        
         exit;
     }
 
@@ -758,3 +795,4 @@ class MaterialesController extends Controller
         ]);
     }
 }
+

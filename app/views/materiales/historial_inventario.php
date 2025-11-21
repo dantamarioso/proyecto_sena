@@ -46,7 +46,7 @@ if (!isset($_SESSION['user'])) {
                             <option value="">Todos</option>
                             <option value="entrada" <?= $filtros['tipo_movimiento'] === 'entrada' ? 'selected' : '' ?>>Entrada</option>
                             <option value="salida" <?= $filtros['tipo_movimiento'] === 'salida' ? 'selected' : '' ?>>Salida</option>
-                            <option value="eliminado">Eliminado</option>
+                            <option value="eliminado" <?= $filtros['tipo_movimiento'] === 'eliminado' ? 'selected' : '' ?>>Eliminado</option>
                         </select>
                     </div>
                     <div class="col-12 col-sm-6 col-md-2">
@@ -72,16 +72,16 @@ if (!isset($_SESSION['user'])) {
                 <table class="table table-striped align-middle mb-0">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th style="width: 50px;">#</th>
                             <th>Material</th>
-                            <th class="d-none d-md-table-cell">Línea</th>
-                            <th>Tipo</th>
-                            <th class="text-center">Cantidad</th>
-                            <th class="d-none d-lg-table-cell">Usuario</th>
-                            <th class="d-none d-lg-table-cell">Descripción</th>
-                            <th class="d-none d-lg-table-cell">Documentos</th>
-                            <th>Fecha</th>
-                            <th class="text-center">Acciones</th>
+                            <th>Línea</th>
+                            <th style="width: 100px;">Tipo</th>
+                            <th class="text-center" style="width: 80px;">Cantidad</th>
+                            <th>Usuario</th>
+                            <th>Descripción</th>
+                            <th class="text-center" style="width: 100px;">Documentos</th>
+                            <th class="text-center" style="width: 120px;">Fecha</th>
+                            <th class="text-center" style="width: 60px;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="historial-body">
@@ -99,7 +99,7 @@ if (!isset($_SESSION['user'])) {
                                             <?php endif; ?>
                                         </small>
                                     </td>
-                                    <td class="d-none d-md-table-cell">
+                                    <td>
                                         <span class="badge bg-info"><?= htmlspecialchars($mov['linea_nombre'] ?? 'Sin línea') ?></span>
                                     </td>
                                     <td>
@@ -126,26 +126,24 @@ if (!isset($_SESSION['user'])) {
                                             <span class="text-muted">-</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="d-none d-lg-table-cell">
+                                    <td>
                                         <small><?= htmlspecialchars($mov['usuario_nombre'] ?? 'N/A') ?></small>
                                     </td>
-                                    <td class="d-none d-lg-table-cell">
+                                    <td>
                                         <?php if ($mov['tipo_registro'] === 'movimiento'): ?>
                                             <small class="text-muted"><?= htmlspecialchars($mov['descripcion']) ?></small>
                                         <?php else: ?>
                                             <small class="text-muted">Material eliminado del inventario</small>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="d-none d-lg-table-cell">
-                                        <a href="<?= BASE_URL ?>/?url=materiales/detalles&id=<?= $mov['material_id'] ?? 0 ?>" class="text-decoration-none" title="Ver detalles y archivos">
-                                            <span class="badge bg-secondary" id="docs-historial-<?= $mov['id'] ?>" data-material-id="<?= $mov['material_id'] ?? 0 ?>" style="cursor: pointer;">
-                                                <i class="bi bi-hourglass-split"></i>
-                                            </span>
-                                        </a>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary doc-count-badge" id="docs-count-<?= $mov['id'] ?>" data-material-id="<?= $mov['material_id'] ?? 0 ?>" style="cursor: pointer;" title="Documentos adjuntos">
+                                            <i class="bi bi-file-earmark"></i> <span class="count-value">0</span>
+                                        </span>
                                     </td>
                                     <td>
                                         <small>
-                                            <?php $fecha = $mov['tipo_registro'] === 'movimiento' ? $mov['fecha_movimiento'] : $mov['fecha_creacion']; ?>
+                                            <?php $fecha = $mov['tipo_registro'] === 'movimiento' ? $mov['fecha_movimiento'] : ($mov['fecha_cambio'] ?? $mov['fecha_creacion'] ?? date('Y-m-d H:i:s')); ?>
                                             <?= date('d/m/Y', strtotime($fecha)) ?><br>
                                             <span class="text-muted"><?= date('H:i', strtotime($fecha)) ?></span>
                                         </small>
@@ -521,7 +519,7 @@ if (!isset($_SESSION['user'])) {
         }
 
         // Cargar conteo de documentos para cada material
-        const documentosBadges = document.querySelectorAll('[id^="docs-historial-"]');
+        const documentosBadges = document.querySelectorAll('[id^="docs-count-"]');
         documentosBadges.forEach(badge => {
             const materialId = badge.dataset.materialId;
             if (materialId && materialId > 0) {
@@ -538,15 +536,38 @@ if (!isset($_SESSION['user'])) {
         fetch(`${BASE_URL}/?url=materiales/contarDocumentos&material_id=${materialId}`)
             .then(response => response.json())
             .then(data => {
+                const countSpan = badgeElement.querySelector('.count-value');
+                if (countSpan) {
+                    countSpan.textContent = data.count || 0;
+                }
+                
+                // Cambiar color del badge según cantidad
                 if (data.count === 0) {
-                    badgeElement.innerHTML = '<span class="badge bg-secondary">Sin docs</span>';
-                } else {
-                    badgeElement.innerHTML = `<span class="badge bg-primary">${data.count} doc${data.count !== 1 ? 's' : ''}</span>`;
+                    badgeElement.classList.remove('bg-secondary');
+                    badgeElement.classList.add('bg-danger');
+                    badgeElement.title = 'Sin documentos';
+                } else if (data.count > 0) {
+                    badgeElement.classList.remove('bg-secondary', 'bg-danger');
+                    badgeElement.classList.add('bg-primary');
+                    badgeElement.title = `${data.count} documento${data.count !== 1 ? 's' : ''} adjunto${data.count !== 1 ? 's' : ''}`;
                 }
             })
             .catch(err => {
                 console.error("Error cargando documentos:", err);
-                badgeElement.innerHTML = '<span class="badge bg-danger">Error</span>';
+                const countSpan = badgeElement.querySelector('.count-value');
+                if (countSpan) countSpan.textContent = '?';
             });
     }
+
+    // Permitir hacer clic en el badge para ver documentos
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.doc-count-badge')) {
+            const badge = e.target.closest('.doc-count-badge');
+            const materialId = badge.dataset.materialId;
+            if (materialId && materialId > 0) {
+                window.location.href = `${BASE_URL}/?url=materiales/detalles&id=${materialId}`;
+            }
+        }
+    });
+
 </script>

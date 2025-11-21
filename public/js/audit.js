@@ -156,7 +156,7 @@ function actualizarTabla(data) {
         html += `
             <tr>
                 <td>${cambio.id}</td>
-                <td><small class="text-muted">${formatearFecha(cambio.fecha_creacion)}</small></td>
+                <td><small class="text-muted">${formatearFecha(cambio.fecha_cambio)}</small></td>
                 <td>${escapeHtml(cambio.usuario_modificado || 'N/A')}</td>
                 <td>
                     <span class="${accion.clase}">${accion.texto}</span>

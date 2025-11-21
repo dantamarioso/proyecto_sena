@@ -28,6 +28,10 @@ class User extends Model
 
     public function updateFull($id, $data)
     {
+        // Establecer variable de sesión para el trigger
+        $userId = $_SESSION['user']['id'] ?? 1;
+        $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
+        
         $sql = "
         UPDATE usuarios SET
             nombre = :nombre,
@@ -184,6 +188,10 @@ class User extends Model
     ========================================= */
     public function updateBasic($id, $data)
     {
+        // Establecer variable de sesión para el trigger
+        $userId = $_SESSION['user']['id'] ?? 1;
+        $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
+        
         $stmt = $this->db->prepare("
             UPDATE usuarios SET
                 nombre         = :nombre,
@@ -217,6 +225,10 @@ class User extends Model
     ========================================= */
     public function updateEstado($id, $estado)
     {
+        // Establecer variable de sesión para el trigger
+        $userId = $_SESSION['user']['id'] ?? 1;
+        $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
+        
         $stmt = $this->db->prepare("
             UPDATE usuarios 
             SET estado = :estado
@@ -336,6 +348,10 @@ class User extends Model
 
     public function setNewPassword($id, $pass)
     {
+        // Establecer variable de sesión para el trigger
+        $userId = $_SESSION['user']['id'] ?? 1;
+        $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
+        
         $stmt = $this->db->prepare("
         UPDATE usuarios SET password = :p WHERE id = :id
     ");
@@ -396,6 +412,10 @@ class User extends Model
 
     public function markEmailAsVerified($id)
     {
+        // Establecer variable de sesión para el trigger
+        $userId = $_SESSION['user']['id'] ?? 1;
+        $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
+        
         $stmt = $this->db->prepare("
         UPDATE usuarios SET 
             email_verified = 1,
@@ -449,6 +469,11 @@ class User extends Model
     ========================================= */
     public function create($data)
     {
+        // Establecer variable de sesión para el trigger (si hay usuario en sesión)
+        if (isset($_SESSION['user']['id'])) {
+            $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $_SESSION['user']['id']]);
+        }
+        
         $stmt = $this->db->prepare("
         INSERT INTO usuarios 
             (nombre, correo, nombre_usuario, celular, cargo, foto, password, estado, rol)

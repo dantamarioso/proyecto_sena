@@ -1,4 +1,10 @@
 <?php
+// ========== ERROR LOGGING ==========
+error_reporting(E_ALL);
+ini_set('display_errors', '0'); // No mostrar en página
+ini_set('log_errors', '1'); // Activar logging
+ini_set('error_log', __DIR__ . '/../error_log.txt'); // Guardar en la raíz del proyecto
+
 session_start();
 
 require_once __DIR__ . '/../vendor/autoload.php';
