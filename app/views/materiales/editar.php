@@ -1,7 +1,13 @@
 <?php
-if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'admin') {
+if (!isset($_SESSION['user'])) {
+    header("Location: " . BASE_URL . "/?url=auth/login");
+    exit;
+}
+
+$rol = $_SESSION['user']['rol'] ?? 'usuario';
+if (!in_array($rol, ['admin', 'dinamizador'])) {
     http_response_code(403);
-    echo "Acceso denegado.";
+    echo "Acceso denegado. Solo administradores y dinamizadores pueden editar materiales.";
     exit;
 }
 ?>

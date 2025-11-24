@@ -89,17 +89,18 @@ class PermissionHelper
             return true;
         }
         
-        // Obtener información de la línea
-        $stmt = $this->db->prepare("SELECT nodo_id FROM lineas WHERE id = ?");
-        $stmt->execute([$linea_id]);
-        $linea = $stmt->fetch(PDO::FETCH_ASSOC);
+        $nodo_id = $this->getUserNodo();
         
-        if (!$linea) {
-            return false;
-        }
+        // Verificar que la línea esté asociada al nodo del usuario
+        $stmt = $this->db->prepare("
+            SELECT COUNT(*) as total 
+            FROM linea_nodo 
+            WHERE linea_id = :linea_id AND nodo_id = :nodo_id AND estado = 1
+        ");
+        $stmt->execute([':linea_id' => $linea_id, ':nodo_id' => $nodo_id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        // Verif que el nodo de la línea sea el del usuario
-        if ($linea['nodo_id'] != $this->getUserNodo()) {
+        if ($result['total'] == 0) {
             return false;
         }
         
@@ -355,23 +356,49 @@ class PermissionHelper
     public function getAccesibleLineas()
     {
         if ($this->isAdmin()) {
-            // Admin ve todas
-            $stmt = $this->db->prepare("SELECT * FROM lineas WHERE estado = 1 ORDER BY nombre");
+            // Admin ve todas (con info de nodos asociados)
+            $stmt = $this->db->prepare("
+                SELECT DISTINCT l.*, 
+                    GROUP_CONCAT(DISTINCT n.id ORDER BY n.id SEPARATOR ',') as nodo_ids
+                FROM lineas l
+                LEFT JOIN linea_nodo ln ON l.id = ln.linea_id AND ln.estado = 1
+                LEFT JOIN nodos n ON ln.nodo_id = n.id
+                WHERE l.estado = 1
+                GROUP BY l.id
+                ORDER BY l.nombre
+            ");
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         
         if ($this->isDinamizador()) {
-            // Dinamizador ve todas las de su nodo
-            $stmt = $this->db->prepare("SELECT * FROM lineas WHERE nodo_id = ? AND estado = 1 ORDER BY nombre");
-            $stmt->execute([$this->getUserNodo()]);
+            // Dinamizador ve todas las líneas de su nodo
+            $stmt = $this->db->prepare("
+                SELECT DISTINCT l.*
+                FROM lineas l
+                INNER JOIN linea_nodo ln ON l.id = ln.linea_id
+                WHERE ln.nodo_id = :nodo_id AND ln.estado = 1 AND l.estado = 1
+                ORDER BY l.nombre
+            ");
+            $stmt->execute([':nodo_id' => $this->getUserNodo()]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         
         if ($this->isUsuario()) {
-            // Usuario solo su línea
-            $stmt = $this->db->prepare("SELECT * FROM lineas WHERE id = ? AND estado = 1");
-            $stmt->execute([$this->getUserLinea()]);
+            // Usuario solo su línea (pero que esté en su nodo)
+            $stmt = $this->db->prepare("
+                SELECT DISTINCT l.*
+                FROM lineas l
+                INNER JOIN linea_nodo ln ON l.id = ln.linea_id
+                WHERE l.id = :linea_id 
+                AND ln.nodo_id = :nodo_id 
+                AND ln.estado = 1 
+                AND l.estado = 1
+            ");
+            $stmt->execute([
+                ':linea_id' => $this->getUserLinea(),
+                ':nodo_id' => $this->getUserNodo()
+            ]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         

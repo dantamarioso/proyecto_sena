@@ -41,12 +41,14 @@ class Nodo extends Model
         $stmt->execute();
         $nodos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Agregar líneas a cada nodo
+        // Agregar líneas a cada nodo usando tabla linea_nodo
         foreach ($nodos as &$nodo) {
             $stmtLineas = $this->db->prepare("
-                SELECT * FROM lineas 
-                WHERE nodo_id = :nodo_id AND estado = 1
-                ORDER BY nombre ASC
+                SELECT DISTINCT l.* 
+                FROM lineas l
+                INNER JOIN linea_nodo ln ON l.id = ln.linea_id
+                WHERE ln.nodo_id = :nodo_id AND ln.estado = 1 AND l.estado = 1
+                ORDER BY l.nombre ASC
             ");
             $stmtLineas->execute([':nodo_id' => $nodo['id']]);
             $nodo['lineas'] = $stmtLineas->fetchAll(PDO::FETCH_ASSOC);
@@ -104,9 +106,10 @@ class Nodo extends Model
     public function getLineas($nodo_id)
     {
         $stmt = $this->db->prepare("
-            SELECT * FROM lineas 
-            WHERE nodo_id = :nodo_id
-            ORDER BY nombre ASC
+            SELECT DISTINCT l.* FROM lineas l
+            INNER JOIN linea_nodo ln ON l.id = ln.linea_id
+            WHERE ln.nodo_id = :nodo_id AND ln.estado = 1 AND l.estado = 1
+            ORDER BY l.nombre ASC
         ");
         $stmt->execute([':nodo_id' => $nodo_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -118,8 +121,9 @@ class Nodo extends Model
     public function contarLineas($nodo_id)
     {
         $stmt = $this->db->prepare("
-            SELECT COUNT(*) as total FROM lineas 
-            WHERE nodo_id = :nodo_id AND estado = 1
+            SELECT COUNT(DISTINCT l.id) as total FROM lineas l
+            INNER JOIN linea_nodo ln ON l.id = ln.linea_id
+            WHERE ln.nodo_id = :nodo_id AND ln.estado = 1 AND l.estado = 1
         ");
         $stmt->execute([':nodo_id' => $nodo_id]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -203,7 +207,8 @@ class Nodo extends Model
                 COUNT(DISTINCT u.id) as cantidad_usuarios,
                 COUNT(DISTINCT m.id) as cantidad_materiales
             FROM nodos n
-            LEFT JOIN lineas l ON l.nodo_id = n.id AND l.estado = 1
+            LEFT JOIN linea_nodo ln ON ln.nodo_id = n.id AND ln.estado = 1
+            LEFT JOIN lineas l ON l.id = ln.linea_id AND l.estado = 1
             LEFT JOIN usuarios u ON u.nodo_id = n.id AND u.estado = 1
             LEFT JOIN materiales m ON m.nodo_id = n.id AND m.estado = 1
             GROUP BY n.id

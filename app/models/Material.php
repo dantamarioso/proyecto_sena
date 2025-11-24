@@ -193,7 +193,7 @@ class Material extends Model
     public function getHistorialMovimientos($material_id = null, $filtros = [])
     {
         $sql = "
-            SELECT m.*, mat.nombre as material_nombre, mat.linea_id, l.nombre as linea_nombre, u.nombre as usuario_nombre, u.foto as usuario_foto
+            SELECT m.*, mat.nombre as material_nombre, mat.linea_id, mat.nodo_id, l.nombre as linea_nombre, u.nombre as usuario_nombre, u.foto as usuario_foto
             FROM movimientos_inventario m
             LEFT JOIN materiales mat ON m.material_id = mat.id
             LEFT JOIN lineas l ON mat.linea_id = l.id
@@ -345,6 +345,8 @@ class Material extends Model
                 JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.nombre')) as material_nombre,
                 JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.codigo')) as material_codigo,
                 CAST(JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.id')) AS UNSIGNED) as material_id,
+                CAST(JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.nodo_id')) AS UNSIGNED) as nodo_id,
+                CAST(JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.linea_id')) AS UNSIGNED) as linea_id,
                 JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.nombre')) as linea_nombre
             FROM auditoria a
             LEFT JOIN usuarios u ON a.usuario_id = u.id

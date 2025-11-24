@@ -5,6 +5,7 @@ require_once __DIR__ . '/../models/Material.php';
 require_once __DIR__ . '/../models/MaterialArchivo.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Nodo.php';
+require_once __DIR__ . '/../models/Linea.php';
 require_once __DIR__ . '/../helpers/PermissionHelper.php';
 
 class MaterialesController extends Controller
@@ -254,18 +255,54 @@ class MaterialesController extends Controller
                 'estado'        => intval($_POST['estado'] ?? 1),
             ];
 
-            // Validar que la línea sea accesible
+            // Determinar nodo_id según el rol
+            $rol = $_SESSION['user']['rol'] ?? 'usuario';
+            
+            if ($rol === 'admin' && !empty($_POST['nodo_id'])) {
+                // Admin puede especificar el nodo
+                $data['nodo_id'] = intval($_POST['nodo_id']);
+            } else {
+                // Usuario/Dinamizador: obtener de la sesión
+                $data['nodo_id'] = $_SESSION['user']['nodo_id'] ?? null;
+            }
+            
+            if (empty($data['nodo_id'])) {
+                echo json_encode(['success' => false, 'errors' => ['No se pudo determinar el nodo del usuario']]);
+                exit;
+            }
+
+            // Validar que la línea sea accesible y pertenezca al nodo
             $linea_ok = false;
             foreach ($lineas as $linea) {
-                if ($linea['id'] == $data['linea_id']) {
+                if ($linea['id'] == $data['linea_id'] && $linea['nodo_id'] == $data['nodo_id']) {
                     $linea_ok = true;
-                    $data['nodo_id'] = $linea['nodo_id'];
                     break;
                 }
             }
             
+            // Si no encontró la línea en el array accesible, obtener de la BD usando linea_nodo
+            if (!$linea_ok && !empty($data['linea_id'])) {
+                $db = Database::getInstance();
+                $stmt = $db->prepare("
+                    SELECT DISTINCT 1 
+                    FROM linea_nodo ln
+                    WHERE ln.linea_id = :linea_id 
+                    AND ln.nodo_id = :nodo_id 
+                    AND ln.estado = 1 
+                    LIMIT 1
+                ");
+                $stmt->execute([
+                    ':linea_id' => $data['linea_id'],
+                    ':nodo_id' => $data['nodo_id']
+                ]);
+                
+                if ($stmt->fetch()) {
+                    $linea_ok = true;
+                }
+            }
+            
             if (!$linea_ok) {
-                echo json_encode(['success' => false, 'errors' => ['Línea no accesible']]);
+                echo json_encode(['success' => false, 'errors' => ['Línea no accesible o no pertenece a tu nodo']]);
                 exit;
             }
 
@@ -463,6 +500,7 @@ class MaterialesController extends Controller
                     'nombre' => $material['nombre'],
                     'codigo' => $material['codigo'],
                     'cantidad' => $material['cantidad'],
+                    'nodo_id' => $material['nodo_id'],
                     'linea_id' => $material['linea_id'],
                     'linea_nombre' => $this->getLineaNombre($material['linea_id']),
                     'descripcion' => $material['descripcion']
@@ -489,7 +527,7 @@ class MaterialesController extends Controller
     {
         header('Content-Type: application/json; charset=utf-8');
         
-        $this->requireAdmin();
+        $this->requireAuth();
 
         $id = intval($_POST['id'] ?? 0);
         $tipo = trim($_POST['tipo'] ?? ''); // 'entrada' o 'salida'
@@ -520,6 +558,20 @@ class MaterialesController extends Controller
 
         if (!$material) {
             echo json_encode(['success' => false, 'errors' => ['Material no encontrado']]);
+            exit;
+        }
+
+        // Verificar permisos para este movimiento
+        try {
+            $permissions = new PermissionHelper();
+            
+            // Verificar si puede hacer entrada o salida del material
+            if (!$permissions->canEnterMaterial($id)) {
+                echo json_encode(['success' => false, 'errors' => ['No tiene permiso para hacer movimientos en este material.']]);
+                exit;
+            }
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'errors' => ['Error al verificar permisos: ' . $e->getMessage()]]);
             exit;
         }
 
@@ -576,6 +628,14 @@ class MaterialesController extends Controller
         $this->requireAuth();
 
         $materialModel = new Material();
+        
+        try {
+            $permissions = new PermissionHelper();
+        } catch (Exception $e) {
+            http_response_code(403);
+            echo "Error: " . $e->getMessage();
+            exit;
+        }
 
         // Filtros
         $filtros = [];
@@ -608,6 +668,30 @@ class MaterialesController extends Controller
             $historialCompleto[] = $elim;
         }
         
+        // Filtrar historial según permisos del usuario
+        $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
+        $linea_user = $_SESSION['user']['linea_id'] ?? null;
+        $rol = $_SESSION['user']['rol'];
+        
+        $historialFiltrado = [];
+        foreach ($historialCompleto as $registro) {
+            if ($rol === 'admin') {
+                // Admin ve todo
+                $historialFiltrado[] = $registro;
+            } elseif ($rol === 'dinamizador') {
+                // Dinamizador ve solo su nodo
+                if (($registro['nodo_id'] ?? null) == $nodo_user) {
+                    $historialFiltrado[] = $registro;
+                }
+            } elseif ($rol === 'usuario') {
+                // Usuario ve solo su nodo y línea
+                if (($registro['nodo_id'] ?? null) == $nodo_user && ($registro['linea_id'] ?? null) == $linea_user) {
+                    $historialFiltrado[] = $registro;
+                }
+            }
+        }
+        $historialCompleto = $historialFiltrado;
+        
         // Ordenar por fecha descendente
         usort($historialCompleto, function($a, $b) {
             $fechaA = strtotime($a['fecha_movimiento'] ?? $a['fecha_cambio'] ?? $a['fecha_creacion'] ?? 'now');
@@ -615,14 +699,32 @@ class MaterialesController extends Controller
             return $fechaB - $fechaA;
         });
         
-        $lineas = $materialModel->getLineas();
-        $materiales = $materialModel->all();
+        // Obtener solo líneas accesibles
+        $lineas = $permissions->getAccesibleLineas();
+        
+        // Obtener solo materiales accesibles
+        $todosLosMateriales = $materialModel->all();
+        $materiales = [];
+        foreach ($todosLosMateriales as $mat) {
+            if ($rol === 'admin') {
+                $materiales[] = $mat;
+            } elseif ($rol === 'dinamizador') {
+                if ($mat['nodo_id'] == $nodo_user) {
+                    $materiales[] = $mat;
+                }
+            } elseif ($rol === 'usuario') {
+                if ($mat['nodo_id'] == $nodo_user && $mat['linea_id'] == $linea_user) {
+                    $materiales[] = $mat;
+                }
+            }
+        }
 
         $this->view('materiales/historial_inventario', [
             'historial'       => $historialCompleto,
             'lineas'          => $lineas,
             'materiales'      => $materiales,
             'filtros'         => $filtros,
+            'permisos'        => $permissions,
             'pageStyles'      => ['materiales', 'usuarios'],
             'pageScripts'     => ['materiales'],
         ]);
@@ -978,6 +1080,50 @@ class MaterialesController extends Controller
             'pageStyles'  => ['materiales'],
             'pageScripts' => [],
         ]);
+    }
+
+    /* =========================================================
+       OBTENER LÍNEAS POR NODO (AJAX)
+    ========================================================== */
+    public function obtenerLineasPorNodo()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $this->requireAuth();
+        
+        $nodo_id = intval($_GET['nodo_id'] ?? 0);
+        
+        if ($nodo_id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Nodo inválido']);
+            exit;
+        }
+        
+        // Verificar que el usuario tenga acceso al nodo
+        try {
+            $permissions = new PermissionHelper();
+            if (!$permissions->canViewNode($nodo_id)) {
+                echo json_encode(['success' => false, 'message' => 'Acceso denegado']);
+                exit;
+            }
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Error al verificar permisos']);
+            exit;
+        }
+        
+        // Obtener líneas del nodo (usando tabla linea_nodo para M:N)
+        $db = Database::getInstance();
+        $stmt = $db->prepare("
+            SELECT DISTINCT l.id, l.nombre 
+            FROM lineas l
+            INNER JOIN linea_nodo ln ON l.id = ln.linea_id
+            WHERE ln.nodo_id = :nodo_id AND ln.estado = 1 AND l.estado = 1 
+            ORDER BY l.nombre ASC
+        ");
+        $stmt->execute([':nodo_id' => $nodo_id]);
+        $lineas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode(['success' => true, 'lineas' => $lineas]);
+        exit;
     }
 }
 

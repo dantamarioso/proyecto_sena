@@ -172,7 +172,7 @@
         const divLinea = document.getElementById('div-linea');
 
         // Datos de nodos - convertir a array si es necesario
-        let nodosData = <?= json_encode($nodos) ?>;
+        let nodosData = <?= json_encode($nodos, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
         if (!Array.isArray(nodosData)) {
             nodosData = Object.values(nodosData || {});
         }

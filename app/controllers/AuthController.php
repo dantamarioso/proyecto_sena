@@ -187,11 +187,13 @@ class AuthController extends Controller
                         session_regenerate_id(true);
 
                         $_SESSION['user'] = [
-                            'id'     => $user['id'],
-                            'nombre' => $user['nombre'],
-                            'cargo'  => $user['cargo'],
-                            'foto'   => $user['foto'],
-                            'rol'    => $user['rol'] ?? 'usuario',
+                            'id'       => $user['id'],
+                            'nombre'   => $user['nombre'],
+                            'cargo'    => $user['cargo'],
+                            'foto'     => $user['foto'],
+                            'rol'      => $user['rol'] ?? 'usuario',
+                            'nodo_id'  => $user['nodo_id'] ?? null,
+                            'linea_id' => $user['linea_id'] ?? null,
                         ];
 
                         $this->redirectReplace('home/index');

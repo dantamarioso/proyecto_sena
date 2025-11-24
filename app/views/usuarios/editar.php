@@ -174,7 +174,7 @@
         const divLinea = document.getElementById('div-linea-edit');
 
         // Datos de nodos con líneas
-        const nodosData = <?= json_encode($nodos) ?>;
+        const nodosData = <?= json_encode($nodos, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 
         // Cargar líneas cuando cambia el nodo
         nodoSelect.addEventListener('change', function() {

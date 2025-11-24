@@ -20,20 +20,21 @@ if (!isset($_SESSION['user'])) {
 
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
             <h3 class="mb-0">Gestión de Inventario</h3>
-            <?php if (($_SESSION['user']['rol'] ?? 'usuario') === 'admin'): ?>
-                <div class="d-flex gap-2 flex-wrap">
+            <div class="d-flex gap-2 flex-wrap">
+                <?php 
+                    $rol = $_SESSION['user']['rol'] ?? 'usuario';
+                    // Admin y dinamizador pueden crear
+                    if (in_array($rol, ['admin', 'dinamizador'])): 
+                ?>
                     <a href="<?= BASE_URL ?>/?url=materiales/crear" class="btn btn-success btn-sm w-100 w-sm-auto">
                         <i class="bi bi-plus-lg"></i> Nuevo Material
                     </a>
-                    <a href="<?= BASE_URL ?>/?url=materiales/historialInventario" class="btn btn-info btn-sm w-100 w-sm-auto">
-                        <i class="bi bi-clock-history"></i> Historial
-                    </a>
-                </div>
-            <?php else: ?>
+                <?php endif; ?>
+                <!-- Todos pueden ver historial -->
                 <a href="<?= BASE_URL ?>/?url=materiales/historialInventario" class="btn btn-info btn-sm w-100 w-sm-auto">
-                    <i class="bi bi-clock-history"></i> Ver Historial
+                    <i class="bi bi-clock-history"></i> Historial
                 </a>
-            <?php endif; ?>
+            </div>
         </div>
 
         <!-- Filtros y búsqueda -->
@@ -120,20 +121,46 @@ if (!isset($_SESSION['user'])) {
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
+                                        <!-- Ver: todos pueden -->
                                         <button class="btn btn-info btn-sm btn-ver" title="Ver detalles" data-id="<?= $m['id'] ?>">
                                             <i class="bi bi-eye"></i>
                                         </button>
-                                        <?php if (($_SESSION['user']['rol'] ?? 'usuario') === 'admin'): ?>
+                                        
+                                        <?php 
+                                            $rol = $_SESSION['user']['rol'] ?? 'usuario';
+                                            $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
+                                            $linea_user = $_SESSION['user']['linea_id'] ?? null;
+                                            
+                                            $esDelUsuario = ($m['nodo_id'] == $nodo_user);
+                                            $esDelUsuarioYLinea = $esDelUsuario && ($m['linea_id'] == $linea_user);
+                                            
+                                            // Entrada/Salida: Admin y Dinamizador su nodo, Usuario su nodo+linea
+                                            if (($rol === 'admin') || 
+                                                ($rol === 'dinamizador' && $esDelUsuario) ||
+                                                ($rol === 'usuario' && $esDelUsuarioYLinea)):
+                                        ?>
                                             <button class="btn btn-warning btn-sm btn-entrada" title="Entrada" data-id="<?= $m['id'] ?>">
                                                 <i class="bi bi-plus-square"></i>
                                             </button>
                                             <button class="btn btn-danger btn-sm btn-salida" title="Salida" data-id="<?= $m['id'] ?>">
                                                 <i class="bi bi-dash-square"></i>
                                             </button>
+                                        <?php endif; ?>
+                                        
+                                        <?php 
+                                            // Editar: Admin y Dinamizador su nodo
+                                            if (($rol === 'admin') || ($rol === 'dinamizador' && $esDelUsuario)):
+                                        ?>
                                             <a href="<?= BASE_URL ?>/?url=materiales/editar&id=<?= $m['id'] ?>"
                                                class="btn btn-primary btn-sm" title="Editar">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
+                                        <?php endif; ?>
+                                        
+                                        <?php 
+                                            // Eliminar: Admin y Dinamizador su nodo
+                                            if (($rol === 'admin') || ($rol === 'dinamizador' && $esDelUsuario)):
+                                        ?>
                                             <button class="btn btn-danger btn-sm btn-eliminar" title="Eliminar" data-id="<?= $m['id'] ?>">
                                                 <i class="bi bi-trash"></i>
                                             </button>
