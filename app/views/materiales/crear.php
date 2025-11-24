@@ -26,9 +26,6 @@ if ($editId > 0) {
 }
 ?>
 
-<script>
-    const BASE_URL = "<?= BASE_URL ?>";
-</script>
     <div class="col-12 col-lg-8">
         <div class="d-flex align-items-center gap-2 mb-4">
             <a href="<?= BASE_URL ?>/?url=materiales/index" class="btn btn-outline-secondary btn-sm">
@@ -189,7 +186,7 @@ if (nodoSelect && lineaSelect) {
 
         // Cargar líneas del nodo seleccionado
         try {
-            const response = await fetch(`${BASE_URL}/?url=ajax/obtenerLineasPorNodo&nodo_id=${nodoId}`);
+            const response = await fetch(`${window.BASE_URL}/?url=materiales/obtenerLineasPorNodo&nodo_id=${nodoId}`);
             const data = await response.json();
             
             if (data.success && data.lineas) {
@@ -217,7 +214,7 @@ if (form) {
         const erroresDiv = document.getElementById('form-errors');
 
         try {
-            const response = await fetch(`${BASE_URL}/?url=materiales/crear`, {
+            const response = await fetch(`${window.BASE_URL}/?url=materiales/crear`, {
                 method: 'POST',
                 body: formData
             });
@@ -226,7 +223,7 @@ if (form) {
 
             if (data.success) {
                 // Redirigir a crear con parámetro edit para mostrar archivos
-                window.location.href = `${BASE_URL}/?url=materiales/crear&edit=${data.id}`;
+                window.location.href = `${window.BASE_URL}/?url=materiales/crear&edit=${data.id}`;
             } else {
                 erroresDiv.innerHTML = '<strong>Errores:</strong><ul>';
                 data.errors.forEach(err => {

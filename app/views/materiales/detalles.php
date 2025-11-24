@@ -105,7 +105,7 @@ $archivos = $archivoModel->getByMaterial($materialId);
                                     </small>
                                 </div>
                                 <div class="btn-group" role="group">
-                                    <a href="/<?= $archivo['nombre_archivo'] ?>" class="btn btn-sm btn-outline-primary" target="_blank" title="Descargar">
+                                    <a href="<?= BASE_URL ?>/<?= $archivo['nombre_archivo'] ?>" class="btn btn-sm btn-outline-primary" target="_blank" title="Descargar">
                                         <i class="bi bi-download"></i> Descargar
                                     </a>
                                 </div>

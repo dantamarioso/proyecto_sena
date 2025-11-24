@@ -109,9 +109,6 @@ if (!isset($_SESSION['user'])) {
     </div>
 </div>
 
-<script>
-    const BASE_URL = "<?= BASE_URL ?>";
-</script>
 
 <script src="<?= BASE_URL ?>/js/perfil.js"></script>
 

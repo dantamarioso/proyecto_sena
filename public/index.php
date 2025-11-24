@@ -5,6 +5,11 @@ ini_set('display_errors', '0'); // No mostrar en página
 ini_set('log_errors', '1'); // Activar logging
 ini_set('error_log', __DIR__ . '/../error_log.txt'); // Guardar en la raíz del proyecto
 
+// ========== HEADERS ==========
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 session_start();
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -32,14 +37,19 @@ $parts = explode('/', $url);
 $controllerName = ucfirst($parts[0]) . 'Controller'; // auth -> AuthController
 $method = $parts[1] ?? 'login';
 
+// Depuración: verificar que la clase existe
 if (!class_exists($controllerName)) {
-    die("Controlador no encontrado");
+    header('Content-Type: application/json; charset=utf-8');
+    http_response_code(404);
+    echo json_encode(['error' => "Controlador '$controllerName' no encontrado", 'debug' => ['url' => $url, 'parts' => $parts, 'controller' => $controllerName]]);
+    exit;
 }
 
-$controller = new $controllerName();
-
-if (!method_exists($controller, $method)) {
-    die("Método no encontrado");
+if (!method_exists($controller = new $controllerName(), $method)) {
+    header('Content-Type: application/json; charset=utf-8');
+    http_response_code(404);
+    echo json_encode(['error' => "Método '$method' no encontrado en '$controllerName'"]);
+    exit;
 }
 
 $controller->$method();

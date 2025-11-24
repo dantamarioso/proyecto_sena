@@ -30,9 +30,13 @@ class User extends Model
             correo = :correo,
             nombre_usuario = :nombre_usuario,
             celular = :celular,
-            cargo = :cargo,
-            estado = :estado
+            cargo = :cargo
     ";
+
+        // Solo actualizar estado si está explícitamente establecido
+        if (isset($data['estado']) && $data['estado'] !== null) {
+            $sql .= ", estado = :estado";
+        }
 
         if (!empty($data['foto'])) {
             $sql .= ", foto = :foto";
@@ -64,9 +68,13 @@ class User extends Model
             ':nombre_usuario' => $data['nombre_usuario'] ?? null,
             ':celular'        => $data['celular'] ?? null,
             ':cargo'          => $data['cargo'] ?? null,
-            ':estado'         => $data['estado'] ?? null,
             ':id'             => $id
         ];
+
+        // Solo agregar estado si está explícitamente establecido
+        if (isset($data['estado']) && $data['estado'] !== null) {
+            $params[':estado'] = $data['estado'];
+        }
 
         if (!empty($data['foto'])) {
             $params[':foto'] = $data['foto'];

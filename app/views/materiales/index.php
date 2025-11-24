@@ -5,10 +5,6 @@ if (!isset($_SESSION['user'])) {
 }
 ?>
 
-<script>
-    const BASE_URL = "<?= BASE_URL ?>";
-</script>
-
 <style>
     tbody tr:only-child td {
         display: table-cell !important;
@@ -272,7 +268,7 @@ function cargarDocumentos(materialId) {
     const badgeElement = document.getElementById(`docs-${materialId}`);
     if (!badgeElement) return;
 
-    fetch(`${BASE_URL}/?url=materiales/contarDocumentos&material_id=${materialId}`)
+    fetch(`${window.BASE_URL}/?url=materiales/contarDocumentos&material_id=${materialId}`)
         .then(response => response.json())
         .then(data => {
             let badge = '';

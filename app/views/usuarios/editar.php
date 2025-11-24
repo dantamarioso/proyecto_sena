@@ -4,8 +4,6 @@
             <div class="card-body">
                 <h3 class="mb-3">Editar usuario</h3>
 
-                <script>const BASE_URL = "<?= BASE_URL ?>";</script>
-
                 <?php if (!empty($errores)): ?>
                     <div class="alert alert-danger">
                         <ul class="mb-0">

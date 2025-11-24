@@ -97,8 +97,8 @@ class Material extends Model
         
         $stmt = $this->db->prepare("
             INSERT INTO materiales 
-            (codigo, nombre, descripcion, linea_id, cantidad, estado) 
-            VALUES (:codigo, :nombre, :descripcion, :linea_id, :cantidad, :estado)
+            (codigo, nombre, descripcion, linea_id, cantidad, estado, nodo_id) 
+            VALUES (:codigo, :nombre, :descripcion, :linea_id, :cantidad, :estado, :nodo_id)
         ");
 
         if ($stmt->execute([
@@ -108,6 +108,7 @@ class Material extends Model
             ':linea_id'       => $data['linea_id'],
             ':cantidad'       => intval($data['cantidad'] ?? 0),
             ':estado'         => $data['estado'] ?? 1,
+            ':nodo_id'        => intval($data['nodo_id'] ?? 0),
         ])) {
             return $this->db->lastInsertId();
         }

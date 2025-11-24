@@ -74,9 +74,14 @@ $archivos = isset($archivos) ? $archivos : [];
 </div>
 
 <script>
-// Definir BASE_URL en scope global
-if (typeof window.BASE_URL === 'undefined') {
-    window.BASE_URL = "<?= BASE_URL ?>";
+// Asegurar que window.BASE_URL está disponible (fallback si header no se cargó)
+if (typeof window.BASE_URL === 'undefined' || !window.BASE_URL) {
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    window.BASE_URL = protocol + '//' + host + '/proyecto_sena/public';
+    console.warn('BASE_URL no estaba definido, se estableció fallback:', window.BASE_URL);
+} else {
+    console.log('BASE_URL ya definido:', window.BASE_URL);
 }
 
 function subirArchivo(materialId) {
@@ -92,6 +97,12 @@ function subirArchivo(materialId) {
         return;
     }
 
+    // Validar tamaño en cliente (máximo 10MB)
+    if (archivo.size > 10 * 1024 * 1024) {
+        alert('El archivo supera el tamaño máximo de 10MB');
+        return;
+    }
+
     const formData = new FormData();
     formData.append('material_id', materialId);
     formData.append('archivo', archivo);
@@ -101,34 +112,67 @@ function subirArchivo(materialId) {
         progreso.style.display = 'block';
     }
 
-    fetch(window.BASE_URL + '/?url=materiales/subirArchivo', {
+    const urlSubida = window.BASE_URL + '?url=materiales/subirArchivo';
+    console.log('Iniciando carga:', {
+        url: urlSubida,
+        materialId: materialId,
+        archivo: archivo.name,
+        tamano: archivo.size,
+        baseUrl: window.BASE_URL
+    });
+
+    // Usar timeout para detectar si el servidor no responde
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos timeout
+
+    fetch(urlSubida, {
         method: 'POST',
-        body: formData
+        body: formData,
+        signal: controller.signal
     })
     .then(response => {
+        clearTimeout(timeoutId);
+        console.log('Respuesta del servidor:', response.status, response.statusText);
+        
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            return response.text().then(text => {
+                console.error('Error HTTP:', response.status, text);
+                throw new Error(`Error HTTP ${response.status}: ${text.substring(0, 200)}`);
+            });
         }
-        return response.json();
+        return response.json().catch(e => {
+            console.error('Error al parsear JSON:', e);
+            throw new Error('Respuesta inválida del servidor');
+        });
     })
     .then(data => {
         if (progreso) {
             progreso.style.display = 'none';
         }
+        
         if (data.success) {
+            console.log('Éxito:', data.message);
             alert(data.message || 'Archivo subido exitosamente');
             recargarArchivos(materialId);
             input.value = '';
         } else {
+            console.warn('Error del servidor:', data.message);
             alert('Error: ' + (data.message || 'Error desconocido'));
         }
     })
     .catch(error => {
+        clearTimeout(timeoutId);
         if (progreso) {
             progreso.style.display = 'none';
         }
-        console.error('Error:', error);
-        alert('Error al subir el archivo: ' + error.message);
+        
+        console.error('Error completo:', error);
+        
+        if (error.name === 'AbortError') {
+            alert('Tiempo de espera agotado. El servidor tardó demasiado en responder.');
+        } else {
+            alert('Error al subir el archivo:\n' + error.message + '\n\nVerifica que:\n1. Estés logueado como admin o dinamizador\n2. El servidor esté funcionando\n3. La conexión sea estable');
+        }
     });
 }
 
@@ -137,7 +181,7 @@ function eliminarArchivo(archivoId, materialId) {
         return;
     }
 
-    fetch(`${window.BASE_URL}/?url=materiales/eliminarArchivo`, {
+    fetch(`${window.BASE_URL}?url=materiales/eliminarArchivo`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -160,7 +204,7 @@ function eliminarArchivo(archivoId, materialId) {
 }
 
 function recargarArchivos(materialId) {
-    fetch(`${window.BASE_URL}/?url=materiales/obtenerArchivos&material_id=${materialId}`)
+    fetch(`${window.BASE_URL}?url=materiales/obtenerArchivos&material_id=${materialId}`)
     .then(response => response.json())
     .then(data => {
         if (data.success && data.archivos.length > 0) {

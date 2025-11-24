@@ -253,6 +253,7 @@ class MaterialesController extends Controller
                 'linea_id'      => intval($_POST['linea_id'] ?? 0),
                 'cantidad'      => intval($_POST['cantidad'] ?? 0),
                 'estado'        => intval($_POST['estado'] ?? 1),
+                'nodo_id'       => null, // Se establece a continuación
             ];
 
             // Determinar nodo_id según el rol
@@ -851,9 +852,10 @@ class MaterialesController extends Controller
             exit;
         }
         
-        // Validar rol admin
-        if (($_SESSION['user']['rol'] ?? 'usuario') !== 'admin') {
-            echo json_encode(['success' => false, 'message' => 'Acceso denegado']);
+        // Validar rol - admin y dinamizador pueden subir
+        $rol = $_SESSION['user']['rol'] ?? 'usuario';
+        if (!in_array($rol, ['admin', 'dinamizador'])) {
+            echo json_encode(['success' => false, 'message' => 'Solo administradores y dinamizadores pueden subir archivos']);
             http_response_code(403);
             exit;
         }
@@ -869,51 +871,66 @@ class MaterialesController extends Controller
             exit;
         }
 
-        $materialModel = new Material();
-        $material = $materialModel->getById($materialId);
-        if (!$material) {
-            echo json_encode(['success' => false, 'message' => 'Material no encontrado']);
-            exit;
-        }
-
-        $archivo = $_FILES['archivo'];
-        $nombreOriginal = $archivo['name'];
-        $ext = strtolower(pathinfo($nombreOriginal, PATHINFO_EXTENSION));
-
-        // Validar extensión
-        $extensionesPermitidas = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv'];
-        if (!in_array($ext, $extensionesPermitidas)) {
-            echo json_encode(['success' => false, 'message' => 'Tipo de archivo no permitido']);
-            exit;
-        }
-
-        // Validar tamaño (máximo 10MB)
-        if ($archivo['size'] > 10 * 1024 * 1024) {
-            echo json_encode(['success' => false, 'message' => 'El archivo supera el tamaño máximo de 10MB']);
-            exit;
-        }
-
-        // Preparar ruta del archivo
-        $nombreArchivo = "uploads/materiales/" . date('YmdHis_') . $nombreOriginal;
-        $rutaSistema = __DIR__ . "/../../public/" . $nombreArchivo;
-        $uploadDir = __DIR__ . "/../../public/uploads/materiales/";
-
-        // Crear directorio si no existe
-        if (!is_dir($uploadDir)) {
-            if (!@mkdir($uploadDir, 0777, true)) {
-                echo json_encode(['success' => false, 'message' => 'Error al crear directorio de uploads']);
+        try {
+            $materialModel = new Material();
+            $material = $materialModel->getById($materialId);
+            if (!$material) {
+                echo json_encode(['success' => false, 'message' => 'Material no encontrado']);
                 exit;
             }
-        }
 
-        // Mover archivo
-        if (!move_uploaded_file($archivo['tmp_name'], $rutaSistema)) {
-            echo json_encode(['success' => false, 'message' => 'Error al subir el archivo']);
-            exit;
-        }
+            $archivo = $_FILES['archivo'];
+            $nombreOriginal = $archivo['name'];
+            $ext = strtolower(pathinfo($nombreOriginal, PATHINFO_EXTENSION));
 
-        // Guardar en BD
-        try {
+            // Validar extensión
+            $extensionesPermitidas = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv'];
+            if (!in_array($ext, $extensionesPermitidas)) {
+                echo json_encode(['success' => false, 'message' => 'Tipo de archivo no permitido. Formatos: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV']);
+                exit;
+            }
+
+            // Validar tamaño (máximo 10MB)
+            if ($archivo['size'] > 10 * 1024 * 1024) {
+                echo json_encode(['success' => false, 'message' => 'El archivo supera el tamaño máximo de 10MB']);
+                exit;
+            }
+
+            // Validar que no sea error de carga
+            if ($archivo['error'] !== UPLOAD_ERR_OK) {
+                $errores_upload = [
+                    UPLOAD_ERR_INI_SIZE => 'El archivo supera max_upload_size',
+                    UPLOAD_ERR_FORM_SIZE => 'El archivo supera max_file_size',
+                    UPLOAD_ERR_PARTIAL => 'El archivo se subió parcialmente',
+                    UPLOAD_ERR_NO_FILE => 'No se subió archivo',
+                    UPLOAD_ERR_NO_TMP_DIR => 'No hay directorio temporal',
+                    UPLOAD_ERR_CANT_WRITE => 'No se puede escribir en el directorio',
+                    UPLOAD_ERR_EXTENSION => 'La carga fue detenida'
+                ];
+                echo json_encode(['success' => false, 'message' => $errores_upload[$archivo['error']] ?? 'Error desconocido al subir']);
+                exit;
+            }
+
+            // Preparar ruta del archivo
+            $nombreArchivo = "uploads/materiales/" . date('YmdHis_') . preg_replace('/[^a-zA-Z0-9._-]/', '_', $nombreOriginal);
+            $rutaSistema = __DIR__ . "/../../public/" . $nombreArchivo;
+            $uploadDir = __DIR__ . "/../../public/uploads/materiales/";
+
+            // Crear directorio si no existe
+            if (!is_dir($uploadDir)) {
+                if (!@mkdir($uploadDir, 0777, true)) {
+                    echo json_encode(['success' => false, 'message' => 'Error al crear directorio de uploads']);
+                    exit;
+                }
+            }
+
+            // Mover archivo
+            if (!move_uploaded_file($archivo['tmp_name'], $rutaSistema)) {
+                echo json_encode(['success' => false, 'message' => 'Error al mover archivo al directorio de uploads']);
+                exit;
+            }
+
+            // Guardar en BD
             $userModel = new User();
             $userId = $_SESSION['user']['id'];
             $usuario = $userModel->findById($userId);
@@ -927,13 +944,13 @@ class MaterialesController extends Controller
                 'material_id' => $materialId,
                 'nombre_original' => $nombreOriginal,
                 'nombre_archivo' => $nombreArchivo,
-                'tipo_archivo' => $archivo['type'],
+                'tipo_archivo' => $archivo['type'] ?? 'application/octet-stream',
                 'tamano' => $archivo['size'],
                 'usuario_id' => $userId
             ]);
 
             if ($result) {
-                // Registrar en auditoría
+                // Registrar en auditoría (no debe fallar la carga si esto falla)
                 try {
                     require_once __DIR__ . '/../models/Audit.php';
                     $audit = new Audit();
@@ -951,16 +968,20 @@ class MaterialesController extends Controller
                         $_SESSION['user']['id']
                     );
                 } catch (Exception $e) {
-                    // Auditoría fallida, pero el archivo se guardó
+                    // Log silencioso - la auditoría no debe fallar la carga
+                    error_log('Error en auditoría al subir archivo: ' . $e->getMessage());
                 }
                 
                 echo json_encode(['success' => true, 'message' => 'Archivo subido exitosamente']);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Error al guardar en base de datos']);
+                // Eliminar archivo si la BD falla
+                @unlink($rutaSistema);
+                echo json_encode(['success' => false, 'message' => 'Error al guardar archivo en base de datos']);
             }
             
         } catch (Exception $e) {
-            echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+            echo json_encode(['success' => false, 'message' => 'Error en servidor: ' . $e->getMessage()]);
+            error_log('Error en subirArchivo: ' . $e->getMessage());
         }
         
         exit;
@@ -970,7 +991,15 @@ class MaterialesController extends Controller
     {
         header('Content-Type: application/json; charset=utf-8');
         
-        $this->requireAdmin();
+        $this->requireAuth();
+        
+        // Permitir solo admin y dinamizador
+        $rol = $_SESSION['user']['rol'] ?? 'usuario';
+        if (!in_array($rol, ['admin', 'dinamizador'])) {
+            echo json_encode(['success' => false, 'message' => 'No autorizado para eliminar archivos']);
+            http_response_code(403);
+            exit;
+        }
 
         $archivoId = intval($_POST['id'] ?? 0);
 
@@ -987,10 +1016,27 @@ class MaterialesController extends Controller
             exit;
         }
 
+        // Para dinamizador, verificar que sea del mismo material y nodo
+        if ($rol === 'dinamizador') {
+            try {
+                $permissions = new PermissionHelper();
+                $material = (new Material())->getById($archivo['material_id']);
+                if (!$material || !$permissions->canEditMaterial($material['id'])) {
+                    echo json_encode(['success' => false, 'message' => 'No tienes permiso para eliminar este archivo']);
+                    http_response_code(403);
+                    exit;
+                }
+            } catch (Exception $e) {
+                echo json_encode(['success' => false, 'message' => 'Error al verificar permisos']);
+                http_response_code(403);
+                exit;
+            }
+        }
+
         // Eliminar archivo del sistema
         $rutaArchivo = __DIR__ . "/../../public/" . $archivo['nombre_archivo'];
         if (file_exists($rutaArchivo)) {
-            unlink($rutaArchivo);
+            @unlink($rutaArchivo);
         }
 
         // Eliminar registro de BD
@@ -1098,32 +1144,39 @@ class MaterialesController extends Controller
             exit;
         }
         
-        // Verificar que el usuario tenga acceso al nodo
         try {
-            $permissions = new PermissionHelper();
-            if (!$permissions->canViewNode($nodo_id)) {
-                echo json_encode(['success' => false, 'message' => 'Acceso denegado']);
-                exit;
+            // Para admin, permitir ver todas las líneas sin importar el nodo
+            $rol = $_SESSION['user']['rol'] ?? 'usuario';
+            
+            if ($rol === 'admin') {
+                // Admin ve todas las líneas
+                $db = Database::getInstance();
+                $stmt = $db->prepare("
+                    SELECT DISTINCT l.id, l.nombre 
+                    FROM lineas l
+                    WHERE l.estado = 1 
+                    ORDER BY l.nombre ASC
+                ");
+                $stmt->execute();
+                $lineas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } else {
+                // Otros roles solo ven líneas de su nodo
+                $db = Database::getInstance();
+                $stmt = $db->prepare("
+                    SELECT DISTINCT l.id, l.nombre 
+                    FROM lineas l
+                    INNER JOIN linea_nodo ln ON l.id = ln.linea_id
+                    WHERE ln.nodo_id = :nodo_id AND ln.estado = 1 AND l.estado = 1 
+                    ORDER BY l.nombre ASC
+                ");
+                $stmt->execute([':nodo_id' => $nodo_id]);
+                $lineas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
+            
+            echo json_encode(['success' => true, 'lineas' => $lineas]);
         } catch (Exception $e) {
-            echo json_encode(['success' => false, 'message' => 'Error al verificar permisos']);
-            exit;
+            echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
         }
-        
-        // Obtener líneas del nodo (usando tabla linea_nodo para M:N)
-        $db = Database::getInstance();
-        $stmt = $db->prepare("
-            SELECT DISTINCT l.id, l.nombre 
-            FROM lineas l
-            INNER JOIN linea_nodo ln ON l.id = ln.linea_id
-            WHERE ln.nodo_id = :nodo_id AND ln.estado = 1 AND l.estado = 1 
-            ORDER BY l.nombre ASC
-        ");
-        $stmt->execute([':nodo_id' => $nodo_id]);
-        $lineas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        echo json_encode(['success' => true, 'lineas' => $lineas]);
         exit;
     }
 }
-

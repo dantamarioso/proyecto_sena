@@ -12,10 +12,7 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
 }
 ?>
 
-<script>
-    const BASE_URL = "<?= BASE_URL ?>";
-</script>
-    <div class="col-12 col-lg-8">
+<div class="col-12 col-lg-8">
         <div class="d-flex align-items-center gap-2 mb-4">
             <a href="<?= BASE_URL ?>/?url=materiales/index" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-left"></i> Volver
@@ -115,7 +112,7 @@ document.getElementById('form-editar-material').addEventListener('submit', async
     const erroresDiv = document.getElementById('form-errors');
 
     try {
-        const response = await fetch(`${BASE_URL}/?url=materiales/editar&id=${materialId}`, {
+        const response = await fetch(`${window.BASE_URL}/?url=materiales/editar&id=${materialId}`, {
             method: 'POST',
             body: formData
         });
@@ -124,7 +121,7 @@ document.getElementById('form-editar-material').addEventListener('submit', async
 
         if (data.success) {
             alert('Material actualizado exitosamente');
-            window.location.href = `${BASE_URL}/?url=materiales/index`;
+            window.location.href = `${window.BASE_URL}/?url=materiales/index`;
         } else {
             erroresDiv.innerHTML = '<strong>Errores:</strong><ul>';
             data.errors.forEach(err => {

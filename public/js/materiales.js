@@ -68,14 +68,14 @@ function aplicarFiltros() {
     if (linea) params.append('linea_id', linea);
     if (estado !== '') params.append('estado', estado);
 
-    window.location.href = `${BASE_URL}/?url=materiales/index&${params.toString()}`;
+    window.location.href = `${window.BASE_URL}/?url=materiales/index&${params.toString()}`;
 }
 
 /**
  * Limpiar filtros
  */
 function limpiarFiltros() {
-    window.location.href = `${BASE_URL}/?url=materiales/index`;
+    window.location.href = `${window.BASE_URL}/?url=materiales/index`;
 }
 
 /**
@@ -88,7 +88,7 @@ async function verDetalles(materialId) {
     detallesDiv.innerHTML = '<p class="text-center text-muted">Cargando...</p>';
 
     try {
-        const response = await fetch(`${BASE_URL}/?url=materiales/obtenerDetalles&id=${materialId}`);
+        const response = await fetch(`${window.BASE_URL}/?url=materiales/obtenerDetalles&id=${materialId}`);
         const data = await response.json();
 
         if (data.success) {
@@ -174,7 +174,7 @@ async function guardarMovimiento() {
     formData.append('descripcion', descripcion);
 
     try {
-        const response = await fetch(`${BASE_URL}/?url=materiales/registrarMovimiento`, {
+        const response = await fetch(`${window.BASE_URL}/?url=materiales/registrarMovimiento`, {
             method: 'POST',
             body: formData
         });
@@ -228,7 +228,7 @@ function confirmarEliminar(materialId) {
     const formData = new FormData();
     formData.append('id', materialId);
 
-    fetch(`${BASE_URL}/?url=materiales/eliminar`, {
+    fetch(`${window.BASE_URL}/?url=materiales/eliminar`, {
         method: 'POST',
         body: formData
     })
