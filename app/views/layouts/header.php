@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <title>Sistema Inventario</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- BASE_URL Global -->
+    <script>const BASE_URL = "<?= BASE_URL ?>";</script>
 
     <!-- Sidebar CSS -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/sidebar.css">
@@ -48,11 +51,91 @@
     <!-- CSS Autenticación -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/auth_mejorado.css">
 
+    <!-- CSS específico para login -->
+    <?php if (isset($isLoginPage) && $isLoginPage === true): ?>
+        <link rel="stylesheet" href="<?= BASE_URL ?>/css/login.css">
+    <?php endif; ?>
+
+    <!-- CSS específico para register -->
+    <?php if (isset($isRegisterPage) && $isRegisterPage === true): ?>
+        <link rel="stylesheet" href="<?= BASE_URL ?>/css/register.css">
+    <?php endif; ?>
+
+    <!-- CSS específico para recuperación de contraseña -->
+    <?php if (isset($isRecoveryPage) && $isRecoveryPage === true): ?>
+        <link rel="stylesheet" href="<?= BASE_URL ?>/css/recovery.css">
+    <?php endif; ?>
+
     <!-- CSS responsive -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/usuarios_responsive.css">
 
     <!-- CSS formularios de usuarios -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/usuarios_form.css">
+
+    <!-- Toast/Notificación Emergente -->
+    <style>
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 300px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease-out;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .notification-toast.show {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-toast.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #dc3545;
+        }
+
+        .notification-toast.success {
+            background-color: #dcfce7;
+            color: #166534;
+            border-left: 4px solid #198754;
+        }
+
+        .notification-toast.warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid #ffc107;
+        }
+
+        .notification-toast i {
+            font-size: 18px;
+        }
+
+        @media (max-width: 576px) {
+            .notification-toast {
+                min-width: calc(100% - 40px);
+                right: 20px;
+                left: 20px;
+            }
+        }
+    </style>
 
     <!-- CSS por vista -->
     <?php if (!empty($pageStyles) && is_array($pageStyles)): ?>

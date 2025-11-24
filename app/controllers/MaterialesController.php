@@ -814,7 +814,7 @@ class MaterialesController extends Controller
         try {
             $userModel = new User();
             $userId = $_SESSION['user']['id'];
-            $usuario = $userModel->getById($userId);
+            $usuario = $userModel->findById($userId);
             
             if (!$usuario) {
                 $userId = 1;

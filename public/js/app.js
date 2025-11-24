@@ -1,6 +1,49 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     /* ======================================================
+       ====  NOTIFICACIÓN EMERGENTE GLOBAL
+    ====================================================== */
+    window.mostrarNotificacion = function(mensaje, tipo = 'error', duracion = 3000) {
+        const toast = document.getElementById('notificationToast');
+        const toastMsg = document.getElementById('toastMessage');
+        
+        if (!toast || !toastMsg) return;
+
+        toastMsg.textContent = mensaje;
+        
+        // Remover clases anteriores
+        toast.classList.remove('error', 'success', 'warning');
+        
+        // Agregar clase de tipo
+        toast.classList.add(tipo);
+        
+        // Cambiar icono según tipo
+        const icon = toast.querySelector('i');
+        if (icon) {
+            icon.className = 'bi';
+            switch(tipo) {
+                case 'success':
+                    icon.classList.add('bi-check-circle');
+                    break;
+                case 'warning':
+                    icon.classList.add('bi-exclamation-triangle');
+                    break;
+                case 'error':
+                default:
+                    icon.classList.add('bi-exclamation-circle');
+            }
+        }
+        
+        // Mostrar
+        toast.classList.add('show');
+        
+        // Ocultar después del tiempo especificado
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, duracion);
+    };
+
+    /* ======================================================
        ====  TOGGLE PASSWORD - Manejado por password_toggle.js
        ====  (Se comentó aquí para evitar conflictos)
     ====================================================== */

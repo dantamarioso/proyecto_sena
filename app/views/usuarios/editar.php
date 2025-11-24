@@ -29,8 +29,14 @@
                     <!-- Correo -->
                     <div class="mb-3">
                         <label class="form-label">Correo</label>
-                        <input type="email" name="correo" class="form-control"
-                               value="<?= htmlspecialchars($usuario['correo']) ?>" required>
+                        <div class="input-group">
+                            <input type="email" name="correo" class="form-control"
+                                   value="<?= htmlspecialchars($usuario['correo']) ?>" required>
+                            <span class="input-group-text" id="iconoCorreoCrear" style="cursor:default;">
+                                <i class="bi bi-question-circle"></i>
+                            </span>
+                        </div>
+                        <small id="mensajeCorreoCrear" class="form-text"></small>
                     </div>
 
                     <!-- Usuario -->

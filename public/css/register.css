@@ -1,18 +1,12 @@
 /* Estilos solo para la pantalla de registro */
-.password-checklist {
-    font-size: 11px;
-    margin: 6px 0 !important;
-}
-
 .password-checklist ul {
     list-style: none;
     padding-left: 0;
-    margin: 2px 0;
 }
 
 .password-checklist li {
-    font-size: 11px;
-    margin-bottom: 1px;
+    font-size: 14px;
+    margin-bottom: 4px;
     font-weight: 500;
 }
 
@@ -23,26 +17,32 @@
 .password-checklist .invalid {
     color: #d00;
 }
+body {
+    background: #f5f5f5;
+}
+
+.card {
+    border-radius: 0.75rem;
+}
+
+.navbar-brand {
+    font-weight: 600;
+}
+
 
 html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    display: flex !important;
-    grid-template-columns: unset !important;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
 }
 
 body {
     position: relative;
-}
+    overflow: hidden;
 
-/* Ocultar sidebar completamente en register */
-.sidebar,
-body > .sidebar {
-    display: none !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* IMAGEN ENCIMA DE LOS CONTENEDORES */
@@ -50,24 +50,31 @@ body::before {
     content: "";
     position: fixed;
     inset: 0;
+
     background: url("../img/subfondo.jpg") center top no-repeat;
-    background-size: auto 10%;
+
+    /* Ô¼ç´©Å AUMENTAMOS EL TAMA├æO SIN DISTORSI├ôN Ô¼ç´©Å */
+    background-size: auto 10%;   /* aumenta la altura al 120% */
+
     z-index: -2;
 }
+
 
 /* FONDO DEBAJO DIFUMINADO */
 body::after {
     content: "";
     position: fixed;
     inset: 0;
-    background: 
-        linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)), 
-        url("../img/fondo.jpg") center center no-repeat;
+
+    background: url("../img/fondo.jpg") center center no-repeat;
     background-size: cover;
+
     z-index: -3;
 }
 
-/* CONTENEDOR PRINCIPAL */
+/* =======================================================
+   CONTENEDOR PRINCIPAL ÔÇö Igual que login
+======================================================= */
 .register-page {
     width: 100%;
     height: 100%;
@@ -81,285 +88,134 @@ body::after {
     justify-content: center;
     align-items: center;
     gap: 40px;
+
     width: 100%;
-    max-width: 480px;
-    padding: 15px;
+    max-width: 900px;
+    padding: 20px;
 }
 
-/* TARJETA DE REGISTRO (Glassmorphism) */
+/* =======================================================
+   TARJETA DE REGISTRO (Glassmorphism igual que login)
+======================================================= */
 .register-wrapper {
-    flex: 0 0 100%;
+    flex: 0 0 560px;   /* Aumentamos el ancho */
     display: flex;
     justify-content: center;
 }
 
+
 .card.register-card {
     width: 100%;
+    max-width: 600px;
     background: rgba(255, 255, 255, 0.18);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    border-radius: 16px;
-    padding: 22px;
+
+    border-radius: 18px;
+    padding: 32px;
     border: 1px solid rgba(255, 255, 255, 0.25);
+
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
-}
-
-.card.register-card h3 {
-    margin-bottom: 12px !important;
-    font-size: 22px;
-}
-
-.form-label {
-    font-size: 0.82rem;
-    margin-bottom: 3px;
-    color: #e2e8f0;
-    display: block;
-    font-weight: 600;
-}
-
-.mb-3 {
-    margin-bottom: 8px !important;
 }
 
 /* Inputs */
 .form-control {
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1.5px solid rgba(0,0,0,0.15);
-    color: #212529;
-    font-weight: 500;
-    padding: 8px 12px;
-    font-size: 0.9rem;
-    height: auto;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0,0,0,0.15);
 }
 
 .form-control:focus {
     box-shadow: none;
     border-color: #0d6efd;
-    background: rgba(255, 255, 255, 0.95);
-    color: #212529;
-}
-
-.form-control::placeholder {
-    color: #6c757d;
-    font-weight: 400;
-}
-
-.input-group-text {
     background: rgba(255, 255, 255, 0.9);
-    border: 1.5px solid rgba(0,0,0,0.15);
-    border-left: none;
-    cursor: pointer;
-    color: #495057;
-    transition: 0.2s;
-    padding: 8px 12px;
 }
 
-.input-group-text:hover {
-    background: rgba(255, 255, 255, 0.95);
-    color: #0d6efd;
-}
-
-/* Botón */
+/* Bot├│n */
 .btn-register {
     background: #0d6efd;
     color: white;
-    border-radius: 8px;
-    font-weight: 700;
-    padding: 8px 0;
+    border-radius: 10px;
+    font-weight: 600;
+    padding: 10px 0;
     border: none;
     transition: 0.25s;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    cursor: pointer;
-    width: 100%;
-    font-size: 0.85rem;
-    margin-top: 2px;
 }
 
 .btn-register:hover {
     background: #084ec1;
-    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.4);
 }
 
-.d-grid {
-    margin-bottom: 4px !important;
-}
-
-/* Checkbox Terms */
-.form-check {
-    margin: 8px 0 !important;
-}
-
-.form-check-input {
-    width: 16px;
-    height: 16px;
-    margin-top: 1px;
-    border: 1.5px solid rgba(0,0,0,0.2);
-    background: rgba(255, 255, 255, 0.9);
-    cursor: pointer;
-    flex-shrink: 0;
-}
-
-.form-check-input:checked {
-    background: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.form-check-input:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.1rem rgba(13, 110, 253, 0.2);
-}
-
-.form-check-label {
-    font-size: 0.82rem;
-    font-weight: 500;
-    color: #f1f1f1;
-    cursor: pointer;
-    margin-bottom: 0;
-    margin-left: 6px;
-}
-
-.form-check-label a {
-    color: #64c8ff;
-    font-weight: 700;
-    text-decoration: underline;
-}
-
-.form-check-label a:hover {
-    color: #96dcff;
-}
-
-/* Links */
-.login-link {
-    font-size: 0.82rem;
-    color: #e2e8f0;
-    margin-top: 6px;
-    text-align: center;
-}
-
+/* Link login */
 .login-link a {
-    color: #60a5fa !important;
-    font-weight: 700;
-    text-decoration: none;
-}
-
-.login-link a:hover {
-    color: #93c5fd !important;
-    text-decoration: underline;
-}
-
-/* Ocultar icono nativo de contraseña */
-input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear {
-    display: none;
-}
-
-input[type="password"]::-webkit-credentials-auto-fill-button {
-    visibility: hidden;
-    display: none !important;
-    pointer-events: none;
-}
-
-/* Mensajes */
-#match-message {
-    font-size: 0.75rem;
+    color: #005eff !important;
     font-weight: 600;
-    margin-top: 1px;
-    display: block;
+}
+.login-link a:hover {
+    color: #003cbe !important;
 }
 
-#match-message.text-danger {
-    color: #fca5a5 !important;
-}
-
-#match-message.text-success {
-    color: #86efac !important;
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
+/* =======================================================
+   RESPONSIVE
+======================================================= */
+@media (max-width: 992px) {
     .register-container {
         flex-direction: column;
-        gap: 20px;
-        max-width: 400px;
+        gap: 24px;
+        max-width: 420px;
     }
 
     .register-wrapper {
         flex: 0 0 auto;
         width: 100%;
     }
-
-    .card.register-card {
-        padding: 20px;
-    }
+}
+/* Ocultar el icono nativo de mostrar contrase├▒a en Edge */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+input[type="password"]::-webkit-credentials-auto-fill-button {
+    visibility: hidden;
+    display: none !important;
+    pointer-events: none;
 }
 
-@media (max-width: 576px) {
-    .register-page {
-        padding: 0;
-    }
+#match-message {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-top: 4px;
+    display: block;
+}
 
-    .register-container {
-        padding: 8px;
-        max-width: 100%;
-    }
+#match-message.text-danger {
+    color: #350202 !important;
+}
 
-    .card.register-card {
-        padding: 16px;
-        border-radius: 12px;
-    }
+#match-message.text-success {
+    color: #2ecc71 !important;
+}
+.form-check-label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #f1f1f1;
+}
 
-    .card.register-card h3 {
-        font-size: 20px;
-        margin-bottom: 10px !important;
-    }
+.form-check-label a {
+    color: #013969;
+    font-weight: 600;
+    text-decoration: underline;
+}
 
-    .form-label {
-        font-size: 0.8rem;
-        margin-bottom: 2px;
-    }
-
-    .form-control,
-    .form-select,
-    .input-group-text {
-        font-size: 0.9rem;
-        padding: 7px 10px;
-    }
-
-    .btn-register {
-        padding: 7px 0;
-        font-size: 0.8rem;
-    }
-
-    .mb-3 {
-        margin-bottom: 7px !important;
-    }
-
-    .password-checklist {
-        font-size: 10px;
-        margin: 4px 0 !important;
-    }
-
-    .password-checklist li {
-        margin-bottom: 0px;
-    }
-
-    .form-check-label {
-        font-size: 0.8rem;
-    }
-
-    .login-link {
-        font-size: 0.8rem;
-        margin-top: 4px;
-    }
-
-    .form-check-input {
-        width: 15px;
-        height: 15px;
-    }
-
-    .d-grid {
-        margin-bottom: 2px !important;
-    }
+.form-check-label a:hover {
+    color: #0354a0;
+}
+.login-link {
+    font-size: 0.95rem;
+    color: #011a50;
+    margin-top: 10px;
+}
+.login-link a {
+    color: #020f25 !important;
+    font-weight: 600;
 }

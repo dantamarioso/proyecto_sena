@@ -5,8 +5,6 @@
 
                 <h3 class="mb-3">Crear nuevo usuario</h3>
 
-                <script>const BASE_URL = "<?= BASE_URL ?>";</script>
-
                 <?php if (!empty($errores)): ?>
                     <div class="alert alert-danger">
                         <ul class="mb-0">
@@ -28,7 +26,13 @@
                     <!-- Correo -->
                     <div class="mb-3">
                         <label class="form-label">Correo</label>
-                        <input type="email" name="correo" class="form-control" required>
+                        <div class="input-group">
+                            <input type="email" name="correo" class="form-control" required>
+                            <span class="input-group-text" id="iconoCorreoCrear" style="cursor:default;">
+                                <i class="bi bi-question-circle"></i>
+                            </span>
+                        </div>
+                        <small id="mensajeCorreoCrear" class="form-text"></small>
                     </div>
 
                     <!-- Usuario -->
@@ -172,19 +176,6 @@
         if (!Array.isArray(nodosData)) {
             nodosData = Object.values(nodosData || {});
         }
-        
-        // DEBUG: mostrar datos
-        console.log('=== DATOS CARGADOS ===');
-        console.log('Nodos:', nodosData);
-        console.log('Total nodos:', nodosData ? nodosData.length : 0);
-        if (nodosData && nodosData.length > 0) {
-            console.log('Primer nodo:', nodosData[0]);
-            console.log('Estructura primer nodo:', Object.keys(nodosData[0]));
-            console.log('Tiene líneas?', 'lineas' in nodosData[0]);
-            if (nodosData[0].lineas) {
-                console.log('Líneas en primer nodo:', nodosData[0].lineas);
-            }
-        }
 
         /**
          * Actualizar visibilidad de campos según el rol
@@ -225,13 +216,9 @@
         // Cambio de nodo - cargar líneas
         nodoSelect.addEventListener('change', function() {
             const nodoId = this.value;
-            console.log('>>> Cambio de nodo:', nodoId);
-            
             lineaSelect.innerHTML = '<option value="">-- Selecciona una línea --</option>';
             
             if (nodoId && Array.isArray(nodosData) && nodosData.length > 0) {
-                console.log('Buscando en', nodosData.length, 'nodos');
-                
                 // Buscar el nodo en el array
                 let nodoEncontrado = null;
                 for (let i = 0; i < nodosData.length; i++) {
@@ -241,28 +228,14 @@
                     }
                 }
                 
-                if (nodoEncontrado) {
-                    console.log('>>> Nodo encontrado:', nodoEncontrado);
-                    console.log('>>> Líneas disponibles:', nodoEncontrado.lineas);
-                    
-                    // Cargar líneas si existen
-                    if (nodoEncontrado.lineas && Array.isArray(nodoEncontrado.lineas) && nodoEncontrado.lineas.length > 0) {
-                        console.log('>>> Agregando', nodoEncontrado.lineas.length, 'líneas');
-                        nodoEncontrado.lineas.forEach(function(linea) {
-                            const option = document.createElement('option');
-                            option.value = linea.id;
-                            option.textContent = linea.nombre;
-                            lineaSelect.appendChild(option);
-                            console.log('   + Línea agregada:', linea.nombre);
-                        });
-                    } else {
-                        console.warn('>>> El nodo no tiene líneas o está vacío');
-                    }
-                } else {
-                    console.warn('>>> Nodo no encontrado con ID:', nodoId);
+                if (nodoEncontrado && nodoEncontrado.lineas && Array.isArray(nodoEncontrado.lineas) && nodoEncontrado.lineas.length > 0) {
+                    nodoEncontrado.lineas.forEach(function(linea) {
+                        const option = document.createElement('option');
+                        option.value = linea.id;
+                        option.textContent = linea.nombre;
+                        lineaSelect.appendChild(option);
+                    });
                 }
-            } else {
-                console.warn('nodoId no válido o nodosData no es array o está vacío');
             }
         });
 

@@ -67,6 +67,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     mensaje.classList.add("text-danger");
                     input.classList.remove("is-valid");
                     input.classList.add("is-invalid");
+                    // Mostrar notificación
+                    if (typeof mostrarNotificacion === 'function') {
+                        mostrarNotificacion('Este usuario ya está en uso', 'error', 4000);
+                    }
                 } else {
                     // Usuario disponible
                     icono.innerHTML = '<i class="bi bi-check-circle" style="color:#198754;"></i>';
@@ -82,6 +86,97 @@ document.addEventListener("DOMContentLoaded", () => {
                 icono.innerHTML = '<i class="bi bi-exclamation-circle" style="color:#ffc107;"></i>';
                 mensaje.textContent = "Error al verificar";
                 mensaje.classList.add("text-warning");
+            });
+    }
+
+    /* ======================================================
+       ====  VALIDACIÓN DE EMAIL - CREAR Y EDITAR
+    ====================================================== */
+
+    // Verificar email en formulario CREAR
+    const correoCrear = document.getElementById("correo") || document.querySelector('input[name="correo"]');
+    const iconoCorreoCrear = document.getElementById("iconoCorreoCrear");
+    const mensajeCorreoCrear = document.getElementById("mensajeCorreoCrear");
+
+    if (correoCrear && correoCrear.closest('#crear-usuario-form, #editar-usuario-form')) {
+        correoCrear.addEventListener("input", () => verificarEmail("crear", null));
+    }
+
+    // Verificar email en formulario EDITAR
+    const inputId = document.querySelector('input[name="id"]');
+    let usuarioIdEmail = inputId ? inputId.value : null;
+
+    if (correoCrear && usuarioIdEmail) {
+        correoCrear.addEventListener("input", () => verificarEmail("edit", usuarioIdEmail));
+    }
+
+    function verificarEmail(form, usuarioId) {
+        const input = document.querySelector('input[name="correo"]');
+        if (!input) return;
+
+        const correo = input.value.trim();
+
+        if (!correo) {
+            input.classList.remove("is-valid", "is-invalid");
+            const msg = document.getElementById("mensajeCorreoCrear");
+            if (msg) msg.textContent = "";
+            return;
+        }
+
+        // Validar formato email básico
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(correo)) {
+            input.classList.add("is-invalid");
+            input.classList.remove("is-valid");
+            const msg = document.getElementById("mensajeCorreoCrear");
+            if (msg) {
+                msg.textContent = "Formato de email inválido";
+                msg.className = "text-danger";
+            }
+            return;
+        }
+
+        // Hacer petición AJAX
+        const url = new URL(BASE_URL + "/?url=usuarios/verificarEmail", window.location.origin);
+        url.searchParams.append("email", correo);
+        if (usuarioId) {
+            url.searchParams.append("usuario_id", usuarioId);
+        }
+
+        fetch(url.toString())
+            .then(response => response.json())
+            .then(data => {
+                const msg = document.getElementById("mensajeCorreoCrear");
+                if (data.existe) {
+                    // Email ya existe
+                    input.classList.remove("is-valid");
+                    input.classList.add("is-invalid");
+                    if (msg) {
+                        msg.textContent = data.mensaje;
+                        msg.className = "text-danger";
+                    }
+                    // Mostrar notificación
+                    if (typeof mostrarNotificacion === 'function') {
+                        mostrarNotificacion('Este correo ya está en uso', 'error', 4000);
+                    }
+                } else {
+                    // Email disponible
+                    input.classList.remove("is-invalid");
+                    input.classList.add("is-valid");
+                    if (msg) {
+                        msg.textContent = data.mensaje;
+                        msg.className = "text-success";
+                    }
+                }
+            })
+            .catch(err => {
+                console.error("Error verificando email:", err);
+                input.classList.add("is-invalid");
+                const msg = document.getElementById("mensajeCorreoCrear");
+                if (msg) {
+                    msg.textContent = "Error al verificar";
+                    msg.className = "text-warning";
+                }
             });
     }
 

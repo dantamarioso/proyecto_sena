@@ -1,6 +1,12 @@
             </div><!-- cierre de main-content -->
     </div><!-- cierre de main-wrapper -->
 
+    <!-- Notificación Toast Emergente -->
+    <div class="notification-toast" id="notificationToast">
+        <i class="bi bi-exclamation-circle"></i>
+        <span id="toastMessage"></span>
+    </div>
+
     <!-- JS de Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 

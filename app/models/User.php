@@ -5,14 +5,6 @@ class User extends Model
     /**
      * Obtiene un usuario por ID
      */
-    public function getById($id)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM usuarios WHERE id = :id LIMIT 1");
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
     public function allExceptId($id)
     {
         $stmt = $this->db->prepare("
@@ -224,15 +216,6 @@ class User extends Model
             ':estado'         => $data['estado'],
             ':id'             => $id
         ]);
-    }
-
-    /* =========================================
-       (OPCIONAL) Mantener updateById si ya lo usas
-       Si NO lo usas en ninguna parte, puedes borrarlo.
-    ========================================= */
-    public function updateById($id, $data)
-    {
-        return $this->updateBasic($id, $data);
     }
 
     /* =========================================

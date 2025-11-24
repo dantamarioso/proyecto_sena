@@ -5,21 +5,15 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    display: flex !important;
-    grid-template-columns: unset !important;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
 }
 
 body {
     position: relative;
-}
+    overflow: hidden;
 
-/* Ocultar sidebar completamente en login */
-.sidebar,
-body > .sidebar {
-    display: none !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* IMAGEN ENCIMA DE LOS CONTENEDORES */
@@ -30,7 +24,7 @@ body::before {
 
     background: url("../img/subfondo.jpg") center top no-repeat;
 
-    /* ⬇️ AUMENTAMOS EL TAMAÑO SIN DISTORSIÓN ⬇️ */
+    /* Ô¼ç´©Å AUMENTAMOS EL TAMA├æO SIN DISTORSI├ôN Ô¼ç´©Å */
     background-size: auto 20%;   /* aumenta la altura al 120% */
 
     z-index: -2;
@@ -43,9 +37,7 @@ body::after {
     position: fixed;
     inset: 0;
 
-    background: 
-        linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)), 
-        url("../img/fondo.jpg") center center no-repeat;
+    background: url("../img/fondo.jpg") center center no-repeat;
     background-size: cover;
 
     z-index: -3;
@@ -58,7 +50,7 @@ body::after {
 .card,
 .login-carousel {
     position: relative;
-    z-index: 100; /* 🔥 por debajo del subfondo (9999) */
+    z-index: 100; /* ­ƒöÑ por debajo del subfondo (9999) */
 }
 
 /* ================================
@@ -79,12 +71,12 @@ body::after {
     gap: 40px;
 
     width: 100%;
-    max-width: 900px;    /* ancho máximo conjunto login+carrusel */
+    max-width: 900px;    /* ancho m├íximo conjunto login+carrusel */
     padding: 20px;
 }
 
 /* ================================
-   TARJETA LOGIN (tamaño fijo, no cambia)
+   TARJETA LOGIN (tama├▒o fijo, no cambia)
 ================================ */
 .login-wrapper {
     flex: 0 0 420px;     /* ancho fijo para que NO se encoja */
@@ -106,53 +98,40 @@ body::after {
 /* Inputs */
 .form-control {
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1.5px solid rgba(0,0,0,0.15);
-    color: #212529;
-    font-weight: 500;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0,0,0,0.15);
 }
 .form-control:focus {
     box-shadow: none;
     border-color: #0d6efd;
-    background: rgba(255, 255, 255, 0.95);
-    color: #212529;
+    background: rgba(255, 255, 255, 0.9);
 }
 
-.form-control::placeholder {
-    color: #6c757d;
-    font-weight: 400;
-}
-
-/* Botón login */
+/* Bot├│n login */
 .btn-login {
     background: #0d6efd;
     color: white;
     border-radius: 10px;
-    font-weight: 700;
+    font-weight: 600;
     padding: 10px 0;
     border: none;
     transition: 0.25s;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 .btn-login:hover {
     background: #084ec1;
-    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.4);
 }
 
 /* Link registro */
 .register-link a {
     color: #005eff !important;
-    font-weight: 700;
-    text-decoration: none;
+    font-weight: 600;
 }
 .register-link a:hover {
-    color: #0047cc !important;
-    text-decoration: underline;
+    color: #003cbe !important;
 }
 
 /* ================================
-   CARRUSEL — TEXTO FLOTANTE
+   CARRUSEL ÔÇö TEXTO FLOTANTE
 ================================ */
 .login-carousel {
     flex: 0 0 380px;      /* ancho casi fijo, no afecta al login */
@@ -196,7 +175,7 @@ body::after {
         text-align: center;
     }
 }
-/* Ocultar el icono nativo de mostrar contraseña en Edge */
+/* Ocultar el icono nativo de mostrar contrase├▒a en Edge */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
     display: none;

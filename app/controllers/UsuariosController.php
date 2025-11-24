@@ -538,7 +538,7 @@ class UsuariosController extends Controller
         $userModel = new User();
         
         // Verificar que el usuario existe
-        $usuario = $userModel->getById($usuario_id);
+        $usuario = $userModel->findById($usuario_id);
         if (!$usuario) {
             echo json_encode(['success' => false, 'message' => 'Usuario no encontrado']);
             exit;
@@ -661,6 +661,44 @@ class UsuariosController extends Controller
     }
 
     /* =========================================================
+       VERIFICAR EMAIL (AJAX)
+    ========================================================== */
+    public function verificarEmail()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $this->requireAdmin();
+
+        $email = trim($_GET['email'] ?? '');
+        $usuarioActualId = intval($_GET['usuario_id'] ?? 0);
+
+        if (empty($email)) {
+            echo json_encode(['existe' => false, 'mensaje' => '']);
+            exit;
+        }
+
+        $userModel = new User();
+
+        // Si es edición, no marcar como duplicado el mismo usuario
+        if ($usuarioActualId > 0) {
+            $usuarioActual = $userModel->findById($usuarioActualId);
+            if ($usuarioActual && $usuarioActual['correo'] === $email) {
+                echo json_encode(['existe' => false, 'mensaje' => '']);
+                exit;
+            }
+        }
+
+        // Verificar si existe otro usuario con ese email
+        $existe = $userModel->existsByCorreo($email);
+
+        echo json_encode([
+            'existe' => (bool) $existe,
+            'mensaje' => $existe ? 'Este correo ya está registrado' : 'Email disponible'
+        ]);
+        exit;
+    }
+
+    /* =========================================================
        VERIFICAR NOMBRE DE USUARIO (AJAX)
     ========================================================== */
     public function verificarNombreUsuario()
@@ -724,7 +762,7 @@ class UsuariosController extends Controller
         }
 
         $userModel = new User();
-        $usuario = $userModel->getById($userId);
+        $usuario = $userModel->findById($userId);
 
         if (!$usuario) {
             http_response_code(404);

@@ -10,6 +10,7 @@ class AuthController extends Controller
     {
         $this->view("auth/forgot", [
             'isLoginPage' => true,
+            'isRecoveryPage' => true,
             'pageStyles'  => ['login', 'recovery'],
             'pageScripts' => ['recovery']
         ]);
@@ -92,6 +93,7 @@ class AuthController extends Controller
 
         $this->view("auth/verifyCode", [
             'isLoginPage' => true,
+            'isRecoveryPage' => true,
             'pageStyles'  => ['login', 'recovery'],
             'pageScripts' => ['recovery'],
             'remainingCooldown' => $remainingCooldown
@@ -123,6 +125,7 @@ class AuthController extends Controller
 
         $this->view("auth/reset", [
             'isLoginPage' => true,
+            'isRecoveryPage' => true,
             'pageStyles'  => ['login', 'recovery'],
             'pageScripts' => ['recovery']
         ]);
