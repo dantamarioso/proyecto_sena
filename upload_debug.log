@@ -1,4 +1,0 @@
-[2025-11-21 19:27:18] MaterialArchivo::create() - INICIANDO
-[2025-11-21 19:27:18] MaterialArchivo::create() - Usuario ID: 3
-[2025-11-21 19:27:18] MaterialArchivo::create() - SQL: INSERT material_id=21, usuario_id=3, archivo=Certificado_de_Afiliación.pdf
-[2025-11-21 19:27:18] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 9

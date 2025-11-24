@@ -65,7 +65,7 @@ $avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . "/img/defaul
         <li>
             <a href="<?= BASE_URL ?>/?url=audit/historial">
                 <i class="bi bi-clock-history"></i>
-                <span>Historial de Cambios Usuarios</span>
+                <span>Historial de Usuarios</span>
             </a>
         </li>
         <?php endif; ?>

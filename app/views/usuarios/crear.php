@@ -106,11 +106,32 @@
                     <!-- Rol -->
                     <div class="mb-3">
                         <label class="form-label">Rol</label>
-                        <select name="rol" class="form-select">
+                        <select name="rol" id="select-rol" class="form-select">
                             <option value="usuario" selected>Usuario</option>
+                            <option value="dinamizador">Dinamizador</option>
                             <option value="admin">Admin</option>
-                            <option value="invitado">Invitado</option>
                         </select>
+                    </div>
+
+                    <!-- Nodo (para usuario y dinamizador) -->
+                    <div class="mb-3" id="div-nodo">
+                        <label class="form-label">Nodo <span class="text-danger">*</span></label>
+                        <select name="nodo_id" id="select-nodo" class="form-select" required>
+                            <option value="">-- Selecciona un nodo --</option>
+                            <?php foreach ($nodos as $nodo): ?>
+                                <option value="<?= $nodo['id'] ?>"><?= htmlspecialchars($nodo['nombre']) ?> (<?= htmlspecialchars($nodo['ciudad']) ?>)</option>
+                            <?php endforeach; ?>
+                        </select>
+                        <small class="text-muted">Requerido para usuarios y dinamizadores</small>
+                    </div>
+
+                    <!-- Línea (solo para usuarios) -->
+                    <div class="mb-3" id="div-linea" style="display: none;">
+                        <label class="form-label">Línea <span class="text-danger">*</span></label>
+                        <select name="linea_id" id="select-linea" class="form-select">
+                            <option value="">-- Selecciona una línea --</option>
+                        </select>
+                        <small class="text-muted">Requerido solo para usuarios</small>
                     </div>
 
                     <!-- Estado -->
@@ -137,3 +158,224 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const rolSelect = document.getElementById('select-rol');
+        const nodoSelect = document.getElementById('select-nodo');
+        const lineaSelect = document.getElementById('select-linea');
+        const divNodo = document.getElementById('div-nodo');
+        const divLinea = document.getElementById('div-linea');
+
+        // Datos de nodos - convertir a array si es necesario
+        let nodosData = <?= json_encode($nodos) ?>;
+        if (!Array.isArray(nodosData)) {
+            nodosData = Object.values(nodosData || {});
+        }
+        
+        // DEBUG: mostrar datos
+        console.log('=== DATOS CARGADOS ===');
+        console.log('Nodos:', nodosData);
+        console.log('Total nodos:', nodosData ? nodosData.length : 0);
+        if (nodosData && nodosData.length > 0) {
+            console.log('Primer nodo:', nodosData[0]);
+            console.log('Estructura primer nodo:', Object.keys(nodosData[0]));
+            console.log('Tiene líneas?', 'lineas' in nodosData[0]);
+            if (nodosData[0].lineas) {
+                console.log('Líneas en primer nodo:', nodosData[0].lineas);
+            }
+        }
+
+        /**
+         * Actualizar visibilidad de campos según el rol
+         */
+        function actualizarCamposPorRol() {
+            const rol = rolSelect.value;
+            
+            // Por defecto, ocultar todo
+            divNodo.style.display = 'none';
+            divLinea.style.display = 'none';
+            
+            nodoSelect.removeAttribute('required');
+            lineaSelect.removeAttribute('required');
+            
+            // Mostrar campos según el rol
+            if (rol === 'usuario') {
+                // Usuario: nodo y línea
+                divNodo.style.display = 'block';
+                divLinea.style.display = 'block';
+                nodoSelect.setAttribute('required', 'required');
+                lineaSelect.setAttribute('required', 'required');
+            } else if (rol === 'dinamizador') {
+                // Dinamizador: solo nodo
+                divNodo.style.display = 'block';
+                nodoSelect.setAttribute('required', 'required');
+            }
+            // Admin: no muestra nada (por defecto oculto)
+            
+            // Limpiar campos
+            nodoSelect.value = '';
+            lineaSelect.value = '';
+            lineaSelect.innerHTML = '<option value="">-- Selecciona una línea --</option>';
+        }
+
+        // Cambio de rol
+        rolSelect.addEventListener('change', actualizarCamposPorRol);
+
+        // Cambio de nodo - cargar líneas
+        nodoSelect.addEventListener('change', function() {
+            const nodoId = this.value;
+            console.log('>>> Cambio de nodo:', nodoId);
+            
+            lineaSelect.innerHTML = '<option value="">-- Selecciona una línea --</option>';
+            
+            if (nodoId && Array.isArray(nodosData) && nodosData.length > 0) {
+                console.log('Buscando en', nodosData.length, 'nodos');
+                
+                // Buscar el nodo en el array
+                let nodoEncontrado = null;
+                for (let i = 0; i < nodosData.length; i++) {
+                    if (String(nodosData[i].id) === String(nodoId)) {
+                        nodoEncontrado = nodosData[i];
+                        break;
+                    }
+                }
+                
+                if (nodoEncontrado) {
+                    console.log('>>> Nodo encontrado:', nodoEncontrado);
+                    console.log('>>> Líneas disponibles:', nodoEncontrado.lineas);
+                    
+                    // Cargar líneas si existen
+                    if (nodoEncontrado.lineas && Array.isArray(nodoEncontrado.lineas) && nodoEncontrado.lineas.length > 0) {
+                        console.log('>>> Agregando', nodoEncontrado.lineas.length, 'líneas');
+                        nodoEncontrado.lineas.forEach(function(linea) {
+                            const option = document.createElement('option');
+                            option.value = linea.id;
+                            option.textContent = linea.nombre;
+                            lineaSelect.appendChild(option);
+                            console.log('   + Línea agregada:', linea.nombre);
+                        });
+                    } else {
+                        console.warn('>>> El nodo no tiene líneas o está vacío');
+                    }
+                } else {
+                    console.warn('>>> Nodo no encontrado con ID:', nodoId);
+                }
+            } else {
+                console.warn('nodoId no válido o nodosData no es array o está vacío');
+            }
+        });
+
+        // Inicializar con el rol seleccionado
+        actualizarCamposPorRol();
+
+        /* ================================================================
+           VALIDACIÓN DINÁMICA DE CONTRASEÑA
+        ================================================================ */
+        const passwordInput = document.getElementById('password_crear');
+        const password2Input = document.getElementById('password2_crear');
+        const chkLength = document.getElementById('chk-length-crear');
+        const chkUppercase = document.getElementById('chk-uppercase-crear');
+        const chkSpecial = document.getElementById('chk-special-crear');
+        const matchMessage = document.getElementById('matchMessageCrear');
+
+        function validarContraseña() {
+            const password = passwordInput.value;
+            
+            // Validar longitud
+            const hasLength = password.length >= 8;
+            actualizarCheck(chkLength, hasLength);
+            
+            // Validar mayúscula
+            const hasUppercase = /[A-Z]/.test(password);
+            actualizarCheck(chkUppercase, hasUppercase);
+            
+            // Validar carácter especial
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>_\-]/.test(password);
+            actualizarCheck(chkSpecial, hasSpecial);
+            
+            // Validar coincidencia de contraseñas
+            validarCoincidencia();
+        }
+
+        function validarCoincidencia() {
+            const password = passwordInput.value;
+            const password2 = password2Input.value;
+            
+            if (password2 !== '') {
+                if (password === password2) {
+                    matchMessage.classList.add('d-none');
+                    matchMessage.classList.remove('text-danger');
+                } else {
+                    matchMessage.classList.remove('d-none');
+                    matchMessage.classList.add('text-danger');
+                }
+            }
+        }
+
+        function actualizarCheck(element, isValid) {
+            if (isValid) {
+                element.classList.remove('invalid');
+                element.classList.add('valid');
+                element.innerHTML = element.innerHTML.replace('✖', '✓');
+                element.style.color = '#28a745';
+            } else {
+                element.classList.remove('valid');
+                element.classList.add('invalid');
+                element.innerHTML = element.innerHTML.replace('✓', '✖');
+                element.style.color = '#dc3545';
+            }
+        }
+
+        // Event listeners para validación dinámica
+        passwordInput.addEventListener('input', validarContraseña);
+        passwordInput.addEventListener('keyup', validarContraseña);
+        password2Input.addEventListener('input', validarCoincidencia);
+        password2Input.addEventListener('keyup', validarCoincidencia);
+
+        // Toggle password visibility
+        document.getElementById('togglePasswordCrear').addEventListener('click', function() {
+            const input = document.getElementById('password_crear');
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye-fill');
+                icon.classList.add('bi-eye-slash-fill');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash-fill');
+                icon.classList.add('bi-eye-fill');
+            }
+        });
+
+        document.getElementById('togglePassword2Crear').addEventListener('click', function() {
+            const input = document.getElementById('password2_crear');
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye-fill');
+                icon.classList.add('bi-eye-slash-fill');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash-fill');
+                icon.classList.add('bi-eye-fill');
+            }
+        });
+
+        // Preview de foto
+        document.getElementById('foto_crear').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const preview = document.getElementById('preview_crear');
+                    preview.src = event.target.result;
+                    document.getElementById('previewContainerCrear').classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+</script>

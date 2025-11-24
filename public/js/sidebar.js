@@ -1,54 +1,82 @@
-const sidebar = document.getElementById("sidebar");
+function initializeSidebar() {
+    const sidebar = document.getElementById("sidebar");
 
-// Si no existe sidebar (login/register), no hacer nada
-if (!sidebar) {
-    console.log("Sidebar no encontrado - página de login/register");
-    // Asegurarse de que no hay botón toggle
-    const toggleBtn = document.getElementById("sidebar-toggle-btn");
-    if (toggleBtn) {
-        toggleBtn.remove();
-    }
-} else {
-    // Submenús (si hay)
-    document.querySelectorAll(".submenu-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            btn.parentElement.classList.toggle("open");
+    if (!sidebar) return;
+
+    // ========== CREAR BOTÓN TOGGLE EN MÓVIL ==========
+    function createToggleButton() {
+        // Remover botón anterior si existe
+        const existingBtn = document.getElementById("sidebar-toggle-btn");
+        if (existingBtn) existingBtn.remove();
+
+        // Solo crear en pantallas menores a 768px
+        if (window.innerWidth > 768) return;
+
+        const toggleBtn = document.createElement("button");
+        toggleBtn.id = "sidebar-toggle-btn";
+        toggleBtn.className = "btn btn-sm btn-dark";
+        toggleBtn.innerHTML = '<i class="bi bi-list"></i>';
+        toggleBtn.style.cssText = `
+            position: fixed; 
+            top: 20px; 
+            left: 20px; 
+            z-index: 1040; 
+            display: block;
+            padding: 8px 12px !important;
+            font-size: 18px !important;
+            min-height: auto !important;
+            min-width: auto !important;
+            height: auto !important;
+            width: auto !important;
+            background-color: #212529 !important;
+            border: 1px solid #343a40 !important;
+            color: #fff !important;
+        `;
+
+        toggleBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle("mobile-open");
         });
-    });
 
-    // Toggle sidebar en móvil (768px)
-    const mediaQuery = window.matchMedia("(max-width: 768px)");
+        document.body.appendChild(toggleBtn);
+    }
 
-    function handleResponsive(e) {
-        if (e.matches) {
-            // En móvil - agregar botón para abrir/cerrar
-            if (!document.getElementById("sidebar-toggle-btn")) {
-                const toggleBtn = document.createElement("button");
-                toggleBtn.id = "sidebar-toggle-btn";
-                toggleBtn.className = "btn btn-sm btn-dark";
-                toggleBtn.innerHTML = '<i class="bi bi-list"></i>';
-                toggleBtn.style.cssText = "position: fixed; top: 20px; left: 20px; z-index: 1040; display: none;";
-                document.body.appendChild(toggleBtn);
-                
-                // Mostrar botón solo en móvil
+    // ========== CERRAR SIDEBAR AL HACER CLIC EN ENLACE ==========
+    function setupSidebarLinks() {
+        document.querySelectorAll(".sidebar-nav a").forEach((link) => {
+            link.addEventListener("click", () => {
                 if (window.innerWidth <= 768) {
-                    toggleBtn.style.display = "block";
-                }
-
-                toggleBtn.addEventListener("click", () => {
-                    sidebar.classList.toggle("mobile-open");
-                });
-            }
-
-            // Cerrar sidebar al hacer click en un enlace
-            document.querySelectorAll(".sidebar-nav a, .sidebar-nav button").forEach(link => {
-                link.addEventListener("click", () => {
                     sidebar.classList.remove("mobile-open");
-                });
+                }
             });
+        });
+    }
+
+    // ========== CERRAR SIDEBAR AL HACER CLIC FUERA ==========
+    function setupClickOutside() {
+        document.addEventListener("click", (e) => {
+            if (
+                window.innerWidth <= 768 &&
+                !sidebar.contains(e.target) &&
+                !document.getElementById("sidebar-toggle-btn")?.contains(e.target)
+            ) {
+                sidebar.classList.remove("mobile-open");
+            }
+        });
+    }
+
+    // ========== MANEJAR REDIMENSIONAMIENTO ==========
+    function handleResize() {
+        const toggleBtn = document.getElementById("sidebar-toggle-btn");
+
+        if (window.innerWidth <= 768) {
+            // Estamos en móvil
+            if (!toggleBtn) {
+                createToggleButton();
+            }
+            sidebar.classList.remove("mobile-open");
         } else {
-            // En desktop - remover toggle
-            const toggleBtn = document.getElementById("sidebar-toggle-btn");
+            // Estamos en desktop
             if (toggleBtn) {
                 toggleBtn.remove();
             }
@@ -56,6 +84,21 @@ if (!sidebar) {
         }
     }
 
-    mediaQuery.addEventListener("change", handleResponsive);
-    handleResponsive(mediaQuery);
+    // ========== INICIALIZACIÓN ==========
+    createToggleButton();
+    setupSidebarLinks();
+    setupClickOutside();
+
+    // ========== EVENT LISTENERS ==========
+    window.addEventListener("resize", handleResize);
+}
+
+// Ejecutar al cargar el DOM
+document.addEventListener("DOMContentLoaded", initializeSidebar);
+
+// Para aplicaciones que no hacen full reload (opcional pero recomendado)
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeSidebar);
+} else {
+    initializeSidebar();
 }

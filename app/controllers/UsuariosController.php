@@ -1,4 +1,9 @@
 <?php
+require_once __DIR__ . "/../models/User.php";
+require_once __DIR__ . "/../models/Nodo.php";
+require_once __DIR__ . "/../models/Material.php";
+require_once __DIR__ . "/../helpers/PermissionHelper.php";
+
 class UsuariosController extends Controller
 {
     /* =========================================================
@@ -40,8 +45,8 @@ class UsuariosController extends Controller
             exit;
         }
 
-        require_once __DIR__ . "/../models/User.php";
         $userModel = new User();
+        $nodoModel = new Nodo();
         $currentId = $_SESSION['user']['id'] ?? null;
 
         // Carga inicial (page 1, sin filtros)
@@ -51,8 +56,12 @@ class UsuariosController extends Controller
             $usuarios = $userModel->all();
         }
 
+        // Obtener nodos con líneas para asignación
+        $nodos = $nodoModel->getActivosConLineas();
+
         $this->view('usuarios/gestion_de_usuarios', [
             'usuarios'    => $usuarios,
+            'nodos'       => $nodos,
             'pageStyles'  => ['usuarios'],
             'pageScripts' => ['usuarios'],
         ]);
@@ -67,6 +76,10 @@ class UsuariosController extends Controller
 
         $errores   = [];
         $userModel = new User();
+        $nodoModel = new Nodo();
+
+        // Obtener nodos con líneas para el formulario
+        $nodos = $nodoModel->getActivosConLineas();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -79,6 +92,8 @@ class UsuariosController extends Controller
             $password2       = $_POST['password2'] ?? '';
             $estado          = intval($_POST['estado'] ?? 1);
             $rol             = $_POST['rol'] ?? 'usuario';
+            $nodo_id         = !empty($_POST['nodo_id']) ? intval($_POST['nodo_id']) : null;
+            $linea_id        = !empty($_POST['linea_id']) ? intval($_POST['linea_id']) : null;
 
             /* =========================
                VALIDACIONES
@@ -114,6 +129,16 @@ class UsuariosController extends Controller
 
             if ($userModel->existsByNombreUsuario($nombreUsuario)) {
                 $errores[] = "Ese nombre de usuario ya existe.";
+            }
+
+            // Validar nodo si no es admin
+            if ($rol !== 'admin' && $nodo_id === null) {
+                $errores[] = "Debe asignar un nodo al usuario.";
+            }
+
+            // Validar línea si es usuario
+            if ($rol === 'usuario' && $linea_id === null) {
+                $errores[] = "Debe asignar una línea a los usuarios.";
             }
 
             /* =========================
@@ -156,9 +181,11 @@ class UsuariosController extends Controller
                     'password'       => password_hash($password, PASSWORD_DEFAULT),
                     'estado'         => $estado,
                     'rol'            => $rol,
+                    'nodo_id'        => $nodo_id,
+                    'linea_id'       => $linea_id
                 ]);
 
-                // Registrar en auditoría
+                // Registrar en auditoría (no llamar asignarNodo aquí)
                 $auditModel = new Audit();
                 $auditModel->registrarCambio(
                     $nuevoUsuarioId,
@@ -197,6 +224,7 @@ class UsuariosController extends Controller
 
         $this->view('usuarios/crear', [
             'errores'     => $errores,
+            'nodos'       => $nodos,
             'pageStyles'  => ['usuarios'],
             'pageScripts' => ['usuarios'],
         ]);
@@ -223,6 +251,8 @@ class UsuariosController extends Controller
             $estado        = intval($_POST['estado'] ?? 1);
             $password      = trim($_POST['password'] ?? '');
             $rol           = $_POST['rol'] ?? 'usuario';
+            $nodo_id       = !empty($_POST['nodo_id']) ? intval($_POST['nodo_id']) : null;
+            $linea_id      = !empty($_POST['linea_id']) ? intval($_POST['linea_id']) : null;
 
             if ($id <= 0) {
                 $errores[] = "Usuario inválido.";
@@ -236,10 +266,17 @@ class UsuariosController extends Controller
                 $errores[] = "Correo inválido.";
             }
 
-            // Validar nombre de usuario (no debe existir otro igual, excepto el actual)
-            $usuarioActual = $userModel->findById($id);
-            if ($usuarioActual['nombre_usuario'] !== $nombreUsuario && $userModel->existsByNombreUsuario($nombreUsuario)) {
-                $errores[] = "Ese nombre de usuario ya existe.";
+            // Validar nodo y línea según rol
+            if ($rol === 'admin') {
+                // admin no necesita nodo/línea
+            } elseif ($rol === 'dinamizador') {
+                if (empty($nodo_id)) {
+                    $errores[] = "Dinamizador debe tener un nodo asignado.";
+                }
+            } elseif ($rol === 'usuario') {
+                if (empty($nodo_id) || empty($linea_id)) {
+                    $errores[] = "Usuario debe tener nodo y línea asignados.";
+                }
             }
 
             /* ==========================
@@ -282,6 +319,8 @@ class UsuariosController extends Controller
                     'password'       => $password,  // si viene vacío NO se cambia
                     'foto'           => $fotoRuta,  // si es null NO se cambia
                     'rol'            => $rol,
+                    'nodo_id'        => $nodo_id,
+                    'linea_id'       => $linea_id,
                 ]);
 
                 // Registrar en auditoría con antes y después
@@ -344,6 +383,20 @@ class UsuariosController extends Controller
                     ];
                 }
 
+                // Registrar cambios de nodo y línea
+                if ($nodo_id !== null && $usuarioAnterior['nodo_id'] != $nodo_id) {
+                    $cambios['nodo_id'] = [
+                        'anterior' => $usuarioAnterior['nodo_id'] ?? 'Sin asignar',
+                        'nuevo' => $nodo_id
+                    ];
+                }
+                if ($linea_id !== null && $usuarioAnterior['linea_id'] != $linea_id) {
+                    $cambios['linea_id'] = [
+                        'anterior' => $usuarioAnterior['linea_id'] ?? 'Sin asignar',
+                        'nuevo' => $linea_id
+                    ];
+                }
+
                 if (!empty($cambios)) {
                     $auditModel->registrarCambio(
                         $id,
@@ -371,8 +424,13 @@ class UsuariosController extends Controller
             $usuario = $userModel->findById($id);
         }
 
+        // Obtener nodos con líneas para el formulario
+        $nodoModel = new Nodo();
+        $nodos = $nodoModel->getActivosConLineas();
+
         $this->view('usuarios/editar', [
             'usuario'     => $usuario,
+            'nodos'       => $nodos,
             'errores'     => $errores,
             'pageStyles'  => ['usuarios'],
             'pageScripts' => ['usuarios'],
@@ -449,6 +507,70 @@ class UsuariosController extends Controller
         }
 
         $this->redirect('usuarios/gestionDeUsuarios');
+    }
+
+    /* =========================================================
+       ASIGNAR NODO Y LÍNEA
+    ========================================================== */
+    public function asignarNodo()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $this->requireAdmin();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Método no permitido']);
+            exit;
+        }
+
+        $usuario_id = intval($_POST['usuario_id'] ?? 0);
+        $nodo_id = intval($_POST['nodo_id'] ?? 0);
+        $linea_id = !empty($_POST['linea_id']) ? intval($_POST['linea_id']) : null;
+
+        // Log de debug
+        file_put_contents(__DIR__ . '/../asignarNodo.log', date('Y-m-d H:i:s') . " - usuario_id: $usuario_id, nodo_id: $nodo_id, linea_id: " . ($linea_id ?? 'NULL') . "\n", FILE_APPEND);
+
+        if ($usuario_id <= 0 || $nodo_id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Datos inválidos']);
+            exit;
+        }
+
+        $userModel = new User();
+        
+        // Verificar que el usuario existe
+        $usuario = $userModel->getById($usuario_id);
+        if (!$usuario) {
+            echo json_encode(['success' => false, 'message' => 'Usuario no encontrado']);
+            exit;
+        }
+
+        // Validar que si es usuario, tiene línea asignada
+        if ($usuario['rol'] === 'usuario' && $linea_id === null) {
+            echo json_encode(['success' => false, 'message' => 'Los usuarios deben tener una línea asignada']);
+            exit;
+        }
+
+        // Asignar nodo y línea
+        if ($userModel->asignarNodo($usuario_id, $nodo_id, $linea_id)) {
+            // Registrar en auditoría
+            $auditModel = new Audit();
+            $auditModel->registrarCambio(
+                $usuario_id,
+                'usuarios',
+                $usuario_id,
+                'asignar_nodo',
+                [
+                    'nodo_id' => ['anterior' => $usuario['nodo_id'] ?? 'Sin asignar', 'nuevo' => $nodo_id],
+                    'linea_id' => ['anterior' => $usuario['linea_id'] ?? 'Sin asignar', 'nuevo' => $linea_id ?? 'Sin asignar']
+                ],
+                $_SESSION['user']['id']
+            );
+
+            echo json_encode(['success' => true, 'message' => 'Nodo y línea asignados correctamente']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Error al asignar nodo y línea']);
+        }
+        exit;
     }
 
     /* =========================================================
@@ -610,14 +732,40 @@ class UsuariosController extends Controller
             exit;
         }
 
+        // Obtener información de nodo y línea
+        $nodo_nombre = '';
+        $linea_nombre = '';
+        
+        if ($usuario['nodo_id']) {
+            $nodoModel = new Nodo();
+            $nodo = $nodoModel->getById($usuario['nodo_id']);
+            $nodo_nombre = $nodo ? $nodo['nombre'] : '';
+        }
+
+        if ($usuario['linea_id']) {
+            $materialModel = new Material();
+            $linea = $materialModel->getLineaById($usuario['linea_id']);
+            $linea_nombre = $linea ? $linea['nombre'] : '';
+        }
+
         // Obtener archivos subidos por este usuario
         require_once __DIR__ . '/../models/MaterialArchivo.php';
         $archivoModel = new MaterialArchivo();
         $archivos = $archivoModel->getByUsuario($userId);
 
+        // Obtener historial de cambios de auditoría para este usuario
+        $auditModel = new Audit();
+        $historialCambios = $auditModel->obtenerHistorialCompleto(500, 0, [
+            'usuario_id' => $userId,
+            'tabla' => 'usuarios'
+        ]);
+
         $this->view('usuarios/detalles', [
             'usuario'     => $usuario,
             'archivos'    => $archivos,
+            'nodo_nombre' => $nodo_nombre,
+            'linea_nombre' => $linea_nombre,
+            'historialCambios' => $historialCambios,
             'pageStyles'  => ['perfil'],
             'pageScripts' => [],
         ]);
@@ -644,6 +792,54 @@ class UsuariosController extends Controller
         $count = $archivoModel->countByUsuario($usuarioId);
 
         echo json_encode(['count' => $count]);
+        exit;
+    }
+
+    /* =========================================================
+       DIAGNOSTICAR NODOS Y LÍNEAS (AJAX DEBUG)
+    ========================================================== */
+    public function diagnostico()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $this->requireAdmin();
+
+        try {
+            $nodoModel = new Nodo();
+            
+            // Obtener todos los nodos con líneas
+            $nodos = $nodoModel->getActivosConLineas();
+            
+            // Información de diagnóstico
+            $diagnostico = [
+                'total_nodos' => count($nodos),
+                'nodos_data' => $nodos,
+                'problemas' => []
+            ];
+            
+            // Verificar problemas comunes
+            if (empty($nodos)) {
+                $diagnostico['problemas'][] = 'No hay nodos activos en la base de datos';
+            }
+            
+            foreach ($nodos as $idx => $nodo) {
+                if (!isset($nodo['lineas'])) {
+                    $diagnostico['problemas'][] = "Nodo {$nodo['nombre']} (ID: {$nodo['id']}) no tiene la propiedad 'lineas'";
+                }
+                if (empty($nodo['lineas'])) {
+                    $diagnostico['problemas'][] = "Nodo {$nodo['nombre']} (ID: {$nodo['id']}) no tiene líneas asociadas";
+                }
+            }
+            
+            echo json_encode($diagnostico);
+        } catch (Exception $e) {
+            echo json_encode([
+                'error' => $e->getMessage(),
+                'total_nodos' => 0,
+                'nodos_data' => [],
+                'problemas' => [$e->getMessage()]
+            ]);
+        }
         exit;
     }
 }

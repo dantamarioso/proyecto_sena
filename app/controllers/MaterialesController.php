@@ -4,6 +4,8 @@ require_once __DIR__ . '/../core/Database.php';
 require_once __DIR__ . '/../models/Material.php';
 require_once __DIR__ . '/../models/MaterialArchivo.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Nodo.php';
+require_once __DIR__ . '/../helpers/PermissionHelper.php';
 
 class MaterialesController extends Controller
 {
@@ -15,6 +17,65 @@ class MaterialesController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             $this->redirect('auth/login');
+            exit;
+        }
+    }
+
+    /**
+     * Verificar permisos - Solo admin, dinamizador y usuario pueden ver
+     */
+    private function requirePermission()
+    {
+        $this->requireAuth();
+        $rol = $_SESSION['user']['rol'] ?? 'invitado';
+        
+        if (!in_array($rol, ['admin', 'dinamizador', 'usuario'])) {
+            http_response_code(403);
+            echo "Acceso denegado.";
+            exit;
+        }
+    }
+
+    /**
+     * Verificar si puede editar/eliminar materiales
+     */
+    private function requireEditPermission($material_id)
+    {
+        $this->requireAuth();
+        
+        try {
+            $permissions = new PermissionHelper();
+            
+            if (!$permissions->canEditMaterial($material_id)) {
+                http_response_code(403);
+                echo "No tiene permiso para editar este material.";
+                exit;
+            }
+        } catch (Exception $e) {
+            http_response_code(403);
+            echo "Error al verificar permisos: " . $e->getMessage();
+            exit;
+        }
+    }
+
+    /**
+     * Verificar si puede eliminar materiales
+     */
+    private function requireDeletePermission($material_id)
+    {
+        $this->requireAuth();
+        
+        try {
+            $permissions = new PermissionHelper();
+            
+            if (!$permissions->canDeleteMaterial($material_id)) {
+                http_response_code(403);
+                echo "No tiene permiso para eliminar este material.";
+                exit;
+            }
+        } catch (Exception $e) {
+            http_response_code(403);
+            echo "Error al verificar permisos: " . $e->getMessage();
             exit;
         }
     }
@@ -73,25 +134,74 @@ class MaterialesController extends Controller
 
     public function index()
     {
-        $this->requireAuth();
+        $this->requirePermission();
 
         $materialModel = new Material();
+        
+        try {
+            $permissions = new PermissionHelper();
+        } catch (Exception $e) {
+            http_response_code(403);
+            echo "Error: " . $e->getMessage();
+            exit;
+        }
 
         // Obtener parámetros de búsqueda y filtros
         $busqueda = $_GET['busqueda'] ?? '';
         $linea_id = !empty($_GET['linea_id']) ? intval($_GET['linea_id']) : null;
         $estado = isset($_GET['estado']) && $_GET['estado'] !== '' ? intval($_GET['estado']) : null;
 
-        // Buscar materiales
+        // Buscar materiales (filtrado por permisos)
         if ($busqueda || $linea_id || $estado !== null) {
             $materiales = $materialModel->search($busqueda, $linea_id, $estado);
         } else {
             $materiales = $materialModel->all();
         }
+        
+        // Filtrar materiales según permisos del usuario
+        $where_clause = $permissions->getMaterialesWhereClause('m');
+        if ($where_clause !== '1=1') {
+            // Aplicar filtro de permisos
+            $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
+            $linea_user = $_SESSION['user']['linea_id'] ?? null;
+            $rol = $_SESSION['user']['rol'];
+            
+            $materiales_filtrados = [];
+            foreach ($materiales as $mat) {
+                if ($rol === 'admin') {
+                    $materiales_filtrados[] = $mat;
+                } elseif ($rol === 'dinamizador') {
+                    if ($mat['nodo_id'] == $nodo_user) {
+                        $materiales_filtrados[] = $mat;
+                    }
+                } elseif ($rol === 'usuario') {
+                    if ($mat['nodo_id'] == $nodo_user && $mat['linea_id'] == $linea_user) {
+                        $materiales_filtrados[] = $mat;
+                    }
+                }
+            }
+            $materiales = $materiales_filtrados;
+        }
 
-        // Obtener líneas para filtro
-        $lineas = $materialModel->getLineas();
-        $estadoLineas = $materialModel->contarPorLinea();
+        // Obtener líneas accesibles
+        $lineas = $permissions->getAccesibleLineas();
+        
+        // Contar por línea (solo accesibles)
+        $estadoLineas = [];
+        if ($permissions->isAdmin()) {
+            $estadoLineas = $materialModel->contarPorLinea();
+        } else {
+            // Contar solo materiales del nodo del usuario
+            foreach ($lineas as $linea) {
+                $count = 0;
+                foreach ($materiales as $mat) {
+                    if ($mat['linea_id'] == $linea['id']) {
+                        $count++;
+                    }
+                }
+                $estadoLineas[] = array_merge($linea, ['total' => $count]);
+            }
+        }
 
         $this->view('materiales/index', [
             'materiales'      => $materiales,
@@ -100,6 +210,7 @@ class MaterialesController extends Controller
             'busqueda'        => $busqueda,
             'linea_id'        => $linea_id,
             'estado'          => $estado,
+            'permisos'        => $permissions,
             'pageStyles'      => ['materiales', 'usuarios'],
             'pageScripts'     => ['materiales'],
         ]);
@@ -111,10 +222,25 @@ class MaterialesController extends Controller
 
     public function crear()
     {
-        $this->requireAdmin();
+        $this->requirePermission();
+        
+        try {
+            $permissions = new PermissionHelper();
+            if (!$permissions->canCreateMaterial()) {
+                http_response_code(403);
+                echo "No tiene permiso para crear materiales.";
+                exit;
+            }
+        } catch (Exception $e) {
+            http_response_code(403);
+            echo "Error: " . $e->getMessage();
+            exit;
+        }
 
         $materialModel = new Material();
-        $lineas = $materialModel->getLineas();
+        
+        // Obtener solo las líneas accesibles
+        $lineas = $permissions->getAccesibleLineas();
         $errores = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -127,6 +253,21 @@ class MaterialesController extends Controller
                 'cantidad'      => intval($_POST['cantidad'] ?? 0),
                 'estado'        => intval($_POST['estado'] ?? 1),
             ];
+
+            // Validar que la línea sea accesible
+            $linea_ok = false;
+            foreach ($lineas as $linea) {
+                if ($linea['id'] == $data['linea_id']) {
+                    $linea_ok = true;
+                    $data['nodo_id'] = $linea['nodo_id'];
+                    break;
+                }
+            }
+            
+            if (!$linea_ok) {
+                echo json_encode(['success' => false, 'errors' => ['Línea no accesible']]);
+                exit;
+            }
 
             $errores = $this->validarMaterial($data);
 
@@ -162,6 +303,7 @@ class MaterialesController extends Controller
         $this->view('materiales/crear', [
             'lineas'      => $lineas,
             'errores'     => $errores,
+            'permisos'    => $permissions,
             'pageStyles'  => ['materiales', 'usuarios', 'materiales_form'],
             'pageScripts' => ['materiales'],
         ]);
@@ -173,7 +315,7 @@ class MaterialesController extends Controller
 
     public function editar()
     {
-        $this->requireAdmin();
+        $this->requirePermission();
 
         $id = intval($_GET['id'] ?? 0);
         if ($id <= 0) {
@@ -181,6 +323,8 @@ class MaterialesController extends Controller
             echo "Material no encontrado.";
             exit;
         }
+
+        $this->requireEditPermission($id);
 
         $materialModel = new Material();
         $material = $materialModel->getById($id);
@@ -191,7 +335,15 @@ class MaterialesController extends Controller
             exit;
         }
 
-        $lineas = $materialModel->getLineas();
+        try {
+            $permissions = new PermissionHelper();
+        } catch (Exception $e) {
+            http_response_code(403);
+            echo "Error: " . $e->getMessage();
+            exit;
+        }
+
+        $lineas = $permissions->getAccesibleLineas();
         $errores = [];
 
         // Obtener archivos del material
@@ -208,6 +360,20 @@ class MaterialesController extends Controller
                 'cantidad'      => intval($_POST['cantidad'] ?? 0),
                 'estado'        => intval($_POST['estado'] ?? 1),
             ];
+
+            // Validar que la línea sea accesible
+            $linea_ok = false;
+            foreach ($lineas as $linea) {
+                if ($linea['id'] == $data['linea_id']) {
+                    $linea_ok = true;
+                    break;
+                }
+            }
+            
+            if (!$linea_ok) {
+                echo json_encode(['success' => false, 'errors' => ['Línea no accesible']]);
+                exit;
+            }
 
             $errores = $this->validarMaterial($data, $id);
 
@@ -239,6 +405,7 @@ class MaterialesController extends Controller
             'lineas'      => $lineas,
             'archivos'    => $archivos,
             'errores'     => $errores,
+            'permisos'    => $permissions,
             'pageStyles'  => ['materiales', 'usuarios', 'materiales_form'],
             'pageScripts' => ['materiales'],
         ]);
@@ -257,14 +424,21 @@ class MaterialesController extends Controller
             echo json_encode(['success' => false, 'message' => 'No autenticado']);
             exit;
         }
-        if (($_SESSION['user']['rol'] ?? 'usuario') !== 'admin') {
-            echo json_encode(['success' => false, 'message' => 'Acceso denegado']);
-            exit;
-        }
 
         $id = intval($_POST['id'] ?? 0);
         if ($id <= 0) {
             echo json_encode(['success' => false, 'message' => 'ID inválido']);
+            exit;
+        }
+
+        try {
+            $permissions = new PermissionHelper();
+            if (!$permissions->canDeleteMaterial($id)) {
+                echo json_encode(['success' => false, 'message' => 'Acceso denegado']);
+                exit;
+            }
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
             exit;
         }
 

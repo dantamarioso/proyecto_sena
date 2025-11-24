@@ -252,20 +252,22 @@ small.text-muted {
 
 .password-checklist li {
     font-size: 14px;
-    margin-bottom: 4px;
-    font-weight: 500;
-    color: #6c757d;
-    transition: color 0.2s ease;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #dc3545;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
 .password-checklist li.valid {
-    color: #033801;
-    font-weight: 600;
+    color: #198754 !important;
+    font-weight: 700;
 }
 
 .password-checklist li.invalid {
-    color: #d00;
-    font-weight: 500;
+    color: #dc3545 !important;
+    font-weight: 600;
 }
 
 /* ===================== VALIDACIÓN DE NOMBRE DE USUARIO ===================== */

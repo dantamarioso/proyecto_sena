@@ -54,6 +54,14 @@ class User extends Model
             $sql .= ", rol = :rol";
         }
 
+        if (isset($data['nodo_id'])) {
+            $sql .= ", nodo_id = :nodo_id";
+        }
+
+        if (isset($data['linea_id'])) {
+            $sql .= ", linea_id = :linea_id";
+        }
+
         $sql .= " WHERE id = :id";
 
         $stmt = $this->db->prepare($sql);
@@ -78,6 +86,14 @@ class User extends Model
 
         if (!empty($data['rol'])) {
             $params[':rol'] = $data['rol'];
+        }
+
+        if (isset($data['nodo_id'])) {
+            $params[':nodo_id'] = $data['nodo_id'];
+        }
+
+        if (isset($data['linea_id'])) {
+            $params[':linea_id'] = $data['linea_id'];
         }
 
         return $stmt->execute($params);
@@ -476,9 +492,9 @@ class User extends Model
         
         $stmt = $this->db->prepare("
         INSERT INTO usuarios 
-            (nombre, correo, nombre_usuario, celular, cargo, foto, password, estado, rol)
+            (nombre, correo, nombre_usuario, celular, cargo, foto, password, estado, rol, nodo_id, linea_id)
         VALUES 
-            (:nombre, :correo, :nombre_usuario, :celular, :cargo, :foto, :password, :estado, :rol)
+            (:nombre, :correo, :nombre_usuario, :celular, :cargo, :foto, :password, :estado, :rol, :nodo_id, :linea_id)
     ");
 
         $success = $stmt->execute([
@@ -491,11 +507,132 @@ class User extends Model
             ':password'       => $data['password'],
             ':estado'         => $data['estado']         ?? 1,
             ':rol'            => $data['rol']            ?? 'usuario',
+            ':nodo_id'        => $data['nodo_id']        ?? null,
+            ':linea_id'       => $data['linea_id']       ?? null,
         ]);
 
         if ($success) {
             return (int)$this->db->lastInsertId();
         }
         return false;
+    }
+
+    /**
+     * Asignar nodo a un usuario
+     */
+    public function asignarNodo($usuario_id, $nodo_id, $linea_id = null)
+    {
+        $stmt = $this->db->prepare("
+            UPDATE usuarios 
+            SET nodo_id = :nodo_id, linea_id = :linea_id
+            WHERE id = :usuario_id
+        ");
+        
+        return $stmt->execute([
+            ':usuario_id' => $usuario_id,
+            ':nodo_id' => $nodo_id,
+            ':linea_id' => $linea_id,
+        ]);
+    }
+
+    /**
+     * Obtener nodo del usuario
+     */
+    public function getNodo($usuario_id)
+    {
+        $stmt = $this->db->prepare("
+            SELECT n.* 
+            FROM nodos n 
+            JOIN usuarios u ON u.nodo_id = n.id 
+            WHERE u.id = :usuario_id
+        ");
+        $stmt->execute([':usuario_id' => $usuario_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Obtener línea del usuario
+     */
+    public function getLinea($usuario_id)
+    {
+        $stmt = $this->db->prepare("
+            SELECT l.* 
+            FROM lineas l 
+            JOIN usuarios u ON u.linea_id = l.id 
+            WHERE u.id = :usuario_id
+        ");
+        $stmt->execute([':usuario_id' => $usuario_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Obtener líneas de un nodo
+     */
+    public function getLineasPorNodo($nodo_id)
+    {
+        $stmt = $this->db->prepare("
+            SELECT * FROM lineas 
+            WHERE nodo_id = :nodo_id AND estado = 1
+            ORDER BY nombre ASC
+        ");
+        $stmt->execute([':nodo_id' => $nodo_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Cambiar rol de usuario
+     */
+    public function cambiarRol($usuario_id, $nuevo_rol)
+    {
+        $roles_validos = ['admin', 'usuario', 'dinamizador'];
+        
+        if (!in_array($nuevo_rol, $roles_validos)) {
+            return false;
+        }
+        
+        $stmt = $this->db->prepare("
+            UPDATE usuarios 
+            SET rol = :rol
+            WHERE id = :usuario_id
+        ");
+        
+        return $stmt->execute([
+            ':usuario_id' => $usuario_id,
+            ':rol' => $nuevo_rol,
+        ]);
+    }
+
+    /**
+     * Obtener usuarios por nodo
+     */
+    public function getUsuariosPorNodo($nodo_id, $rol = null)
+    {
+        $sql = "SELECT * FROM usuarios WHERE nodo_id = :nodo_id";
+        $params = [':nodo_id' => $nodo_id];
+        
+        if ($rol !== null) {
+            $sql .= " AND rol = :rol";
+            $params[':rol'] = $rol;
+        }
+        
+        $sql .= " ORDER BY nombre ASC";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Obtener usuarios por línea
+     */
+    public function getUsuariosPorLinea($linea_id)
+    {
+        $stmt = $this->db->prepare("
+            SELECT * FROM usuarios 
+            WHERE linea_id = :linea_id
+            ORDER BY nombre ASC
+        ");
+        $stmt->execute([':linea_id' => $linea_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

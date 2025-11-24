@@ -8,6 +8,9 @@
 
     <!-- Sidebar CSS -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/sidebar.css">
+    
+    <!-- Sidebar Toggle Button CSS -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/sidebar-toggle.css">
 
     <!-- Header y Footer CSS -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/layout.css">
@@ -17,9 +20,6 @@
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    <!-- CSS Mejoras (responsive & diseño) -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/css/mejoras.css">
 
     <!-- CSS Formularios -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/formularios.css">

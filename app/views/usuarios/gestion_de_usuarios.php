@@ -47,6 +47,7 @@ if (!isset($_SESSION['user'])) {
                             <option value="">Todos</option>
                             <option value="admin">Admin</option>
                             <option value="usuario">Usuario</option>
+                            <option value="dinamizador">Dinamizador</option>
                             <option value="invitado">Invitado</option>
                         </select>
                     </div>
@@ -65,22 +66,23 @@ if (!isset($_SESSION['user'])) {
                 <table class="table table-striped align-middle mb-0">
                     <thead>
                     <tr>
-                        <th>#</th>
-                        <th class="d-none d-md-table-cell">Foto</th>
+                        <th style="width: 60px;">#</th>
+                        <th style="width: 50px;" class="d-none d-sm-table-cell">Foto</th>
                         <th>Nombre</th>
                         <th class="d-none d-md-table-cell">Correo</th>
                         <th class="d-none d-lg-table-cell">Usuario</th>
-                        <th class="d-none d-xl-table-cell">Celular</th>
-                        <th class="d-none d-xl-table-cell">Cargo</th>
                         <th class="d-none d-lg-table-cell">Rol</th>
-                        <th>Estado</th>
-                        <th class="text-center">Acciones</th>
+                        <th class="d-none d-lg-table-cell">Nodo</th>
+                        <th class="d-none d-lg-table-cell">Línea</th>
+                        <th style="width: 80px;">Estado</th>
+                        <th style="width: 120px;" class="text-center">Acciones</th>
+                    </tr>
                     </thead>
                     <tbody id="usuarios-body">
                     <?php foreach ($usuarios as $u): ?>
                         <tr>
                             <td><?= $u['id'] ?></td>
-                            <td class="d-none d-md-table-cell">
+                            <td class="d-none d-sm-table-cell">
                                 <?php if ($u['foto']): ?>
                                     <img src="<?= BASE_URL . '/' . htmlspecialchars($u['foto']) ?>"
                                          width="40" height="40" class="rounded-circle" style="object-fit:cover;">
@@ -89,12 +91,52 @@ if (!isset($_SESSION['user'])) {
                                          width="40" height="40" class="rounded-circle" style="object-fit:cover;" alt="Usuario sin foto">
                                 <?php endif; ?>
                             </td>
-                            <td><?= htmlspecialchars($u['nombre']) ?></td>
-                            <td class="d-none d-md-table-cell"><?= htmlspecialchars($u['correo']) ?></td>
-                            <td class="d-none d-lg-table-cell"><?= htmlspecialchars($u['nombre_usuario']) ?></td>
-                            <td class="d-none d-xl-table-cell"><?= $u['celular'] ? htmlspecialchars($u['celular']) : '<span class="text-muted">N/A</span>' ?></td>
-                            <td class="d-none d-xl-table-cell"><?= $u['cargo'] ? htmlspecialchars($u['cargo']) : '<span class="text-muted">Sin cargo</span>' ?></td>
+                            <td><strong><?= htmlspecialchars($u['nombre']) ?></strong></td>
+                            <td class="d-none d-md-table-cell"><small><?= htmlspecialchars($u['correo']) ?></small></td>
+                            <td class="d-none d-lg-table-cell"><small><?= htmlspecialchars($u['nombre_usuario']) ?></small></td>
                             <td class="d-none d-lg-table-cell"><span class="badge bg-info"><?= htmlspecialchars($u['rol'] ?? 'usuario') ?></span></td>
+                            <td class="d-none d-lg-table-cell">
+                                <?php 
+                                if ($u['nodo_id']): 
+                                    $nodo_nombre = '';
+                                    foreach ($nodos as $n) {
+                                        if ($n['id'] == $u['nodo_id']) {
+                                            $nodo_nombre = $n['nombre'];
+                                            break;
+                                        }
+                                    }
+                                    echo $nodo_nombre ? '<span class="badge bg-secondary">' . htmlspecialchars($nodo_nombre) . '</span>' : '<span class="text-muted small">N/A</span>';
+                                else:
+                                    echo '<span class="text-muted small">Sin asignar</span>';
+                                endif;
+                                ?>
+                            </td>
+                            <td class="d-none d-lg-table-cell">
+                                <?php 
+                                // Solo mostrar línea si el rol es "usuario"
+                                if ($u['rol'] === 'usuario' && $u['linea_id']): 
+                                    $linea_nombre = '';
+                                    // Buscar en nodos y sus líneas
+                                    foreach ($nodos as $n) {
+                                        if (isset($n['lineas']) && is_array($n['lineas'])) {
+                                            foreach ($n['lineas'] as $l) {
+                                                if ($l['id'] == $u['linea_id']) {
+                                                    $linea_nombre = $l['nombre'];
+                                                    break 2;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    echo $linea_nombre ? '<span class="badge bg-warning">' . htmlspecialchars($linea_nombre) . '</span>' : '<span class="text-muted small">N/A</span>';
+                                elseif ($u['rol'] === 'usuario'):
+                                    echo '<span class="text-muted small">Sin asignar</span>';
+                                elseif ($u['rol'] === 'dinamizador'):
+                                    echo '<span class="badge bg-info">Todas</span>';
+                                else:
+                                    echo '<span class="text-muted small">N/A</span>';
+                                endif;
+                                ?>
+                            </td>
                             <td>
                                 <?php if ($u['estado'] == 1): ?>
                                     <span class="badge bg-success">Activo</span>
@@ -112,6 +154,15 @@ if (!isset($_SESSION['user'])) {
                                        class="btn btn-primary btn-sm" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </a>
+                                    <button class="btn btn-secondary btn-sm btn-asignar-nodo" 
+                                            data-id="<?= $u['id'] ?>" 
+                                            data-nombre="<?= htmlspecialchars($u['nombre']) ?>"
+                                            data-rol="<?= $u['rol'] ?>"
+                                            data-nodo="<?= $u['nodo_id'] ?? '' ?>"
+                                            data-linea="<?= $u['linea_id'] ?? '' ?>"
+                                            title="Asignar nodo/línea">
+                                        <i class="bi bi-map"></i>
+                                    </button>
 
                                     <?php if ($u['estado'] == 1): ?>
                                         <form class="d-inline" method="post"
@@ -162,3 +213,188 @@ if (!isset($_SESSION['user'])) {
         </div>
     </div>
 </div>
+
+<!-- Modal para asignar nodo y línea -->
+<div class="modal fade" id="modalAsignarNodo" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Asignar Nodo y Línea</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formAsignarNodo">
+                <div class="modal-body">
+                    <input type="hidden" id="usuario-id">
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><strong id="usuario-nombre"></strong></label>
+                        <small class="d-block text-muted">Rol: <span id="usuario-rol"></span></small>
+                    </div>
+
+                    <div class="mb-3" id="div-nodo-modal">
+                        <label class="form-label">Nodo <span class="text-danger">*</span></label>
+                        <select id="select-nodo" class="form-select" required>
+                            <option value="">-- Selecciona un nodo --</option>
+                            <?php foreach ($nodos as $nodo): ?>
+                                <option value="<?= $nodo['id'] ?>"><?= htmlspecialchars($nodo['nombre']) ?> (<?= htmlspecialchars($nodo['ciudad']) ?>)</option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="div-linea" style="display: none;">
+                        <label class="form-label">Línea <span class="text-danger">*</span></label>
+                        <select id="select-linea" class="form-select">
+                            <option value="">-- Selecciona una línea --</option>
+                        </select>
+                        <small class="text-muted">Solo para usuarios. Dinamizadores tienen acceso a todas las líneas del nodo.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = new bootstrap.Modal(document.getElementById('modalAsignarNodo'));
+        const nodoSelect = document.getElementById('select-nodo');
+        const lineaSelect = document.getElementById('select-linea');
+        const divLinea = document.getElementById('div-linea');
+        const divNodo = document.getElementById('div-nodo-modal');
+        const formAsignar = document.getElementById('formAsignarNodo');
+        
+        // Datos de nodos y líneas
+        const nodosData = <?= json_encode($nodos) ?>;
+
+        // Cargar líneas cuando cambia el nodo
+        nodoSelect.addEventListener('change', function() {
+            const nodoId = this.value;
+            lineaSelect.innerHTML = '<option value="">-- Selecciona una línea --</option>';
+            
+            if (nodoId) {
+                const nodo = nodosData.find(n => n.id == nodoId);
+                if (nodo && nodo.lineas) {
+                    nodo.lineas.forEach(linea => {
+                        const option = document.createElement('option');
+                        option.value = linea.id;
+                        option.textContent = linea.nombre;
+                        lineaSelect.appendChild(option);
+                    });
+                }
+            }
+        });
+
+        // Función para mostrar/ocultar campos según el rol
+        function actualizarCamposSegunRol(rol) {
+            if (rol === 'admin') {
+                // Admin: ocultar nodo y línea
+                divNodo.style.display = 'none';
+                divLinea.style.display = 'none';
+                nodoSelect.removeAttribute('required');
+                lineaSelect.removeAttribute('required');
+            } else if (rol === 'dinamizador') {
+                // Dinamizador: mostrar nodo, ocultar línea
+                divNodo.style.display = 'block';
+                divLinea.style.display = 'none';
+                nodoSelect.setAttribute('required', 'required');
+                lineaSelect.removeAttribute('required');
+            } else if (rol === 'usuario') {
+                // Usuario: mostrar nodo y línea
+                divNodo.style.display = 'block';
+                divLinea.style.display = 'block';
+                nodoSelect.setAttribute('required', 'required');
+                lineaSelect.setAttribute('required', 'required');
+            } else {
+                // Invitado: ocultar nodo y línea
+                divNodo.style.display = 'none';
+                divLinea.style.display = 'none';
+                nodoSelect.removeAttribute('required');
+                lineaSelect.removeAttribute('required');
+            }
+        }
+
+        // Manejar clic en botones de asignar nodo
+        document.querySelectorAll('.btn-asignar-nodo').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const usuarioId = this.dataset.id;
+                const usuarioNombre = this.dataset.nombre;
+                const usuarioRol = this.dataset.rol;
+                const usuarioNodo = this.dataset.nodo;
+                const usuarioLinea = this.dataset.linea;
+
+                document.getElementById('usuario-id').value = usuarioId;
+                document.getElementById('usuario-nombre').textContent = usuarioNombre;
+                document.getElementById('usuario-rol').textContent = usuarioRol;
+                
+                // Actualizar campos visibles según rol
+                actualizarCamposSegunRol(usuarioRol);
+
+                // Cargar nodo actual si existe
+                if (usuarioNodo) {
+                    nodoSelect.value = usuarioNodo;
+                    nodoSelect.dispatchEvent(new Event('change'));
+                    if (usuarioLinea && usuarioRol === 'usuario') {
+                        setTimeout(() => {
+                            lineaSelect.value = usuarioLinea;
+                        }, 100);
+                    }
+                }
+
+                modal.show();
+            });
+        });
+
+        // Manejar submit del formulario
+        formAsignar.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const usuarioId = document.getElementById('usuario-id').value;
+            const nodoId = nodoSelect.value || null;
+            const lineaId = lineaSelect.value || null;
+            const rol = document.getElementById('usuario-rol').textContent;
+
+            // Validar según el rol
+            if (rol === 'usuario' && !nodoId) {
+                alert('Debe seleccionar un nodo');
+                return;
+            }
+
+            if (rol === 'usuario' && !lineaId) {
+                alert('Debe seleccionar una línea para usuarios');
+                return;
+            }
+
+            if (rol === 'dinamizador' && !nodoId) {
+                alert('Debe seleccionar un nodo para dinamizadores');
+                return;
+            }
+
+            // Enviar datos al servidor
+            fetch('<?= BASE_URL ?>/?url=usuarios/asignarNodo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'usuario_id=' + usuarioId + '&nodo_id=' + (nodoId || '') + '&linea_id=' + (lineaId || '')
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Nodo/Línea asignado correctamente');
+                    modal.hide();
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Error desconocido'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al asignar nodo/línea');
+            });
+        });
+    });
+</script>

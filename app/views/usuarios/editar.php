@@ -65,11 +65,34 @@
                     <!-- Rol -->
                     <div class="mb-3">
                         <label class="form-label">Rol</label>
-                        <select name="rol" class="form-select">
-                            <option value="admin"    <?= ($usuario['rol'] ?? '') === 'admin'    ? 'selected' : '' ?>>Admin</option>
-                            <option value="usuario"  <?= ($usuario['rol'] ?? '') === 'usuario'  ? 'selected' : '' ?>>Usuario</option>
-                            <option value="invitado" <?= ($usuario['rol'] ?? '') === 'invitado' ? 'selected' : '' ?>>Invitado</option>
+                        <select name="rol" id="select-rol-edit" class="form-select">
+                            <option value="admin"       <?= ($usuario['rol'] ?? '') === 'admin'       ? 'selected' : '' ?>>Admin</option>
+                            <option value="dinamizador" <?= ($usuario['rol'] ?? '') === 'dinamizador' ? 'selected' : '' ?>>Dinamizador</option>
+                            <option value="usuario"     <?= ($usuario['rol'] ?? '') === 'usuario'     ? 'selected' : '' ?>>Usuario</option>
+                            <option value="invitado"    <?= ($usuario['rol'] ?? '') === 'invitado'    ? 'selected' : '' ?>>Invitado</option>
                         </select>
+                    </div>
+
+                    <!-- Nodo -->
+                    <div class="mb-3" id="div-nodo-edit" style="display: none;">
+                        <label class="form-label">Nodo <span class="text-danger">*</span></label>
+                        <select name="nodo_id" id="select-nodo-edit" class="form-select">
+                            <option value="">-- Selecciona un nodo --</option>
+                            <?php foreach ($nodos as $nodo): ?>
+                                <option value="<?= $nodo['id'] ?>" <?= ($usuario['nodo_id'] ?? '') == $nodo['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($nodo['nombre']) ?> (<?= htmlspecialchars($nodo['ciudad']) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Línea -->
+                    <div class="mb-3" id="div-linea-edit" style="display: none;">
+                        <label class="form-label">Línea <span class="text-danger">*</span></label>
+                        <select name="linea_id" id="select-linea-edit" class="form-select">
+                            <option value="">-- Selecciona una línea --</option>
+                        </select>
+                        <small class="text-muted">Solo para usuarios. Dinamizadores tienen acceso a todas las líneas del nodo.</small>
                     </div>
 
                     <!-- Foto -->
@@ -130,7 +153,84 @@
                     </div>
                 </form>
 
+
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const rolSelect = document.getElementById('select-rol-edit');
+        const nodoSelect = document.getElementById('select-nodo-edit');
+        const lineaSelect = document.getElementById('select-linea-edit');
+        const divNodo = document.getElementById('div-nodo-edit');
+        const divLinea = document.getElementById('div-linea-edit');
+
+        // Datos de nodos con líneas
+        const nodosData = <?= json_encode($nodos) ?>;
+
+        // Cargar líneas cuando cambia el nodo
+        nodoSelect.addEventListener('change', function() {
+            const nodoId = this.value;
+            lineaSelect.innerHTML = '<option value="">-- Selecciona una línea --</option>';
+            
+            if (nodoId) {
+                const nodo = nodosData.find(n => n.id == nodoId);
+                if (nodo && nodo.lineas) {
+                    nodo.lineas.forEach(linea => {
+                        const option = document.createElement('option');
+                        option.value = linea.id;
+                        option.textContent = linea.nombre;
+                        lineaSelect.appendChild(option);
+                    });
+                }
+            }
+        });
+
+        // Mostrar/ocultar campos según el rol
+        function actualizarCamposSegunRol() {
+            const rol = rolSelect.value;
+            
+            if (rol === 'admin') {
+                // Admin no necesita nodo
+                divNodo.style.display = 'none';
+                divLinea.style.display = 'none';
+                nodoSelect.removeAttribute('required');
+                lineaSelect.removeAttribute('required');
+            } else if (rol === 'dinamizador') {
+                // Dinamizador necesita nodo pero no línea
+                divNodo.style.display = 'block';
+                divLinea.style.display = 'none';
+                nodoSelect.setAttribute('required', 'required');
+                lineaSelect.removeAttribute('required');
+            } else if (rol === 'usuario') {
+                // Usuario necesita nodo y línea
+                divNodo.style.display = 'block';
+                divLinea.style.display = 'block';
+                nodoSelect.setAttribute('required', 'required');
+                lineaSelect.setAttribute('required', 'required');
+            } else {
+                // Invitado no necesita nada
+                divNodo.style.display = 'none';
+                divLinea.style.display = 'none';
+                nodoSelect.removeAttribute('required');
+                lineaSelect.removeAttribute('required');
+            }
+        }
+
+        // Cambio de rol
+        rolSelect.addEventListener('change', function() {
+            actualizarCamposSegunRol();
+        });
+
+        // Inicializar en carga
+        actualizarCamposSegunRol();
+        
+        // Si hay nodo seleccionado, cargar sus líneas
+        if (nodoSelect.value) {
+            nodoSelect.dispatchEvent(new Event('change'));
+        }
+    });
+</script>
+

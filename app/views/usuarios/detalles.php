@@ -16,6 +16,12 @@ if (!isset($_SESSION['user'])) {
                     <div class="mb-1"><strong>Usuario:</strong> <?= htmlspecialchars($usuario['nombre_usuario']) ?></div>
                     <div class="mb-1"><strong>Rol:</strong> <span class="badge bg-info"><?= htmlspecialchars($usuario['rol']) ?></span></div>
                     <div class="mb-1"><strong>Estado:</strong> <?= $usuario['estado'] == 1 ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Bloqueado</span>' ?></div>
+                    <?php if ($usuario['nodo_id']): ?>
+                        <div class="mb-1"><strong>Nodo:</strong> <span class="badge bg-secondary"><?= htmlspecialchars($nodo_nombre ?? 'Nodo ' . $usuario['nodo_id']) ?></span></div>
+                    <?php endif; ?>
+                    <?php if ($usuario['linea_id']): ?>
+                        <div class="mb-1"><strong>Línea:</strong> <span class="badge bg-warning"><?= htmlspecialchars($linea_nombre ?? 'Línea ' . $usuario['linea_id']) ?></span></div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -48,7 +54,7 @@ if (!isset($_SESSION['user'])) {
                     </div>
                 <?php endif; ?>
             </div>
-        </div>
+
 
         <a href="<?= BASE_URL ?>/?url=usuarios/gestionDeUsuarios" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Volver al panel

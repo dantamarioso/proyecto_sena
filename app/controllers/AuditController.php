@@ -33,9 +33,16 @@ class AuditController extends Controller
             'fecha_fin' => $_GET['fecha_fin'] ?? ''
         ];
 
-        $cambios = $auditModel->obtenerHistorialCompleto($perPage, $offset, $filtro);
-        $total = $auditModel->contarHistorial($filtro);
-        $totalPages = max(1, ceil($total / $perPage));
+        try {
+            $cambios = $auditModel->obtenerHistorialCompleto($perPage, $offset, $filtro);
+            $total = $auditModel->contarHistorial($filtro);
+            $totalPages = max(1, ceil($total / $perPage));
+        } catch (Exception $e) {
+            error_log("Error en historial: " . $e->getMessage());
+            $cambios = [];
+            $total = 0;
+            $totalPages = 1;
+        }
 
         // Obtener lista de todos los usuarios para el filtro (incluyendo el propio)
         $usuarios = $userModel->all();
@@ -54,6 +61,31 @@ class AuditController extends Controller
             return strcmp($a['nombre'], $b['nombre']);
         });
 
+        // Obtener todas las acciones disponibles en la BD (con fallback directo)
+        $accionesDisponibles = [
+            'actualizar',
+            'actualizar_estado',
+            'actualizar_rol',
+            'asignar_nodo',
+            'crear',
+            'desactivar',
+            'desactivar/activar',
+            'eliminar',
+            'ver'
+        ];
+        
+        // Intentar obtener de la BD si es posible
+        try {
+            $acciones_bd = $auditModel->obtenerAccionesDisponibles();
+            if (!empty($acciones_bd)) {
+                $accionesDisponibles = $acciones_bd;
+            }
+        } catch (Exception $e) {
+            // Usar fallback
+        }
+        
+        sort($accionesDisponibles);
+
         $this->view('audit/historial', [
             'cambios' => $cambios,
             'total' => $total,
@@ -61,8 +93,9 @@ class AuditController extends Controller
             'totalPages' => $totalPages,
             'usuarios' => $usuarios,
             'filtro' => $filtro,
-            'pageStyles' => ['audit'],
-            'pageScripts' => ['audit']
+            'accionesDisponibles' => $accionesDisponibles,
+            'pageStyles' => ['audit', 'audit_mejorado'],
+            'pageScripts' => ['audit', 'historial_mejorado']
         ]);
     }
 
