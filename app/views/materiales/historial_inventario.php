@@ -123,7 +123,16 @@ if (!isset($_SESSION['user'])) {
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <small><?= htmlspecialchars($mov['usuario_nombre'] ?? 'N/A') ?></small>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <?php if ($mov['tipo_registro'] === 'movimiento' && $mov['usuario_foto']): ?>
+                                                <img src="<?= BASE_URL . '/' . htmlspecialchars($mov['usuario_foto']) ?>" 
+                                                     width="28" height="28" class="rounded-circle" style="object-fit: cover;">
+                                            <?php elseif ($mov['tipo_registro'] === 'movimiento'): ?>
+                                                <img src="<?= BASE_URL ?>/img/default_user.png" 
+                                                     width="28" height="28" class="rounded-circle">
+                                            <?php endif; ?>
+                                            <small><?= htmlspecialchars($mov['usuario_nombre'] ?? 'N/A') ?></small>
+                                        </div>
                                     </td>
                                     <td>
                                         <?php if ($mov['tipo_registro'] === 'movimiento'): ?>
@@ -241,6 +250,7 @@ if (!isset($_SESSION['user'])) {
 
         try {
             const lineaNombre = detalles.linea_nombre || 'Sin línea';
+            const usuarioNombre = detalles.usuario_nombre || 'Sistema';
             
             detallesDiv.innerHTML = `
                 <div class="alert alert-danger mb-3">
@@ -271,6 +281,21 @@ if (!isset($_SESSION['user'])) {
                         <h6 class="card-title">Información Adicional</h6>
                         <p class="mb-2"><strong>Cantidad al momento de eliminar:</strong> ${parseInt(detalles.cantidad || 0)}</p>
                         <p class="mb-0"><strong>Descripción:</strong> ${escapeHtml(detalles.descripcion || 'Sin descripción')}</p>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title mb-3">✓ Eliminado por:</h6>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="badge bg-warning text-dark rounded-circle p-2" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0"><strong>${escapeHtml(usuarioNombre)}</strong></p>
+                                ${detalles.usuario_id ? `<small class="text-muted">ID: ${escapeHtml(detalles.usuario_id)}</small>` : ''}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -388,8 +413,12 @@ if (!isset($_SESSION['user'])) {
 
                     <div class="row">
                         <div class="col-12">
-                            <p><strong>Usuario que registró:</strong></p>
-                            <p>${escapeHtml(mov.usuario_nombre || 'N/A')}</p>
+                            <div class="alert alert-info">
+                                <strong>
+                                    ${tipoMovimiento === 'ENTRADA' ? '✓ Entrada Registrada por:' : '✓ Salida Registrada por:'}
+                                </strong>
+                                <p class="mb-0 mt-2">${escapeHtml(mov.usuario_nombre || 'N/A')}</p>
+                            </div>
                         </div>
                     </div>
 

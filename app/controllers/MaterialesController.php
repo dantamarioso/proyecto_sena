@@ -538,7 +538,9 @@ class MaterialesController extends Controller
                     'nodo_id' => $material['nodo_id'],
                     'linea_id' => $material['linea_id'],
                     'linea_nombre' => $this->getLineaNombre($material['linea_id']),
-                    'descripcion' => $material['descripcion']
+                    'descripcion' => $material['descripcion'],
+                    'usuario_nombre' => $_SESSION['user']['nombre'] ?? 'Sistema',
+                    'usuario_id' => $_SESSION['user']['id']
                 ],
                 $_SESSION['user']['id']
             );

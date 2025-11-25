@@ -350,7 +350,7 @@ class Material extends Model
                 JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.linea_nombre')) as linea_nombre
             FROM auditoria_materiales a
             LEFT JOIN usuarios u ON a.admin_id = u.id
-            WHERE a.accion = 'DELETE'
+            WHERE a.accion = 'eliminar'
         ";
         $params = [];
 

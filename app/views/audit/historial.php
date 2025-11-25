@@ -69,7 +69,8 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                     <tr>
                         <th>#</th>
                         <th>Fecha</th>
-                        <th>Usuario</th>
+                        <th>Usuario Afectado</th>
+                        <th>Realizado por</th>
                         <th>Acción</th>
                         <th>Detalles</th>
                     </tr>
@@ -103,7 +104,25 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                         <tr>
                             <td><?= $cambio['id'] ?></td>
                             <td><small class="text-muted"><?= htmlspecialchars($cambio['fecha_cambio']) ?></small></td>
-                            <td><?= htmlspecialchars($cambio['usuario_modificado'] ?? 'N/A') ?></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <small><?= htmlspecialchars($cambio['usuario_modificado'] ?? 'N/A') ?></small>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <?php if ($cambio['admin_foto']): ?>
+                                        <img src="<?= BASE_URL . '/' . htmlspecialchars($cambio['admin_foto']) ?>" 
+                                             width="24" height="24" class="rounded-circle" style="object-fit: cover;"
+                                             title="<?= htmlspecialchars($cambio['admin_nombre'] ?? 'Admin') ?>">
+                                    <?php else: ?>
+                                        <img src="<?= BASE_URL ?>/img/default_user.png" 
+                                             width="24" height="24" class="rounded-circle" 
+                                             title="<?= htmlspecialchars($cambio['admin_nombre'] ?? 'Admin') ?>">
+                                    <?php endif; ?>
+                                    <small><?= htmlspecialchars($cambio['admin_nombre'] ?? 'Sistema') ?></small>
+                                </div>
+                            </td>
                             <td>
                                 <span class="badge <?= $clase ?>"><i class="bi bi-<?= $icono ?>"></i> <?= $texto ?></span>
                                 <?php if ($accion === 'desactivar/activar' && isset($detalles['Acción'])): ?>
@@ -168,6 +187,14 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                                             <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Tabla Afectada</small>
                                                             <div class="mt-2">
                                                                 <code class="d-block"><?= htmlspecialchars($cambio['tabla'] ?? 'usuarios') ?></code>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="p-3 rounded" style="background-color: #f8f9fa; border-left: 4px solid #fd7e14;">
+                                                            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Realizado por</small>
+                                                            <div class="mt-2">
+                                                                <strong class="d-block"><?= htmlspecialchars($cambio['admin_nombre'] ?? 'Sistema') ?></strong>
                                                             </div>
                                                         </div>
                                                     </div>
