@@ -308,7 +308,7 @@ class AuthController extends Controller
                 $hash = password_hash($password, PASSWORD_DEFAULT);
 
                 // Crear usuario con email sin verificar (email_verified = 0)
-                $userModel->create([
+                $nuevoUsuarioId = $userModel->create([
                     'nombre'         => $nombre_completo,
                     'correo'         => $correo,
                     'nombre_usuario' => $correo,
@@ -317,6 +317,42 @@ class AuthController extends Controller
                     'rol'            => 'usuario',
                     'email_verified' => 0,
                 ]);
+
+                // Registrar en auditoría
+                $auditModel = new Audit();
+                $auditModel->registrarCambio(
+                    $nuevoUsuarioId,
+                    'usuarios',
+                    $nuevoUsuarioId,
+                    'crear',
+                    [
+                        'nombre' => [
+                            'anterior' => 'N/A',
+                            'nuevo' => $nombre_completo
+                        ],
+                        'correo' => [
+                            'anterior' => 'N/A',
+                            'nuevo' => $correo
+                        ],
+                        'nombre_usuario' => [
+                            'anterior' => 'N/A',
+                            'nuevo' => $correo
+                        ],
+                        'rol' => [
+                            'anterior' => 'N/A',
+                            'nuevo' => 'usuario'
+                        ],
+                        'estado' => [
+                            'anterior' => 'N/A',
+                            'nuevo' => 'Activo'
+                        ],
+                        'email_verificado' => [
+                            'anterior' => 'N/A',
+                            'nuevo' => 'Pendiente'
+                        ]
+                    ],
+                    null
+                );
 
                 // Obtener el ID del usuario creado
                 $user = $userModel->findByCorreo($correo);
