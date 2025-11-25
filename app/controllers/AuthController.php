@@ -12,7 +12,7 @@ class AuthController extends Controller
             'isLoginPage' => true,
             'isRecoveryPage' => true,
             'pageStyles'  => ['login', 'recovery'],
-            'pageScripts' => ['recovery']
+            'pageScripts' => []
         ]);
     }
 
@@ -43,9 +43,18 @@ class AuthController extends Controller
 
     public function resendCode()
     {
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                  $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+
         $correo = $_SESSION['recovery_correo'] ?? null;
         
         if (!$correo) {
+            if ($isAjax) {
+                header('Content-Type: application/json; charset=utf-8');
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Sesión expirada. Por favor, comienza de nuevo.']);
+                exit;
+            }
             $this->redirect("auth/forgot");
         }
 
@@ -53,13 +62,25 @@ class AuthController extends Controller
         $user = $userModel->findByCorreo($correo);
 
         if (!$user) {
+            if ($isAjax) {
+                header('Content-Type: application/json; charset=utf-8');
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Usuario no encontrado.']);
+                exit;
+            }
             $_SESSION['flash_error'] = "Usuario no encontrado.";
             $this->redirect("auth/forgot");
         }
 
-        // Verificar si puede reenviar (90 segundos de cooldown)
+        // Verificar si puede reenviar (60 segundos de cooldown)
         if (!$userModel->canResendVerificationCode($user['id'])) {
-            $_SESSION['flash_error'] = "Debes esperar 90 segundos antes de reenviar el código.";
+            if ($isAjax) {
+                header('Content-Type: application/json; charset=utf-8');
+                http_response_code(429);
+                echo json_encode(['success' => false, 'message' => 'Debes esperar 60 segundos antes de reenviar el código.']);
+                exit;
+            }
+            $_SESSION['flash_error'] = "Debes esperar 60 segundos antes de reenviar el código.";
             $this->redirect("auth/verifyCode");
         }
 
@@ -72,6 +93,13 @@ class AuthController extends Controller
             $code,
             'recuperacion'
         );
+
+        if ($isAjax) {
+            header('Content-Type: application/json; charset=utf-8');
+            http_response_code(200);
+            echo json_encode(['success' => true, 'message' => 'Código reenviado exitosamente al correo.']);
+            exit;
+        }
 
         $_SESSION['flash_success'] = "Código reenviado correctamente.";
         $this->redirect("auth/verifyCode");
@@ -95,7 +123,7 @@ class AuthController extends Controller
             'isLoginPage' => true,
             'isRecoveryPage' => true,
             'pageStyles'  => ['login', 'recovery'],
-            'pageScripts' => ['recovery'],
+            'pageScripts' => [],
             'remainingCooldown' => $remainingCooldown
         ]);
     }
@@ -119,15 +147,15 @@ class AuthController extends Controller
 
     public function resetPassword()
     {
-        if (!isset($_SESSION['reset_user'])) {
-            $this->redirect("auth/login");
+        if (!isset($_SESSION['recovery_correo'])) {
+            $this->redirect('auth/forgot');
         }
 
-        $this->view("auth/reset", [
+        $this->view('auth/reset', [
             'isLoginPage' => true,
             'isRecoveryPage' => true,
             'pageStyles'  => ['login', 'recovery'],
-            'pageScripts' => ['recovery']
+            'pageScripts' => []
         ]);
     }
 
@@ -142,6 +170,16 @@ class AuthController extends Controller
             $this->redirect("auth/resetPassword");
         }
 
+        // Validar requisitos de contraseña
+        $hasLength  = strlen($pass) >= 8;
+        $hasUpper   = preg_match('/[A-Z]/', $pass);
+        $hasSpecial = preg_match('/[!@#$%^&*(),.?":{}|<>_\-]/', $pass);
+
+        if (!$hasLength || !$hasUpper || !$hasSpecial) {
+            $_SESSION['flash_error'] = "La contraseña no cumple con los requisitos mínimos (8+ caracteres, mayúscula y carácter especial).";
+            $this->redirect("auth/resetPassword");
+        }
+
         $userModel = new User();
         $userModel->setNewPassword($id, $pass);
         $userModel->clearRecoveryCode($id);
@@ -149,7 +187,7 @@ class AuthController extends Controller
         unset($_SESSION['reset_user']);
         unset($_SESSION['recovery_correo']);
 
-        $_SESSION['flash_success'] = "Contraseña actualizada.";
+        $_SESSION['flash_success'] = "Contraseña actualizada correctamente. ¡Ya puedes iniciar sesión!";
         $this->redirect("auth/login");
     }
 
@@ -183,6 +221,12 @@ class AuthController extends Controller
                     // Verificar si el usuario está activo
                     if ($user['estado'] == 0) {
                         $errores[] = "Tu cuenta ha sido desactivada. Contacta al administrador.";
+                    } else if ($user['email_verified'] == 0) {
+                        // El usuario debe verificar su email antes de iniciar sesión
+                        $_SESSION['register_correo'] = $user['correo'];
+                        $_SESSION['flash_error'] = "Debes verificar tu email antes de iniciar sesión.";
+                        $this->redirect('auth/verifyEmail');
+                        exit;
                     } else {
                         session_regenerate_id(true);
 
@@ -263,7 +307,7 @@ class AuthController extends Controller
 
                 $hash = password_hash($password, PASSWORD_DEFAULT);
 
-                // Crear usuario con email sin verificar
+                // Crear usuario con email sin verificar (email_verified = 0)
                 $userModel->create([
                     'nombre'         => $nombre_completo,
                     'correo'         => $correo,
@@ -271,6 +315,7 @@ class AuthController extends Controller
                     'password'       => $hash,
                     'estado'         => 1,
                     'rol'            => 'usuario',
+                    'email_verified' => 0,
                 ]);
 
                 // Obtener el ID del usuario creado
@@ -317,7 +362,7 @@ class AuthController extends Controller
         $this->view("auth/verifyEmail", [
             'isLoginPage' => true,
             'pageStyles'  => ['login', 'recovery'],
-            'pageScripts' => ['recovery'],
+            'pageScripts' => [],
             'remainingCooldown' => $remainingCooldown
         ]);
     }
@@ -345,36 +390,51 @@ class AuthController extends Controller
 
     public function resendVerificationEmail()
     {
-        $correo = $_SESSION['register_correo'] ?? null;
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
         
-        if (!$correo) {
-            $this->redirect("auth/register");
+        // Si es AJAX, responder solo en JSON
+        if ($isAjax) {
+            header('Content-Type: application/json; charset=utf-8');
+            
+            $correo = $_SESSION['register_correo'] ?? null;
+            
+            if (!$correo) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Correo no encontrado en sesión.']);
+                exit;
+            }
+
+            $userModel = new User();
+            $user = $userModel->findByCorreo($correo);
+
+            if (!$user) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Usuario no encontrado.']);
+                exit;
+            }
+
+            if (!$userModel->canResendVerificationCode($user['id'])) {
+                http_response_code(429);
+                echo json_encode(['success' => false, 'message' => 'Debes esperar 60 segundos antes de reenviar el código.']);
+                exit;
+            }
+
+            $verificationCode = rand(100000, 999999);
+            $userModel->saveVerificationCode($user['id'], $verificationCode);
+
+            MailHelper::sendCode(
+                $correo,
+                "Código de verificación de email - Sistema Inventario",
+                $verificationCode,
+                'verificacion'
+            );
+
+            http_response_code(200);
+            echo json_encode(['success' => true, 'message' => 'Código reenviado exitosamente al correo.']);
+            exit;
         }
 
-        $userModel = new User();
-        $user = $userModel->findByCorreo($correo);
-
-        if (!$user) {
-            $_SESSION['flash_error'] = "Usuario no encontrado.";
-            $this->redirect("auth/register");
-        }
-
-        if (!$userModel->canResendVerificationCode($user['id'])) {
-            $_SESSION['flash_error'] = "Espera 90 segundos antes de reenviar.";
-            $this->redirect("auth/verifyEmail");
-        }
-
-        $verificationCode = rand(100000, 999999);
-        $userModel->saveVerificationCode($user['id'], $verificationCode);
-
-        MailHelper::sendCode(
-            $correo,
-            "Código de verificación de email - Sistema Inventario",
-            $verificationCode,
-            'verificacion'
-        );
-
-        $_SESSION['flash_success'] = "Código reenviado al correo.";
+        // Si NO es AJAX (GET normal), redirigir
         $this->redirect("auth/verifyEmail");
     }
 

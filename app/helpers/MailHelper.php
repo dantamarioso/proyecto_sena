@@ -13,7 +13,7 @@ class MailHelper
             $mail->Host       = "smtp.gmail.com";
             $mail->SMTPAuth   = true;
             $mail->Username   = "dantamarioso@gmail.com";
-            $mail->Password   = "xhmr ymwd xjlt mdas";
+            $mail->Password   = "ykee grtu atwq wczj";
             $mail->SMTPSecure = "tls";
             $mail->Port       = 587;
 

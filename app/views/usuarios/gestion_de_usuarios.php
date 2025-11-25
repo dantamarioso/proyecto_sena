@@ -5,10 +5,6 @@ if (!isset($_SESSION['user'])) {
 }
 ?>
 
-<script>
-    const BASE_URL = "<?= BASE_URL ?>";
-</script>
-
 <style>
     tbody tr:only-child td {
         display: table-cell !important;

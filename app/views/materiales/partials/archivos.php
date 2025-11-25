@@ -6,6 +6,13 @@
 
 $materialId = $material['id'] ?? 0;
 $archivos = isset($archivos) ? $archivos : [];
+
+// Debug
+error_log('PARTIAL ARCHIVOS: materialId=' . $materialId . ', material existe=' . (isset($material) ? 'yes' : 'no'));
+if (isset($material)) {
+    error_log('PARTIAL ARCHIVOS: material keys=' . json_encode(array_keys($material)));
+    error_log('PARTIAL ARCHIVOS: material[id]=' . ($material['id'] ?? 'NULL'));
+}
 ?>
 
 <div class="card mt-4">
@@ -74,15 +81,34 @@ $archivos = isset($archivos) ? $archivos : [];
 </div>
 
 <script>
-// Definir BASE_URL en scope global
-if (typeof window.BASE_URL === 'undefined') {
-    window.BASE_URL = "<?= BASE_URL ?>";
+// Asegurar que window.BASE_URL está disponible (fallback si header no se cargó)
+if (typeof window.BASE_URL === 'undefined' || !window.BASE_URL) {
+    let protocol = window.location.protocol;
+    const host = window.location.host;
+    
+    // Para ngrok, forzar HTTPS
+    if (host.includes('ngrok') && protocol === 'http:') {
+        protocol = 'https:';
+    }
+    
+    window.BASE_URL = protocol + '//' + host + '/proyecto_sena/public';
+    console.warn('BASE_URL no estaba definido, se estableció fallback:', window.BASE_URL);
+} else {
+    console.log('BASE_URL ya definido:', window.BASE_URL);
 }
 
 function subirArchivo(materialId) {
+    // Validar materialId
+    if (!materialId || materialId <= 0) {
+        alert('Error: Material ID inválido (' + materialId + '). Por favor recarga la página.');
+        console.error('Material ID inválido:', materialId);
+        return;
+    }
+    
     const input = document.getElementById(`input-archivo-${materialId}`);
     if (!input) {
         alert('Error: No se encontró el campo de archivo');
+        console.error('Input no encontrado para material:', materialId);
         return;
     }
     
@@ -92,44 +118,113 @@ function subirArchivo(materialId) {
         return;
     }
 
-    const formData = new FormData();
-    formData.append('material_id', materialId);
-    formData.append('archivo', archivo);
+    // Validar tamaño en cliente (máximo 10MB)
+    if (archivo.size > 10 * 1024 * 1024) {
+        alert('El archivo supera el tamaño máximo de 10MB');
+        return;
+    }
 
     const progreso = document.getElementById(`progreso-carga-${materialId}`);
     if (progreso) {
         progreso.style.display = 'block';
     }
 
-    fetch(window.BASE_URL + '/?url=materiales/subirArchivo', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
+    // Leer archivo como base64 (evita problemas de multipart con ngrok)
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        const base64Data = e.target.result.split(',')[1]; // Eliminar "data:...;base64," prefix
+        
+        // Construir JSON payload
+        const payload = {
+            material_id: materialId,
+            archivo_nombre: archivo.name,
+            archivo_tipo: archivo.type,
+            archivo_tamaño: archivo.size,
+            archivo_data: base64Data
+        };
+
+        // USAR ENDPOINT ESPECIAL upload.php (bypassa router/rewrite rules)
+        const urlSubida = window.BASE_URL + '/upload.php';
+        
+        console.log('Iniciando carga base64 (upload.php):', {
+            url: urlSubida,
+            materialId: materialId,
+            archivo: archivo.name,
+            tamaño: archivo.size,
+            dataLength: base64Data.length
+        });
+
+        // Usar timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+        // Enviar como JSON
+        fetch(urlSubida, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload),
+            signal: controller.signal,
+            credentials: 'include'
+        })
+        .then(response => {
+            clearTimeout(timeoutId);
+            console.log('Respuesta del servidor:', response.status);
+            
+            if (!response.ok) {
+                return response.text().then(text => {
+                    console.error('Error HTTP:', response.status, text);
+                    throw new Error(`Error HTTP ${response.status}`);
+                });
+            }
+            return response.json().catch(e => {
+                console.error('Error al parsear JSON:', e);
+                throw new Error('Respuesta inválida del servidor');
+            });
+        })
+        .then(data => {
+            if (progreso) {
+                progreso.style.display = 'none';
+            }
+            
+            if (data.success) {
+                console.log('Éxito:', data.message);
+                alert(data.message || 'Archivo subido exitosamente');
+                recargarArchivos(materialId);
+                input.value = '';
+            } else {
+                console.warn('Error del servidor:', data.message);
+                alert('Error: ' + (data.message || 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            clearTimeout(timeoutId);
+            if (progreso) {
+                progreso.style.display = 'none';
+            }
+            
+            console.error('Error completo:', error);
+            
+            if (error.name === 'AbortError') {
+                alert('Tiempo de espera agotado. El servidor tardó demasiado en responder.');
+            } else {
+                alert('Error al subir el archivo:\n' + error.message);
+            }
+        });
+    };
+    
+    reader.onerror = function() {
         if (progreso) {
             progreso.style.display = 'none';
         }
-        if (data.success) {
-            alert(data.message || 'Archivo subido exitosamente');
-            recargarArchivos(materialId);
-            input.value = '';
-        } else {
-            alert('Error: ' + (data.message || 'Error desconocido'));
-        }
-    })
-    .catch(error => {
-        if (progreso) {
-            progreso.style.display = 'none';
-        }
-        console.error('Error:', error);
-        alert('Error al subir el archivo: ' + error.message);
-    });
+        alert('Error al leer el archivo');
+    };
+    
+    // Leer archivo como data URL (base64)
+    reader.readAsDataURL(archivo);
 }
 
 function eliminarArchivo(archivoId, materialId) {
@@ -137,12 +232,18 @@ function eliminarArchivo(archivoId, materialId) {
         return;
     }
 
-    fetch(`${window.BASE_URL}/?url=materiales/eliminarArchivo`, {
+    let urlEliminar = window.BASE_URL + '?url=materiales/eliminarArchivo';
+    if (urlEliminar.includes('ngrok')) {
+        urlEliminar = urlEliminar.replace('http://', 'https://');
+    }
+
+    fetch(urlEliminar, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: `id=${archivoId}`
+        body: `id=${archivoId}`,
+        credentials: 'include'
     })
     .then(response => response.json())
     .then(data => {
@@ -160,7 +261,17 @@ function eliminarArchivo(archivoId, materialId) {
 }
 
 function recargarArchivos(materialId) {
-    fetch(`${window.BASE_URL}/?url=materiales/obtenerArchivos&material_id=${materialId}`)
+    let urlObtener = window.BASE_URL + '?url=materiales/obtenerArchivos&material_id=' + materialId;
+    if (urlObtener.includes('ngrok')) {
+        urlObtener = urlObtener.replace('http://', 'https://');
+    }
+    
+    fetch(urlObtener, {
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
     .then(response => response.json())
     .then(data => {
         if (data.success && data.archivos.length > 0) {

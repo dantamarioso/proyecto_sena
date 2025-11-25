@@ -253,6 +253,7 @@ class MaterialesController extends Controller
                 'linea_id'      => intval($_POST['linea_id'] ?? 0),
                 'cantidad'      => intval($_POST['cantidad'] ?? 0),
                 'estado'        => intval($_POST['estado'] ?? 1),
+                'nodo_id'       => null, // Se establece a continuación
             ];
 
             // Determinar nodo_id según el rol
@@ -842,98 +843,163 @@ class MaterialesController extends Controller
 
     public function subirArchivo()
     {
+        ob_start(); // Capturar cualquier output inadvertido
         header('Content-Type: application/json; charset=utf-8');
+        error_log('=== INICIO subirArchivo ===');
+        error_log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
+        error_log('CONTENT_TYPE: ' . ($_SERVER['CONTENT_TYPE'] ?? 'NOT SET'));
         
-        // Validar sesión
-        if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id'])) {
-            echo json_encode(['success' => false, 'message' => 'No autorizado']);
-            http_response_code(401);
-            exit;
+        // Leer input
+        $input = file_get_contents('php://input');
+        error_log('Input length: ' . strlen($input) . ' bytes');
+        if (strlen($input) > 0) {
+            error_log('Input first 100 chars: ' . substr($input, 0, 100));
         }
         
-        // Validar rol admin
-        if (($_SESSION['user']['rol'] ?? 'usuario') !== 'admin') {
-            echo json_encode(['success' => false, 'message' => 'Acceso denegado']);
-            http_response_code(403);
-            exit;
-        }
-
-        $materialId = intval($_POST['material_id'] ?? 0);
-        if ($materialId <= 0) {
-            echo json_encode(['success' => false, 'message' => 'Material inválido']);
-            exit;
-        }
-
-        if (empty($_FILES['archivo'])) {
-            echo json_encode(['success' => false, 'message' => 'No se envió archivo']);
-            exit;
-        }
-
-        $materialModel = new Material();
-        $material = $materialModel->getById($materialId);
-        if (!$material) {
-            echo json_encode(['success' => false, 'message' => 'Material no encontrado']);
-            exit;
-        }
-
-        $archivo = $_FILES['archivo'];
-        $nombreOriginal = $archivo['name'];
-        $ext = strtolower(pathinfo($nombreOriginal, PATHINFO_EXTENSION));
-
-        // Validar extensión
-        $extensionesPermitidas = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv'];
-        if (!in_array($ext, $extensionesPermitidas)) {
-            echo json_encode(['success' => false, 'message' => 'Tipo de archivo no permitido']);
-            exit;
-        }
-
-        // Validar tamaño (máximo 10MB)
-        if ($archivo['size'] > 10 * 1024 * 1024) {
-            echo json_encode(['success' => false, 'message' => 'El archivo supera el tamaño máximo de 10MB']);
-            exit;
-        }
-
-        // Preparar ruta del archivo
-        $nombreArchivo = "uploads/materiales/" . date('YmdHis_') . $nombreOriginal;
-        $rutaSistema = __DIR__ . "/../../public/" . $nombreArchivo;
-        $uploadDir = __DIR__ . "/../../public/uploads/materiales/";
-
-        // Crear directorio si no existe
-        if (!is_dir($uploadDir)) {
-            if (!@mkdir($uploadDir, 0777, true)) {
-                echo json_encode(['success' => false, 'message' => 'Error al crear directorio de uploads']);
-                exit;
-            }
-        }
-
-        // Mover archivo
-        if (!move_uploaded_file($archivo['tmp_name'], $rutaSistema)) {
-            echo json_encode(['success' => false, 'message' => 'Error al subir el archivo']);
-            exit;
-        }
-
-        // Guardar en BD
         try {
+            // Validar sesión
+            if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id'])) {
+                error_log('Sesión no válida');
+                throw new Exception('No autorizado');
+            }
+            
+            // Validar rol - admin y dinamizador pueden subir
+            $rol = $_SESSION['user']['rol'] ?? 'usuario';
+            if (!in_array($rol, ['admin', 'dinamizador'])) {
+                error_log('Rol no permitido: ' . $rol);
+                throw new Exception('Solo administradores y dinamizadores pueden subir archivos');
+            }
+
+            // Recibir datos JSON (no multipart)
+            $data = json_decode($input, true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                error_log('JSON decode error: ' . json_last_error_msg());
+                error_log('Raw input: ' . $input);
+                throw new Exception('JSON inválido: ' . json_last_error_msg());
+            }
+            
+            error_log('JSON decodificado OK: ' . json_encode(array_keys($data ?? [])));
+            
+            if (!$data) {
+                error_log('Data es null o vacío');
+                throw new Exception('Datos inválidos');
+            }
+            
+            $materialId = intval($data['material_id'] ?? 0);
+            error_log('Material ID recibido: ' . $materialId);
+            
+            if ($materialId <= 0) {
+                error_log('Material ID inválido: ' . $materialId);
+                throw new Exception('Material inválido');
+            }
+
+            if (empty($data['archivo_data'])) {
+                error_log('No se envió archivo_data');
+                throw new Exception('No se envió archivo');
+            }
+
+            error_log('Validaciones iniciales OK');
+            ob_end_clean(); // Limpiar antes de outputs importantes
+            ob_start(); // Reiniciar para capturar de nuevo
+            
+            $materialModel = new Material();
+            error_log('Material model creado');
+            
+            $material = $materialModel->getById($materialId);
+            error_log('Material obtenido: ' . ($material ? 'OK' : 'NULL'));
+            
+            if (!$material) {
+                throw new Exception('Material no encontrado');
+            }
+
+            // Validar permisos - el usuario debe poder editar este material
+            try {
+                $permissions = new PermissionHelper();
+                if (!$permissions->canEditMaterial($materialId)) {
+                    error_log('Permisos insuficientes para editar material: ' . $materialId);
+                    throw new Exception('No tiene permisos para subir archivos a este material');
+                }
+                error_log('Permisos verificados: OK');
+            } catch (Exception $e) {
+                error_log('Error al verificar permisos: ' . $e->getMessage());
+                throw $e;
+            }
+
+            // Decodificar archivo de base64
+            $nombreOriginal = $data['archivo_nombre'] ?? 'archivo_sin_nombre';
+            $tipoArchivo = $data['archivo_tipo'] ?? 'application/octet-stream';
+            $tamanioArchivo = $data['archivo_tamaño'] ?? 0;
+            $archivoBase64 = $data['archivo_data'] ?? '';
+            
+            error_log('Archivo: ' . $nombreOriginal . ', tipo: ' . $tipoArchivo . ', tamaño: ' . $tamanioArchivo);
+            
+            // Validar extensión
+            $ext = strtolower(pathinfo($nombreOriginal, PATHINFO_EXTENSION));
+            $extensionesPermitidas = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv'];
+            if (!in_array($ext, $extensionesPermitidas)) {
+                throw new Exception('Tipo de archivo no permitido. Formatos: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV');
+            }
+
+            // Validar tamaño (máximo 10MB)
+            if ($tamanioArchivo > 10 * 1024 * 1024) {
+                throw new Exception('El archivo supera el tamaño máximo de 10MB');
+            }
+
+            // Decodificar base64
+            $archivoContenido = base64_decode($archivoBase64, true);
+            if ($archivoContenido === false) {
+                error_log('Error al decodificar base64');
+                throw new Exception('Error al decodificar archivo');
+            }
+
+            error_log('Archivo decodificado: ' . strlen($archivoContenido) . ' bytes');
+
+            // Preparar ruta del archivo
+            $nombreArchivo = "uploads/materiales/" . date('YmdHis_') . preg_replace('/[^a-zA-Z0-9._-]/', '_', $nombreOriginal);
+            $rutaSistema = __DIR__ . "/../../public/" . $nombreArchivo;
+            $uploadDir = __DIR__ . "/../../public/uploads/materiales/";
+            error_log('Ruta sistema: ' . $rutaSistema);
+
+            // Crear directorio si no existe
+            if (!is_dir($uploadDir)) {
+                if (!@mkdir($uploadDir, 0777, true)) {
+                    throw new Exception('Error al crear directorio de uploads');
+                }
+                error_log('Directorio creado');
+            }
+
+            // Guardar archivo
+            if (file_put_contents($rutaSistema, $archivoContenido) === false) {
+                throw new Exception('Error al guardar archivo en el sistema');
+            }
+            error_log('Archivo guardado OK');
+
+            // Guardar en BD
             $userModel = new User();
             $userId = $_SESSION['user']['id'];
             $usuario = $userModel->findById($userId);
             
             if (!$usuario) {
+                error_log('Usuario no encontrado, usando ID=1');
                 $userId = 1;
             }
             
+            error_log('Creando MaterialArchivo con material_id=' . $materialId . ', usuario_id=' . $userId);
             $archivoModel = new MaterialArchivo();
             $result = $archivoModel->create([
                 'material_id' => $materialId,
                 'nombre_original' => $nombreOriginal,
                 'nombre_archivo' => $nombreArchivo,
-                'tipo_archivo' => $archivo['type'],
-                'tamano' => $archivo['size'],
+                'tipo_archivo' => $tipoArchivo,
+                'tamano' => strlen($archivoContenido),
                 'usuario_id' => $userId
             ]);
+            
+            error_log('Resultado create: ' . ($result ? 'true' : 'false'));
 
             if ($result) {
-                // Registrar en auditoría
+                // Registrar en auditoría (no debe fallar la carga si esto falla)
                 try {
                     require_once __DIR__ . '/../models/Audit.php';
                     $audit = new Audit();
@@ -946,21 +1012,32 @@ class MaterialesController extends Controller
                             'material_id' => $materialId,
                             'nombre_original' => $nombreOriginal,
                             'nombre_archivo' => $nombreArchivo,
-                            'tamaño' => $archivo['size']
+                            'tamaño' => strlen($archivoContenido)
                         ],
                         $_SESSION['user']['id']
                     );
+                    error_log('Auditoría registrada OK');
                 } catch (Exception $e) {
-                    // Auditoría fallida, pero el archivo se guardó
+                    // Log silencioso - la auditoría no debe fallar la carga
+                    error_log('Error en auditoría al subir archivo: ' . $e->getMessage());
                 }
                 
+                ob_end_clean();
                 echo json_encode(['success' => true, 'message' => 'Archivo subido exitosamente']);
+                error_log('=== FIN subirArchivo SUCCESS ===');
             } else {
-                echo json_encode(['success' => false, 'message' => 'Error al guardar en base de datos']);
+                // Eliminar archivo si la BD falla
+                @unlink($rutaSistema);
+                ob_end_clean();
+                echo json_encode(['success' => false, 'message' => 'Error al guardar archivo en base de datos']);
+                error_log('=== FIN subirArchivo FAIL (BD) ===');
             }
             
         } catch (Exception $e) {
+            ob_end_clean();
+            error_log('EXCEPCIÓN en subirArchivo: ' . $e->getMessage() . ' | Archivo: ' . $e->getFile() . ':' . $e->getLine());
             echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+            error_log('=== FIN subirArchivo EXCEPTION ===');
         }
         
         exit;
@@ -970,7 +1047,15 @@ class MaterialesController extends Controller
     {
         header('Content-Type: application/json; charset=utf-8');
         
-        $this->requireAdmin();
+        $this->requireAuth();
+        
+        // Permitir solo admin y dinamizador
+        $rol = $_SESSION['user']['rol'] ?? 'usuario';
+        if (!in_array($rol, ['admin', 'dinamizador'])) {
+            echo json_encode(['success' => false, 'message' => 'No autorizado para eliminar archivos']);
+            http_response_code(403);
+            exit;
+        }
 
         $archivoId = intval($_POST['id'] ?? 0);
 
@@ -987,10 +1072,27 @@ class MaterialesController extends Controller
             exit;
         }
 
+        // Para dinamizador, verificar que sea del mismo material y nodo
+        if ($rol === 'dinamizador') {
+            try {
+                $permissions = new PermissionHelper();
+                $material = (new Material())->getById($archivo['material_id']);
+                if (!$material || !$permissions->canEditMaterial($material['id'])) {
+                    echo json_encode(['success' => false, 'message' => 'No tienes permiso para eliminar este archivo']);
+                    http_response_code(403);
+                    exit;
+                }
+            } catch (Exception $e) {
+                echo json_encode(['success' => false, 'message' => 'Error al verificar permisos']);
+                http_response_code(403);
+                exit;
+            }
+        }
+
         // Eliminar archivo del sistema
         $rutaArchivo = __DIR__ . "/../../public/" . $archivo['nombre_archivo'];
         if (file_exists($rutaArchivo)) {
-            unlink($rutaArchivo);
+            @unlink($rutaArchivo);
         }
 
         // Eliminar registro de BD
@@ -1098,32 +1200,39 @@ class MaterialesController extends Controller
             exit;
         }
         
-        // Verificar que el usuario tenga acceso al nodo
         try {
-            $permissions = new PermissionHelper();
-            if (!$permissions->canViewNode($nodo_id)) {
-                echo json_encode(['success' => false, 'message' => 'Acceso denegado']);
-                exit;
+            // Para admin, permitir ver todas las líneas sin importar el nodo
+            $rol = $_SESSION['user']['rol'] ?? 'usuario';
+            
+            if ($rol === 'admin') {
+                // Admin ve todas las líneas
+                $db = Database::getInstance();
+                $stmt = $db->prepare("
+                    SELECT DISTINCT l.id, l.nombre 
+                    FROM lineas l
+                    WHERE l.estado = 1 
+                    ORDER BY l.nombre ASC
+                ");
+                $stmt->execute();
+                $lineas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } else {
+                // Otros roles solo ven líneas de su nodo
+                $db = Database::getInstance();
+                $stmt = $db->prepare("
+                    SELECT DISTINCT l.id, l.nombre 
+                    FROM lineas l
+                    INNER JOIN linea_nodo ln ON l.id = ln.linea_id
+                    WHERE ln.nodo_id = :nodo_id AND ln.estado = 1 AND l.estado = 1 
+                    ORDER BY l.nombre ASC
+                ");
+                $stmt->execute([':nodo_id' => $nodo_id]);
+                $lineas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
+            
+            echo json_encode(['success' => true, 'lineas' => $lineas]);
         } catch (Exception $e) {
-            echo json_encode(['success' => false, 'message' => 'Error al verificar permisos']);
-            exit;
+            echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
         }
-        
-        // Obtener líneas del nodo (usando tabla linea_nodo para M:N)
-        $db = Database::getInstance();
-        $stmt = $db->prepare("
-            SELECT DISTINCT l.id, l.nombre 
-            FROM lineas l
-            INNER JOIN linea_nodo ln ON l.id = ln.linea_id
-            WHERE ln.nodo_id = :nodo_id AND ln.estado = 1 AND l.estado = 1 
-            ORDER BY l.nombre ASC
-        ");
-        $stmt->execute([':nodo_id' => $nodo_id]);
-        $lineas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        echo json_encode(['success' => true, 'lineas' => $lineas]);
         exit;
     }
 }
-

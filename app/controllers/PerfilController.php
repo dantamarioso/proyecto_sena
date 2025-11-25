@@ -430,8 +430,17 @@ class PerfilController extends Controller
 
         // GET: Reenviar código
         if (isset($_GET['reenviar'])) {
+            $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                      $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+
             if (!$userModel->canResendVerificationCode($userId)) {
-                $_SESSION['flash_error'] = "Debes esperar 90 segundos antes de reenviar el código.";
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=utf-8');
+                    http_response_code(429);
+                    echo json_encode(['success' => false, 'message' => 'Debes esperar 60 segundos antes de reenviar el código.']);
+                    exit;
+                }
+                $_SESSION['flash_error'] = "Debes esperar 60 segundos antes de reenviar el código.";
             } else {
                 $verificationCode = rand(100000, 999999);
                 $userModel->saveVerificationCode($userId, $verificationCode);
@@ -443,9 +452,19 @@ class PerfilController extends Controller
                     'verificacion'
                 );
 
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=utf-8');
+                    http_response_code(200);
+                    echo json_encode(['success' => true, 'message' => 'Código reenviado exitosamente al correo.']);
+                    exit;
+                }
+
                 $_SESSION['flash_success'] = "Código reenviado al correo.";
             }
-            $this->redirect('perfil/verificarCambioCorreo');
+            
+            if (!$isAjax) {
+                $this->redirect('perfil/verificarCambioCorreo');
+            }
             return;
         }
 
@@ -453,7 +472,7 @@ class PerfilController extends Controller
             'newEmail' => $newEmail,
             'remainingCooldown' => $remainingCooldown,
             'pageStyles'  => ['login', 'recovery'],
-            'pageScripts' => ['recovery']
+            'pageScripts' => []
         ]);
     }
 }

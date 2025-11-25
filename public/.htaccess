@@ -1,6 +1,20 @@
 RewriteEngine On
 
+# Forzar HTTPS en ngrok - muy importante para evitar mixed content
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteCond %{HTTP_HOST} ngrok
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Router: redirigir todo a index.php PERO PRESERVAR EL MÉTODO HTTP
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-
+RewriteCond %{REQUEST_METHOD} !^POST$ [OR]
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+
+# Headers de seguridad HTTPS
+<IfModule mod_headers.c>
+    # Content Security Policy para upgradear conexiones inseguras a seguras
+    Header set Content-Security-Policy "upgrade-insecure-requests"
+</IfModule>

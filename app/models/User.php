@@ -30,9 +30,13 @@ class User extends Model
             correo = :correo,
             nombre_usuario = :nombre_usuario,
             celular = :celular,
-            cargo = :cargo,
-            estado = :estado
+            cargo = :cargo
     ";
+
+        // Solo actualizar estado si está explícitamente establecido
+        if (isset($data['estado']) && $data['estado'] !== null) {
+            $sql .= ", estado = :estado";
+        }
 
         if (!empty($data['foto'])) {
             $sql .= ", foto = :foto";
@@ -64,9 +68,13 @@ class User extends Model
             ':nombre_usuario' => $data['nombre_usuario'] ?? null,
             ':celular'        => $data['celular'] ?? null,
             ':cargo'          => $data['cargo'] ?? null,
-            ':estado'         => $data['estado'] ?? null,
             ':id'             => $id
         ];
+
+        // Solo agregar estado si está explícitamente establecido
+        if (isset($data['estado']) && $data['estado'] !== null) {
+            $params[':estado'] = $data['estado'];
+        }
 
         if (!empty($data['foto'])) {
             $params[':foto'] = $data['foto'];
@@ -437,10 +445,10 @@ class User extends Model
             return true;
         }
 
-        // Permite reenvío si han pasado más de 90 segundos desde el último envío
+        // Permite reenvío si han pasado más de 60 segundos desde el último envío
         // verification_expire es cuando vence el código (10 minutos desde que se creó)
-        // Así que restamos 600 - 90 = 510 segundos (8.5 minutos) para permitir reenvío después de 90 segundos
-        $expireTime = strtotime($user['verification_expire']) - 510;
+        // Así que restamos 600 - 60 = 540 segundos (9 minutos) para permitir reenvío después de 60 segundos
+        $expireTime = strtotime($user['verification_expire']) - 540;
         return time() > $expireTime;
     }
 
@@ -456,7 +464,7 @@ class User extends Model
             return 0;
         }
 
-        $expireTime = strtotime($user['verification_expire']) - 510;
+        $expireTime = strtotime($user['verification_expire']) - 540;
         $remaining = $expireTime - time();
         
         return max(0, $remaining);
@@ -473,11 +481,14 @@ class User extends Model
             $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $_SESSION['user']['id']]);
         }
         
+        // Determinar si el email está verificado: por defecto 0 (no verificado), a menos que se especifique
+        $emailVerified = isset($data['email_verified']) ? $data['email_verified'] : 0;
+        
         $stmt = $this->db->prepare("
         INSERT INTO usuarios 
-            (nombre, correo, nombre_usuario, celular, cargo, foto, password, estado, rol, nodo_id, linea_id)
+            (nombre, correo, nombre_usuario, celular, cargo, foto, password, estado, rol, nodo_id, linea_id, email_verified)
         VALUES 
-            (:nombre, :correo, :nombre_usuario, :celular, :cargo, :foto, :password, :estado, :rol, :nodo_id, :linea_id)
+            (:nombre, :correo, :nombre_usuario, :celular, :cargo, :foto, :password, :estado, :rol, :nodo_id, :linea_id, :email_verified)
     ");
 
         $success = $stmt->execute([
@@ -492,6 +503,7 @@ class User extends Model
             ':rol'            => $data['rol']            ?? 'usuario',
             ':nodo_id'        => $data['nodo_id']        ?? null,
             ':linea_id'       => $data['linea_id']       ?? null,
+            ':email_verified' => $emailVerified,
         ]);
 
         if ($success) {

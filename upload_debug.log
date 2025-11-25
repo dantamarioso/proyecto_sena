@@ -1,8 +1,8 @@
-[2025-11-24 17:39:47] MaterialArchivo::create() - INICIANDO
-[2025-11-24 17:39:47] MaterialArchivo::create() - Usuario ID: 3
-[2025-11-24 17:39:47] MaterialArchivo::create() - SQL: INSERT material_id=23, usuario_id=3, archivo=Certificado_de_Afiliación.pdf
-[2025-11-24 17:39:47] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 9
-[2025-11-24 17:51:24] MaterialArchivo::create() - INICIANDO
-[2025-11-24 17:51:24] MaterialArchivo::create() - Usuario ID: 3
-[2025-11-24 17:51:24] MaterialArchivo::create() - SQL: INSERT material_id=21, usuario_id=3, archivo=Certificado_de_Afiliación.pdf
-[2025-11-24 17:51:24] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 10
+[2025-11-25 15:14:15] MaterialArchivo::create() - INICIANDO
+[2025-11-25 15:14:15] MaterialArchivo::create() - Usuario ID: 3
+[2025-11-25 15:14:15] MaterialArchivo::create() - SQL: INSERT material_id=30, usuario_id=3, archivo=Hoja_de_vida.pdf
+[2025-11-25 15:14:15] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 15
+[2025-11-25 16:19:33] MaterialArchivo::create() - INICIANDO
+[2025-11-25 16:19:33] MaterialArchivo::create() - Usuario ID: 5
+[2025-11-25 16:19:33] MaterialArchivo::create() - SQL: INSERT material_id=1, usuario_id=5, archivo=Hoja_de_vida.pdf
+[2025-11-25 16:19:33] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 1

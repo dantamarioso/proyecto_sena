@@ -63,12 +63,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const btnReenviar = document.getElementById("btnReenviar");
     const contadorText = document.getElementById("contadorText");
+    const storageKey = 'verifyEmail_cooldown_end';
 
-    let cooldown = <?= (int)($remainingCooldown ?? 90) ?>; // segundos
+    // Obtener cooldown guardado o el valor por defecto
+    let cooldownEnd = localStorage.getItem(storageKey);
+    let cooldown = 60; // Duración estándar del cooldown
+
+    if (cooldownEnd) {
+        const remainingSeconds = Math.ceil((parseInt(cooldownEnd) - Date.now()) / 1000);
+        if (remainingSeconds > 0) {
+            cooldown = remainingSeconds;
+        } else {
+            localStorage.removeItem(storageKey);
+        }
+    }
 
     function iniciarContador() {
         if (cooldown > 0) {
             btnReenviar.disabled = true;
+            // Guardar timestamp de cuando termina el cooldown
+            const endTime = Date.now() + (cooldown * 1000);
+            localStorage.setItem(storageKey, endTime.toString());
         }
 
         const timer = setInterval(() => {
@@ -81,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 clearInterval(timer);
                 btnReenviar.disabled = false;
                 contadorText.textContent = "";
+                localStorage.removeItem(storageKey);
             }
         }, 1000);
     }
@@ -88,8 +104,75 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnReenviar) {
         iniciarContador();
 
-        btnReenviar.addEventListener("click", () => {
-            window.location.href = "<?= BASE_URL ?>/?url=auth/resendVerificationEmail";
+        btnReenviar.addEventListener("click", async (e) => {
+            e.preventDefault();
+            
+            btnReenviar.disabled = true;
+            const originalText = btnReenviar.innerHTML;
+            btnReenviar.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>Enviando...';
+
+            try {
+                const response = await fetch("<?= BASE_URL ?>/?url=auth/resendVerificationEmail", {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
+
+                const contentType = response.headers.get('content-type');
+                
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Respuesta no es JSON válido: ' + contentType);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Mostrar mensaje de éxito
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                    alertDiv.role = 'alert';
+                    alertDiv.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + data.message;
+                    
+                    // Insertar antes del contenedor del formulario
+                    const form = document.querySelector('form');
+                    form.parentElement.insertBefore(alertDiv, form);
+                    
+                    // Remover después de 4 segundos
+                    setTimeout(() => alertDiv.remove(), 4000);
+                    
+                    // Reiniciar contador a 60 segundos
+                    cooldown = 60;
+                    iniciarContador();
+                } else {
+                    // Mostrar error
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                    alertDiv.role = 'alert';
+                    alertDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + (data.message || 'Error desconocido');
+                    
+                    const form = document.querySelector('form');
+                    form.parentElement.insertBefore(alertDiv, form);
+                    setTimeout(() => alertDiv.remove(), 4000);
+                    
+                    btnReenviar.disabled = false;
+                    btnReenviar.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error('Error en AJAX:', error);
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                alertDiv.role = 'alert';
+                alertDiv.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>Error al reenviar el código: ' + error.message;
+                
+                const form = document.querySelector('form');
+                form.parentElement.insertBefore(alertDiv, form);
+                setTimeout(() => alertDiv.remove(), 5000);
+                
+                btnReenviar.disabled = false;
+                btnReenviar.innerHTML = originalText;
+            }
         });
     }
 

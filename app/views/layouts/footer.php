@@ -10,24 +10,26 @@
     <!-- JS de Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <?php $v = time(); // Cache buster para desarrollo ?>
+
     <!-- Utilidades JS -->
-    <script src="<?= BASE_URL ?>/js/utilidades.js"></script>
+    <script src="/proyecto_sena/public/js/utilidades.js?v=<?= $v ?>"></script>
 
     <!-- Toggle password -->
-    <script src="<?= BASE_URL ?>/js/password_toggle.js"></script>
+    <script src="/proyecto_sena/public/js/password_toggle.js?v=<?= $v ?>"></script>
 
     <!-- JS global -->
-    <script src="<?= BASE_URL ?>/js/app.js"></script>
+    <script src="/proyecto_sena/public/js/app.js?v=<?= $v ?>"></script>
 
     <!-- Scripts por página -->
     <?php if (!empty($pageScripts) && is_array($pageScripts)): ?>
         <?php foreach ($pageScripts as $js): ?>
-            <script src="<?= BASE_URL ?>/js/<?= htmlspecialchars($js) ?>.js"></script>
+            <script src="/proyecto_sena/public/js/<?= htmlspecialchars($js) ?>.js?v=<?= $v ?>"></script>
         <?php endforeach; ?>
     <?php endif; ?>
 
     <!-- Sidebar -->
-    <script src="<?= BASE_URL ?>/js/sidebar.js"></script>
+    <script src="/proyecto_sena/public/js/sidebar.js?v=<?= $v ?>"></script>
 
 </body>
 </html>

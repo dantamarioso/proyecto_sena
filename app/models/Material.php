@@ -97,8 +97,8 @@ class Material extends Model
         
         $stmt = $this->db->prepare("
             INSERT INTO materiales 
-            (codigo, nombre, descripcion, linea_id, cantidad, estado) 
-            VALUES (:codigo, :nombre, :descripcion, :linea_id, :cantidad, :estado)
+            (codigo, nombre, descripcion, linea_id, cantidad, estado, nodo_id) 
+            VALUES (:codigo, :nombre, :descripcion, :linea_id, :cantidad, :estado, :nodo_id)
         ");
 
         if ($stmt->execute([
@@ -108,6 +108,7 @@ class Material extends Model
             ':linea_id'       => $data['linea_id'],
             ':cantidad'       => intval($data['cantidad'] ?? 0),
             ':estado'         => $data['estado'] ?? 1,
+            ':nodo_id'        => intval($data['nodo_id'] ?? 0),
         ])) {
             return $this->db->lastInsertId();
         }
@@ -335,7 +336,6 @@ class Material extends Model
         $sql = "
             SELECT 
                 a.id,
-                a.tabla,
                 a.accion,
                 a.detalles,
                 a.fecha_cambio,
@@ -347,15 +347,15 @@ class Material extends Model
                 CAST(JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.id')) AS UNSIGNED) as material_id,
                 CAST(JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.nodo_id')) AS UNSIGNED) as nodo_id,
                 CAST(JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.linea_id')) AS UNSIGNED) as linea_id,
-                JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.nombre')) as linea_nombre
-            FROM auditoria a
-            LEFT JOIN usuarios u ON a.usuario_id = u.id
-            WHERE a.tabla = 'materiales' AND a.accion = 'DELETE'
+                JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.linea_nombre')) as linea_nombre
+            FROM auditoria_materiales a
+            LEFT JOIN usuarios u ON a.admin_id = u.id
+            WHERE a.accion = 'DELETE'
         ";
         $params = [];
 
         if (!empty($filtros['material_id'])) {
-            $sql .= " AND CAST(JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.id')) AS UNSIGNED) = :material_id";
+            $sql .= " AND a.material_id = :material_id";
             $params[':material_id'] = (int)$filtros['material_id'];
         }
 

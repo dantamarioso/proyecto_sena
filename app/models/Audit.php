@@ -8,11 +8,7 @@ class Audit extends Model
      */
     public function registrarCambio($usuario_id, $tabla, $registro_id, $accion, $detalles = [], $admin_id = null)
     {
-        // Mapear tabla a tipo de auditoría
-        $tabla_auditoria = 'auditoria'; // default
-        $campo_id = 'usuario_id';
-        $valor_id = $usuario_id;
-
+        // Determinar tabla de auditoría según tipo
         if ($tabla === 'usuarios') {
             $tabla_auditoria = 'auditoria_usuarios';
             $campo_id = 'usuario_id';
@@ -21,6 +17,8 @@ class Audit extends Model
             $tabla_auditoria = 'auditoria_materiales';
             $campo_id = 'material_id';
             $valor_id = $registro_id;
+        } else {
+            return false; // Tabla no soportada
         }
 
         // Validar que el ID existe en la tabla correspondiente
@@ -43,19 +41,37 @@ class Audit extends Model
             }
         }
 
+        // Obtener IP del usuario
+        $ipAddress = $this->getClientIP();
+
         // Insertar en la tabla correcta
-        $sql = "INSERT INTO $tabla_auditoria ($campo_id, accion, detalles, admin_id) 
-                VALUES (:id_valor, :accion, :detalles, :admin_id)";
+        $sql = "INSERT INTO $tabla_auditoria ($campo_id, accion, detalles, admin_id, ip_address) 
+                VALUES (:id_valor, :accion, :detalles, :admin_id, :ip_address)";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             ':id_valor' => $id_valido,
             ':accion' => $accion,
             ':detalles' => json_encode($detalles),
-            ':admin_id' => $adminValido
+            ':admin_id' => $adminValido,
+            ':ip_address' => $ipAddress
         ]);
         
         return $this->db->lastInsertId();
+    }
+
+    /**
+     * Obtener IP del cliente
+     */
+    private function getClientIP()
+    {
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            return $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            return explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+        } else {
+            return $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
+        }
     }
 
     /**
@@ -69,11 +85,12 @@ class Audit extends Model
                     a.detalles,
                     a.fecha_cambio,
                     u.nombre as usuario_modificado,
-                    admin.nombre as admin_nombre
-                FROM auditoria a
+                    admin.nombre as admin_nombre,
+                    admin.foto as admin_foto
+                FROM auditoria_usuarios a
                 LEFT JOIN usuarios u ON a.usuario_id = u.id
                 LEFT JOIN usuarios admin ON a.admin_id = admin.id
-                WHERE a.usuario_id = :usuario_id AND a.tabla = 'usuarios'
+                WHERE a.usuario_id = :usuario_id
                 ORDER BY a.fecha_cambio DESC
                 LIMIT :limit OFFSET :offset";
         
@@ -92,10 +109,6 @@ class Audit extends Model
     public function obtenerHistorialCompleto($limit = 100, $offset = 0, $filtro = [])
     {
         try {
-            // Primero intentar con auditoria_usuarios, si no existe, usar auditoria
-            $tablesExist = $this->db->query("SHOW TABLES LIKE 'auditoria_usuarios'")->rowCount() > 0;
-            $tabla = $tablesExist ? 'auditoria_usuarios' : 'auditoria';
-            
             $sql = "SELECT 
                         a.id,
                         'usuarios' as tabla,
@@ -104,62 +117,62 @@ class Audit extends Model
                         a.fecha_cambio,
                         u.nombre as usuario_modificado,
                         u.id as usuario_id,
-                        admin.nombre as admin_nombre
-                    FROM $tabla a
+                        admin.nombre as admin_nombre,
+                        admin.foto as admin_foto
+                    FROM auditoria_usuarios a
                     LEFT JOIN usuarios u ON a.usuario_id = u.id
                     LEFT JOIN usuarios admin ON a.admin_id = admin.id
                     WHERE 1=1";
         
-        $params = [];
+            $params = [];
         
-        if (!empty($filtro['usuario_id'])) {
-            $sql .= " AND a.usuario_id = :usuario_id";
-            $params[':usuario_id'] = $filtro['usuario_id'];
-        }
+            if (!empty($filtro['usuario_id'])) {
+                $sql .= " AND a.usuario_id = :usuario_id";
+                $params[':usuario_id'] = $filtro['usuario_id'];
+            }
         
-        if (!empty($filtro['accion'])) {
-            $sql .= " AND a.accion = :accion";
-            $params[':accion'] = $filtro['accion'];
-        }
+            if (!empty($filtro['accion'])) {
+                $sql .= " AND a.accion = :accion";
+                $params[':accion'] = $filtro['accion'];
+            }
         
-        if (!empty($filtro['fecha_inicio'])) {
-            $sql .= " AND DATE(a.fecha_cambio) >= :fecha_inicio";
-            $params[':fecha_inicio'] = $filtro['fecha_inicio'];
-        }
+            if (!empty($filtro['fecha_inicio'])) {
+                $sql .= " AND DATE(a.fecha_cambio) >= :fecha_inicio";
+                $params[':fecha_inicio'] = $filtro['fecha_inicio'];
+            }
         
-        if (!empty($filtro['fecha_fin'])) {
-            $sql .= " AND DATE(a.fecha_cambio) <= :fecha_fin";
-            $params[':fecha_fin'] = $filtro['fecha_fin'];
-        }
+            if (!empty($filtro['fecha_fin'])) {
+                $sql .= " AND DATE(a.fecha_cambio) <= :fecha_fin";
+                $params[':fecha_fin'] = $filtro['fecha_fin'];
+            }
         
-        $sql .= " ORDER BY a.fecha_cambio DESC LIMIT :limit OFFSET :offset";
+            $sql .= " ORDER BY a.fecha_cambio DESC LIMIT :limit OFFSET :offset";
         
-        $stmt = $this->db->prepare($sql);
+            $stmt = $this->db->prepare($sql);
         
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
-        }
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
         
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            $stmt->execute();
         
-        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Procesar resultados para mostrar nombre de usuario eliminado
-        foreach ($resultados as &$cambio) {
-            // Si el usuario fue eliminado, extraer nombre de los detalles
-            if (empty($cambio['usuario_modificado'])) {
-                $detalles = json_decode($cambio['detalles'], true) ?? [];
-                if (!empty($detalles['nombre']['anterior'])) {
-                    $cambio['usuario_modificado'] = $detalles['nombre']['anterior'] . ' (Eliminado)';
+            // Procesar resultados para mostrar nombre de usuario eliminado
+            foreach ($resultados as &$cambio) {
+                // Si el usuario fue eliminado, extraer nombre de los detalles
+                if (empty($cambio['usuario_modificado'])) {
+                    $detalles = json_decode($cambio['detalles'], true) ?? [];
+                    if (!empty($detalles['nombre']['anterior'])) {
+                        $cambio['usuario_modificado'] = $detalles['nombre']['anterior'] . ' (Eliminado)';
+                    }
                 }
             }
-        }
         
             return $resultados;
         } catch (Exception $e) {
-            // Si hay error, retornar array vacío
             error_log("Error en obtenerHistorialCompleto: " . $e->getMessage());
             return [];
         }
@@ -171,11 +184,7 @@ class Audit extends Model
     public function contarHistorial($filtro = [])
     {
         try {
-            // Primero intentar con auditoria_usuarios, si no existe, usar auditoria
-            $tablesExist = $this->db->query("SHOW TABLES LIKE 'auditoria_usuarios'")->rowCount() > 0;
-            $tabla = $tablesExist ? 'auditoria_usuarios' : 'auditoria';
-            
-            $sql = "SELECT COUNT(*) as total FROM $tabla WHERE 1=1";
+            $sql = "SELECT COUNT(*) as total FROM auditoria_usuarios WHERE 1=1";
             
             $params = [];
             
@@ -211,16 +220,15 @@ class Audit extends Model
     }
 
     /**
-     * Obtener usuarios que fueron eliminados pero aparecen en auditoría
+     * Obtener usuarios que fueron eliminados
      */
     public function obtenerUsuariosEliminados()
     {
         $sql = "SELECT DISTINCT 
                     a.usuario_id as id,
                     a.detalles
-                FROM auditoria a
-                WHERE a.tabla = 'usuarios'
-                AND a.accion = 'DELETE'
+                FROM auditoria_usuarios a
+                WHERE a.accion = 'DELETE'
                 AND a.usuario_id NOT IN (SELECT id FROM usuarios)";
         
         $stmt = $this->db->prepare($sql);
@@ -244,44 +252,127 @@ class Audit extends Model
     }
 
     /**
-     * Obtener todas las acciones disponibles en auditoría
+     * Obtener historial de cambios de MATERIALES
      */
-    public function obtenerAccionesDisponibles()
+    public function obtenerHistorialMateriales($limit = 100, $offset = 0, $filtro = [])
     {
         try {
-            // Verificar qué tabla existe
-            $tablesExist = $this->db->query("SHOW TABLES LIKE 'auditoria_usuarios'")->rowCount() > 0;
-            $tabla = $tablesExist ? 'auditoria_usuarios' : 'auditoria';
-            
-            $sql = "SELECT DISTINCT accion FROM $tabla WHERE accion IS NOT NULL ORDER BY accion";
+            $sql = "SELECT 
+                        a.id,
+                        'materiales' as tabla,
+                        a.material_id,
+                        a.accion,
+                        a.detalles,
+                        a.fecha_cambio,
+                        m.nombre as material_nombre,
+                        m.codigo as material_codigo,
+                        admin.nombre as admin_nombre,
+                        admin.foto as admin_foto
+                    FROM auditoria_materiales a
+                    LEFT JOIN materiales m ON a.material_id = m.id
+                    LEFT JOIN usuarios admin ON a.admin_id = admin.id
+                    WHERE 1=1";
+        
+            $params = [];
+        
+            if (!empty($filtro['material_id'])) {
+                $sql .= " AND a.material_id = :material_id";
+                $params[':material_id'] = $filtro['material_id'];
+            }
+        
+            if (!empty($filtro['accion'])) {
+                $sql .= " AND a.accion = :accion";
+                $params[':accion'] = $filtro['accion'];
+            }
+        
+            if (!empty($filtro['fecha_inicio'])) {
+                $sql .= " AND DATE(a.fecha_cambio) >= :fecha_inicio";
+                $params[':fecha_inicio'] = $filtro['fecha_inicio'];
+            }
+        
+            if (!empty($filtro['fecha_fin'])) {
+                $sql .= " AND DATE(a.fecha_cambio) <= :fecha_fin";
+                $params[':fecha_fin'] = $filtro['fecha_fin'];
+            }
+        
+            $sql .= " ORDER BY a.fecha_cambio DESC LIMIT :limit OFFSET :offset";
+        
             $stmt = $this->db->prepare($sql);
+        
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+        
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
-            
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $acciones = array_map(function($row) { return $row['accion']; }, $results);
-            
-            return !empty($acciones) ? $acciones : $this->getAccionesDefault();
+        
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
-            // Si hay error, retornar acciones por defecto
-            return $this->getAccionesDefault();
+            error_log("Error en obtenerHistorialMateriales: " . $e->getMessage());
+            return [];
         }
     }
 
     /**
-     * Obtener acciones estándar como fallback
+     * Contar registros de auditoría de MATERIALES
      */
-    private function getAccionesDefault()
+    public function contarHistorialMateriales($filtro = [])
     {
-        return [
-            'actualizar',
-            'actualizar_estado',
-            'actualizar_rol',
-            'asignar_nodo',
-            'crear',
-            'desactivar',
-            'desactivar/activar',
-            'eliminar',
-            'ver'
-        ];
+        try {
+            $sql = "SELECT COUNT(*) as total FROM auditoria_materiales WHERE 1=1";
+            
+            $params = [];
+            
+            if (!empty($filtro['material_id'])) {
+                $sql .= " AND material_id = :material_id";
+                $params[':material_id'] = $filtro['material_id'];
+            }
+            
+            if (!empty($filtro['accion'])) {
+                $sql .= " AND accion = :accion";
+                $params[':accion'] = $filtro['accion'];
+            }
+            
+            if (!empty($filtro['fecha_inicio'])) {
+                $sql .= " AND DATE(fecha_cambio) >= :fecha_inicio";
+                $params[':fecha_inicio'] = $filtro['fecha_inicio'];
+            }
+            
+            if (!empty($filtro['fecha_fin'])) {
+                $sql .= " AND DATE(fecha_cambio) <= :fecha_fin";
+                $params[':fecha_fin'] = $filtro['fecha_fin'];
+            }
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute($params);
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['total'] ?? 0;
+        } catch (Exception $e) {
+            error_log("Error en contarHistorialMateriales: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Obtener todas las acciones disponibles en la auditoría
+     */
+    public function obtenerAccionesDisponibles()
+    {
+        $sql = "SELECT DISTINCT accion FROM auditoria_usuarios 
+                UNION 
+                SELECT DISTINCT accion FROM auditoria_materiales 
+                ORDER BY accion";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $acciones = [];
+        foreach ($results as $row) {
+            $acciones[] = $row['accion'];
+        }
+        return $acciones;
     }
 }

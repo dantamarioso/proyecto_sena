@@ -5,10 +5,6 @@ if (!isset($_SESSION['user'])) {
 }
 ?>
 
-<script>
-    const BASE_URL = "<?= BASE_URL ?>";
-</script>
-
 <style>
     tbody tr:only-child td {
         display: table-cell !important;
@@ -314,7 +310,7 @@ if (!isset($_SESSION['user'])) {
         detallesDiv.innerHTML = '<div class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Cargando...</span></div> Cargando detalles...</div>';
 
         try {
-            const url = `${BASE_URL}/?url=materiales/obtenerDetallesMovimiento&id=${movimientoId}`;
+            const url = `${window.BASE_URL}/?url=materiales/obtenerDetallesMovimiento&id=${movimientoId}`;
             console.log('URL de fetch:', url);
             
             const response = await fetch(url);
@@ -490,7 +486,7 @@ if (!isset($_SESSION['user'])) {
             if (fechaInicio) params.append('fecha_inicio', fechaInicio);
             if (fechaFin) params.append('fecha_fin', fechaFin);
 
-            const urlFinal = `${BASE_URL}/?url=materiales/historialInventario${params.toString() ? '&' + params.toString() : ''}`;
+            const urlFinal = `${window.BASE_URL}/?url=materiales/historialInventario${params.toString() ? '&' + params.toString() : ''}`;
             window.location.href = urlFinal;
         }
 
@@ -513,7 +509,7 @@ if (!isset($_SESSION['user'])) {
                 filtroFechaInicio.value = '';
                 filtroFechaFin.value = '';
                 
-                const urlDestino = `${BASE_URL}/?url=materiales/historialInventario`;
+                const urlDestino = `${window.BASE_URL}/?url=materiales/historialInventario`;
                 window.location.href = urlDestino;
             });
         }
@@ -533,7 +529,7 @@ if (!isset($_SESSION['user'])) {
         const badgeElement = document.getElementById(badgeId);
         if (!badgeElement) return;
 
-        fetch(`${BASE_URL}/?url=materiales/contarDocumentos&material_id=${materialId}`)
+        fetch(`${window.BASE_URL}/?url=materiales/contarDocumentos&material_id=${materialId}`)
             .then(response => response.json())
             .then(data => {
                 const countSpan = badgeElement.querySelector('.count-value');
@@ -565,7 +561,7 @@ if (!isset($_SESSION['user'])) {
             const badge = e.target.closest('.doc-count-badge');
             const materialId = badge.dataset.materialId;
             if (materialId && materialId > 0) {
-                window.location.href = `${BASE_URL}/?url=materiales/detalles&id=${materialId}`;
+                window.location.href = `${window.BASE_URL}/?url=materiales/detalles&id=${materialId}`;
             }
         }
     });

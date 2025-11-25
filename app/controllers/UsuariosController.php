@@ -182,7 +182,8 @@ class UsuariosController extends Controller
                     'estado'         => $estado,
                     'rol'            => $rol,
                     'nodo_id'        => $nodo_id,
-                    'linea_id'       => $linea_id
+                    'linea_id'       => $linea_id,
+                    'email_verified' => 1
                 ]);
 
                 // Registrar en auditoría (no llamar asignarNodo aquí)

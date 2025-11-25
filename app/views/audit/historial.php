@@ -5,10 +5,6 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
 }
 ?>
 
-<script>
-    const BASE_URL = "<?= BASE_URL ?>";
-</script>
-
 <div class="row justify-content-center">
     <div class="col-12">
 
