@@ -306,37 +306,6 @@
         password2Input.addEventListener('input', validarCoincidencia);
         password2Input.addEventListener('keyup', validarCoincidencia);
 
-        // Toggle password visibility
-        document.getElementById('togglePasswordCrear').addEventListener('click', function() {
-            const input = document.getElementById('password_crear');
-            const icon = this.querySelector('i');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('bi-eye-fill');
-                icon.classList.add('bi-eye-slash-fill');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('bi-eye-slash-fill');
-                icon.classList.add('bi-eye-fill');
-            }
-        });
-
-        document.getElementById('togglePassword2Crear').addEventListener('click', function() {
-            const input = document.getElementById('password2_crear');
-            const icon = this.querySelector('i');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('bi-eye-fill');
-                icon.classList.add('bi-eye-slash-fill');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('bi-eye-slash-fill');
-                icon.classList.add('bi-eye-fill');
-            }
-        });
-
         // Preview de foto
         document.getElementById('foto_crear').addEventListener('change', function(e) {
             const file = e.target.files[0];

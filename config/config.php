@@ -1,8 +1,16 @@
 <?php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'inventario_db');
-define('DB_USER', 'root');
-define('DB_PASS', ''); // tu contraseña
+// ========== CARGAR VARIABLES DE ENTORNO ==========
+require_once __DIR__ . '/../app/helpers/EnvHelper.php';
+EnvHelper::load();
+
+// ========== DEBUG MODE ==========
+define('DEBUG', EnvHelper::get('DEBUG', 'false') === 'true');
+
+// ========== DATABASE ==========
+define('DB_HOST', EnvHelper::get('DB_HOST', 'localhost'));
+define('DB_NAME', EnvHelper::get('DB_NAME', 'inventario_db'));
+define('DB_USER', EnvHelper::get('DB_USER', 'root'));
+define('DB_PASS', EnvHelper::get('DB_PASS', ''));
 
 // Ruta base - detecta automáticamente el servidor y protocolo
 if (empty($_SERVER['HTTP_HOST'])) {

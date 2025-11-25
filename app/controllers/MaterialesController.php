@@ -833,7 +833,7 @@ class MaterialesController extends Controller
             );
         } catch (Exception $e) {
             // Log silencioso si falla auditoría
-            error_log("Error al registrar auditoría: " . $e->getMessage());
+            DebugHelper::error("Error al registrar auditoria: " . $e->getMessage());
         }
     }
 
@@ -845,28 +845,28 @@ class MaterialesController extends Controller
     {
         ob_start(); // Capturar cualquier output inadvertido
         header('Content-Type: application/json; charset=utf-8');
-        error_log('=== INICIO subirArchivo ===');
-        error_log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
-        error_log('CONTENT_TYPE: ' . ($_SERVER['CONTENT_TYPE'] ?? 'NOT SET'));
+        DebugHelper::start('subirArchivo');
+        DebugHelper::log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
+        DebugHelper::log('CONTENT_TYPE: ' . ($_SERVER['CONTENT_TYPE'] ?? 'NOT SET'));
         
         // Leer input
         $input = file_get_contents('php://input');
-        error_log('Input length: ' . strlen($input) . ' bytes');
+        DebugHelper::log('Input length: ' . strlen($input) . ' bytes');
         if (strlen($input) > 0) {
-            error_log('Input first 100 chars: ' . substr($input, 0, 100));
+            DebugHelper::log('Input first 100 chars: ' . substr($input, 0, 100));
         }
         
         try {
             // Validar sesión
             if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id'])) {
-                error_log('Sesión no válida');
+                DebugHelper::warning('Sesión no válida');
                 throw new Exception('No autorizado');
             }
             
             // Validar rol - admin y dinamizador pueden subir
             $rol = $_SESSION['user']['rol'] ?? 'usuario';
             if (!in_array($rol, ['admin', 'dinamizador'])) {
-                error_log('Rol no permitido: ' . $rol);
+                DebugHelper::warning('Rol no permitido: ' . $rol);
                 throw new Exception('Solo administradores y dinamizadores pueden subir archivos');
             }
 
@@ -874,40 +874,40 @@ class MaterialesController extends Controller
             $data = json_decode($input, true);
             
             if (json_last_error() !== JSON_ERROR_NONE) {
-                error_log('JSON decode error: ' . json_last_error_msg());
-                error_log('Raw input: ' . $input);
+                DebugHelper::error('JSON decode error: ' . json_last_error_msg());
+                DebugHelper::error('Raw input: ' . $input);
                 throw new Exception('JSON inválido: ' . json_last_error_msg());
             }
             
-            error_log('JSON decodificado OK: ' . json_encode(array_keys($data ?? [])));
+            DebugHelper::log('JSON decodificado OK: ' . json_encode(array_keys($data ?? [])));
             
             if (!$data) {
-                error_log('Data es null o vacío');
+                DebugHelper::warning('Data es null o vacío');
                 throw new Exception('Datos inválidos');
             }
             
             $materialId = intval($data['material_id'] ?? 0);
-            error_log('Material ID recibido: ' . $materialId);
+            DebugHelper::log('Material ID recibido: ' . $materialId);
             
             if ($materialId <= 0) {
-                error_log('Material ID inválido: ' . $materialId);
+                DebugHelper::warning('Material ID inválido: ' . $materialId);
                 throw new Exception('Material inválido');
             }
 
             if (empty($data['archivo_data'])) {
-                error_log('No se envió archivo_data');
+                DebugHelper::warning('No se envió archivo_data');
                 throw new Exception('No se envió archivo');
             }
 
-            error_log('Validaciones iniciales OK');
+            DebugHelper::log('Validaciones iniciales OK');
             ob_end_clean(); // Limpiar antes de outputs importantes
             ob_start(); // Reiniciar para capturar de nuevo
             
             $materialModel = new Material();
-            error_log('Material model creado');
+            DebugHelper::log('Material model creado');
             
             $material = $materialModel->getById($materialId);
-            error_log('Material obtenido: ' . ($material ? 'OK' : 'NULL'));
+            DebugHelper::log('Material obtenido: ' . ($material ? 'OK' : 'NULL'));
             
             if (!$material) {
                 throw new Exception('Material no encontrado');
@@ -917,12 +917,12 @@ class MaterialesController extends Controller
             try {
                 $permissions = new PermissionHelper();
                 if (!$permissions->canEditMaterial($materialId)) {
-                    error_log('Permisos insuficientes para editar material: ' . $materialId);
+                    DebugHelper::warning('Permisos insuficientes para editar material: ' . $materialId);
                     throw new Exception('No tiene permisos para subir archivos a este material');
                 }
-                error_log('Permisos verificados: OK');
+                DebugHelper::log('Permisos verificados: OK');
             } catch (Exception $e) {
-                error_log('Error al verificar permisos: ' . $e->getMessage());
+                DebugHelper::error('Error al verificar permisos: ' . $e->getMessage());
                 throw $e;
             }
 
@@ -932,7 +932,7 @@ class MaterialesController extends Controller
             $tamanioArchivo = $data['archivo_tamaño'] ?? 0;
             $archivoBase64 = $data['archivo_data'] ?? '';
             
-            error_log('Archivo: ' . $nombreOriginal . ', tipo: ' . $tipoArchivo . ', tamaño: ' . $tamanioArchivo);
+            DebugHelper::log('Archivo: ' . $nombreOriginal . ', tipo: ' . $tipoArchivo . ', tamaño: ' . $tamanioArchivo);
             
             // Validar extensión
             $ext = strtolower(pathinfo($nombreOriginal, PATHINFO_EXTENSION));
@@ -949,31 +949,31 @@ class MaterialesController extends Controller
             // Decodificar base64
             $archivoContenido = base64_decode($archivoBase64, true);
             if ($archivoContenido === false) {
-                error_log('Error al decodificar base64');
+                DebugHelper::warning('Error al decodificar base64');
                 throw new Exception('Error al decodificar archivo');
             }
 
-            error_log('Archivo decodificado: ' . strlen($archivoContenido) . ' bytes');
+            DebugHelper::log('Archivo decodificado: ' . strlen($archivoContenido) . ' bytes');
 
             // Preparar ruta del archivo
             $nombreArchivo = "uploads/materiales/" . date('YmdHis_') . preg_replace('/[^a-zA-Z0-9._-]/', '_', $nombreOriginal);
             $rutaSistema = __DIR__ . "/../../public/" . $nombreArchivo;
             $uploadDir = __DIR__ . "/../../public/uploads/materiales/";
-            error_log('Ruta sistema: ' . $rutaSistema);
+            DebugHelper::log('Ruta sistema: ' . $rutaSistema);
 
             // Crear directorio si no existe
             if (!is_dir($uploadDir)) {
-                if (!@mkdir($uploadDir, 0777, true)) {
+                if (!@mkdir($uploadDir, 0755, true)) {
                     throw new Exception('Error al crear directorio de uploads');
                 }
-                error_log('Directorio creado');
+                DebugHelper::log('Directorio creado');
             }
 
             // Guardar archivo
             if (file_put_contents($rutaSistema, $archivoContenido) === false) {
                 throw new Exception('Error al guardar archivo en el sistema');
             }
-            error_log('Archivo guardado OK');
+            DebugHelper::log('Archivo guardado OK');
 
             // Guardar en BD
             $userModel = new User();
@@ -981,11 +981,11 @@ class MaterialesController extends Controller
             $usuario = $userModel->findById($userId);
             
             if (!$usuario) {
-                error_log('Usuario no encontrado, usando ID=1');
+                DebugHelper::warning('Usuario no encontrado, usando ID=1');
                 $userId = 1;
             }
             
-            error_log('Creando MaterialArchivo con material_id=' . $materialId . ', usuario_id=' . $userId);
+            DebugHelper::log('Creando MaterialArchivo con material_id=' . $materialId . ', usuario_id=' . $userId);
             $archivoModel = new MaterialArchivo();
             $result = $archivoModel->create([
                 'material_id' => $materialId,
@@ -996,7 +996,7 @@ class MaterialesController extends Controller
                 'usuario_id' => $userId
             ]);
             
-            error_log('Resultado create: ' . ($result ? 'true' : 'false'));
+            DebugHelper::log('Resultado create: ' . ($result ? 'true' : 'false'));
 
             if ($result) {
                 // Registrar en auditoría (no debe fallar la carga si esto falla)
@@ -1016,28 +1016,28 @@ class MaterialesController extends Controller
                         ],
                         $_SESSION['user']['id']
                     );
-                    error_log('Auditoría registrada OK');
+                    DebugHelper::log('Auditoría registrada OK');
                 } catch (Exception $e) {
                     // Log silencioso - la auditoría no debe fallar la carga
-                    error_log('Error en auditoría al subir archivo: ' . $e->getMessage());
+                    DebugHelper::log('Error en auditoría al subir archivo: ' . $e->getMessage());
                 }
                 
                 ob_end_clean();
                 echo json_encode(['success' => true, 'message' => 'Archivo subido exitosamente']);
-                error_log('=== FIN subirArchivo SUCCESS ===');
+                DebugHelper::log('=== FIN subirArchivo SUCCESS ===');
             } else {
                 // Eliminar archivo si la BD falla
                 @unlink($rutaSistema);
                 ob_end_clean();
                 echo json_encode(['success' => false, 'message' => 'Error al guardar archivo en base de datos']);
-                error_log('=== FIN subirArchivo FAIL (BD) ===');
+                DebugHelper::log('=== FIN subirArchivo FAIL (BD) ===');
             }
             
         } catch (Exception $e) {
             ob_end_clean();
-            error_log('EXCEPCIÓN en subirArchivo: ' . $e->getMessage() . ' | Archivo: ' . $e->getFile() . ':' . $e->getLine());
+            DebugHelper::log('EXCEPCIÓN en subirArchivo: ' . $e->getMessage() . ' | Archivo: ' . $e->getFile() . ':' . $e->getLine());
             echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
-            error_log('=== FIN subirArchivo EXCEPTION ===');
+            DebugHelper::log('=== FIN subirArchivo EXCEPTION ===');
         }
         
         exit;

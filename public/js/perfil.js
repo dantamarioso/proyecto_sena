@@ -192,32 +192,24 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(r => r.json())
             .then(json => {
                 if (json.success) {
-                    console.log('✅ Foto actualizada en servidor');
-                    console.log('URL de foto:', json.foto);
-                    
                     // Agregar timestamp para evitar caché
                     const fotoConTimestamp = json.foto + '?t=' + new Date().getTime();
                     
                     // Actualizar foto en la vista actual (perfil)
                     if (fotoPerfil) {
                         fotoPerfil.src = fotoConTimestamp;
-                        console.log('✅ Foto actualizada en perfil');
                     }
                     
                     // Actualizar foto en el sidebar - buscar por múltiples selectores
                     const sidebarAvatar = document.querySelector('.sidebar-avatar');
                     if (sidebarAvatar) {
                         sidebarAvatar.src = fotoConTimestamp;
-                        console.log('✅ Foto actualizada en sidebar (.sidebar-avatar)');
-                    } else {
-                        console.warn('⚠️ No se encontró .sidebar-avatar');
                     }
                     
                     // También buscar por atributo específico si existe
                     const avatarImg = document.querySelector('img[class*="sidebar-avatar"], .sidebar-header img');
                     if (avatarImg && avatarImg !== sidebarAvatar) {
                         avatarImg.src = fotoConTimestamp;
-                        console.log('✅ Foto actualizada en avatar alternativo');
                     }
                     
                     inputFoto.value = "";
@@ -230,18 +222,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     showToast("Foto de perfil actualizada exitosamente", "success");
 
                     // Recargar página después de 2 segundos para sincronizar sesión completa
-                    console.log('⏳ Recargando página en 2 segundos...');
                     setTimeout(() => {
-                        console.log('🔄 Recargando...');
                         location.reload();
                     }, 2000);
                 } else {
-                    console.error('❌ Error del servidor:', json.message);
                     alert("Error: " + json.message);
                 }
             })
             .catch(err => {
-                console.error('❌ Error en fetch:', err);
                 alert("Error al cambiar la foto");
             })
             .finally(() => {
@@ -251,20 +239,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ====== TOGGLE PASSWORD ======
-    const togglePasswordEdit = document.getElementById("togglePasswordEdit");
-    const passwordEdit = document.getElementById("password_edit");
+    // ====== TOGGLE PASSWORD - Manejado por password_toggle.js ======
 
-    if (togglePasswordEdit && passwordEdit) {
-        togglePasswordEdit.addEventListener("click", function() {
-            const type = passwordEdit.type === "password" ? "text" : "password";
-            passwordEdit.type = type;
-
-            const icon = this.querySelector("i");
-            icon.classList.toggle("bi-eye-fill");
-            icon.classList.toggle("bi-eye-slash-fill");
-        });
-    }
 });
 
 function showToast(msg, type = "success") {

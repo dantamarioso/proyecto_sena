@@ -3,7 +3,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', '0'); // No mostrar en página
 ini_set('log_errors', '1'); // Activar logging
-ini_set('error_log', __DIR__ . '/../error_log.txt'); // Guardar en la raíz del proyecto
+ini_set('error_log', __DIR__ . '/../error_log.txt'); // Guardar en la raíz del proyecto (fuera del webroot)
 
 // ========== FORCE HTTPS FOR NGROK ==========
 // Procesar headers de proxy (ngrok, cloudflare, etc)
@@ -60,6 +60,7 @@ require_once __DIR__ . '/../app/core/Database.php';
 require_once __DIR__ . '/../app/core/Model.php';
 require_once __DIR__ . '/../app/core/Controller.php';
 require_once __DIR__ . '/../app/helpers/MailHelper.php';
+require_once __DIR__ . '/../app/helpers/DebugHelper.php';
 require_once __DIR__ . '/../app/helpers/ViewHelpers.php';
 
 // Autocarga simple de controllers y models

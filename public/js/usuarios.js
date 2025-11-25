@@ -82,7 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             })
             .catch(err => {
-                console.error("Error verificando nombre de usuario:", err);
                 icono.innerHTML = '<i class="bi bi-exclamation-circle" style="color:#ffc107;"></i>';
                 mensaje.textContent = "Error al verificar";
                 mensaje.classList.add("text-warning");
@@ -170,7 +169,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             })
             .catch(err => {
-                console.error("Error verificando email:", err);
                 input.classList.add("is-invalid");
                 const msg = document.getElementById("mensajeCorreoCrear");
                 if (msg) {
@@ -449,7 +447,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         // Cargar conteo de documentos para este usuario
                         cargarDocumentos(u.id);
                     });
-                    });
                 }
 
                 if (spanPagina) {
@@ -462,7 +459,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             })
             .catch(err => {
-                console.error(err);
+                // Error silenciosamente manejado
             })
             .finally(() => {
                 isLoading = false;
@@ -573,7 +570,6 @@ function eliminarUsuario(usuarioId) {
         }
     })
     .catch(err => {
-        console.error("Error eliminando usuario:", err);
         showToast("Error al eliminar usuario", "error");
     });
 }
@@ -621,7 +617,6 @@ function cargarDocumentos(usuarioId) {
             badgeElement.innerHTML = badge;
         })
         .catch(err => {
-            console.error("Error cargando documentos:", err);
             badgeElement.innerHTML = '<span class="badge bg-danger">Error</span>';
         });
 }

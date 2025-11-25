@@ -6,13 +6,6 @@
 
 $materialId = $material['id'] ?? 0;
 $archivos = isset($archivos) ? $archivos : [];
-
-// Debug
-error_log('PARTIAL ARCHIVOS: materialId=' . $materialId . ', material existe=' . (isset($material) ? 'yes' : 'no'));
-if (isset($material)) {
-    error_log('PARTIAL ARCHIVOS: material keys=' . json_encode(array_keys($material)));
-    error_log('PARTIAL ARCHIVOS: material[id]=' . ($material['id'] ?? 'NULL'));
-}
 ?>
 
 <div class="card mt-4">
@@ -144,10 +137,10 @@ function subirArchivo(materialId) {
             archivo_data: base64Data
         };
 
-        // USAR ENDPOINT ESPECIAL upload.php (bypassa router/rewrite rules)
-        const urlSubida = window.BASE_URL + '/upload.php';
+        // USAR ENDPOINT DEL CONTROLADOR (MaterialesController->subirArchivo)
+        const urlSubida = window.BASE_URL + '/?url=materiales/subirArchivo';
         
-        console.log('Iniciando carga base64 (upload.php):', {
+        console.log('Iniciando carga base64 (materiales/subirArchivo):', {
             url: urlSubida,
             materialId: materialId,
             archivo: archivo.name,

@@ -19,8 +19,6 @@ function inicializarHistorialMejorado() {
             });
         }
     });
-    
-    console.log('✓ Historial mejorado inicializado');
 }
 
 /**

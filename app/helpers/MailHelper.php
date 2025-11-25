@@ -9,15 +9,22 @@ class MailHelper
         $mail = new PHPMailer(true);
 
         try {
-            $mail->isSMTP();
-            $mail->Host       = "smtp.gmail.com";
-            $mail->SMTPAuth   = true;
-            $mail->Username   = "dantamarioso@gmail.com";
-            $mail->Password   = "ykee grtu atwq wczj";
-            $mail->SMTPSecure = "tls";
-            $mail->Port       = 587;
+            // Cargar variables de entorno
+            $mailHost = EnvHelper::get('MAIL_HOST', 'smtp.gmail.com');
+            $mailPort = EnvHelper::get('MAIL_PORT', '587');
+            $mailUsername = EnvHelper::get('MAIL_USERNAME', '');
+            $mailPassword = EnvHelper::get('MAIL_PASSWORD', '');
+            $mailFrom = EnvHelper::get('MAIL_FROM', '');
 
-            $mail->setFrom("dantamarioso@gmail.com", "Sistema Inventario");
+            $mail->isSMTP();
+            $mail->Host       = $mailHost;
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $mailUsername;
+            $mail->Password   = $mailPassword;
+            $mail->SMTPSecure = "tls";
+            $mail->Port       = intval($mailPort);
+
+            $mail->setFrom($mailFrom, "Sistema Inventario");
             $mail->addAddress($correo);
             
             // Configurar charset a UTF-8

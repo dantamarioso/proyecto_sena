@@ -173,7 +173,7 @@ class Audit extends Model
         
             return $resultados;
         } catch (Exception $e) {
-            error_log("Error en obtenerHistorialCompleto: " . $e->getMessage());
+            DebugHelper::error("Error en obtenerHistorialCompleto: " . $e->getMessage());
             return [];
         }
     }
@@ -214,7 +214,7 @@ class Audit extends Model
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result['total'] ?? 0;
         } catch (Exception $e) {
-            error_log("Error en contarHistorial: " . $e->getMessage());
+            DebugHelper::error("Error en contarHistorial: " . $e->getMessage());
             return 0;
         }
     }
@@ -309,7 +309,7 @@ class Audit extends Model
         
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
-            error_log("Error en obtenerHistorialMateriales: " . $e->getMessage());
+            DebugHelper::error("Error en obtenerHistorialMateriales: " . $e->getMessage());
             return [];
         }
     }
@@ -350,7 +350,7 @@ class Audit extends Model
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result['total'] ?? 0;
         } catch (Exception $e) {
-            error_log("Error en contarHistorialMateriales: " . $e->getMessage());
+            DebugHelper::error("Error en contarHistorialMateriales: " . $e->getMessage());
             return 0;
         }
     }

@@ -158,7 +158,7 @@ class UsuariosController extends Controller
                     $rutaSistema = __DIR__ . "/../../public/" . $nombreFoto;
 
                     if (!is_dir(__DIR__ . "/../../public/uploads/fotos")) {
-                        mkdir(__DIR__ . "/../../public/uploads/fotos", 0777, true);
+                        mkdir(__DIR__ . "/../../public/uploads/fotos", 0755, true);
                     }
 
                     move_uploaded_file($_FILES['foto']['tmp_name'], $rutaSistema);
@@ -297,7 +297,7 @@ class UsuariosController extends Controller
                     $fotoRutaSistema = __DIR__ . "/../../public/" . $nombreFoto;
 
                     if (!is_dir(__DIR__ . "/../../public/uploads/fotos")) {
-                        mkdir(__DIR__ . "/../../public/uploads/fotos", 0777, true);
+                        mkdir(__DIR__ . "/../../public/uploads/fotos", 0755, true);
                     }
 
                     move_uploaded_file($_FILES['foto']['tmp_name'], $fotoRutaSistema);

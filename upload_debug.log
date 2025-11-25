@@ -1,0 +1,8 @@
+[2025-11-25 16:33:59] MaterialArchivo::create() - INICIANDO
+[2025-11-25 16:33:59] MaterialArchivo::create() - Usuario ID: 5
+[2025-11-25 16:33:59] MaterialArchivo::create() - SQL: INSERT material_id=1, usuario_id=5, archivo=Presentacion-TecnoGestión[1].pptx
+[2025-11-25 16:33:59] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 2
+[2025-11-25 17:02:54] MaterialArchivo::create() - INICIANDO
+[2025-11-25 17:02:54] MaterialArchivo::create() - Usuario ID: 1
+[2025-11-25 17:02:54] MaterialArchivo::create() - SQL: INSERT material_id=1, usuario_id=1, archivo=Hoja_de_vida.pdf
+[2025-11-25 17:02:54] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 1

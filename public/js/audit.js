@@ -11,7 +11,6 @@ window.toggleDetalles = function(detallesId, event) {
     
     const modal = document.getElementById(detallesId);
     if (!modal) {
-        console.warn('No se encontró modal con id:', detallesId);
         return;
     }
     
@@ -122,7 +121,6 @@ function aplicarFiltros(pagina = 1) {
             actualizarURL(usuarioId, accion, fechaInicio, fechaFin, pagina);
         })
         .catch(error => {
-            console.error('Error:', error);
             alert('Error al filtrar los datos. Intenta nuevamente.');
         });
 }

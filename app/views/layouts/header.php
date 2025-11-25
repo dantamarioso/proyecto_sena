@@ -21,12 +21,6 @@
         
         // Construir URL base
         window.BASE_URL = currentProtocol + '//' + currentHost + '/proyecto_sena/public';
-        
-        console.log('=== BASE_URL CONFIGURADO ===');
-        console.log('Protocolo actual:', currentProtocol);
-        console.log('Host:', currentHost);
-        console.log('BASE_URL final:', window.BASE_URL);
-        console.log('========================');
     </script>
 
     <!-- Sidebar CSS -->

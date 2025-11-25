@@ -118,7 +118,6 @@ async function verDetalles(materialId) {
             detallesDiv.innerHTML = '<p class="text-danger">Error al cargar los detalles.</p>';
         }
     } catch (error) {
-        console.error('Error:', error);
         detallesDiv.innerHTML = '<p class="text-danger">Error al cargar los detalles.</p>';
     }
 
@@ -206,7 +205,6 @@ async function guardarMovimiento() {
             erroresDiv.style.display = 'block';
         }
     } catch (error) {
-        console.error('Error:', error);
         erroresDiv.innerHTML = 'Error al registrar el movimiento. Intenta de nuevo.';
         erroresDiv.style.display = 'block';
     }
@@ -244,7 +242,6 @@ function confirmarEliminar(materialId) {
             }
         })
         .catch(error => {
-            console.error('Error:', error);
             alert('Error al eliminar el material');
         });
 }

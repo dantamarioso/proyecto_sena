@@ -38,7 +38,7 @@ class AuditController extends Controller
             $total = $auditModel->contarHistorial($filtro);
             $totalPages = max(1, ceil($total / $perPage));
         } catch (Exception $e) {
-            error_log("Error en historial: " . $e->getMessage());
+            DebugHelper::error("Error en historial: " . $e->getMessage());
             $cambios = [];
             $total = 0;
             $totalPages = 1;

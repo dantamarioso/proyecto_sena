@@ -1,0 +1,9 @@
+
+
+
+
+
+# Uploads (optional - comentar si quieres versionarlos)
+/public/uploads/fotos/*
+/public/uploads/materiales/*
+
