@@ -153,5 +153,3 @@ if (!isset($_SESSION['user'])) {
         </div>
     </div>
 </div>
-
-<script src="<?= BASE_URL ?>/js/perfil.js"></script>

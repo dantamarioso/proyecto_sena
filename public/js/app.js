@@ -4,11 +4,41 @@ document.addEventListener("DOMContentLoaded", () => {
        ====  NOTIFICACIÓN EMERGENTE GLOBAL
     ====================================================== */
     window.mostrarNotificacion = function(mensaje, tipo = 'error', duracion = 3000) {
-        const toast = document.getElementById('notificationToast');
-        const toastMsg = document.getElementById('toastMessage');
+        // Buscar elementos con verificación robusta
+        let toast = document.getElementById('notificationToast');
+        let toastMsg = document.getElementById('toastMessage');
         
-        if (!toast || !toastMsg) return;
+        // Fallback: crear elementos si no existen
+        if (!toast) {
+            const container = document.body || document.documentElement;
+            toast = document.createElement('div');
+            toast.className = 'notification-toast';
+            toast.id = 'notificationToast';
+            
+            toastMsg = document.createElement('span');
+            toastMsg.id = 'toastMessage';
+            toastMsg.textContent = mensaje;
+            
+            const icon = document.createElement('i');
+            icon.className = 'bi';
+            
+            toast.appendChild(icon);
+            toast.appendChild(toastMsg);
+            container.appendChild(toast);
+        }
 
+        if (!toastMsg) {
+            toastMsg = document.getElementById('toastMessage');
+        }
+
+        if (!toastMsg) {
+            // Si aún no existe, crear un elemento fallback
+            toastMsg = document.createElement('span');
+            toastMsg.id = 'toastMessage';
+            toast.appendChild(toastMsg);
+        }
+
+        // Establecer mensaje
         toastMsg.textContent = mensaje;
         
         // Remover clases anteriores

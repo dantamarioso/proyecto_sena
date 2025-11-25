@@ -92,21 +92,15 @@ document.addEventListener("DOMContentLoaded", () => {
        ====  VALIDACIÓN DE EMAIL - CREAR Y EDITAR
     ====================================================== */
 
-    // Verificar email en formulario CREAR
+    // Verificar email en formulario CREAR O EDITAR
     const correoCrear = document.getElementById("correo") || document.querySelector('input[name="correo"]');
     const iconoCorreoCrear = document.getElementById("iconoCorreoCrear");
     const mensajeCorreoCrear = document.getElementById("mensajeCorreoCrear");
-
-    if (correoCrear && correoCrear.closest('#crear-usuario-form, #editar-usuario-form')) {
-        correoCrear.addEventListener("input", () => verificarEmail("crear", null));
-    }
-
-    // Verificar email en formulario EDITAR
     const inputId = document.querySelector('input[name="id"]');
     let usuarioIdEmail = inputId ? inputId.value : null;
 
-    if (correoCrear && usuarioIdEmail) {
-        correoCrear.addEventListener("input", () => verificarEmail("edit", usuarioIdEmail));
+    if (correoCrear) {
+        correoCrear.addEventListener("input", () => verificarEmail(usuarioIdEmail ? "edit" : "crear", usuarioIdEmail));
     }
 
     function verificarEmail(form, usuarioId) {

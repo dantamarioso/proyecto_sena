@@ -131,13 +131,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (fotoOverlay) fotoOverlay.style.opacity = "0";
         });
 
-        fotoPerfil.addEventListener("click", () => {
-            inputFoto.click();
-        });
-
-        fotoOverlay.addEventListener("click", () => {
-            inputFoto.click();
-        });
+        // Solo el overlay dispara el click - evitar duplicados
+        if (fotoOverlay) {
+            fotoOverlay.addEventListener("click", (e) => {
+                e.stopPropagation(); // Evitar que el evento se propague
+                inputFoto.click();
+            });
+        }
 
         inputFoto.addEventListener("change", function() {
             const file = this.files[0];

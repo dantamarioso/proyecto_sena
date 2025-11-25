@@ -109,8 +109,5 @@ if (!isset($_SESSION['user'])) {
     </div>
 </div>
 
-
-<script src="<?= BASE_URL ?>/js/perfil.js"></script>
-
 <!-- Contenedor de toasts -->
 <div id="toast-container"></div>
