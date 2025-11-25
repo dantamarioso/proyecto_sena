@@ -24,78 +24,40 @@ class User extends Model
         $userId = $_SESSION['user']['id'] ?? 1;
         $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
         
-        $sql = "
-        UPDATE usuarios SET
-            nombre = :nombre,
-            correo = :correo,
-            nombre_usuario = :nombre_usuario,
-            celular = :celular,
-            cargo = :cargo
-    ";
+        $sql = "UPDATE usuarios SET";
+        $params = [':id' => $id];
+        $setClauses = [];
 
-        // Solo actualizar estado si está explícitamente establecido
-        if (isset($data['estado']) && $data['estado'] !== null) {
-            $sql .= ", estado = :estado";
+        // Campos que pueden actualizarse - solo si están explícitamente en $data
+        $camposPermitidos = ['nombre', 'correo', 'nombre_usuario', 'celular', 'cargo', 'estado', 'rol', 'nodo_id', 'linea_id'];
+
+        foreach ($camposPermitidos as $campo) {
+            if (isset($data[$campo])) {
+                $setClauses[] = "$campo = :$campo";
+                $params[":$campo"] = $data[$campo];
+            }
         }
 
+        // Foto especial (siempre si viene)
         if (!empty($data['foto'])) {
-            $sql .= ", foto = :foto";
-        }
-
-        if (!empty($data['password'])) {
-            $sql .= ", password = :password";
-        }
-
-        if (!empty($data['rol'])) {
-            $sql .= ", rol = :rol";
-        }
-
-        if (isset($data['nodo_id'])) {
-            $sql .= ", nodo_id = :nodo_id";
-        }
-
-        if (isset($data['linea_id'])) {
-            $sql .= ", linea_id = :linea_id";
-        }
-
-        $sql .= " WHERE id = :id";
-
-        $stmt = $this->db->prepare($sql);
-
-        $params = [
-            ':nombre'         => $data['nombre'] ?? null,
-            ':correo'         => $data['correo'] ?? null,
-            ':nombre_usuario' => $data['nombre_usuario'] ?? null,
-            ':celular'        => $data['celular'] ?? null,
-            ':cargo'          => $data['cargo'] ?? null,
-            ':id'             => $id
-        ];
-
-        // Solo agregar estado si está explícitamente establecido
-        if (isset($data['estado']) && $data['estado'] !== null) {
-            $params[':estado'] = $data['estado'];
-        }
-
-        if (!empty($data['foto'])) {
+            $setClauses[] = "foto = :foto";
             $params[':foto'] = $data['foto'];
         }
 
+        // Password especial (hash)
         if (!empty($data['password'])) {
+            $setClauses[] = "password = :password";
             $params[':password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         }
 
-        if (!empty($data['rol'])) {
-            $params[':rol'] = $data['rol'];
+        // Si no hay nada que actualizar, retornar true
+        if (empty($setClauses)) {
+            return true;
         }
 
-        if (isset($data['nodo_id'])) {
-            $params[':nodo_id'] = $data['nodo_id'];
-        }
+        $sql .= " " . implode(", ", $setClauses) . " WHERE id = :id";
 
-        if (isset($data['linea_id'])) {
-            $params[':linea_id'] = $data['linea_id'];
-        }
-
+        $stmt = $this->db->prepare($sql);
         return $stmt->execute($params);
     }
 
