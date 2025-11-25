@@ -76,27 +76,33 @@ class User extends Model
     {
         $currentId = $_SESSION['user']['id'] ?? 0;
 
-        $sql = "SELECT * FROM usuarios WHERE id <> :currentId";
+        $sql = "SELECT u.*, 
+                       n.nombre AS nodo_nombre, 
+                       l.nombre AS linea_nombre
+                FROM usuarios u
+                LEFT JOIN nodos n ON u.nodo_id = n.id
+                LEFT JOIN lineas l ON u.linea_id = l.id
+                WHERE u.id <> :currentId";
         $params = [
             ':currentId' => $currentId
         ];
 
         if ($q !== '') {
-            $sql .= " AND (nombre LIKE :q OR correo LIKE :q OR nombre_usuario LIKE :q)";
+            $sql .= " AND (u.nombre LIKE :q OR u.correo LIKE :q OR u.nombre_usuario LIKE :q)";
             $params[':q'] = '%' . $q . '%';
         }
 
         if ($estado === '0' || $estado === '1') {
-            $sql .= " AND estado = :estado";
+            $sql .= " AND u.estado = :estado";
             $params[':estado'] = (int)$estado;
         }
 
-        if (in_array($rol, ['admin', 'usuario', 'invitado'], true)) {
-            $sql .= " AND rol = :rol";
+        if (in_array($rol, ['admin', 'usuario', 'invitado', 'dinamizador'], true)) {
+            $sql .= " AND u.rol = :rol";
             $params[':rol'] = $rol;
         }
 
-        $sql .= " ORDER BY id DESC LIMIT :limit OFFSET :offset";
+        $sql .= " ORDER BY u.id DESC LIMIT :limit OFFSET :offset";
 
         $stmt = $this->db->prepare($sql);
 

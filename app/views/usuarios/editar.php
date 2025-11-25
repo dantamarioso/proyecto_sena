@@ -72,8 +72,7 @@
                         <select name="rol" id="select-rol-edit" class="form-select">
                             <option value="admin"       <?= ($usuario['rol'] ?? '') === 'admin'       ? 'selected' : '' ?>>Admin</option>
                             <option value="dinamizador" <?= ($usuario['rol'] ?? '') === 'dinamizador' ? 'selected' : '' ?>>Dinamizador</option>
-                            <option value="usuario"     <?= ($usuario['rol'] ?? '') === 'usuario'     ? 'selected' : '' ?>>Usuario</option>
-                            <option value="invitado"    <?= ($usuario['rol'] ?? '') === 'invitado'    ? 'selected' : '' ?>>Invitado</option>
+                            <option value="usuario"     <?= ($usuario['rol'] ?? '') === 'usuario'     ? 'selected' : '' ?>>Usuario</option>                        
                         </select>
                     </div>
 

@@ -284,3 +284,55 @@ function escapeHtml(text) {
     };
     return String(text).replace(/[&<>"']/g, m => map[m]);
 }
+
+/**
+ * Abrir modal con detalles de cambios
+ */
+window.abrirModalDetalles = function(cambioId) {
+    const detallesDiv = document.getElementById('modal-detalles-' + cambioId);
+    
+    if (!detallesDiv) {
+        console.error('No se encontraron detalles para el cambio ' + cambioId);
+        return;
+    }
+
+    // Crear modal de Bootstrap
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'modal-cambio-' + cambioId;
+    modal.setAttribute('tabindex', '-1');
+    modal.setAttribute('role', 'dialog');
+    
+    // Copiar contenido del div de detalles
+    const contenidoDetalles = detallesDiv.cloneNode(true);
+    contenidoDetalles.style.display = 'block'; // Mostrar el contenido
+    
+    // Estructura del modal
+    modal.innerHTML = `
+        <div class="modal-dialog modal-lg" role="document" style="max-height: 90vh; overflow-y: auto;">
+            ${contenidoDetalles.innerHTML}
+            <div class="modal-footer" style="border-top: 1px solid #dee2e6; padding: 1rem;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Mostrar modal con Bootstrap
+    const bsModal = new bootstrap.Modal(modal, {
+        backdrop: true,
+        keyboard: true,
+        focus: true
+    });
+    
+    bsModal.show();
+    
+    // Limpiar modal cuando se cierre
+    modal.addEventListener('hidden.bs.modal', function() {
+        modal.remove();
+    });
+};
+

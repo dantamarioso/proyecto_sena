@@ -454,17 +454,18 @@ class UsuariosController extends Controller
                 
                 $userModel->updateEstado($id, 0);
                 
-                // Registrar en auditoría con acción "desactivar/activar"
+                // Registrar en auditoría
                 $auditModel = new Audit();
                 $auditModel->registrarCambio(
                     $id,
                     'usuarios',
                     $id,
-                    'desactivar/activar',
+                    'actualizar',
                     [
-                        'Acción' => 'Desactivado',
-                        'Estado Anterior' => 'Activo',
-                        'Estado Nuevo' => 'Inactivo'
+                        'estado' => [
+                            'anterior' => 'Activo',
+                            'nuevo' => 'Inactivo'
+                        ]
                     ],
                     $_SESSION['user']['id']
                 );
@@ -490,17 +491,18 @@ class UsuariosController extends Controller
                 
                 $userModel->updateEstado($id, 1);
                 
-                // Registrar en auditoría con acción "desactivar/activar"
+                // Registrar en auditoría
                 $auditModel = new Audit();
                 $auditModel->registrarCambio(
                     $id,
                     'usuarios',
                     $id,
-                    'desactivar/activar',
+                    'actualizar',
                     [
-                        'Acción' => 'Activado',
-                        'Estado Anterior' => 'Inactivo',
-                        'Estado Nuevo' => 'Activo'
+                        'estado' => [
+                            'anterior' => 'Inactivo',
+                            'nuevo' => 'Activo'
+                        ]
                     ],
                     $_SESSION['user']['id']
                 );
@@ -559,7 +561,7 @@ class UsuariosController extends Controller
                 $usuario_id,
                 'usuarios',
                 $usuario_id,
-                'asignar_nodo',
+                'actualizar',
                 [
                     'nodo_id' => ['anterior' => $usuario['nodo_id'] ?? 'Sin asignar', 'nuevo' => $nodo_id],
                     'linea_id' => ['anterior' => $usuario['linea_id'] ?? 'Sin asignar', 'nuevo' => $linea_id ?? 'Sin asignar']

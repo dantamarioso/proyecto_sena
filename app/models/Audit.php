@@ -8,15 +8,20 @@ class Audit extends Model
      */
     public function registrarCambio($usuario_id, $tabla, $registro_id, $accion, $detalles = [], $admin_id = null)
     {
+        // Validar parámetros obligatorios
+        if (empty($accion)) {
+            $accion = 'actualizar'; // Default a 'actualizar' en lugar de 'sin_accion'
+        }
+
         // Determinar tabla de auditoría según tipo
         if ($tabla === 'usuarios') {
             $tabla_auditoria = 'auditoria_usuarios';
             $campo_id = 'usuario_id';
-            $valor_id = $usuario_id;
+            $valor_id = $usuario_id ?? $registro_id; // Usar cualquiera que sea válido
         } elseif ($tabla === 'materiales') {
             $tabla_auditoria = 'auditoria_materiales';
             $campo_id = 'material_id';
-            $valor_id = $registro_id;
+            $valor_id = $registro_id ?? $usuario_id; // Usar cualquiera que sea válido
         } else {
             return false; // Tabla no soportada
         }
@@ -29,6 +34,11 @@ class Audit extends Model
             if ($stmt->fetch()) {
                 $id_valido = $valor_id;
             }
+        }
+
+        // Si no hay ID válido, no registrar (evitar registros incompletos)
+        if ($id_valido === null) {
+            return false;
         }
 
         // Validar que admin_id existe
@@ -173,7 +183,6 @@ class Audit extends Model
         
             return $resultados;
         } catch (Exception $e) {
-            DebugHelper::error("Error en obtenerHistorialCompleto: " . $e->getMessage());
             return [];
         }
     }
@@ -214,7 +223,6 @@ class Audit extends Model
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result['total'] ?? 0;
         } catch (Exception $e) {
-            DebugHelper::error("Error en contarHistorial: " . $e->getMessage());
             return 0;
         }
     }
@@ -309,7 +317,6 @@ class Audit extends Model
         
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
-            DebugHelper::error("Error en obtenerHistorialMateriales: " . $e->getMessage());
             return [];
         }
     }
@@ -350,7 +357,6 @@ class Audit extends Model
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result['total'] ?? 0;
         } catch (Exception $e) {
-            DebugHelper::error("Error en contarHistorialMateriales: " . $e->getMessage());
             return 0;
         }
     }

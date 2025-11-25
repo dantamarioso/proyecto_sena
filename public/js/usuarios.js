@@ -389,21 +389,36 @@ document.addEventListener("DOMContentLoaded", () => {
                         const car = u.cargo   ? u.cargo   : '<span class="text-muted">Sin cargo</span>';
                         const rol = u.rol     ? u.rol     : 'usuario';
 
+                        // Generar Nodo
+                        let nodoHtml = '—';
+                        if (rol !== 'admin' && u.nodo_id) {
+                            nodoHtml = `<span class="badge bg-secondary">${escapeHtml(u.nodo_nombre || 'N/A')}</span>`;
+                        } else if (rol !== 'admin') {
+                            nodoHtml = '—';
+                        } else {
+                            nodoHtml = '—';
+                        }
+
+                        // Generar Línea
+                        let lineaHtml = '—';
+                        if (rol === 'usuario' && u.linea_id) {
+                            lineaHtml = `<span class="badge bg-warning">${escapeHtml(u.linea_nombre || 'N/A')}</span>`;
+                        } else if (rol === 'usuario') {
+                            lineaHtml = '—';
+                        } else {
+                            lineaHtml = '—';
+                        }
+
                         const rowHtml = `
                             <tr>
                                 <td>${u.id}</td>
-                                <td class="d-none d-md-table-cell">${fotoHtml}</td>
+                                <td>${fotoHtml}</td>
                                 <td>${escapeHtml(u.nombre)}</td>
-                                <td class="d-none d-md-table-cell">${escapeHtml(u.correo)}</td>
-                                <td class="d-none d-lg-table-cell">${escapeHtml(u.nombre_usuario)}</td>
-                                <td class="d-none d-xl-table-cell">${cel}</td>
-                                <td class="d-none d-xl-table-cell">${car}</td>
-                                <td class="d-none d-lg-table-cell"><span class="badge bg-info">${escapeHtml(rol)}</span></td>
-                                <td class="d-none d-lg-table-cell">
-                                    <span class="badge bg-secondary" id="docs-${u.id}">
-                                        <i class="bi bi-hourglass-split"></i>
-                                    </span>
-                                </td>
+                                <td>${escapeHtml(u.correo)}</td>
+                                <td>${escapeHtml(u.nombre_usuario)}</td>
+                                <td><span class="badge bg-info">${escapeHtml(rol)}</span></td>
+                                <td>${nodoHtml}</td>
+                                <td>${lineaHtml}</td>
                                 <td>${estadoHtml}</td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
@@ -437,9 +452,6 @@ document.addEventListener("DOMContentLoaded", () => {
                             </tr>
                         `;
                         tbody.insertAdjacentHTML("beforeend", rowHtml);
-                        
-                        // Cargar conteo de documentos para este usuario
-                        cargarDocumentos(u.id);
                     });
                 }
 
@@ -592,26 +604,8 @@ function showToast(msg, type = "success") {
     }, 2500);
 }
 
-/* ======================================================
-   CARGAR CONTEO DE DOCUMENTOS
-====================================================== */
 function cargarDocumentos(usuarioId) {
-    const badgeElement = document.getElementById(`docs-${usuarioId}`);
-    if (!badgeElement) return;
-
-    fetch(`${BASE_URL}/?url=usuarios/contarDocumentos&usuario_id=${usuarioId}`)
-        .then(response => response.json())
-        .then(data => {
-            let badge = '';
-            if (data.count === 0) {
-                badge = '<span class="badge bg-secondary">Sin docs</span>';
-            } else {
-                badge = `<span class="badge bg-primary">${data.count} doc${data.count !== 1 ? 's' : ''}</span>`;
-            }
-            badgeElement.innerHTML = badge;
-        })
-        .catch(err => {
-            badgeElement.innerHTML = '<span class="badge bg-danger">Error</span>';
-        });
+    // Esta función está deshabilitada - no es necesaria para usuarios
+    return;
 }
 

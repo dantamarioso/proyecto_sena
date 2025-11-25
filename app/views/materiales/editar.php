@@ -44,6 +44,50 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
                         <textarea name="descripcion" class="form-control" rows="3" placeholder="Detalles adicionales del material..."><?= htmlspecialchars($material['descripcion'] ?? '') ?></textarea>
                     </div>
 
+                    <?php 
+                        $rol = $_SESSION['user']['rol'] ?? 'usuario';
+                    ?>
+
+                    <!-- Nodo (solo Admin puede cambiar) -->
+                    <?php if ($rol === 'admin'): ?>
+                        <div class="mb-3">
+                            <label class="form-label">Nodo *</label>
+                            <select name="nodo_id" id="nodo-select" class="form-select" required>
+                                <option value="">-- Seleccionar nodo --</option>
+                                <?php 
+                                    require_once __DIR__ . '/../../models/Nodo.php';
+                                    $nodoModel = new Nodo();
+                                    $nodos = $nodoModel->getActivosConLineas();
+                                    foreach ($nodos as $nodo): 
+                                ?>
+                                    <option value="<?= $nodo['id'] ?>" <?= $nodo['id'] == $material['nodo_id'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($nodo['nombre']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small class="form-text text-muted">Selecciona el nodo para este material</small>
+                        </div>
+                    <?php else: ?>
+                        <!-- Para usuario/dinamizador: mostrar su nodo actual (no editable) -->
+                        <div class="mb-3">
+                            <label class="form-label">Nodo Actual</label>
+                            <div class="alert alert-info mb-0">
+                                <strong>Tu Nodo:</strong> 
+                                <?php 
+                                    $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
+                                    if ($nodo_user) {
+                                        require_once __DIR__ . '/../../models/Nodo.php';
+                                        $nodoModel = new Nodo();
+                                        $nodo = $nodoModel->getById($nodo_user);
+                                        echo $nodo ? htmlspecialchars($nodo['nombre']) : 'No asignado';
+                                    } else {
+                                        echo 'No asignado';
+                                    }
+                                ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
                     <!-- Línea de Trabajo -->
                     <div class="mb-3">
                         <label class="form-label">Línea de Trabajo *</label>
@@ -104,6 +148,40 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
 </div>
 
 <script>
+// Manejo de cambio de nodo para admin (solo carga líneas dinámicamente)
+const nodoSelect = document.getElementById('nodo-select');
+const lineaSelect = document.querySelector('select[name="linea_id"]');
+
+if (nodoSelect && lineaSelect) {
+    nodoSelect.addEventListener('change', async function() {
+        const nodoId = this.value;
+        
+        if (!nodoId) {
+            lineaSelect.innerHTML = '<option value="">-- Seleccionar línea --</option>';
+            return;
+        }
+
+        // Cargar líneas del nodo seleccionado
+        try {
+            const response = await fetch(`${window.BASE_URL}/?url=materiales/obtenerLineasPorNodo&nodo_id=${nodoId}`);
+            const data = await response.json();
+            
+            if (data.success && data.lineas) {
+                let html = '<option value="">-- Seleccionar línea --</option>';
+                data.lineas.forEach(linea => {
+                    html += `<option value="${linea.id}">${linea.nombre}</option>`;
+                });
+                lineaSelect.innerHTML = html;
+            } else {
+                lineaSelect.innerHTML = '<option value="">-- Error al cargar líneas --</option>';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            lineaSelect.innerHTML = '<option value="">-- Error al cargar líneas --</option>';
+        }
+    });
+}
+
 document.getElementById('form-editar-material').addEventListener('submit', async (e) => {
     e.preventDefault();
 

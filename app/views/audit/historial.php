@@ -81,15 +81,19 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                         $detalles = is_array($detallesRaw) ? $detallesRaw : [];
                         $tieneDetalles = !empty($detalles);
                         
-                        // Mapa de acciones con colores
+                        // Mapa de acciones con colores - alineado con ENUM de la BD
                         $acciones = [
                             'crear' => ['bg-success', 'Creado', 'pencil-plus'],
                             'actualizar' => ['bg-primary', 'Actualizado', 'pencil-square'],
+                            'eliminar' => ['bg-danger', 'Eliminado', 'trash'],
+                            'sin_accion' => ['bg-secondary', 'Sin acción', 'question-circle'],
+                            // Fallbacks para datos antiguos
+                            'UPDATE' => ['bg-primary', 'Actualizado', 'pencil-square'],
                             'actualizar_rol' => ['bg-info', 'Rol Actualizado', 'shield-check'],
                             'actualizar_estado' => ['bg-warning text-dark', 'Estado Actualizado', 'toggle-on'],
                             'asignar_nodo' => ['bg-secondary', 'Nodo Asignado', 'link-45deg'],
                             'desactivar/activar' => ['bg-warning text-dark', 'Desactivar/Activar', 'toggle-off'],
-                            'eliminar' => ['bg-danger', 'Eliminado', 'trash'],
+                            'delete' => ['bg-danger', 'Eliminado', 'trash'],
                             'ver' => ['bg-light text-dark', 'Visto', 'eye']
                         ];
                         

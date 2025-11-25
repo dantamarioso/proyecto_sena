@@ -62,14 +62,14 @@ if (!isset($_SESSION['user'])) {
                 <table class="table table-striped align-middle mb-0">
                     <thead>
                     <tr>
-                        <th style="width: 60px;">#</th>
-                        <th style="width: 50px;" class="d-none d-sm-table-cell">Foto</th>
+                        <th style="width: 40px;">#</th>
+                        <th style="width: 50px;">Foto</th>
                         <th>Nombre</th>
-                        <th class="d-none d-md-table-cell">Correo</th>
-                        <th class="d-none d-lg-table-cell">Usuario</th>
-                        <th class="d-none d-lg-table-cell">Rol</th>
-                        <th class="d-none d-lg-table-cell">Nodo</th>
-                        <th class="d-none d-lg-table-cell">Línea</th>
+                        <th style="min-width: 180px;">Correo</th>
+                        <th style="min-width: 120px;">Usuario</th>
+                        <th style="min-width: 100px;">Rol</th>
+                        <th style="min-width: 100px;">Nodo</th>
+                        <th style="min-width: 100px;">Línea</th>
                         <th style="width: 80px;">Estado</th>
                         <th style="width: 120px;" class="text-center">Acciones</th>
                     </tr>
@@ -78,7 +78,7 @@ if (!isset($_SESSION['user'])) {
                     <?php foreach ($usuarios as $u): ?>
                         <tr>
                             <td><?= $u['id'] ?></td>
-                            <td class="d-none d-sm-table-cell">
+                            <td>
                                 <?php if ($u['foto']): ?>
                                     <img src="<?= BASE_URL . '/' . htmlspecialchars($u['foto']) ?>"
                                          width="40" height="40" class="rounded-circle" style="object-fit:cover;">
@@ -88,50 +88,52 @@ if (!isset($_SESSION['user'])) {
                                 <?php endif; ?>
                             </td>
                             <td><strong><?= htmlspecialchars($u['nombre']) ?></strong></td>
-                            <td class="d-none d-md-table-cell"><small><?= htmlspecialchars($u['correo']) ?></small></td>
-                            <td class="d-none d-lg-table-cell"><small><?= htmlspecialchars($u['nombre_usuario']) ?></small></td>
-                            <td class="d-none d-lg-table-cell"><span class="badge bg-info"><?= htmlspecialchars($u['rol'] ?? 'usuario') ?></span></td>
-                            <td class="d-none d-lg-table-cell">
-                                <?php 
-                                if ($u['nodo_id']): 
-                                    $nodo_nombre = '';
-                                    foreach ($nodos as $n) {
-                                        if ($n['id'] == $u['nodo_id']) {
-                                            $nodo_nombre = $n['nombre'];
-                                            break;
+                            <td><small><?= htmlspecialchars($u['correo']) ?></small></td>
+                            <td><small><?= htmlspecialchars($u['nombre_usuario']) ?></small></td>
+                            <td><span class="badge bg-info"><?= htmlspecialchars($u['rol'] ?? 'usuario') ?></span></td>
+                            <td>
+                                <?php if ($u['rol'] !== 'admin'): ?>
+                                    <?php 
+                                    if ($u['nodo_id']): 
+                                        $nodo_nombre = '';
+                                        foreach ($nodos as $n) {
+                                            if ($n['id'] == $u['nodo_id']) {
+                                                $nodo_nombre = $n['nombre'];
+                                                break;
+                                            }
                                         }
-                                    }
-                                    echo $nodo_nombre ? '<span class="badge bg-secondary">' . htmlspecialchars($nodo_nombre) . '</span>' : '<span class="text-muted small">N/A</span>';
-                                else:
-                                    echo '<span class="text-muted small">Sin asignar</span>';
-                                endif;
-                                ?>
+                                        echo $nodo_nombre ? '<span class="badge bg-secondary">' . htmlspecialchars($nodo_nombre) . '</span>' : '<span class="text-muted small">—</span>';
+                                    else:
+                                        echo '<span class="text-muted small">—</span>';
+                                    endif;
+                                    ?>
+                                <?php else: ?>
+                                    <span class="text-muted small">—</span>
+                                <?php endif; ?>
                             </td>
-                            <td class="d-none d-lg-table-cell">
-                                <?php 
-                                // Solo mostrar línea si el rol es "usuario"
-                                if ($u['rol'] === 'usuario' && $u['linea_id']): 
-                                    $linea_nombre = '';
-                                    // Buscar en nodos y sus líneas
-                                    foreach ($nodos as $n) {
-                                        if (isset($n['lineas']) && is_array($n['lineas'])) {
-                                            foreach ($n['lineas'] as $l) {
-                                                if ($l['id'] == $u['linea_id']) {
-                                                    $linea_nombre = $l['nombre'];
-                                                    break 2;
+                            <td>
+                                <?php if ($u['rol'] === 'usuario'): ?>
+                                    <?php 
+                                    if ($u['linea_id']): 
+                                        $linea_nombre = '';
+                                        foreach ($nodos as $n) {
+                                            if (isset($n['lineas']) && is_array($n['lineas'])) {
+                                                foreach ($n['lineas'] as $l) {
+                                                    if ($l['id'] == $u['linea_id']) {
+                                                        $linea_nombre = $l['nombre'];
+                                                        break 2;
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                    echo $linea_nombre ? '<span class="badge bg-warning">' . htmlspecialchars($linea_nombre) . '</span>' : '<span class="text-muted small">N/A</span>';
-                                elseif ($u['rol'] === 'usuario'):
-                                    echo '<span class="text-muted small">Sin asignar</span>';
-                                elseif ($u['rol'] === 'dinamizador'):
-                                    echo '<span class="badge bg-info">Todas</span>';
-                                else:
-                                    echo '<span class="text-muted small">N/A</span>';
-                                endif;
-                                ?>
+                                        echo $linea_nombre ? '<span class="badge bg-warning">' . htmlspecialchars($linea_nombre) . '</span>' : '<span class="text-muted small">—</span>';
+                                    else:
+                                        echo '<span class="text-muted small">—</span>';
+                                    endif;
+                                    ?>
+                                <?php else: ?>
+                                    <span class="text-muted small">—</span>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <?php if ($u['estado'] == 1): ?>
@@ -187,7 +189,7 @@ if (!isset($_SESSION['user'])) {
 
                     <?php if (empty($usuarios)): ?>
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-3">No hay usuarios registrados.</td>
+                            <td colspan="10" class="text-center text-muted py-3">No hay usuarios registrados.</td>
                         </tr>
                     <?php endif; ?>
 

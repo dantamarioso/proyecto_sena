@@ -38,7 +38,6 @@ class AuditController extends Controller
             $total = $auditModel->contarHistorial($filtro);
             $totalPages = max(1, ceil($total / $perPage));
         } catch (Exception $e) {
-            DebugHelper::error("Error en historial: " . $e->getMessage());
             $cambios = [];
             $total = 0;
             $totalPages = 1;
@@ -61,27 +60,18 @@ class AuditController extends Controller
             return strcmp($a['nombre'], $b['nombre']);
         });
 
-        // Obtener todas las acciones disponibles en la BD (con fallback directo)
-        $accionesDisponibles = [
-            'actualizar',
-            'actualizar_estado',
-            'actualizar_rol',
-            'asignar_nodo',
-            'crear',
-            'desactivar',
-            'desactivar/activar',
-            'eliminar',
-            'ver'
-        ];
+        // Obtener todas las acciones disponibles en la BD
+        // Fallback a los valores definidos en ENUM del schema
+        $accionesDisponibles = ['crear', 'actualizar', 'eliminar'];
         
-        // Intentar obtener de la BD si es posible
+        // Intentar obtener de la BD para capturar valores reales
         try {
             $acciones_bd = $auditModel->obtenerAccionesDisponibles();
             if (!empty($acciones_bd)) {
-                $accionesDisponibles = $acciones_bd;
+                $accionesDisponibles = array_unique(array_filter($acciones_bd));
             }
         } catch (Exception $e) {
-            // Usar fallback
+            // Usar fallback de ENUM
         }
         
         sort($accionesDisponibles);

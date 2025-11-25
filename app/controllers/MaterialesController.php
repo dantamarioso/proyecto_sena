@@ -397,19 +397,52 @@ class MaterialesController extends Controller
                 'linea_id'      => intval($_POST['linea_id'] ?? 0),
                 'cantidad'      => intval($_POST['cantidad'] ?? 0),
                 'estado'        => intval($_POST['estado'] ?? 1),
+                'nodo_id'       => null, // Se establece a continuación
             ];
 
-            // Validar que la línea sea accesible
+            // Determinar nodo_id según el rol
+            $rol = $_SESSION['user']['rol'] ?? 'usuario';
+            
+            if ($rol === 'admin' && !empty($_POST['nodo_id'])) {
+                // Admin puede especificar el nodo
+                $data['nodo_id'] = intval($_POST['nodo_id']);
+            } else {
+                // Usuario/Dinamizador: mantener el nodo actual
+                $data['nodo_id'] = $material['nodo_id'];
+            }
+
+            // Validar que la línea sea accesible y pertenezca al nodo
             $linea_ok = false;
             foreach ($lineas as $linea) {
-                if ($linea['id'] == $data['linea_id']) {
+                if ($linea['id'] == $data['linea_id'] && $linea['nodo_id'] == $data['nodo_id']) {
                     $linea_ok = true;
                     break;
                 }
             }
             
+            // Si no encontró la línea en el array accesible, obtener de la BD usando linea_nodo
+            if (!$linea_ok && !empty($data['linea_id'])) {
+                $db = Database::getInstance();
+                $stmt = $db->prepare("
+                    SELECT DISTINCT 1 
+                    FROM linea_nodo ln
+                    WHERE ln.linea_id = :linea_id 
+                    AND ln.nodo_id = :nodo_id 
+                    AND ln.estado = 1 
+                    LIMIT 1
+                ");
+                $stmt->execute([
+                    ':linea_id' => $data['linea_id'],
+                    ':nodo_id' => $data['nodo_id']
+                ]);
+                
+                if ($stmt->fetch()) {
+                    $linea_ok = true;
+                }
+            }
+            
             if (!$linea_ok) {
-                echo json_encode(['success' => false, 'errors' => ['Línea no accesible']]);
+                echo json_encode(['success' => false, 'errors' => ['Línea no accesible o no pertenece al nodo']]);
                 exit;
             }
 
@@ -419,7 +452,7 @@ class MaterialesController extends Controller
                 if ($materialModel->update($id, $data)) {
                     // Registrar en auditoría
                     $cambios = [];
-                    foreach (['codigo', 'nombre', 'descripcion', 'linea_id', 'cantidad', 'estado'] as $campo) {
+                    foreach (['codigo', 'nombre', 'descripcion', 'nodo_id', 'linea_id', 'cantidad', 'estado'] as $campo) {
                         if ($material[$campo] != $data[$campo]) {
                             $cambios[$campo] = ['antes' => $material[$campo], 'despues' => $data[$campo]];
                         }
@@ -495,8 +528,9 @@ class MaterialesController extends Controller
             $audit->registrarCambio(
                 $_SESSION['user']['id'],
                 'materiales',
+                $id,
                 'eliminar',
-                json_encode([
+                [
                     'id' => $material['id'],
                     'nombre' => $material['nombre'],
                     'codigo' => $material['codigo'],
@@ -505,7 +539,7 @@ class MaterialesController extends Controller
                     'linea_id' => $material['linea_id'],
                     'linea_nombre' => $this->getLineaNombre($material['linea_id']),
                     'descripcion' => $material['descripcion']
-                ]),
+                ],
                 $_SESSION['user']['id']
             );
         } catch (Exception $e) {
@@ -996,8 +1030,6 @@ class MaterialesController extends Controller
                 'usuario_id' => $userId
             ]);
             
-            DebugHelper::log('Resultado create: ' . ($result ? 'true' : 'false'));
-
             if ($result) {
                 // Registrar en auditoría (no debe fallar la carga si esto falla)
                 try {
@@ -1005,9 +1037,9 @@ class MaterialesController extends Controller
                     $audit = new Audit();
                     $audit->registrarCambio(
                         $_SESSION['user']['id'],
-                        'material_archivos',
+                        'materiales',
                         $materialId,
-                        'subir_archivo',
+                        'actualizar',
                         [
                             'material_id' => $materialId,
                             'nombre_original' => $nombreOriginal,
@@ -1016,15 +1048,12 @@ class MaterialesController extends Controller
                         ],
                         $_SESSION['user']['id']
                     );
-                    DebugHelper::log('Auditoría registrada OK');
                 } catch (Exception $e) {
                     // Log silencioso - la auditoría no debe fallar la carga
-                    DebugHelper::log('Error en auditoría al subir archivo: ' . $e->getMessage());
                 }
                 
                 ob_end_clean();
                 echo json_encode(['success' => true, 'message' => 'Archivo subido exitosamente']);
-                DebugHelper::log('=== FIN subirArchivo SUCCESS ===');
             } else {
                 // Eliminar archivo si la BD falla
                 @unlink($rutaSistema);

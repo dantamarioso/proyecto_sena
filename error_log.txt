@@ -1,1 +1,3 @@
 [25-Nov-2025 17:02:46 Europe/Berlin] PHP Warning:  Undefined array key "nodo_id" in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 278
+[25-Nov-2025 19:34:31 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "endforeach", expecting end of file in C:\xampp\htdocs\proyecto_sena\app\views\usuarios\gestion_de_usuarios.php on line 167
+[25-Nov-2025 19:56:34 Europe/Berlin] PHP Warning:  Undefined array key "nodo_id" in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 278
