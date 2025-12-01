@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 01-12-2025 a las 16:57:50
+-- Tiempo de generación: 01-12-2025 a las 17:45:32
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -42,18 +42,7 @@ CREATE TABLE `auditoria_materiales` (
 --
 
 INSERT INTO `auditoria_materiales` (`id`, `material_id`, `accion`, `detalles`, `admin_id`, `ip_address`, `fecha_cambio`) VALUES
-(1, 1, '', '{\"codigo\":\"1\",\"nombre\":\"prueba\",\"descripcion\":\"prueba\",\"linea_id\":1,\"cantidad\":4,\"estado\":1,\"nodo_id\":1}', 1, '181.234.43.55', '2025-11-25 23:20:27'),
-(2, 1, 'actualizar', '{\"material_id\":1,\"nombre_original\":\"Hoja_de_vida.pdf\",\"nombre_archivo\":\"uploads\\/materiales\\/20251126002038_Hoja_de_vida.pdf\",\"tama\\u00f1o\":282947}', 1, '181.234.43.55', '2025-11-25 23:20:38'),
-(3, 1, '', '{\"tipo_movimiento\":\"entrada\",\"cantidad\":5,\"cantidad_anterior\":4,\"cantidad_nueva\":9}', 1, '181.234.43.55', '2025-11-25 23:21:06'),
-(4, 1, 'actualizar', '{\"material_id\":1,\"nombre_original\":\"Presentacion.pptx\",\"nombre_archivo\":\"uploads\\/materiales\\/20251126140110_Presentacion.pptx\",\"tama\\u00f1o\":1641240}', 1, '179.1.217.248', '2025-11-26 13:01:10'),
-(5, 1, '', '{\"tipo_movimiento\":\"entrada\",\"cantidad\":2,\"cantidad_anterior\":9,\"cantidad_nueva\":11}', 1, '179.1.217.248', '2025-11-26 13:24:27'),
-(6, 1, '', '{\"codigo\":\"wqq\",\"nombre\":\"wqw\",\"descripcion\":\"qwqw\",\"linea_id\":1,\"cantidad\":232,\"estado\":1,\"nodo_id\":2}', 1, '179.1.217.248', '2025-11-26 20:16:17'),
-(7, 2, 'actualizar', '{\"material_id\":2,\"nombre_original\":\"20251126140110_Presentacion.pptx\",\"nombre_archivo\":\"uploads\\/materiales\\/20251127165000_20251126140110_Presentacion.pptx\",\"tama\\u00f1o\":1641240}', 1, '179.1.217.248', '2025-11-27 15:50:00'),
-(8, 2, '', '{\"material_id\":2,\"nombre_original\":\"Hoja_de_vida.pdf\",\"nombre_archivo\":\"uploads\\/materiales\\/20251128151729_Hoja_de_vida.pdf\",\"tama\\u00f1o\":282947}', 1, '179.1.217.248', '2025-11-28 14:17:29'),
-(9, 1, 'actualizar', '{\"material_id\":1,\"nombre_original\":\"Proyecto fem fit.pdf\",\"nombre_archivo\":\"uploads\\/materiales\\/20251201164000_Proyecto_fem_fit.pdf\",\"tama\\u00f1o\":4037198}', 4, '179.1.217.251', '2025-12-01 15:40:00'),
-(10, 1, 'actualizar', '{\"material_id\":1,\"nombre_original\":\"Proyecto fem fit.pdf\",\"nombre_archivo\":\"uploads\\/materiales\\/20251201164001_Proyecto_fem_fit.pdf\",\"tama\\u00f1o\":4037198}', 4, '179.1.217.251', '2025-12-01 15:40:01'),
-(11, 1, 'actualizar', '{\"material_id\":1,\"nombre_original\":\"Proyecto fem fit.pdf\",\"nombre_archivo\":\"uploads\\/materiales\\/20251201164001_Proyecto_fem_fit.pdf\",\"tama\\u00f1o\":4037198}', 4, '179.1.217.251', '2025-12-01 15:40:01'),
-(12, 3, 'actualizar', '{\"material_id\":3,\"nombre_original\":\"Proyecto fem fit.pdf\",\"nombre_archivo\":\"uploads\\/materiales\\/20251201164258_Proyecto_fem_fit.pdf\",\"tama\\u00f1o\":4037198}', 4, '179.1.217.251', '2025-12-01 15:42:58');
+(1, 1, 'actualizar', '{\"nodo_id\":{\"antes\":11,\"despues\":9}}', 1, '179.1.217.248', '2025-12-01 16:43:38');
 
 -- --------------------------------------------------------
 
@@ -250,9 +239,9 @@ CREATE TABLE `materiales` (
 --
 
 INSERT INTO `materiales` (`id`, `codigo`, `nombre`, `descripcion`, `linea_id`, `nodo_id`, `cantidad`, `estado`, `creado_por`, `fecha_creacion`, `fecha_actualizacion`) VALUES
-(1, '1', 'prueba', 'prueba', 1, 1, 10, 1, NULL, '2025-11-25 23:20:27', '2025-12-01 15:40:34'),
+(1, '1', 'prueba', 'prueba', 1, 9, 10, 1, NULL, '2025-11-25 23:20:27', '2025-12-01 16:43:38'),
 (2, 'wqq', 'wqw', 'qwqw', 1, 2, 232, 1, NULL, '2025-11-26 20:16:17', '2025-11-28 14:17:31'),
-(3, '2454g', 'jgbhj', 'gdghfr', 1, 1, 5, 1, NULL, '2025-12-01 15:42:46', '2025-12-01 15:42:46');
+(3, '2454g', 'jgbhj', 'gdghfr', 1, 3, 5, 1, NULL, '2025-12-01 15:42:46', '2025-12-01 16:20:54');
 
 -- --------------------------------------------------------
 
@@ -299,18 +288,6 @@ CREATE TABLE `movimientos_inventario` (
   `documento_referencia` varchar(100) DEFAULT NULL,
   `fecha_movimiento` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `movimientos_inventario`
---
-
-INSERT INTO `movimientos_inventario` (`id`, `material_id`, `usuario_id`, `tipo_movimiento`, `cantidad`, `descripcion`, `documento_referencia`, `fecha_movimiento`) VALUES
-(1, 1, 1, 'entrada', 4, 'Cantidad inicial al crear material', NULL, '2025-11-25 23:20:27'),
-(2, 1, 1, 'entrada', 5, 'Entrada de inventario', NULL, '2025-11-25 23:21:06'),
-(3, 1, 1, 'entrada', 2, 'Entrada de inventario', NULL, '2025-11-26 13:24:27'),
-(4, 2, 1, 'entrada', 232, 'Cantidad inicial al crear material', NULL, '2025-11-26 20:16:17'),
-(5, 1, 3, 'salida', 1, 'Salida de inventario', NULL, '2025-11-26 20:18:13'),
-(6, 3, 4, 'entrada', 5, 'Cantidad inicial al crear material', NULL, '2025-12-01 15:42:46');
 
 -- --------------------------------------------------------
 
@@ -645,7 +622,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `auditoria_materiales`
 --
 ALTER TABLE `auditoria_materiales`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `auditoria_usuarios`
@@ -681,7 +658,7 @@ ALTER TABLE `material_archivos`
 -- AUTO_INCREMENT de la tabla `movimientos_inventario`
 --
 ALTER TABLE `movimientos_inventario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `nodos`

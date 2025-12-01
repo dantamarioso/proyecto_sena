@@ -394,4 +394,55 @@ class Material extends Model
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Obtener cambios (UPDATE) de propiedades del material desde auditoría
+     */
+    public function getHistorialCambios($material_id = null, $filtros = [])
+    {
+        $sql = "
+            SELECT 
+                a.id,
+                a.material_id,
+                a.accion,
+                a.detalles,
+                a.fecha_cambio,
+                u.nombre as usuario_nombre,
+                u.foto as usuario_foto,
+                m.nombre as material_nombre,
+                m.codigo as material_codigo,
+                m.nodo_id,
+                m.linea_id,
+                n.nombre as nodo_nombre,
+                l.nombre as linea_nombre
+            FROM auditoria_materiales a
+            LEFT JOIN usuarios u ON a.admin_id = u.id
+            LEFT JOIN materiales m ON a.material_id = m.id
+            LEFT JOIN nodos n ON m.nodo_id = n.id
+            LEFT JOIN lineas l ON m.linea_id = l.id
+            WHERE a.accion = 'actualizar'
+        ";
+        $params = [];
+
+        if ($material_id !== null) {
+            $sql .= " AND a.material_id = :material_id";
+            $params[':material_id'] = (int)$material_id;
+        }
+
+        if (!empty($filtros['fecha_inicio'])) {
+            $sql .= " AND a.fecha_cambio >= :fecha_inicio";
+            $params[':fecha_inicio'] = $filtros['fecha_inicio'] . ' 00:00:00';
+        }
+
+        if (!empty($filtros['fecha_fin'])) {
+            $sql .= " AND a.fecha_cambio <= :fecha_fin";
+            $params[':fecha_fin'] = $filtros['fecha_fin'] . ' 23:59:59';
+        }
+
+        $sql .= " ORDER BY a.fecha_cambio DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

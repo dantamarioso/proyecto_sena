@@ -42,6 +42,7 @@ if (!isset($_SESSION['user'])) {
                             <option value="">Todos</option>
                             <option value="entrada" <?= $filtros['tipo_movimiento'] === 'entrada' ? 'selected' : '' ?>>Entrada</option>
                             <option value="salida" <?= $filtros['tipo_movimiento'] === 'salida' ? 'selected' : '' ?>>Salida</option>
+                            <option value="cambio" <?= $filtros['tipo_movimiento'] === 'cambio' ? 'selected' : '' ?>>Cambio</option>
                             <option value="eliminado" <?= $filtros['tipo_movimiento'] === 'eliminado' ? 'selected' : '' ?>>Eliminado</option>
                         </select>
                     </div>
@@ -113,6 +114,10 @@ if (!isset($_SESSION['user'])) {
                                                     <i class="bi bi-dash-lg"></i> Salida
                                                 </span>
                                             <?php endif; ?>
+                                        <?php elseif ($mov['tipo_registro'] === 'cambio'): ?>
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-pencil"></i> Cambio
+                                            </span>
                                         <?php else: ?>
                                             <span class="badge bg-dark">
                                                 <i class="bi bi-trash"></i> Eliminado
@@ -128,10 +133,10 @@ if (!isset($_SESSION['user'])) {
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
-                                            <?php if ($mov['tipo_registro'] === 'movimiento' && $mov['usuario_foto']): ?>
+                                            <?php if ($mov['usuario_foto']): ?>
                                                 <img src="<?= BASE_URL . '/' . htmlspecialchars($mov['usuario_foto']) ?>" 
                                                      width="28" height="28" class="rounded-circle" style="object-fit: cover;">
-                                            <?php elseif ($mov['tipo_registro'] === 'movimiento'): ?>
+                                            <?php else: ?>
                                                 <img src="<?= BASE_URL ?>/img/default_user.png" 
                                                      width="28" height="28" class="rounded-circle">
                                             <?php endif; ?>
@@ -141,6 +146,8 @@ if (!isset($_SESSION['user'])) {
                                     <td>
                                         <?php if ($mov['tipo_registro'] === 'movimiento'): ?>
                                             <small class="text-muted"><?= htmlspecialchars($mov['descripcion']) ?></small>
+                                        <?php elseif ($mov['tipo_registro'] === 'cambio'): ?>
+                                            <small class="text-muted">Propiedades modificadas</small>
                                         <?php else: ?>
                                             <small class="text-muted">Material eliminado del inventario</small>
                                         <?php endif; ?>
@@ -160,6 +167,10 @@ if (!isset($_SESSION['user'])) {
                                     <td class="text-center">
                                         <?php if ($mov['tipo_registro'] === 'movimiento'): ?>
                                             <button class="btn btn-info btn-sm btn-detalles" data-id="<?= $mov['id'] ?>" title="Ver detalles">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        <?php elseif ($mov['tipo_registro'] === 'cambio'): ?>
+                                            <button class="btn btn-warning btn-sm btn-detalles-cambio" data-detalles="<?= htmlspecialchars(json_encode(json_decode($mov['detalles'], true))) ?>" title="Ver cambios">
                                                 <i class="bi bi-eye"></i>
                                             </button>
                                         <?php else: ?>
@@ -190,16 +201,22 @@ if (!isset($_SESSION['user'])) {
                             Total de registros: <strong><?= count($historial) ?></strong>
                         </small>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-2">
                         <small class="text-muted">
                             <i class="bi bi-plus-lg text-success"></i>
                             Entradas: <strong><?= count(array_filter($historial, fn($m) => ($m['tipo_registro'] ?? null) === 'movimiento' && ($m['tipo_movimiento'] ?? null) === 'entrada')) ?></strong>
                         </small>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-2">
                         <small class="text-muted">
                             <i class="bi bi-dash-lg text-danger"></i>
                             Salidas: <strong><?= count(array_filter($historial, fn($m) => ($m['tipo_registro'] ?? null) === 'movimiento' && ($m['tipo_movimiento'] ?? null) === 'salida')) ?></strong>
+                        </small>
+                    </div>
+                    <div class="col-12 col-md-2">
+                        <small class="text-muted">
+                            <i class="bi bi-pencil text-warning"></i>
+                            Cambios: <strong><?= count(array_filter($historial, fn($m) => ($m['tipo_registro'] ?? null) === 'cambio')) ?></strong>
                         </small>
                     </div>
                 </div>
@@ -238,6 +255,102 @@ if (!isset($_SESSION['user'])) {
     }
 
     // Función para obtener detalles del movimiento
+    /**
+     * Ver detalles de cambios de material
+     */
+    function verDetallesCambio(detalles) {
+        console.log('=== DETALLES DE CAMBIOS ===');
+        console.log('Detalles:', detalles);
+        
+        const detallesDiv = document.getElementById('detalles-movimiento-content');
+        
+        if (!detallesDiv) {
+            console.error('❌ No se encontró elemento modal');
+            return;
+        }
+
+        try {
+            let cambiosHTML = '';
+            let hayCambios = false;
+
+            // Mapear nombres de campos más legibles
+            const nombresAmigables = {
+                'codigo': 'Código',
+                'nombre': 'Nombre',
+                'descripcion': 'Descripción',
+                'nodo_id': 'Nodo',
+                'linea_id': 'Línea',
+                'cantidad': 'Cantidad',
+                'estado': 'Estado'
+            };
+
+            // Iterar sobre cada campo que cambió
+            for (const [campo, cambio] of Object.entries(detalles)) {
+                if (typeof cambio === 'object' && cambio.antes !== undefined && cambio.despues !== undefined) {
+                    hayCambios = true;
+                    const nombreCampo = nombresAmigables[campo] || campo;
+                    const valorAntes = escapeHtml(String(cambio.antes || 'N/A'));
+                    const valorDespues = escapeHtml(String(cambio.despues || 'N/A'));
+                    
+                    cambiosHTML += `
+                        <div class="card mb-3 border-left-3" style="border-left: 3px solid #ffc107;">
+                            <div class="card-body">
+                                <h6 class="card-title text-warning">${nombreCampo}</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="text-muted mb-1">Valor anterior:</p>
+                                        <p class="mb-0"><code>${valorAntes}</code></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="text-muted mb-1">Valor nuevo:</p>
+                                        <p class="mb-0"><code>${valorDespues}</code></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            if (!hayCambios) {
+                cambiosHTML = '<div class="alert alert-info">No se encontraron cambios específicos.</div>';
+            }
+
+            detallesDiv.innerHTML = `
+                <div class="alert alert-warning mb-3">
+                    <i class="bi bi-pencil"></i>
+                    <strong>PROPIEDADES MODIFICADAS</strong>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="text-muted">Cambios Detectados</h6>
+                    </div>
+                </div>
+
+                ${cambiosHTML}
+
+                <hr>
+
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    Estos cambios fueron registrados en el sistema para auditoría.
+                </div>
+            `;
+            
+            // Mostrar modal
+            const modalElement = document.getElementById('modalDetallesMovimiento');
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+                console.log('✅ Modal mostrado');
+            }
+        } catch (error) {
+            console.error('❌ Error:', error);
+            detallesDiv.innerHTML = `<div class="alert alert-danger">❌ Error: ${escapeHtml(error.message)}</div>`;
+        }
+    }
+
     /**
      * Ver detalles de eliminación de material
      */
@@ -490,6 +603,20 @@ if (!isset($_SESSION['user'])) {
                 const detalles = JSON.parse(this.getAttribute('data-detalles'));
                 console.log('✅ Detalles de eliminación:', detalles);
                 verDetallesEliminacion(detalles);
+            });
+        });
+
+        // Event listeners para botones de detalles de cambios
+        const botonesCambios = document.querySelectorAll('.btn-detalles-cambio');
+        console.log(`Encontrados ${botonesCambios.length} botones .btn-detalles-cambio`);
+        
+        botonesCambios.forEach((btn) => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const detalles = JSON.parse(this.getAttribute('data-detalles'));
+                console.log('✅ Detalles de cambios:', detalles);
+                verDetallesCambio(detalles);
             });
         });
 

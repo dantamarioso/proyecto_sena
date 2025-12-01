@@ -339,7 +339,7 @@ class MaterialesController extends Controller
                     }
 
                     // Registrar en auditoría
-                    $this->registrarAuditoria('CREATE', 'materiales', $data['nombre'], $data);
+                    $this->registrarAuditoria('crear', 'materiales', $data['nombre'], $data, $materialId);
                     echo json_encode(['success' => true, 'message' => 'Material creado exitosamente', 'id' => $materialId]);
                     exit;
                 } else {
@@ -482,16 +482,24 @@ class MaterialesController extends Controller
                         
                         // Comparar valores (conversión de tipos para nodo_id y linea_id)
                         if ($campo === 'nodo_id' || $campo === 'linea_id') {
-                            if (intval($valorAnterior) != intval($valorNuevo)) {
+                            $valAnt = intval($valorAnterior);
+                            $valNuevo = intval($valorNuevo);
+                            if ($valAnt !== $valNuevo) {
                                 $cambios[$campo] = ['antes' => $valorAnterior, 'despues' => $valorNuevo];
                             }
-                        } else if ($valorAnterior != $valorNuevo) {
-                            $cambios[$campo] = ['antes' => $valorAnterior, 'despues' => $valorNuevo];
+                        } else {
+                            // Comparación estricta para otros campos
+                            if ($valorAnterior !== $valorNuevo) {
+                                $cambios[$campo] = ['antes' => $valorAnterior, 'despues' => $valorNuevo];
+                            }
                         }
                     }
-                    if (!empty($cambios)) {
-                        $this->registrarAuditoria('UPDATE', 'materiales', $data['nombre'], $cambios);
-                    }
+                    
+                    // Registrar auditoría siempre, incluso si no hay cambios detectados
+                    // (para mayor trazabilidad)
+                    $detallesAuditoria = !empty($cambios) ? $cambios : ['nota' => 'Sin cambios detectados'];
+                    $this->registrarAuditoria('actualizar', 'materiales', $data['nombre'], $detallesAuditoria, $id);
+                    
                     echo json_encode(['success' => true, 'message' => 'Material actualizado exitosamente']);
                     exit;
                 } else {
@@ -680,7 +688,7 @@ class MaterialesController extends Controller
                 'cantidad_anterior' => $material['cantidad'],
                 'cantidad_nueva'  => $nuevaCantidad,
             ];
-            $this->registrarAuditoria(strtoupper($tipo), 'materiales', $material['nombre'], $cambioInfo);
+            $this->registrarAuditoria('actualizar', 'materiales', $material['nombre'], $cambioInfo, $id);
 
             echo json_encode(['success' => true, 'message' => ucfirst($tipo) . ' registrada exitosamente']);
         } else {
@@ -716,7 +724,7 @@ class MaterialesController extends Controller
 
         // Obtener historial de movimientos
         $historial = [];
-        if ($filtros['tipo_movimiento'] !== 'eliminado') {
+        if ($filtros['tipo_movimiento'] !== 'eliminado' && $filtros['tipo_movimiento'] !== 'cambio') {
             $historial = $materialModel->getHistorialMovimientos($material_id, $filtros);
         }
         
@@ -727,7 +735,13 @@ class MaterialesController extends Controller
             $eliminaciones = $materialModel->getEliminacionesMateriales($filtros);
         }
         
-        // Combinar movimientos con eliminaciones y ordenar por fecha
+        // Obtener cambios de auditoría (UPDATE de propiedades)
+        $cambios = [];
+        if (empty($filtros['tipo_movimiento']) || $filtros['tipo_movimiento'] === 'cambio') {
+            $cambios = $materialModel->getHistorialCambios($material_id, $filtros);
+        }
+        
+        // Combinar movimientos, eliminaciones y cambios, y ordenar por fecha
         $historialCompleto = [];
         foreach ($historial as $mov) {
             $mov['tipo_registro'] = 'movimiento';
@@ -736,6 +750,10 @@ class MaterialesController extends Controller
         foreach ($eliminaciones as $elim) {
             $elim['tipo_registro'] = 'eliminacion';
             $historialCompleto[] = $elim;
+        }
+        foreach ($cambios as $cambio) {
+            $cambio['tipo_registro'] = 'cambio';
+            $historialCompleto[] = $cambio;
         }
         
         // Filtrar historial según permisos del usuario
@@ -903,7 +921,7 @@ class MaterialesController extends Controller
        AUDITORÍA
     ========================================================== */
 
-    private function registrarAuditoria($accion, $tabla, $descripcion, $detalles)
+    private function registrarAuditoria($accion, $tabla, $descripcion, $detalles, $registro_id = null)
     {
         try {
             require_once __DIR__ . '/../models/Audit.php';
@@ -911,7 +929,7 @@ class MaterialesController extends Controller
             $audit->registrarCambio(
                 $_SESSION['user']['id'] ?? null,
                 $tabla,
-                null,  // registro_id (no usado en este contexto)
+                $registro_id,  // registro_id (material_id en este caso)
                 $accion,
                 $detalles,
                 $_SESSION['user']['id'] ?? null  // admin_id
@@ -1568,7 +1586,7 @@ class MaterialesController extends Controller
 
                         // Registrar en auditoría
                         try {
-                            $this->registrarAuditoria('CREATE', 'materiales', $nombre, $dataMaterial);
+                            $this->registrarAuditoria('crear', 'materiales', $nombre, $dataMaterial, $materialId);
                         } catch (Exception $e) {
                             // Log silencioso
                         }
