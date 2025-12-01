@@ -58,3 +58,19 @@ Stack trace:
 #1 C:\xampp\htdocs\proyecto_sena\public\index.php(98): MaterialesController->exportarMateriales()
 #2 {main}
   thrown in C:\xampp\htdocs\proyecto_sena\app\helpers\ExcelHelper.php on line 85
+[01-Dec-2025 16:01:10 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:12 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:13 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:14 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:15 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:16 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:20 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:21 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:22 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:23 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:23 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:24 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:42 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:45 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:52 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65
+[01-Dec-2025 16:01:53 Europe/Berlin] PHP Parse error:  syntax error, unexpected identifier "Work", expecting ";" in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 65

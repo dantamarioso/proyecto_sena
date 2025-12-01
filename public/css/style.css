@@ -2,6 +2,16 @@
    GLOBAL STYLES & RESPONSIVE
 ============================================ */
 
+/* Fuente global para toda la aplicación */
+* {
+    font-family: "Work Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html,
+body {
+    font-family: "Work Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
 /* Ocultar icono nativo de mostrar contraseña en Edge */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {

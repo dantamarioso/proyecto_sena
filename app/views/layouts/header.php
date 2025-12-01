@@ -23,6 +23,11 @@
         window.BASE_URL = currentProtocol + '//' + currentHost + '/proyecto_sena/public';
     </script>
 
+    <!-- Google Fonts - Work Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- Sidebar CSS -->
     <link rel="stylesheet" href="/proyecto_sena/public/css/sidebar.css">
     

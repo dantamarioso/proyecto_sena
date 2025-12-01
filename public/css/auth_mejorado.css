@@ -6,7 +6,7 @@ body.auth-page {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Work Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 .auth-container {

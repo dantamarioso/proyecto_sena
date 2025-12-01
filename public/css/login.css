@@ -19,20 +19,7 @@ body {
 }
 
 /* IMAGEN ENCIMA DE LOS CONTENEDORES */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
 
-  background-image: url("../img/subfondo.png");
-  background-repeat: no-repeat;
-  background-size: auto 20%;
-
-  /* antes: left center */
-  background-position: 8% center; /* prueba 8%, 10%, 12%… */
-
-  z-index: -2;
-}
 
 /* FONDO DEBAJO DIFUMINADO */
 body::after {
@@ -47,13 +34,16 @@ body::after {
 }
 
 /* FORZAMOS EL LOGIN A ESTAR DEBAJO DEL SUBFONDO */
-.login-page,
-.login-container,
+.login-page {
+  position: relative;
+  z-index: 100;
+}
+
 .login-wrapper,
 .card,
 .login-carousel {
   position: relative;
-  z-index: 100; /* ­ƒöÑ por debajo del subfondo (9999) */
+  z-index: 100; /* por debajo del subfondo (9999) */
 }
 
 /* ================================
@@ -74,20 +64,23 @@ body::after {
   gap: 40px;
 
   width: 100%;
-  max-width: 900px; /* ancho m├íximo conjunto login+carrusel */
+  max-width: 900px; /* ancho máximo conjunto login+carrusel */
   padding: 20px;
 }
 
 /* ================================
-   TARJETA LOGIN (tama├▒o fijo, no cambia)
+   TARJETA LOGIN (tamaño fijo, no cambia)
 ================================ */
 .login-wrapper {
   flex: 0 0 420px; /* ancho fijo para que NO se encoja */
   display: flex;
   justify-content: center;
+  position: relative;
+  z-index: 10;
 }
 
 .card.login-card {
+  position: relative;
   width: 100%;
   background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(18px);
@@ -96,6 +89,34 @@ body::after {
   padding: 32px;
   border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.card.login-card .card-body {
+  position: relative;
+  z-index: 1;
+}
+
+/* Subfondo encima del título */
+.card.login-card .card-body h3 {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.card.login-card .card-body h3::before {
+  content: "";
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 50px;
+  background-image: url("../img/subfondo.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* Inputs */
@@ -186,6 +207,20 @@ body::after {
     flex: 0 0 auto;
     max-width: 100%;
     text-align: center;
+  }
+
+  .card.login-card .card-body h3::before {
+    width: 40px;
+    height: 40px;
+    top: -40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card.login-card .card-body h3::before {
+    width: 35px;
+    height: 35px;
+    top: -35px;
   }
 }
 /* Ocultar el icono nativo de mostrar contrase├▒a en Edge */

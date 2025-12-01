@@ -62,7 +62,7 @@ class MailHelper
     <title>{$titulo}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; }
+        body { font-family: 'Work Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; background-color: #f5f5f5; }
         .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px 20px; }
         .header { text-align: center; margin-bottom: 30px; }
         .header h1 { color: #0d6efd; font-size: 28px; margin-bottom: 10px; }
