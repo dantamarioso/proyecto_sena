@@ -1,14 +1,16 @@
 # Sistema de Gestión de Usuarios e Inventario
 
-**Versión:** 1.0.0  
-**Fecha:** Noviembre 2025  
+**Versión:** 1.1.0  
+**Fecha:** Diciembre 2025  
 **Desarrollador:** SENA - Proyecto Educativo
 
 ---
 
 ## 📋 Descripción General
 
-Sistema web completo de gestión de usuarios e inventario desarrollado con **PHP puro** (sin frameworks), implementando un patrón **MVC minimalista**. Incluye autenticación robusta, recuperación de contraseña con códigos de 6 dígitos, registro con verificación de email, gestión de roles y administración de usuarios con auditoría completa de cambios.
+Sistema web completo de **gestión de usuarios** e **inventario** desarrollado con **PHP puro** (sin frameworks), implementando un patrón **MVC minimalista**. 
+
+Incluye autenticación robusta, recuperación de contraseña con códigos de 6 dígitos, registro con verificación de email, gestión de roles, administración de usuarios, gestión integral de materiales e inventario, con auditoría completa de cambios y reportes.
 
 **Características principales:**
 - ✅ Autenticación segura con sesiones y hash de contraseñas
@@ -17,9 +19,14 @@ Sistema web completo de gestión de usuarios e inventario desarrollado con **PHP
 - ✅ Gestión de usuarios (CRUD completo) - solo administradores
 - ✅ Sistema de roles (admin, usuario, invitado)
 - ✅ Auditoría de cambios con historial completo
-- ✅ Perfil de usuario editable
+- ✅ Perfil de usuario editable con foto
 - ✅ Cambio de foto de perfil con modal AJAX
 - ✅ Búsqueda y filtrado de usuarios
+- ✅ **Gestión completa de materiales e inventario**
+- ✅ **Historial de movimientos de inventario**
+- ✅ **Líneas y nodos de almacenamiento**
+- ✅ **Archivos adjuntos a materiales**
+- ✅ **Reportes en Excel y PDF**
 - ✅ Control de acceso basado en roles
 
 ---
@@ -38,22 +45,38 @@ proyecto_sena/
 │   │   ├── register.css            # Estilos registro
 │   │   ├── recovery.css            # Recuperación de contraseña
 │   │   ├── perfil.css              # Perfil de usuario
+│   │   ├── perfil_mejorado.css     # Perfil mejorado
 │   │   ├── usuarios.css            # Gestión de usuarios
 │   │   ├── usuarios_form.css       # Formularios de usuarios
-│   │   ├── usuarios_responsive.css # Responsive
-│   │   └── audit.css               # Auditoría
+│   │   ├── usuarios_responsive.css # Responsive usuarios
+│   │   ├── usuarios_gestion.css    # Tabla de gestión de usuarios
+│   │   ├── materiales.css          # Gestión de materiales
+│   │   ├── materiales_form.css     # Formularios de materiales
+│   │   ├── modales.css             # Estilos modales
+│   │   ├── tablas.css              # Estilos tablas
+│   │   ├── utilidades.css          # Clases utilitarias
+│   │   ├── audit.css               # Auditoría
+│   │   ├── audit_mejorado.css      # Auditoría mejorada
+│   │   ├── login.css               # Login mejorado
+│   │   ├── auth_mejorado.css       # Auth mejorado
+│   │   ├── sidebar-toggle.css      # Toggle sidebar
+│   │   └── recovery.css            # Recuperación de contraseña
 │   ├── js/                         # JavaScript
 │   │   ├── app.js                  # App principal
-│   │   ├── login.js                # Login
-│   │   ├── register.js             # Registro
-│   │   ├── recovery.js             # Recuperación
-│   │   ├── password_toggle.js      # Toggle visibilidad contraseña
-│   │   ├── sidebar.js              # Sidebar interactivo
-│   │   ├── perfil.js               # Funciones perfil
-│   │   ├── usuarios.js             # Gestión usuarios (búsqueda, filtrado)
-│   │   └── audit.js                # Auditoría
+│   │   ├── login.js                # Login interactivo
+│   │   ├── register.js             # Validación registro
+│   │   ├── recovery.js             # Recuperación contraseña
+│   │   ├── password_toggle.js      # Mostrar/ocultar contraseña
+│   │   ├── sidebar.js              # Sidebar responsive
+│   │   ├── perfil.js               # Cambio de foto AJAX
+│   │   ├── usuarios.js             # Búsqueda, filtrado, paginación
+│   │   ├── materiales.js           # Gestión materiales (búsqueda, filtrado)
+│   │   ├── audit.js                # Auditoría
+│   │   ├── historial_mejorado.js   # Historial mejorado
+│   │   └── utilidades.js           # Funciones utilitarias
 │   ├── uploads/                    # Archivos subidos
-│   │   └── fotos/                  # Fotos de perfil
+│   │   ├── fotos/                  # Fotos de perfil
+│   │   └── materiales/             # Archivos de materiales
 │   └── img/                        # Imágenes estáticas
 │
 ├── app/                            # Lógica de la aplicación
@@ -66,17 +89,29 @@ proyecto_sena/
 │   │   ├── HomeController.php      # Dashboard principal
 │   │   ├── UsuariosController.php  # Gestión de usuarios
 │   │   ├── PerfilController.php    # Perfil de usuario
+│   │   ├── MaterialesController.php # Gestión de materiales e inventario
 │   │   └── AuditController.php     # Auditoría y historial
 │   ├── models/                     # Modelos de datos
 │   │   ├── User.php                # Modelo Usuario (60+ métodos)
-│   │   └── Audit.php               # Modelo Auditoría
+│   │   ├── Audit.php               # Modelo Auditoría
+│   │   ├── Material.php            # Modelo Materiales
+│   │   ├── MaterialArchivo.php     # Archivos adjuntos de materiales
+│   │   ├── Linea.php               # Líneas de inventario
+│   │   └── Nodo.php                # Nodos de inventario
 │   ├── helpers/                    # Funciones auxiliares
-│   │   └── MailHelper.php          # Envío de emails con PHPMailer
+│   │   ├── MailHelper.php          # Envío de emails con PHPMailer
+│   │   ├── ValidationHelper.php    # Validaciones comunes
+│   │   ├── DebugHelper.php         # Ayudas para debugging
+│   │   ├── PermissionHelper.php    # Control de permisos
+│   │   ├── ViewHelpers.php         # Helpers para vistas
+│   │   ├── EnvHelper.php           # Manejo de variables de entorno
+│   │   ├── ExcelHelper.php         # Generación de reportes Excel
+│   │   └── PdfHelper.php           # Generación de reportes PDF
 │   └── views/                      # Plantillas
 │       ├── layouts/                # Diseño base
 │       │   ├── header.php          # Encabezado y navbar
 │       │   ├── footer.php          # Pie de página
-│       │   └── sidebar.php         # Menú lateral
+│       │   └── sidebar.php         # Menú lateral con enlaces
 │       ├── auth/                   # Vistas autenticación
 │       │   ├── login.php           # Formulario login
 │       │   ├── register.php        # Formulario registro
@@ -92,17 +127,29 @@ proyecto_sena/
 │       │   ├── gestion_de_usuarios.php  # Tabla lista usuarios
 │       │   ├── crear.php           # Crear usuario
 │       │   ├── editar.php          # Editar usuario
+│       │   ├── detalles.php        # Ver detalles usuario
 │       │   └── index.php           # Redirección
 │       ├── perfil/                 # Perfil de usuario
-│       │   ├── ver.php             # Ver perfil
+│       │   ├── ver.php             # Ver perfil personal
 │       │   ├── editar.php          # Editar perfil
 │       │   └── verificarCambioCorreo.php  # Verificar cambio email
+│       ├── materiales/             # Gestión de materiales e inventario
+│       │   ├── index.php           # Redirección
+│       │   ├── crear.php           # Crear material
+│       │   ├── editar.php          # Editar material
+│       │   ├── detalles.php        # Ver detalles material
+│       │   ├── historial_inventario.php  # Historial de cambios inventario
+│       │   └── partials/           # Componentes reutilizables
 │       ├── audit/                  # Auditoría
 │       │   └── historial.php       # Historial de cambios
-│       └── dashboard/              # (vacío - para futura expansión)
+│       └── dashboard/              # (para futura expansión)
 │
 ├── config/
 │   └── config.php                  # Configuración (BD, BASE_URL)
+│
+├── database/
+│   ├── inventario_db.sql           # Esquema completo de BD
+│   └── migrations/                 # Scripts de migración
 │
 ├── vendor/                         # Dependencias (Composer)
 │   ├── autoload.php
@@ -114,6 +161,7 @@ proyecto_sena/
 │
 ├── composer.json                   # Dependencias PHP
 ├── composer.lock                   # Lock file
+├── error_log.txt                   # Log de errores
 └── README.md                       # Este archivo
 ```
 
@@ -203,6 +251,64 @@ CREATE TABLE auditoria (
     FOREIGN KEY (admin_id) REFERENCES usuarios(id) ON DELETE SET NULL
 );
 
+-- Tabla de líneas de inventario
+CREATE TABLE lineas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    estado TINYINT(1) DEFAULT 1,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Tabla de nodos (ubicaciones de almacenamiento)
+CREATE TABLE nodos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    ubicacion VARCHAR(200),
+    capacidad INT,
+    estado TINYINT(1) DEFAULT 1,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Tabla de materiales
+CREATE TABLE materiales (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(150) NOT NULL,
+    descripcion TEXT,
+    codigo VARCHAR(50) UNIQUE NOT NULL,
+    cantidad INT DEFAULT 0,
+    unidad VARCHAR(50),
+    linea_id INT,
+    nodo_id INT,
+    precio_unit DECIMAL(10, 2),
+    estado TINYINT(1) DEFAULT 1,
+    usuario_id INT,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (linea_id) REFERENCES lineas(id) ON DELETE SET NULL,
+    FOREIGN KEY (nodo_id) REFERENCES nodos(id) ON DELETE SET NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
+-- Tabla de archivos de materiales
+CREATE TABLE material_archivos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    material_id INT NOT NULL,
+    nombre_archivo VARCHAR(255),
+    archivo_path VARCHAR(255),
+    tipo_archivo VARCHAR(50),
+    tamano INT,
+    usuario_id INT,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (material_id) REFERENCES materiales(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
 -- Índices para mejor rendimiento
 CREATE INDEX idx_usuarios_correo ON usuarios(correo);
 CREATE INDEX idx_usuarios_nombre_usuario ON usuarios(nombre_usuario);
@@ -211,6 +317,11 @@ CREATE INDEX idx_auditoria_usuario ON auditoria(usuario_id);
 CREATE INDEX idx_auditoria_admin ON auditoria(admin_id);
 CREATE INDEX idx_auditoria_fecha ON auditoria(fecha_creacion);
 CREATE INDEX idx_auditoria_accion ON auditoria(accion);
+CREATE INDEX idx_materiales_codigo ON materiales(codigo);
+CREATE INDEX idx_materiales_linea ON materiales(linea_id);
+CREATE INDEX idx_materiales_nodo ON materiales(nodo_id);
+CREATE INDEX idx_materiales_estado ON materiales(estado);
+CREATE INDEX idx_material_archivos ON material_archivos(material_id);
 ```
 
 #### 4. Configurar aplicación
@@ -242,11 +353,13 @@ $mail->Port       = 587;
 
 > **⚠️ Seguridad:** Las credenciales están hardcodeadas. Considere usar variables de entorno (.env).
 
-#### 6. Crear directorio de uploads
+#### 6. Crear directorios de uploads
 
 ```bash
 mkdir -p public/uploads/fotos
+mkdir -p public/uploads/materiales
 chmod 777 public/uploads/fotos
+chmod 777 public/uploads/materiales
 ```
 
 #### 7. Ejecutar servidor
@@ -512,6 +625,32 @@ AuditController::historial()                [Ver historial]
     └─ Búsqueda AJAX
 ```
 
+### 7. **Flujo de Gestión de Materiales e Inventario**
+
+```
+MaterialesController::crear()               [Crear nuevo material]
+    ├─ Validaciones: código único, nombre
+    ├─ Asignar a línea de inventario
+    ├─ Asignar a nodo de almacenamiento
+    ├─ Guardar en: materiales
+    └─ Registrar en auditoría
+
+MaterialesController::editar()              [Editar material existente]
+    ├─ Cargar datos actual
+    ├─ Validar cambios
+    ├─ Actualizar stock
+    └─ Registrar cambios en auditoría
+
+MaterialesController::historialInventario() [Ver historial de movimientos]
+    ├─ Filtros: material, usuario, rango de fechas
+    ├─ Mostrar: cantidad anterior, nueva, diferencia
+    ├─ Paginación: 20 registros por página
+    └─ Export a Excel/PDF
+
+Material::incrementarStock()                [Agregar stock]
+Material::decrementarStock()                [Restar stock - cuando se consume]
+```
+
 ---
 
 ## 📊 Modelos de Datos
@@ -551,6 +690,57 @@ AuditController::historial()                [Ver historial]
 | `obtenerHistorialCompleto()` | Historial completo con filtros |
 | `contarHistorial()` | Contar registros |
 | `obtenerUsuariosEliminados()` | Usuarios eliminados en auditoría |
+
+### **Material.php** (Gestión de Materiales e Inventario)
+
+| Método | Descripción |
+|--------|-------------|
+| `create($data)` | Crear nuevo material |
+| `findById($id)` | Obtener material por ID |
+| `all()` | Listar todos los materiales |
+| `search($q, $limit, $offset)` | Búsqueda de materiales |
+| `countSearch($q)` | Contar resultados búsqueda |
+| `updateFull($id, $data)` | Actualizar material |
+| `updateEstado($id, $estado)` | Cambiar estado material |
+| `deleteById($id)` | Eliminar material |
+| `obtenerHistorialMovimientos($materialId)` | Historial de cambios |
+| `obtenerStockActual($materialId)` | Stock disponible |
+| `decrementarStock($materialId, $cantidad)` | Restar stock |
+| `incrementarStock($materialId, $cantidad)` | Sumar stock |
+
+### **Linea.php** (Líneas de Inventario)
+
+Modelo para gestionar líneas o categorías de materiales.
+
+| Método | Descripción |
+|--------|-------------|
+| `create($data)` | Crear línea de inventario |
+| `findById($id)` | Obtener línea por ID |
+| `all()` | Listar todas las líneas |
+| `update($id, $data)` | Actualizar línea |
+| `delete($id)` | Eliminar línea |
+
+### **Nodo.php** (Nodos de Inventario)
+
+Modelo para gestionar ubicaciones o nodos de almacenamiento.
+
+| Método | Descripción |
+|--------|-------------|
+| `create($data)` | Crear nodo |
+| `findById($id)` | Obtener nodo por ID |
+| `all()` | Listar todos los nodos |
+| `update($id, $data)` | Actualizar nodo |
+| `delete($id)` | Eliminar nodo |
+| `obtenerMaterialesEnNodo($nodoId)` | Materiales en este nodo |
+
+### **MaterialArchivo.php** (Archivos de Materiales)
+
+| Método | Descripción |
+|--------|-------------|
+| `create($data)` | Crear archivo adjunto |
+| `findById($id)` | Obtener archivo por ID |
+| `obtenerArchivosMaterial($materialId)` | Archivos de un material |
+| `deleteById($id)` | Eliminar archivo |
 
 ---
 
@@ -601,6 +791,51 @@ Nombres únicos:
 ```php
 $nombreFoto = "uploads/fotos/" . uniqid("foto_") . "." . $ext;
 ```
+
+---
+
+## 🧰 Helpers Disponibles
+
+### **MailHelper.php**
+Centraliza el envío de emails con PHPMailer:
+- `sendCode($correo, $asunto, $codigo, $tipo)` - Envía código por email
+- Plantillas HTML profesionales
+- SMTP configurado para Gmail
+
+### **ValidationHelper.php**
+Validaciones reutilizables:
+- Email válido con `filter_var()`
+- Contraseña segura (8 chars, mayúscula, especial)
+- Celular numérico
+- Validación de extensiones de archivo
+
+### **PermissionHelper.php**
+Control de acceso:
+- `requireAdmin()` - Solo admins
+- `requireUser()` - Usuarios autenticados
+- `canEditProfile($userId)` - Puede editar perfil
+- `canEditUser($userId)` - Puede editar otro usuario
+
+### **ViewHelpers.php**
+Helpers para vistas:
+- `formatDate($date)` - Formatear fecha
+- `getInitials($name)` - Iniciales de nombre
+- `getRoleColor($role)` - Color por rol
+- `getStatusBadge($status)` - Badge estado
+
+### **DebugHelper.php**
+Debugging en desarrollo:
+- `dd($var)` - Die & dump
+- `log($msg)` - Log a error_log.txt
+
+### **EnvHelper.php**
+Manejo de variables de entorno
+
+### **ExcelHelper.php**
+Generación de reportes en Excel (PHPSpreadsheet)
+
+### **PdfHelper.php**
+Generación de reportes en PDF
 
 ---
 
@@ -774,6 +1009,20 @@ GET  /?url=audit/historial         Historial cambios
 GET  /?url=audit/buscar            API búsqueda (JSON)
 ```
 
+### Materiales (Gestión de Inventario)
+
+```
+GET  /?url=materiales/index        Redirección a lista
+GET  /?url=materiales/crear        Formulario crear material
+POST /?url=materiales/crear        Crear nuevo material
+GET  /?url=materiales/editar&id=1  Formulario editar material
+POST /?url=materiales/editar       Procesar edición material
+GET  /?url=materiales/detalles&id=1  Ver detalles material
+POST /?url=materiales/eliminar     Eliminar material
+GET  /?url=materiales/historial_inventario  Historial movimientos
+GET  /?url=materiales/buscar       API búsqueda materiales (JSON)
+```
+
 ---
 
 ## 🔍 Búsqueda y Filtrado
@@ -928,6 +1177,54 @@ private function requireAdmin() {
 }
 ```
 
+### Crear Material
+
+```php
+// MaterialesController::crear()
+$materialModel = new Material();
+
+$materialId = $materialModel->create([
+    'nombre'        => 'Tornillo M8',
+    'descripcion'   => 'Tornillo de cabeza hexagonal',
+    'codigo'        => 'TOR-M8-001',
+    'cantidad'      => 1000,
+    'unidad'        => 'Unidad',
+    'linea_id'      => 5,        // FK a tabla lineas
+    'nodo_id'       => 3,        // FK a tabla nodos
+    'precio_unit'   => 0.50,
+    'estado'        => 1,
+    'usuario_id'    => $_SESSION['user']['id']
+]);
+```
+
+### Actualizar Stock de Material
+
+```php
+$materialModel = new Material();
+
+// Restar stock (cuando se consume)
+$materialModel->decrementarStock($materialId, 50);
+
+// Sumar stock (cuando llega nuevo)
+$materialModel->incrementarStock($materialId, 100);
+```
+
+### Obtener Historial de Inventario
+
+```php
+// Ver todos los movimientos de un material
+$auditModel = new Audit();
+
+$historial = $auditModel->obtenerHistorialCompleto(
+    $usuario_id = null,
+    $accion = 'actualizar',
+    $fecha_inicio = '2025-01-01',
+    $fecha_fin = '2025-12-31',
+    $limit = 20,
+    $offset = 0
+);
+```
+
 ---
 
 ## 🐛 Debugging y Logs
@@ -951,6 +1248,33 @@ try {
 }
 ```
 
+## 📊 Reportes y Exportación
+
+### **Exportar a Excel**
+
+```php
+// Usar ExcelHelper para exportar datos
+ExcelHelper::generarReporte($data, 'Inventario');
+
+// Genera archivo Excel con:
+// - Encabezados
+// - Datos formateados
+// - Estilos básicos
+// - Descarga automática
+```
+
+### **Exportar a PDF**
+
+```php
+// Usar PdfHelper para reportes en PDF
+PdfHelper::generarReporte($html, 'Reporte_Inventario.pdf');
+
+// Genera PDF profesional con:
+// - Encabezados y pie de página
+// - Tablas formateadas
+// - Imágenes y estilos
+```
+
 ---
 
 ## 📚 Dependencias
@@ -958,12 +1282,16 @@ try {
 ```json
 {
     "require": {
-        "phpmailer/phpmailer": "^7.0"
+        "phpmailer/phpmailer": "^7.0",
+        "phpoffice/phpspreadsheet": "^1.28",
+        "tcpdf/tcpdf": "^6.6"
     }
 }
 ```
 
 - **PHPMailer 7.x** - Envío de emails SMTP
+- **PHPSpreadsheet** - Generación de reportes Excel
+- **TCPDF** - Generación de reportes PDF
 
 ---
 
@@ -1000,6 +1328,17 @@ Este proyecto es desarrollado como parte del programa de SENA.
 
 ## 🗂️ Historial de Cambios
 
+### v1.1.0 - Actualización (Diciembre 2025)
+- ✅ Gestión completa de materiales e inventario
+- ✅ Modelos Material, Linea, Nodo, MaterialArchivo
+- ✅ Historial de movimientos de inventario
+- ✅ Búsqueda y filtrado de materiales
+- ✅ Helpers adicionales (Validation, Permission, View, etc)
+- ✅ Reportes en Excel y PDF
+- ✅ UI mejorada con estilos adicionales
+- ✅ Vistas para detalles de usuarios y materiales
+- ✅ Historial de inventario con análisis
+
 ### v1.0.0 - Inicial
 - ✅ Autenticación completa
 - ✅ Recuperación de contraseña
@@ -1017,17 +1356,24 @@ Antes de ir a producción:
 
 - [ ] Cambiar credenciales de BD (no 'root' sin contraseña)
 - [ ] Cambiar credenciales SMTP
-- [ ] Mover credenciales a variables de entorno
-- [ ] Habilitar HTTPS
+- [ ] Mover credenciales a variables de entorno (.env)
+- [ ] Habilitar HTTPS/SSL
 - [ ] Desactivar debug mode
-- [ ] Configurar permiso de directorios `chmod 750`
-- [ ] Agregar CSRF tokens
-- [ ] Implementar rate limiting
-- [ ] Configurar logs
-- [ ] Hacer backup automático BD
-- [ ] Configurar firewalls
+- [ ] Configurar permisos de directorios `chmod 750`
+- [ ] Proteger directorios sensibles (config, vendor)
+- [ ] Agregar CSRF tokens a formularios
+- [ ] Implementar rate limiting en login
+- [ ] Configurar sistema de logs
+- [ ] Hacer backup automático BD (diario/semanal)
+- [ ] Configurar firewalls y WAF
 - [ ] Establecer política de contraseñas
-- [ ] Implementar 2FA (opcional)
+- [ ] Implementar 2FA (autenticación de dos factores)
+- [ ] Validar uploads de archivo (MIME type, tamaño máx)
+- [ ] Scan de seguridad (OWASP Top 10)
+- [ ] Tests de penetración
+- [ ] Monitoreo de errores (Sentry, etc)
+- [ ] CDN para archivos estáticos
+- [ ] Caché de aplicación (Redis, Memcached)
 
 ---
 
