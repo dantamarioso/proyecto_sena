@@ -12,7 +12,7 @@
                 </div>
             <?php endif; ?>
 
-            <form method="post" action="<?= BASE_URL ?>/?url=auth/sendCode">
+            <form method="post" action="<?= BASE_URL ?>/auth/sendCode">
 
                 <div class="mb-3">
                     <label class="form-label"><i class="bi bi-envelope me-2"></i>Correo Registrado</label>
@@ -28,7 +28,7 @@
 
             <div class="text-center">
                 <p class="text-muted mb-3">¿Recuerdas tu contraseña?</p>
-                <a href="<?= BASE_URL ?>/?url=auth/login" class="link-recovery">
+                <a href="<?= BASE_URL ?>/auth/login" class="link-recovery">
                     <i class="bi bi-box-arrow-in-right me-2"></i>Volver a Iniciar Sesión
                 </a>
             </div>

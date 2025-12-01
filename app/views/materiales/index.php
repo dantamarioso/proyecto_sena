@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/?url=auth/login");
+    header("Location: " . BASE_URL . "/auth/login");
     exit;
 }
 ?>
@@ -22,12 +22,25 @@ if (!isset($_SESSION['user'])) {
                     // Admin y dinamizador pueden crear
                     if (in_array($rol, ['admin', 'dinamizador'])): 
                 ?>
-                    <a href="<?= BASE_URL ?>/?url=materiales/crear" class="btn btn-success btn-sm w-100 w-sm-auto">
+                    <a href="<?= BASE_URL ?>/materiales/crear" class="btn btn-success btn-sm w-100 w-sm-auto">
                         <i class="bi bi-plus-lg"></i> Nuevo Material
                     </a>
                 <?php endif; ?>
+                
+                <!-- Importar CSV: Solo admin y dinamizador -->
+                <?php if (in_array($rol, ['admin', 'dinamizador'])): ?>
+                    <button type="button" class="btn btn-primary btn-sm w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#modalImportar">
+                        <i class="bi bi-upload"></i> Importar CSV
+                    </button>
+                <?php endif; ?>
+                
+                <!-- Exportar: Todos pueden -->
+                <button type="button" class="btn btn-success btn-sm w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#modalExportar">
+                    <i class="bi bi-download"></i> Descargar
+                </button>
+                
                 <!-- Todos pueden ver historial -->
-                <a href="<?= BASE_URL ?>/?url=materiales/historialInventario" class="btn btn-info btn-sm w-100 w-sm-auto">
+                <a href="<?= BASE_URL ?>/materiales/historialInventario" class="btn btn-info btn-sm w-100 w-sm-auto">
                     <i class="bi bi-clock-history"></i> Historial
                 </a>
             </div>
@@ -79,6 +92,9 @@ if (!isset($_SESSION['user'])) {
                             <th>Código</th>
                             <th>Nombre</th>
                             <th class="d-none d-md-table-cell">Descripción</th>
+                            <?php if (in_array($_SESSION['user']['rol'] ?? 'usuario', ['admin', 'dinamizador'])): ?>
+                                <th>Nodo</th>
+                            <?php endif; ?>
                             <th>Línea</th>
                             <th class="text-center">Cantidad</th>
                             <th class="d-none d-lg-table-cell">Documentos</th>
@@ -95,6 +111,11 @@ if (!isset($_SESSION['user'])) {
                                 <td class="d-none d-md-table-cell">
                                     <small><?= htmlspecialchars(substr($m['descripcion'], 0, 50)) ?><?= strlen($m['descripcion']) > 50 ? '...' : '' ?></small>
                                 </td>
+                                <?php if (in_array($_SESSION['user']['rol'] ?? 'usuario', ['admin', 'dinamizador'])): ?>
+                                    <td>
+                                        <span class="badge bg-secondary"><?= htmlspecialchars($m['nodo_nombre'] ?? 'N/A') ?></span>
+                                    </td>
+                                <?php endif; ?>
                                 <td>
                                     <span class="badge bg-primary"><?= htmlspecialchars($m['linea_nombre'] ?? 'N/A') ?></span>
                                 </td>
@@ -102,7 +123,7 @@ if (!isset($_SESSION['user'])) {
                                     <strong><?= intval($m['cantidad']) ?></strong>
                                 </td>
                                 <td class="d-none d-lg-table-cell">
-                                    <a href="<?= BASE_URL ?>/?url=materiales/detalles&id=<?= $m['id'] ?>" class="text-decoration-none" title="Ver detalles y archivos">
+                                    <a href="<?= BASE_URL ?>/materiales/detalles?id=<?= $m['id'] ?>" class="text-decoration-none" title="Ver detalles y archivos">
                                         <span class="badge bg-secondary" id="docs-<?= $m['id'] ?>" style="cursor: pointer;">
                                             <i class="bi bi-hourglass-split"></i>
                                         </span>
@@ -147,7 +168,7 @@ if (!isset($_SESSION['user'])) {
                                             // Editar: Admin y Dinamizador su nodo
                                             if (($rol === 'admin') || ($rol === 'dinamizador' && $esDelUsuario)):
                                         ?>
-                                            <a href="<?= BASE_URL ?>/?url=materiales/editar&id=<?= $m['id'] ?>"
+                                            <a href="<?= BASE_URL ?>/materiales/editar?id=<?= $m['id'] ?>"
                                                class="btn btn-primary btn-sm" title="Editar">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
@@ -198,6 +219,90 @@ if (!isset($_SESSION['user'])) {
                             <?php endforeach; ?>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Importar CSV -->
+<div class="modal fade" id="modalImportar" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Importar Materiales desde CSV</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info mb-3">
+                    <strong><i class="bi bi-info-circle"></i> Instrucciones:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>El archivo debe ser <strong>CSV o TXT</strong> con máximo <strong>5 MB</strong></li>
+                        <li>Campos requeridos: <strong>Código</strong>, <strong>Nombre</strong>, <strong>Línea</strong></li>
+                        <li>Campos opcionales: Descripción, Cantidad, Estado</li>
+                        <li>Los datos se limpiarán automáticamente (espacios, mayúsculas, etc.)</li>
+                        <li>Se detectará automáticamente el delimitador (coma, punto y coma, tabulación)</li>
+                    </ul>
+                </div>
+
+                <form id="formularioImportar" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="archivo-importar" class="form-label">Selecciona el archivo</label>
+                        <input type="file" class="form-control" id="archivo-importar" name="archivo" accept=".csv,.txt" required>
+                        <small class="form-text text-muted">CSV o TXT (máximo 5 MB)</small>
+                    </div>
+
+                    <div id="import-preview" style="display: none;">
+                        <div class="alert alert-warning">
+                            <strong>Vista previa:</strong>
+                            <div style="max-height: 200px; overflow-y: auto; margin-top: 10px;">
+                                <pre id="preview-content" style="margin: 0; font-size: 0.85rem;"></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="import-errors" class="alert alert-danger" style="display: none;">
+                        <strong>Errores encontrados:</strong>
+                        <ul id="import-error-list" class="mb-0 mt-2"></ul>
+                    </div>
+
+                    <div id="import-success" class="alert alert-success" style="display: none;">
+                        <div id="import-success-message"></div>
+                        <hr>
+                        <div id="import-warnings" style="display: none;">
+                            <strong>Advertencias:</strong>
+                            <ul id="import-warning-list" class="mb-0 mt-2"></ul>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-importar">
+                    <i class="bi bi-upload"></i> Importar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Seleccionar formato de descarga -->
+<div class="modal fade" id="modalExportar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Descargar Materiales</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-4">Selecciona el formato en el que deseas descargar los materiales:</p>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-lg" id="btn-descargar-csv">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Descargar como Excel (CSV)
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-lg" id="btn-descargar-pdf">
+                        <i class="bi bi-file-earmark-pdf"></i> Descargar como PDF
+                    </button>
                 </div>
             </div>
         </div>
@@ -262,13 +367,40 @@ document.addEventListener('DOMContentLoaded', () => {
             cargarDocumentos(materialId);
         }
     });
+
+    // Botones de descarga
+    document.getElementById('btn-descargar-csv').addEventListener('click', () => {
+        window.location.href = `${window.BASE_URL}/materiales/exportarMateriales`;
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
+        modal.hide();
+    });
+
+    document.getElementById('btn-descargar-pdf').addEventListener('click', () => {
+        const pdfUrl = `${window.BASE_URL}/materiales/exportarMaterialesPDF`;
+        // Abrir en nueva ventana
+        const newWindow = window.open(pdfUrl, 'pdf_preview', 'width=900,height=700');
+        
+        // Después de 1 segundo, descargar directamente
+        setTimeout(() => {
+            const downloadLink = document.createElement('a');
+            downloadLink.href = pdfUrl;
+            downloadLink.download = 'materiales_' + new Date().toISOString().split('T')[0] + '.pdf';
+            downloadLink.style.display = 'none';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }, 1000);
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
+        modal.hide();
+    });
 });
 
 function cargarDocumentos(materialId) {
     const badgeElement = document.getElementById(`docs-${materialId}`);
     if (!badgeElement) return;
 
-    fetch(`${window.BASE_URL}/?url=materiales/contarDocumentos&material_id=${materialId}`)
+    fetch(`${window.BASE_URL}/materiales/contarDocumentos?material_id=${materialId}`)
         .then(response => response.json())
         .then(data => {
             let badge = '';

@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/?url=auth/login");
+    header("Location: " . BASE_URL . "/auth/login");
     exit;
 }
 ?>
@@ -16,7 +16,7 @@ if (!isset($_SESSION['user'])) {
 
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
             <h3 class="mb-0">Historial de Inventario</h3>
-            <a href="<?= BASE_URL ?>/?url=materiales/index" class="btn btn-outline-secondary btn-sm w-100 w-sm-auto">
+            <a href="<?= BASE_URL ?>/materiales/index" class="btn btn-outline-secondary btn-sm w-100 w-sm-auto">
                 <i class="bi bi-arrow-left"></i> Volver al Inventario
             </a>
         </div>
@@ -70,6 +70,7 @@ if (!isset($_SESSION['user'])) {
                         <tr>
                             <th style="width: 50px;">#</th>
                             <th>Material</th>
+                            <th>Nodo</th>
                             <th>Línea</th>
                             <th style="width: 100px;">Tipo</th>
                             <th class="text-center" style="width: 80px;">Cantidad</th>
@@ -94,6 +95,9 @@ if (!isset($_SESSION['user'])) {
                                                 Código: <?= htmlspecialchars($mov['material_codigo'] ?? 'N/A') ?>
                                             <?php endif; ?>
                                         </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary"><?= htmlspecialchars($mov['nodo_nombre'] ?? 'Sin nodo') ?></span>
                                     </td>
                                     <td>
                                         <span class="badge bg-info"><?= htmlspecialchars($mov['linea_nombre'] ?? 'Sin línea') ?></span>
@@ -335,7 +339,7 @@ if (!isset($_SESSION['user'])) {
         detallesDiv.innerHTML = '<div class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Cargando...</span></div> Cargando detalles...</div>';
 
         try {
-            const url = `${window.BASE_URL}/?url=materiales/obtenerDetallesMovimiento&id=${movimientoId}`;
+            const url = `${window.BASE_URL}/materiales/obtenerDetallesMovimiento?id=${movimientoId}`;
             console.log('URL de fetch:', url);
             
             const response = await fetch(url);
@@ -515,7 +519,7 @@ if (!isset($_SESSION['user'])) {
             if (fechaInicio) params.append('fecha_inicio', fechaInicio);
             if (fechaFin) params.append('fecha_fin', fechaFin);
 
-            const urlFinal = `${window.BASE_URL}/?url=materiales/historialInventario${params.toString() ? '&' + params.toString() : ''}`;
+            const urlFinal = `${window.BASE_URL}/materiales/historialInventario${params.toString() ? '?' + params.toString() : ''}`;
             window.location.href = urlFinal;
         }
 
@@ -538,7 +542,7 @@ if (!isset($_SESSION['user'])) {
                 filtroFechaInicio.value = '';
                 filtroFechaFin.value = '';
                 
-                const urlDestino = `${window.BASE_URL}/?url=materiales/historialInventario`;
+                const urlDestino = `${window.BASE_URL}/materiales/historialInventario`;
                 window.location.href = urlDestino;
             });
         }
@@ -558,7 +562,7 @@ if (!isset($_SESSION['user'])) {
         const badgeElement = document.getElementById(badgeId);
         if (!badgeElement) return;
 
-        fetch(`${window.BASE_URL}/?url=materiales/contarDocumentos&material_id=${materialId}`)
+        fetch(`${window.BASE_URL}/materiales/contarDocumentos?material_id=${materialId}`)
             .then(response => response.json())
             .then(data => {
                 const countSpan = badgeElement.querySelector('.count-value');
@@ -590,7 +594,7 @@ if (!isset($_SESSION['user'])) {
             const badge = e.target.closest('.doc-count-badge');
             const materialId = badge.dataset.materialId;
             if (materialId && materialId > 0) {
-                window.location.href = `${window.BASE_URL}/?url=materiales/detalles&id=${materialId}`;
+                window.location.href = `${window.BASE_URL}/materiales/detalles?id=${materialId}`;
             }
         }
     });

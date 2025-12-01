@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/?url=auth/login");
+    header("Location: " . BASE_URL . "/auth/login");
     exit;
 }
 
@@ -28,7 +28,7 @@ if ($editId > 0) {
 
     <div class="col-12 col-lg-8">
         <div class="d-flex align-items-center gap-2 mb-4">
-            <a href="<?= BASE_URL ?>/?url=materiales/index" class="btn btn-outline-secondary btn-sm">
+            <a href="<?= BASE_URL ?>/materiales/index" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-left"></i> Volver
             </a>
             <h3 class="mb-0"><?= $material ? 'Agregar Archivos' : 'Crear Nuevo Material' ?></h3>
@@ -141,7 +141,7 @@ if ($editId > 0) {
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-check-circle"></i> Crear Material
                             </button>
-                            <a href="<?= BASE_URL ?>/?url=materiales/index" class="btn btn-outline-secondary">
+                            <a href="<?= BASE_URL ?>/materiales/index" class="btn btn-outline-secondary">
                                 Cancelar
                             </a>
                         </div>
@@ -159,10 +159,10 @@ if ($editId > 0) {
             <?php include __DIR__ . '/partials/archivos.php'; ?>
 
             <div class="mt-4">
-                <a href="<?= BASE_URL ?>/?url=materiales/index" class="btn btn-primary">
+                <a href="<?= BASE_URL ?>/materiales/index" class="btn btn-primary">
                     <i class="bi bi-check"></i> Terminar
                 </a>
-                <a href="<?= BASE_URL ?>/?url=materiales/editar&id=<?= $material['id'] ?>" class="btn btn-outline-secondary">
+                <a href="<?= BASE_URL ?>/materiales/editar?id=<?= $material['id'] ?>" class="btn btn-outline-secondary">
                     <i class="bi bi-pencil"></i> Editar Detalles
                 </a>
             </div>
@@ -186,7 +186,7 @@ if (nodoSelect && lineaSelect) {
 
         // Cargar líneas del nodo seleccionado
         try {
-            const response = await fetch(`${window.BASE_URL}/?url=materiales/obtenerLineasPorNodo&nodo_id=${nodoId}`);
+            const response = await fetch(`${window.BASE_URL}/materiales/obtenerLineasPorNodo?nodo_id=${nodoId}`);
             const data = await response.json();
             
             if (data.success && data.lineas) {
@@ -214,7 +214,7 @@ if (form) {
         const erroresDiv = document.getElementById('form-errors');
 
         try {
-            const response = await fetch(`${window.BASE_URL}/?url=materiales/crear`, {
+            const response = await fetch(`${window.BASE_URL}/materiales/crear`, {
                 method: 'POST',
                 body: formData
             });
@@ -223,7 +223,7 @@ if (form) {
 
             if (data.success) {
                 // Redirigir a crear con parámetro edit para mostrar archivos
-                window.location.href = `${window.BASE_URL}/?url=materiales/crear&edit=${data.id}`;
+                window.location.href = `${window.BASE_URL}/materiales/crear?edit=${data.id}`;
             } else {
                 erroresDiv.innerHTML = '<strong>Errores:</strong><ul>';
                 data.errors.forEach(err => {

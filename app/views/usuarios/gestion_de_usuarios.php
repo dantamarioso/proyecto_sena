@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/?url=auth/login");
+    header("Location: " . BASE_URL . "/auth/login");
     exit;
 }
 ?>
@@ -16,7 +16,7 @@ if (!isset($_SESSION['user'])) {
 
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
             <h3 class="mb-0">Panel de Usuarios</h3>
-            <a href="<?= BASE_URL ?>/?url=usuarios/crear" class="btn btn-success btn-sm w-100 w-sm-auto">
+            <a href="<?= BASE_URL ?>/usuarios/crear" class="btn btn-success btn-sm w-100 w-sm-auto">
                 <i class="bi bi-plus-lg"></i> Nuevo usuario
             </a>
         </div>
@@ -144,11 +144,11 @@ if (!isset($_SESSION['user'])) {
                             </td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <a href="<?= BASE_URL ?>/?url=usuarios/detalles&id=<?= $u['id'] ?>"
+                                    <a href="<?= BASE_URL ?>/usuarios/detalles?id=<?= $u['id'] ?>"
                                        class="btn btn-info btn-sm" title="Ver detalles">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="<?= BASE_URL ?>/?url=usuarios/editar&id=<?= $u['id'] ?>"
+                                    <a href="<?= BASE_URL ?>/usuarios/editar?id=<?= $u['id'] ?>"
                                        class="btn btn-primary btn-sm" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </a>
@@ -164,7 +164,7 @@ if (!isset($_SESSION['user'])) {
 
                                     <?php if ($u['estado'] == 1): ?>
                                         <form class="d-inline" method="post"
-                                              action="<?= BASE_URL ?>/?url=usuarios/bloquear">
+                                              action="<?= BASE_URL ?>/usuarios/bloquear">
                                             <input type="hidden" name="id" value="<?= $u['id'] ?>">
                                             <button class="btn btn-warning btn-sm" type="submit" title="Bloquear">
                                                 <i class="bi bi-ban"></i>
@@ -172,7 +172,7 @@ if (!isset($_SESSION['user'])) {
                                         </form>
                                     <?php else: ?>
                                         <form class="d-inline" method="post"
-                                              action="<?= BASE_URL ?>/?url=usuarios/desbloquear">
+                                              action="<?= BASE_URL ?>/usuarios/desbloquear">
                                             <input type="hidden" name="id" value="<?= $u['id'] ?>">
                                             <button class="btn btn-success btn-sm" type="submit" title="Desbloquear">
                                                 <i class="bi bi-unlock"></i>
@@ -372,7 +372,7 @@ if (!isset($_SESSION['user'])) {
             }
 
             // Enviar datos al servidor
-            fetch('<?= BASE_URL ?>/?url=usuarios/asignarNodo', {
+            fetch('<?= BASE_URL ?>/usuarios/asignarNodo', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

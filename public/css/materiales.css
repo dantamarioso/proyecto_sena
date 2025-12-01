@@ -85,7 +85,7 @@ code {
 }
 
 .badge.bg-success {
-    background-color: #198754 !important;
+    background-color: #39A900 !important;
 }
 
 .badge.bg-danger {
@@ -147,7 +147,7 @@ code {
 }
 
 .btn-success {
-    background: #198754;
+    background: #39A900;
     color: #fff;
 }
 .btn-success:hover {
@@ -340,7 +340,7 @@ code {
 
 /* --- COLORES ESPECIALES PARA MOVIMIENTOS --- */
 .tipo-entrada {
-    color: #198754;
+    color: #39A900;
 }
 
 .tipo-salida {

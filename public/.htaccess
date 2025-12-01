@@ -5,12 +5,9 @@ RewriteCond %{HTTP:X-Forwarded-Proto} !https
 RewriteCond %{HTTP_HOST} ngrok
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Router: redirigir todo a index.php PERO PRESERVAR EL MÉTODO HTTP
+# Router: redirigir todo a index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_METHOD} !^POST$ [OR]
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
 
 # Headers de seguridad HTTPS

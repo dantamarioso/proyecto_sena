@@ -24,7 +24,7 @@ body::before {
     content: "";
     position: fixed;
     inset: 0;
-    background: url("../img/subfondo.jpg") center top no-repeat;
+    background: url("../img/subfondo.png") center top no-repeat;
     background-size: auto 20%;
     z-index: -2;
 }

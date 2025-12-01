@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/?url=auth/login");
+    header("Location: " . BASE_URL . "/auth/login");
     exit;
 }
 ?>
@@ -140,7 +140,7 @@ if (!isset($_SESSION['user'])) {
 
                     <!-- Botones -->
                     <div class="d-flex justify-content-between gap-2 mt-4">
-                        <a href="<?= BASE_URL ?>/?url=perfil/ver" class="btn btn-secondary flex-grow-1">
+                        <a href="<?= BASE_URL ?>/perfil/ver" class="btn btn-secondary flex-grow-1">
                             <i class="bi bi-arrow-left"></i> Cancelar
                         </a>
                         <button type="submit" class="btn btn-primary flex-grow-1">

@@ -260,3 +260,220 @@ function escapeHtml(text) {
     };
     return text.replace(/[&<>"']/g, m => map[m]);
 }
+
+/* =========================================================
+   IMPORTACIÓN Y EXPORTACIÓN DE MATERIALES
+========================================================== */
+
+/**
+ * Evento del botón Exportar
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    const btnExportar = document.getElementById('btn-exportar');
+    if (btnExportar) {
+        btnExportar.addEventListener('click', exportarMateriales);
+    }
+
+    const btnImportar = document.getElementById('btn-importar');
+    if (btnImportar) {
+        btnImportar.addEventListener('click', importarMateriales);
+    }
+
+    const inputArchivo = document.getElementById('archivo-importar');
+    if (inputArchivo) {
+        inputArchivo.addEventListener('change', mostrarPreviewArchivo);
+    }
+});
+
+/**
+ * Mostrar vista previa del archivo
+ */
+function mostrarPreviewArchivo(e) {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const contenido = event.target.result;
+        const lineas = contenido.split('\n').slice(0, 5); // Primeras 5 líneas
+        
+        const previewDiv = document.getElementById('import-preview');
+        const previewContent = document.getElementById('preview-content');
+        
+        previewContent.textContent = lineas.join('\n');
+        previewDiv.style.display = 'block';
+    };
+    reader.readAsText(archivo);
+}
+
+/**
+ * Descargar materiales en Excel (CSV)
+ */
+function exportarMateriales() {
+    const btn = document.getElementById('btn-exportar');
+    const textoOriginal = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Descargando...';
+
+    fetch(`${window.BASE_URL}/?url=materiales/exportarMateriales`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'text/csv'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Error en la descarga');
+        return response.blob();
+    })
+    .then(blob => {
+        // Crear enlace temporal para descargar
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `materiales_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        // Restaurar botón
+        btn.disabled = false;
+        btn.innerHTML = textoOriginal;
+        
+        // Mostrar notificación
+        mostrarNotificacion('Archivo descargado exitosamente', 'success');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        btn.disabled = false;
+        btn.innerHTML = textoOriginal;
+        mostrarNotificacion('Error al descargar el archivo', 'danger');
+    });
+}
+
+/**
+ * Importar materiales desde CSV
+ */
+function importarMateriales() {
+    const fileInput = document.getElementById('archivo-importar');
+    const archivo = fileInput.files[0];
+
+    if (!archivo) {
+        mostrarNotificacion('Por favor selecciona un archivo', 'warning');
+        return;
+    }
+
+    const btn = document.getElementById('btn-importar');
+    const textoOriginal = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Importando...';
+
+    // Limpiar mensajes previos
+    document.getElementById('import-errors').style.display = 'none';
+    document.getElementById('import-success').style.display = 'none';
+    document.getElementById('import-warning-list').innerHTML = '';
+
+    const formData = new FormData();
+    formData.append('archivo', archivo);
+
+    fetch(`${window.BASE_URL}/?url=materiales/importarMateriales`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = textoOriginal;
+
+        if (data.success) {
+            // Mostrar mensaje de éxito
+            const successDiv = document.getElementById('import-success');
+            const successMsg = document.getElementById('import-success-message');
+            successMsg.innerHTML = `
+                <i class="bi bi-check-circle"></i>
+                <strong>${data.message}</strong><br>
+                <small>Se crearon ${data.materiales_creados} de ${data.total_procesados} materiales.</small>
+            `;
+            successDiv.style.display = 'block';
+
+            // Mostrar advertencias si las hay
+            if (data.advertencias && data.errores_por_linea) {
+                const warningsDiv = document.getElementById('import-warnings');
+                const warningsList = document.getElementById('import-warning-list');
+                
+                warningsList.innerHTML = '';
+                Object.entries(data.errores_por_linea).forEach(([linea, error]) => {
+                    const li = document.createElement('li');
+                    li.textContent = `Línea ${parseInt(linea) + 1}: ${escapeHtml(error)}`;
+                    warningsList.appendChild(li);
+                });
+
+                warningsDiv.style.display = 'block';
+            }
+
+            // Resetear formulario después de 2 segundos
+            setTimeout(() => {
+                document.getElementById('formularioImportar').reset();
+                document.getElementById('import-preview').style.display = 'none';
+                document.getElementById('import-success').style.display = 'none';
+                
+                // Recargar tabla
+                window.location.href = `${window.BASE_URL}/?url=materiales/index`;
+            }, 2000);
+        } else {
+            // Mostrar errores
+            const errorsDiv = document.getElementById('import-errors');
+            const errorsList = document.getElementById('import-error-list');
+            
+            errorsList.innerHTML = '';
+            
+            if (typeof data.message === 'string') {
+                const li = document.createElement('li');
+                li.textContent = escapeHtml(data.message);
+                errorsList.appendChild(li);
+            }
+
+            // Mostrar encabezados esperados si está disponible
+            if (data.encabezados_esperados) {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>Encabezados esperados:</strong> ${escapeHtml(data.encabezados_esperados.join(', '))}`;
+                errorsList.appendChild(li);
+            }
+
+            errorsDiv.style.display = 'block';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        btn.disabled = false;
+        btn.innerHTML = textoOriginal;
+
+        const errorsDiv = document.getElementById('import-errors');
+        const errorsList = document.getElementById('import-error-list');
+        const li = document.createElement('li');
+        li.textContent = 'Error de conexión: ' + error.message;
+        errorsList.innerHTML = '';
+        errorsList.appendChild(li);
+        errorsDiv.style.display = 'block';
+    });
+}
+
+/**
+ * Mostrar notificación (si existe el sistema)
+ */
+function mostrarNotificacion(mensaje, tipo = 'info') {
+    // Intentar usar Bootstrap Toast si existe
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${tipo} position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        ${mensaje}
+    `;
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 4000);
+}
+

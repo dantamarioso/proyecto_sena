@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/?url=auth/login");
+    header("Location: " . BASE_URL . "/auth/login");
     exit;
 }
 
@@ -25,7 +25,7 @@ if ($currentId) {
             <h3 class="mb-0">Panel de Usuarios</h3>
 
             <?php if ($rolActual === 'admin'): ?>
-                <a href="<?= BASE_URL ?>/?url=usuarios/crear" class="btn btn-success">
+                <a href="<?= BASE_URL ?>/usuarios/crear" class="btn btn-success">
                     <i class="bi bi-plus-lg"></i> Nuevo usuario
                 </a>
             <?php endif; ?>

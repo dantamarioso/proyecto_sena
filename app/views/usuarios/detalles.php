@@ -56,7 +56,7 @@ if (!isset($_SESSION['user'])) {
             </div>
 
 
-        <a href="<?= BASE_URL ?>/?url=usuarios/gestionDeUsuarios" class="btn btn-outline-secondary">
+        <a href="<?= BASE_URL ?>/usuarios/gestionDeUsuarios" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Volver al panel
         </a>
     </div>

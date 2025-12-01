@@ -4,7 +4,7 @@
             <h3 class="mb-3">¡Contraseña actualizada!</h3>
             <p class="text-muted">Ya puedes iniciar sesión con tu nueva contraseña.</p>
 
-            <a href="<?= BASE_URL ?>/?url=auth/login" class="btn btn-success mt-3">
+            <a href="<?= BASE_URL ?>/auth/login" class="btn btn-success mt-3">
                 Ir al login
             </a>
         </div>

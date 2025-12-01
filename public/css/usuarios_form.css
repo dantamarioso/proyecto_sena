@@ -179,7 +179,7 @@ small.text-muted {
 }
 
 .btn-success {
-    background-color: #198754;
+    background-color: #39A900;
     color: white;
 }
 
@@ -261,7 +261,7 @@ small.text-muted {
 }
 
 .password-checklist li.valid {
-    color: #198754 !important;
+    color: #39A900 !important;
     font-weight: 700;
 }
 
@@ -272,13 +272,13 @@ small.text-muted {
 
 /* ===================== VALIDACIÓN DE NOMBRE DE USUARIO ===================== */
 .form-control.is-valid {
-    border-color: #198754;
+    border-color: #39A900;
     background-image: none;
     padding-right: calc(1.5em + 0.75rem);
 }
 
 .form-control.is-valid:focus {
-    border-color: #198754;
+    border-color: #39A900;
     box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
 }
 
@@ -306,7 +306,7 @@ small.text-muted {
 }
 
 .input-group .form-control.is-valid + .input-group-text {
-    border-color: #198754;
+    border-color: #39A900;
     background-color: #f8f9fa;
 }
 
@@ -325,7 +325,7 @@ small.text-muted {
 
 #mensajeUsuarioCrear.text-success,
 #mensajeUsuarioEdit.text-success {
-    color: #198754 !important;
+    color: #39A900 !important;
 }
 
 #mensajeUsuarioCrear.text-danger,

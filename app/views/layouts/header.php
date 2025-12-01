@@ -129,7 +129,7 @@
         .notification-toast.success {
             background-color: #dcfce7;
             color: #166534;
-            border-left: 4px solid #198754;
+            border-left: 4px solid #39A900;
         }
 
         .notification-toast.warning {

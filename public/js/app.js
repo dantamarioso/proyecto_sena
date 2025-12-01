@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const estado = filtroEstado ? filtroEstado.value : "";
         const rol    = filtroRol    ? filtroRol.value    : "";
 
-        const url = `${BASE_URL}/?url=usuarios/buscar&q=${encodeURIComponent(q)}&estado=${encodeURIComponent(estado)}&rol=${encodeURIComponent(rol)}&page=${page}`;
+        const url = `${BASE_URL}/usuarios/buscar?q=${encodeURIComponent(q)}&estado=${encodeURIComponent(estado)}&rol=${encodeURIComponent(rol)}&page=${page}`;
 
         fetch(url)
             .then(r => r.json())
@@ -200,19 +200,19 @@ document.addEventListener("DOMContentLoaded", () => {
                             <td>${estadoHtml}</td>
                             <td>${u.created_at ?? ""}</td>
                             <td class="text-end">
-                                <a href="${BASE_URL}/?url=usuarios/editar&id=${u.id}" class="btn btn-sm btn-primary">
+                                <a href="${BASE_URL}/usuarios/editar?id=${u.id}" class="btn btn-sm btn-primary">
                                     <i class="bi bi-pencil"></i>
                                 </a>
 
                                 ${
                                     u.estado == 1
-                                    ? `<form class="d-inline" method="post" action="${BASE_URL}/?url=usuarios/bloquear">
+                                    ? `<form class="d-inline" method="post" action="${BASE_URL}/usuarios/bloquear">
                                             <input type="hidden" name="id" value="${u.id}">
                                             <button class="btn btn-sm btn-warning" type="submit">
                                                 <i class="bi bi-ban"></i>
                                             </button>
                                        </form>`
-                                    : `<form class="d-inline" method="post" action="${BASE_URL}/?url=usuarios/desbloquear">
+                                    : `<form class="d-inline" method="post" action="${BASE_URL}/usuarios/desbloquear">
                                             <input type="hidden" name="id" value="${u.id}">
                                             <button class="btn btn-sm btn-success" type="submit">
                                                 <i class="bi bi-unlock"></i>
@@ -220,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                        </form>`
                                 }
 
-                                <form class="d-inline" method="post" action="${BASE_URL}/?url=usuarios/eliminar">
+                                <form class="d-inline" method="post" action="${BASE_URL}/usuarios/eliminar">
                                     <input type="hidden" name="id" value="${u.id}">
                                     <button class="btn btn-sm btn-danger" type="submit"
                                             onclick="return confirm('¿Eliminar usuario definitivamente?');">

@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/?url=auth/login");
+    header("Location: " . BASE_URL . "/auth/login");
     exit;
 }
 ?>
@@ -38,7 +38,7 @@ if (!isset($_SESSION['user'])) {
                     </div>
 
                     <!-- Formulario -->
-                    <form method="POST" action="<?= BASE_URL ?>/?url=perfil/verificarCambioCorreo">
+                    <form method="POST" action="<?= BASE_URL ?>/perfil/verificarCambioCorreo">
                         <div class="mb-3">
                             <label for="codigo" class="form-label fw-bold" style="color: #000;">Código de Verificación</label>
                             <input 
@@ -80,7 +80,7 @@ if (!isset($_SESSION['user'])) {
 
                     <!-- Volver -->
                     <div class="text-center">
-                        <a href="<?= BASE_URL ?>/?url=perfil/editar" class="btn btn-link" style="color: #007bff;">
+                        <a href="<?= BASE_URL ?>/perfil/editar" class="btn btn-link" style="color: #007bff;">
                             <i class="bi bi-arrow-left"></i> Volver a Editar Perfil
                         </a>
                     </div>
@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnReenviar.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>Enviando...';
 
         try {
-            const response = await fetch("<?= BASE_URL ?>/?url=perfil/verificarCambioCorreo&reenviar=1", {
+            const response = await fetch("<?= BASE_URL ?>/perfil/verificarCambioCorreo?reenviar=1", {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'

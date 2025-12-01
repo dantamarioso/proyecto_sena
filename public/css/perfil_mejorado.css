@@ -435,7 +435,7 @@
 }
 
 .perfil-form-actions .btn-save {
-    background-color: #198754;
+    background-color: #39A900;
     color: white;
     flex: 1;
 }
@@ -554,7 +554,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: #198754;
+    background-color: #39A900;
     animation: pulse 2s infinite;
 }
 
@@ -681,7 +681,7 @@
 }
 
 .change-new code {
-    border-left-color: #198754;
+    border-left-color: #39A900;
 }
 
 .change-old label,

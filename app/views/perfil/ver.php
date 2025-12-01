@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/?url=auth/login");
+    header("Location: " . BASE_URL . "/auth/login");
     exit;
 }
 ?>
@@ -67,7 +67,7 @@ if (!isset($_SESSION['user'])) {
                 </div>
 
                 <div class="d-flex gap-2">
-                    <a href="<?= BASE_URL ?>/?url=perfil/editar" class="btn btn-primary flex-grow-1">
+                    <a href="<?= BASE_URL ?>/perfil/editar" class="btn btn-primary flex-grow-1">
                         <i class="bi bi-pencil"></i> Editar perfil
                     </a>
 

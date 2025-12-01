@@ -47,7 +47,7 @@
 }
 
 .card-success {
-    border-left: 4px solid #198754;
+    border-left: 4px solid #39A900;
 }
 
 .card-danger {
@@ -140,7 +140,7 @@
 }
 
 .badge-success {
-    background-color: #198754;
+    background-color: #39A900;
     color: white;
 }
 
@@ -188,8 +188,8 @@
 }
 
 .badge-outline-success {
-    border-color: #198754;
-    color: #198754;
+    border-color: #39A900;
+    color: #39A900;
 }
 
 .badge-outline-danger {
@@ -367,7 +367,7 @@
 }
 
 .progress-bar-success {
-    background-color: #198754;
+    background-color: #39A900;
 }
 
 .progress-bar-danger {

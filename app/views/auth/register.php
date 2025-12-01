@@ -66,7 +66,7 @@
                         <input class="form-check-input" type="checkbox" id="terminos" name="terminos" required>
                         <label class="form-check-label" for="terminos">
                             Acepto los
-                            <a href="<?= BASE_URL ?>/?url=auth/terminos" target="_blank">
+                            <a href="<?= BASE_URL ?>/auth/terminos" target="_blank">
                                 términos y condiciones
                             </a>
                         </label>
@@ -78,7 +78,7 @@
 
                     <div class="text-center login-link">
                         ¿Ya tienes cuenta?
-                        <a href="<?= BASE_URL ?>/?url=auth/login">Inicia sesión</a>
+                        <a href="<?= BASE_URL ?>/auth/login">Inicia sesión</a>
                     </div>
 
                 </form>

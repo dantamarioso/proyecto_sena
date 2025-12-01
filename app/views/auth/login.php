@@ -60,11 +60,11 @@
 
                         <p class="text-center register-link">
                             ¿No tienes cuenta?
-                            <a href="<?= BASE_URL ?>/?url=auth/register">Regístrate aquí</a>
+                            <a href="<?= BASE_URL ?>/auth/register">Regístrate aquí</a>
                         </p>
 
                         <div class="text-center mt-3">
-                            <a href="<?= BASE_URL ?>/?url=auth/forgot" class="text-decoration-none">
+                            <a href="<?= BASE_URL ?>/auth/forgot" class="text-decoration-none olvide">
                                 ¿Olvidaste tu contraseña?
                             </a>
                         </div>

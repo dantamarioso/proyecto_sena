@@ -27,7 +27,7 @@ $archivos = $archivoModel->getByMaterial($materialId);
 
 <div class="row justify-content-center">
     <div class="col-12 col-lg-8">
-        <a href="<?= BASE_URL ?>/?url=materiales/index" class="btn btn-outline-secondary btn-sm mb-3">
+        <a href="<?= BASE_URL ?>/materiales/index" class="btn btn-outline-secondary btn-sm mb-3">
             <i class="bi bi-arrow-left"></i> Volver
         </a>
 

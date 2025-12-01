@@ -8,9 +8,12 @@ class Material extends Model
     public function all()
     {
         $stmt = $this->db->prepare("
-            SELECT m.*, l.nombre as linea_nombre 
+            SELECT m.*, 
+                   l.nombre as linea_nombre,
+                   n.nombre as nodo_nombre
             FROM materiales m 
             LEFT JOIN lineas l ON m.linea_id = l.id 
+            LEFT JOIN nodos n ON m.nodo_id = n.id
             ORDER BY m.fecha_actualizacion DESC
         ");
         $stmt->execute();
@@ -23,9 +26,12 @@ class Material extends Model
     public function getById($id)
     {
         $stmt = $this->db->prepare("
-            SELECT m.*, l.nombre as linea_nombre 
+            SELECT m.*, 
+                   l.nombre as linea_nombre,
+                   n.nombre as nodo_nombre
             FROM materiales m 
             LEFT JOIN lineas l ON m.linea_id = l.id 
+            LEFT JOIN nodos n ON m.nodo_id = n.id
             WHERE m.id = :id
         ");
         $stmt->execute([':id' => $id]);
@@ -38,9 +44,12 @@ class Material extends Model
     public function getByLinea($linea_id)
     {
         $stmt = $this->db->prepare("
-            SELECT m.*, l.nombre as linea_nombre 
+            SELECT m.*, 
+                   l.nombre as linea_nombre,
+                   n.nombre as nodo_nombre
             FROM materiales m 
             LEFT JOIN lineas l ON m.linea_id = l.id 
+            LEFT JOIN nodos n ON m.nodo_id = n.id
             WHERE m.linea_id = :linea_id 
             ORDER BY m.nombre ASC
         ");
@@ -54,9 +63,12 @@ class Material extends Model
     public function search($busqueda = '', $linea_id = null, $estado = null)
     {
         $sql = "
-            SELECT m.*, l.nombre as linea_nombre 
+            SELECT m.*, 
+                   l.nombre as linea_nombre,
+                   n.nombre as nodo_nombre
             FROM materiales m 
             LEFT JOIN lineas l ON m.linea_id = l.id 
+            LEFT JOIN nodos n ON m.nodo_id = n.id
             WHERE 1=1
         ";
         $params = [];
@@ -194,10 +206,11 @@ class Material extends Model
     public function getHistorialMovimientos($material_id = null, $filtros = [])
     {
         $sql = "
-            SELECT m.*, mat.nombre as material_nombre, mat.linea_id, mat.nodo_id, l.nombre as linea_nombre, u.nombre as usuario_nombre, u.foto as usuario_foto
+            SELECT m.*, mat.nombre as material_nombre, mat.linea_id, mat.nodo_id, l.nombre as linea_nombre, n.nombre as nodo_nombre, u.nombre as usuario_nombre, u.foto as usuario_foto
             FROM movimientos_inventario m
             LEFT JOIN materiales mat ON m.material_id = mat.id
             LEFT JOIN lineas l ON mat.linea_id = l.id
+            LEFT JOIN nodos n ON mat.nodo_id = n.id
             LEFT JOIN usuarios u ON m.usuario_id = u.id
             WHERE 1=1
         ";
@@ -242,12 +255,15 @@ class Material extends Model
                 mat.codigo as material_codigo,
                 mat.cantidad as cantidad_actual,
                 mat.linea_id,
+                mat.nodo_id,
                 l.nombre as linea_nombre,
+                n.nombre as nodo_nombre,
                 u.nombre as usuario_nombre,
                 u.foto as usuario_foto
             FROM movimientos_inventario m
             LEFT JOIN materiales mat ON m.material_id = mat.id
             LEFT JOIN lineas l ON mat.linea_id = l.id
+            LEFT JOIN nodos n ON mat.nodo_id = n.id
             LEFT JOIN usuarios u ON m.usuario_id = u.id
             WHERE m.id = :id
         ");
@@ -346,6 +362,7 @@ class Material extends Model
                 JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.codigo')) as material_codigo,
                 CAST(JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.id')) AS UNSIGNED) as material_id,
                 CAST(JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.nodo_id')) AS UNSIGNED) as nodo_id,
+                JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.nodo_nombre')) as nodo_nombre,
                 CAST(JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.linea_id')) AS UNSIGNED) as linea_id,
                 JSON_UNQUOTE(JSON_EXTRACT(a.detalles, '$.linea_nombre')) as linea_nombre
             FROM auditoria_materiales a

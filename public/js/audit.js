@@ -189,7 +189,7 @@ function actualizarTabla(data) {
                             </div>
                             <div style="border-left:1px solid #ddd; padding-left:12px;">
                                 <span style="color:#666; font-size:0.85rem;">Nuevo:</span><br>
-                                <span style="color:#198754;">${escapeHtml(nuevo)}</span>
+                                <span style="color:#39A900;">${escapeHtml(nuevo)}</span>
                             </div>
                         </div>
                     `;

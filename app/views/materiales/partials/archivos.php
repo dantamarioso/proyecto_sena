@@ -138,7 +138,7 @@ function subirArchivo(materialId) {
         };
 
         // USAR ENDPOINT DEL CONTROLADOR (MaterialesController->subirArchivo)
-        const urlSubida = window.BASE_URL + '/?url=materiales/subirArchivo';
+        const urlSubida = window.BASE_URL + '/materiales/subirArchivo';
         
         console.log('Iniciando carga base64 (materiales/subirArchivo):', {
             url: urlSubida,
@@ -225,7 +225,7 @@ function eliminarArchivo(archivoId, materialId) {
         return;
     }
 
-    let urlEliminar = window.BASE_URL + '?url=materiales/eliminarArchivo';
+    let urlEliminar = window.BASE_URL + '/materiales/eliminarArchivo';
     if (urlEliminar.includes('ngrok')) {
         urlEliminar = urlEliminar.replace('http://', 'https://');
     }
@@ -254,7 +254,7 @@ function eliminarArchivo(archivoId, materialId) {
 }
 
 function recargarArchivos(materialId) {
-    let urlObtener = window.BASE_URL + '?url=materiales/obtenerArchivos&material_id=' + materialId;
+    let urlObtener = window.BASE_URL + '/materiales/obtenerArchivos?material_id=' + materialId;
     if (urlObtener.includes('ngrok')) {
         urlObtener = urlObtener.replace('http://', 'https://');
     }

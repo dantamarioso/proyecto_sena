@@ -144,7 +144,7 @@
 }
 
 .alert-success .alert-icon {
-    color: #198754;
+    color: #39A900;
 }
 
 .alert-danger {
@@ -314,11 +314,11 @@
 
 /* Variantes de Toast */
 .toast.toast-success {
-    border-left: 3px solid #198754;
+    border-left: 3px solid #39A900;
 }
 
 .toast.toast-success .toast-icon {
-    color: #198754;
+    color: #39A900;
 }
 
 .toast.toast-danger {

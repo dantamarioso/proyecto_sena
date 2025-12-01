@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'admin') {
-    header("Location: " . BASE_URL . "/?url=auth/login");
+    header("Location: " . BASE_URL . "/auth/login");
     exit;
 }
 ?>
@@ -13,7 +13,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
         <!-- Filtros -->
         <div class="card mb-3">
             <div class="card-body">
-                <form method="GET" action="?url=audit/historial" id="form-filtros">
+                <form method="GET" action="<?= BASE_URL ?>/audit/historial" id="form-filtros">
                     <div class="row g-2 align-items-end">
                         <div class="col-12 col-md-4">
                             <label class="form-label">Usuario</label>
@@ -52,7 +52,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                         </div>
 
                         <div class="col-12 col-md-2">
-                            <a href="?url=audit/historial" class="btn btn-outline-secondary w-100">
+                            <a href="<?= BASE_URL ?>/audit/historial" class="btn btn-outline-secondary w-100">
                                 <i class="bi bi-x-circle"></i> Limpiar
                             </a>
                         </div>
@@ -167,7 +167,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
-                                                        <div class="p-3 rounded" style="background-color: #f8f9fa; border-left: 4px solid #198754;">
+                                                        <div class="p-3 rounded" style="background-color: #f8f9fa; border-left: 4px solid #39A900;">
                                                             <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Usuario Modificado</small>
                                                             <div class="mt-2">
                                                                 <strong class="d-block"><?= htmlspecialchars($cambio['usuario_modificado'] ?? 'N/A') ?></strong>

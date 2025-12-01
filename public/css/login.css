@@ -1,46 +1,49 @@
 /* ================================
    FONDO DEL LOGIN
 ================================ */
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Work Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 body {
-    position: relative;
-    overflow: hidden;
+  position: relative;
+  overflow: hidden;
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* IMAGEN ENCIMA DE LOS CONTENEDORES */
 body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
+  content: "";
+  position: fixed;
+  inset: 0;
 
-    background: url("../img/subfondo.jpg") center top no-repeat;
+  background-image: url("../img/subfondo.png");
+  background-repeat: no-repeat;
+  background-size: auto 20%;
 
-    /* Ô¼ç´©Å AUMENTAMOS EL TAMA├æO SIN DISTORSI├ôN Ô¼ç´©Å */
-    background-size: auto 20%;   /* aumenta la altura al 120% */
+  /* antes: left center */
+  background-position: 8% center; /* prueba 8%, 10%, 12%… */
 
-    z-index: -2;
+  z-index: -2;
 }
-
 
 /* FONDO DEBAJO DIFUMINADO */
 body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
+  content: "";
+  position: fixed;
+  inset: 0;
 
-    background: url("../img/fondo.jpg") center center no-repeat;
-    background-size: cover;
+  background: url("../img/fondo.jpg") center center no-repeat;
+  background-size: cover;
 
-    z-index: -3;
+  z-index: -3;
 }
 
 /* FORZAMOS EL LOGIN A ESTAR DEBAJO DEL SUBFONDO */
@@ -49,139 +52,149 @@ body::after {
 .login-wrapper,
 .card,
 .login-carousel {
-    position: relative;
-    z-index: 100; /* ­ƒöÑ por debajo del subfondo (9999) */
+  position: relative;
+  z-index: 100; /* ­ƒöÑ por debajo del subfondo (9999) */
 }
 
 /* ================================
    CONTENEDORES
 ================================ */
 .login-page {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
 
-    width: 100%;
-    max-width: 900px;    /* ancho m├íximo conjunto login+carrusel */
-    padding: 20px;
+  width: 100%;
+  max-width: 900px; /* ancho m├íximo conjunto login+carrusel */
+  padding: 20px;
 }
 
 /* ================================
    TARJETA LOGIN (tama├▒o fijo, no cambia)
 ================================ */
 .login-wrapper {
-    flex: 0 0 420px;     /* ancho fijo para que NO se encoja */
-    display: flex;
-    justify-content: center;
+  flex: 0 0 420px; /* ancho fijo para que NO se encoja */
+  display: flex;
+  justify-content: center;
 }
 
 .card.login-card {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.18);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border-radius: 18px;
-    padding: 32px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+  width: 100%;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 18px;
+  padding: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
 }
 
 /* Inputs */
 .form-control {
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.15);
 }
 .form-control:focus {
-    box-shadow: none;
-    border-color: #0d6efd;
-    background: rgba(255, 255, 255, 0.9);
+  box-shadow: none;
+  border-color: #0d6efd;
+  background: rgba(255, 255, 255, 0.9);
 }
 
 /* Bot├│n login */
 .btn-login {
-    background: #0d6efd;
-    color: white;
-    border-radius: 10px;
-    font-weight: 600;
-    padding: 10px 0;
-    border: none;
-    transition: 0.25s;
+  background: #39a900;
+  color: white;
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 10px 0;
+  border: none;
+  transition: 0.25s;
 }
 .btn-login:hover {
-    background: #084ec1;
+  background: #007832;
 }
 
 /* Link registro */
 .register-link a {
-    color: #005eff !important;
-    font-weight: 600;
+  color: #00304d !important;
+  font-weight: 600;
 }
 .register-link a:hover {
-    color: #003cbe !important;
+  color: #003cbe !important;
 }
-
+.olvide {
+  color: #00304d !important;
+  font-weight: 500;
+}
+.olvide:hover {
+  color: #003cbe !important;
+}
 /* ================================
    CARRUSEL ÔÇö TEXTO FLOTANTE
 ================================ */
 .login-carousel {
-    flex: 0 0 380px;      /* ancho casi fijo, no afecta al login */
-    color: #fff;
-    background: transparent !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.9);
+  flex: 0 0 380px; /* ancho casi fijo, no afecta al login */
+  color: #fff;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.9);
 }
 
 .login-carousel h4 {
-    font-size: 1.7rem;
-    font-weight: 700;
-    margin-bottom: 10px;
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin-bottom: 10px;
 }
 
 .login-carousel p {
-    font-size: 1rem;
-    margin: 0;
-    opacity: 0.95;
+  font-size: 1rem;
+  margin: 0;
+  opacity: 0.95;
 }
 
 /* ================================
    RESPONSIVE
 ================================ */
 @media (max-width: 992px) {
-    .login-container {
-        flex-direction: column;
-        gap: 24px;
-        max-width: 420px;
-    }
+  body::before {
+    display: none;
+  }
 
-    .login-wrapper {
-        flex: 0 0 auto;
-        width: 100%;
-    }
+  .login-container {
+    flex-direction: column;
+    gap: 24px;
+    max-width: 420px;
+  }
 
-    .login-carousel {
-        flex: 0 0 auto;
-        max-width: 100%;
-        text-align: center;
-    }
+  .login-wrapper {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .login-carousel {
+    flex: 0 0 auto;
+    max-width: 100%;
+    text-align: center;
+  }
 }
 /* Ocultar el icono nativo de mostrar contrase├▒a en Edge */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
-    display: none;
+  display: none;
 }
 input[type="password"]::-webkit-credentials-auto-fill-button {
-    visibility: hidden;
-    display: none !important;
-    pointer-events: none;
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
 }

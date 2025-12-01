@@ -183,7 +183,7 @@ body.auth-page {
 .alert-success {
     background-color: #dcfce7;
     color: #166534;
-    border-left: 4px solid #198754;
+    border-left: 4px solid #39A900;
 }
 
 .alert-warning {
@@ -234,7 +234,7 @@ body.auth-page {
 }
 
 .password-checklist li.valid {
-    color: #198754 !important;
+    color: #39A900 !important;
     font-weight: 600;
 }
 

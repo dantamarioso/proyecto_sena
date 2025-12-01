@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 } else {
                     // Usuario disponible
-                    icono.innerHTML = '<i class="bi bi-check-circle" style="color:#198754;"></i>';
+                    icono.innerHTML = '<i class="bi bi-check-circle" style="color:#39A900;"></i>';
                     mensaje.textContent = data.mensaje;
                     mensaje.classList.remove("text-danger", "text-muted");
                     mensaje.classList.add("text-success");

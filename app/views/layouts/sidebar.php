@@ -11,7 +11,7 @@ $avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . "/img/defaul
 
     <!-- Header -->
     <div class="sidebar-header">
-        <a href="<?= BASE_URL ?>/?url=perfil/ver" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; width: 100%;">
+        <a href="<?= BASE_URL ?>/perfil/ver" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; width: 100%;">
             <img src="<?= $avatar ?>" class="sidebar-avatar" title="Ver perfil">
 
             <div class="sidebar-user-info">
@@ -26,14 +26,14 @@ $avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . "/img/defaul
     <ul class="sidebar-nav">
 
         <li>
-            <a href="<?= BASE_URL ?>/?url=home/index">
+            <a href="<?= BASE_URL ?>/home/index">
                 <i class="bi bi-house"></i>
                 <span>Inicio</span>
             </a>
         </li>
 
         <li>
-            <a href="<?= BASE_URL ?>/?url=perfil/ver">
+            <a href="<?= BASE_URL ?>/perfil/ver">
                 <i class="bi bi-person-circle"></i>
                 <span>Mi perfil</span>
             </a>
@@ -41,14 +41,14 @@ $avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . "/img/defaul
 
         <!-- Inventario -->
         <li>
-            <a href="<?= BASE_URL ?>/?url=materiales/index">
+            <a href="<?= BASE_URL ?>/materiales/index">
                 <i class="bi bi-box2-heart"></i>
                 <span>Gestión de Inventario</span>
             </a>
         </li>
 
         <li>
-            <a href="<?= BASE_URL ?>/?url=materiales/historialInventario">
+            <a href="<?= BASE_URL ?>/materiales/historialInventario">
                 <i class="bi bi-clock-history"></i>
                 <span>Historial de Inventario</span>
             </a>
@@ -56,14 +56,14 @@ $avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . "/img/defaul
 
         <?php if ($rol === 'admin'): ?>
         <li>
-            <a href="<?= BASE_URL ?>/?url=usuarios/gestionDeUsuarios">
+            <a href="<?= BASE_URL ?>/usuarios/gestionDeUsuarios">
                 <i class="bi bi-people"></i>
                 <span>Gestión de Usuarios</span>
             </a>
         </li>
 
         <li>
-            <a href="<?= BASE_URL ?>/?url=audit/historial">
+            <a href="<?= BASE_URL ?>/audit/historial">
                 <i class="bi bi-clock-history"></i>
                 <span>Historial de Usuarios</span>
             </a>
@@ -73,7 +73,7 @@ $avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . "/img/defaul
 
 
         <li>
-            <a href="<?= BASE_URL ?>/?url=auth/logout" class="logout">
+            <a href="<?= BASE_URL ?>/auth/logout" class="logout">
                 <i class="bi bi-door-open"></i>
                 <span>Cerrar sesión</span>
             </a>

@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/?url=auth/login");
+    header("Location: " . BASE_URL . "/auth/login");
     exit;
 }
 
@@ -14,7 +14,7 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
 
 <div class="col-12 col-lg-8">
         <div class="d-flex align-items-center gap-2 mb-4">
-            <a href="<?= BASE_URL ?>/?url=materiales/index" class="btn btn-outline-secondary btn-sm">
+            <a href="<?= BASE_URL ?>/materiales/index" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-left"></i> Volver
             </a>
             <h3 class="mb-0">Editar Material</h3>
@@ -134,7 +134,7 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-check-circle"></i> Guardar Cambios
                         </button>
-                        <a href="<?= BASE_URL ?>/?url=materiales/index" class="btn btn-outline-secondary">
+                        <a href="<?= BASE_URL ?>/materiales/index" class="btn btn-outline-secondary">
                             Cancelar
                         </a>
                     </div>
@@ -163,7 +163,7 @@ if (nodoSelect && lineaSelect) {
 
         // Cargar líneas del nodo seleccionado
         try {
-            const response = await fetch(`${window.BASE_URL}/?url=materiales/obtenerLineasPorNodo&nodo_id=${nodoId}`);
+            const response = await fetch(`${window.BASE_URL}/materiales/obtenerLineasPorNodo?nodo_id=${nodoId}`);
             const data = await response.json();
             
             if (data.success && data.lineas) {
@@ -190,7 +190,7 @@ document.getElementById('form-editar-material').addEventListener('submit', async
     const erroresDiv = document.getElementById('form-errors');
 
     try {
-        const response = await fetch(`${window.BASE_URL}/?url=materiales/editar&id=${materialId}`, {
+        const response = await fetch(`${window.BASE_URL}/materiales/editar?id=${materialId}`, {
             method: 'POST',
             body: formData
         });
@@ -199,7 +199,7 @@ document.getElementById('form-editar-material').addEventListener('submit', async
 
         if (data.success) {
             alert('Material actualizado exitosamente');
-            window.location.href = `${window.BASE_URL}/?url=materiales/index`;
+            window.location.href = `${window.BASE_URL}/materiales/index`;
         } else {
             erroresDiv.innerHTML = '<strong>Errores:</strong><ul>';
             data.errors.forEach(err => {

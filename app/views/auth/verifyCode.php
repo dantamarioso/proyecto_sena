@@ -24,7 +24,7 @@
                 Código enviado a: <strong><?= htmlspecialchars($_SESSION['recovery_correo']) ?></strong>
             </div>
 
-            <form method="post" action="<?= BASE_URL ?>/?url=auth/verifyCodePost">
+            <form method="post" action="<?= BASE_URL ?>/auth/verifyCodePost">
 
                 <div class="mb-3">
                     <label class="form-label"><i class="bi bi-key me-2"></i>Código de Verificación</label>
@@ -49,7 +49,7 @@
             <div class="divider"></div>
 
             <div class="text-center">
-                <a href="<?= BASE_URL ?>/?url=auth/forgot" class="link-recovery">
+                <a href="<?= BASE_URL ?>/auth/forgot" class="link-recovery">
                     <i class="bi bi-arrow-left me-2"></i>Cambiar Correo
                 </a>
             </div>
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
             btnReenviar.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>Enviando...';
 
             try {
-                const response = await fetch("<?= BASE_URL ?>/?url=auth/resendCode", {
+                const response = await fetch("<?= BASE_URL ?>/auth/resendCode", {
                     method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'

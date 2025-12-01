@@ -12,7 +12,7 @@
                 </div>
             <?php endif; ?>
 
-            <form method="post" action="<?= BASE_URL ?>/?url=auth/resetPasswordPost">
+            <form method="post" action="<?= BASE_URL ?>/auth/resetPasswordPost">
 
                 <div class="mb-3">
                     <label class="form-label"><i class="bi bi-lock me-2"></i>Nueva Contraseña</label>
@@ -62,7 +62,7 @@
             <div class="divider"></div>
 
             <div class="text-center">
-                <a href="<?= BASE_URL ?>/?url=auth/login" class="link-recovery">
+                <a href="<?= BASE_URL ?>/auth/login" class="link-recovery">
                     <i class="bi bi-arrow-left me-2"></i>Volver a Iniciar Sesión
                 </a>
             </div>
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
             elem.classList.remove("text-muted");
             elem.classList.add("text-success");
             elem.querySelector("i").className = "bi bi-check-circle me-2";
-            elem.querySelector("i").style.color = "#198754";
+            elem.querySelector("i").style.color = "#39A900";
         } else {
             elem.classList.add("text-muted");
             elem.classList.remove("text-success");
