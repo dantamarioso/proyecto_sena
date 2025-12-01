@@ -15,7 +15,7 @@ if (!isset($_SESSION['user'])) {
                     <img id="fotoPerfil"
                          src="<?= !empty($usuario['foto']) ? BASE_URL . '/' . htmlspecialchars($usuario['foto']) : BASE_URL . '/img/default_user.png' ?>"
                          width="150" height="150"
-                         style="object-fit:cover; border-radius:50%; border:4px solid #0d6efd; cursor:pointer; display: block; box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);"
+                         style="object-fit:cover; border-radius:50%; border:4px solid #00304D; cursor:pointer; display: block; box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);"
                          title="Haz clic para cambiar la foto o ver a tamaño completo">
 
                     <!-- Overlay para cambiar foto -->

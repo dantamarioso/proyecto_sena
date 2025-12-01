@@ -42,13 +42,13 @@
                     <p class="mb-2 text-muted"><strong><i class="bi bi-info-circle me-2"></i>Requisitos:</strong></p>
                     <ul class="mb-0" style="padding-left: 28px;">
                         <li id="chk-length" class="text-muted" style="margin-bottom: 4px;">
-                            <i class="bi bi-x-circle me-2" style="color: #dc3545;"></i>Mínimo 8 caracteres
+                            <i class="bi bi-x-circle me-2" style="color: #b30c1c;"></i>Mínimo 8 caracteres
                         </li>
                         <li id="chk-uppercase" class="text-muted" style="margin-bottom: 4px;">
-                            <i class="bi bi-x-circle me-2" style="color: #dc3545;"></i>Al menos una letra mayúscula
+                            <i class="bi bi-x-circle me-2" style="color: #b30c1c;"></i>Al menos una letra mayúscula
                         </li>
                         <li id="chk-special" class="text-muted">
-                            <i class="bi bi-x-circle me-2" style="color: #dc3545;"></i>Al menos un carácter especial (!@#$%&*)
+                            <i class="bi bi-x-circle me-2" style="color: #b30c1c;"></i>Al menos un carácter especial (!@#$%&*)
                         </li>
                     </ul>
                 </div>
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
             elem.classList.add("text-muted");
             elem.classList.remove("text-success");
             elem.querySelector("i").className = "bi bi-x-circle me-2";
-            elem.querySelector("i").style.color = "#dc3545";
+            elem.querySelector("i").style.color = "#b30c1c";
         }
     }
 });

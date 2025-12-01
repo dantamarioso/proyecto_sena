@@ -54,7 +54,7 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
     background-color: #f8f9fa;
-    border-color: #0d6efd;
+    border-color: #00304D;
 }
 
 .table td {
@@ -97,7 +97,7 @@
 }
 
 .btn-primary {
-    background: #0d6efd;
+    background: #00304D;
     color: #fff;
 }
 .btn-primary:hover {
@@ -125,7 +125,7 @@
 }
 
 .btn-danger {
-    background: #dc3545;
+    background: #b30c1c;
     color: #fff;
 }
 .btn-danger:hover {
@@ -156,7 +156,7 @@
 }
 
 .search-bar input:focus {
-    border-color: #0d6efd;
+    border-color: #00304D;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
@@ -169,7 +169,7 @@
 }
 
 .filters select:focus {
-    border-color: #0d6efd;
+    border-color: #00304D;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
@@ -185,9 +185,9 @@
 }
 
 .pagination-controls button:hover {
-    background: #0d6efd;
+    background: #00304D;
     color: #fff;
-    border-color: #0d6efd;
+    border-color: #00304D;
 }
 
 #pagina-actual {

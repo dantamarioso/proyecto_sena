@@ -68,7 +68,7 @@
 .audit-filter-input:focus,
 .audit-filter-select:focus {
     outline: none;
-    border-color: #0d6efd;
+    border-color: #00304D;
     box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
 }
 
@@ -89,7 +89,7 @@
 }
 
 .audit-filter-btn.apply {
-    background-color: #0d6efd;
+    background-color: #00304D;
     color: white;
 }
 
@@ -283,7 +283,7 @@
 
 .audit-expandable::before {
     content: '▶ ';
-    color: #0d6efd;
+    color: #00304D;
     margin-right: 0.5rem;
     display: inline-block;
     transition: transform 0.2s ease;
@@ -299,7 +299,7 @@
     padding: 1rem;
     background-color: #f8f9fa;
     border-radius: 0.375rem;
-    border-left: 3px solid #0d6efd;
+    border-left: 3px solid #00304D;
 }
 
 .audit-details-container.show {
@@ -367,7 +367,7 @@
     padding: 0.5rem 0.75rem;
     border: 1px solid #dee2e6;
     border-radius: 0.375rem;
-    color: #0d6efd;
+    color: #00304D;
     text-decoration: none;
     transition: all 0.2s ease;
     font-weight: 500;
@@ -375,15 +375,15 @@
 }
 
 .audit-page-link:hover {
-    background-color: #0d6efd;
+    background-color: #00304D;
     color: white;
-    border-color: #0d6efd;
+    border-color: #00304D;
 }
 
 .audit-page-link.active {
-    background-color: #0d6efd;
+    background-color: #00304D;
     color: white;
-    border-color: #0d6efd;
+    border-color: #00304D;
 }
 
 .audit-page-link.disabled {
@@ -413,11 +413,11 @@
 }
 
 .audit-summary-card.updates {
-    border-left: 4px solid #0d6efd;
+    border-left: 4px solid #00304D;
 }
 
 .audit-summary-card.deletes {
-    border-left: 4px solid #dc3545;
+    border-left: 4px solid #b30c1c;
 }
 
 .audit-summary-label {
@@ -551,7 +551,7 @@
     width: 2rem;
     height: 2rem;
     border: 3px solid #f3f3f3;
-    border-top: 3px solid #0d6efd;
+    border-top: 3px solid #00304D;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-left: 1rem;
@@ -651,7 +651,9 @@ body.modal-open {
 .modal-header {
     border-bottom: 2px solid rgba(0, 0, 0, 0.05);
     border-radius: 0.5rem 0.5rem 0 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #00304D 0%, #007832 100%);
+
+
     color: white;
     transition: none !important;
 }
@@ -824,7 +826,7 @@ body.modal-open {
     padding: 0.75rem;
     background-color: white;
     border-radius: 0.375rem;
-    border-left: 4px solid #0d6efd;
+    border-left: 4px solid #00304D;
     margin-bottom: 1rem;
 }
 

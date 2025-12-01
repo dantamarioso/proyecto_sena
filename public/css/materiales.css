@@ -51,7 +51,7 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
     background-color: #f8f9fa;
-    border-color: #0d6efd;
+    border-color: #00304D;
 }
 
 .table td {
@@ -81,7 +81,7 @@ code {
 }
 
 .badge.bg-primary {
-    background-color: #0d6efd !important;
+    background-color: #00304D !important;
 }
 
 .badge.bg-success {
@@ -89,7 +89,7 @@ code {
 }
 
 .badge.bg-danger {
-    background-color: #dc3545 !important;
+    background-color: #b30c1c !important;
 }
 
 .badge.bg-warning {
@@ -138,7 +138,7 @@ code {
 
 /* --- COLORES DE BOTONES --- */
 .btn-primary {
-    background: #0d6efd;
+    background: #00304D;
     color: #fff;
 }
 .btn-primary:hover {
@@ -166,7 +166,7 @@ code {
 }
 
 .btn-danger {
-    background: #dc3545;
+    background: #b30c1c;
     color: #fff;
 }
 .btn-danger:hover {
@@ -209,7 +209,7 @@ code {
 
 .form-control:focus,
 .form-select:focus {
-    border-color: #0d6efd;
+    border-color: #00304D;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
@@ -260,7 +260,6 @@ code {
 
 .modal-header .modal-title {
     font-weight: 700;
-    color: #212529;
 }
 
 .modal-body {
@@ -282,7 +281,7 @@ code {
 }
 
 .search-bar input:focus {
-    border-color: #0d6efd;
+    border-color: #00304D;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
@@ -298,9 +297,9 @@ code {
 }
 
 .pagination-controls button:hover {
-    background: #0d6efd;
+    background: #00304D;
     color: #fff;
-    border-color: #0d6efd;
+    border-color: #00304D;
 }
 
 #pagina-actual {
@@ -344,7 +343,7 @@ code {
 }
 
 .tipo-salida {
-    color: #dc3545;
+    color: #b30c1c;
 }
 
 /* --- RESPONSIVE --- */

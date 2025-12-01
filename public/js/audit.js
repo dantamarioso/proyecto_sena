@@ -168,13 +168,13 @@ function actualizarTabla(data) {
                 <button class="btn btn-sm btn-info" onclick="window.toggleDetalles('${detallesId}', event)" type="button">
                     <i class="bi bi-eye"></i> Ver cambios
                 </button>
-                <div id="${detallesId}" class="detalles-modal" style="display:none; margin-top:10px; padding:12px; background:#f9fafb; border-radius:6px; border-left:3px solid #0d6efd;">
+                <div id="${detallesId}" class="detalles-modal" style="display:none; margin-top:10px; padding:12px; background:#f9fafb; border-radius:6px; border-left:3px solid #00304D;">
             `;
             
             for (const [campo, valor] of Object.entries(detalles)) {
                 html += `
                     <div style="margin-bottom:8px; padding:8px; background:white; border-radius:4px;">
-                        <strong style="color:#0d6efd;">${escapeHtml(campo)}</strong>
+                        <strong style="color:#00304D;">${escapeHtml(campo)}</strong>
                         <div style="margin-top:4px; font-size:0.9rem;">
                 `;
                 
@@ -185,7 +185,7 @@ function actualizarTabla(data) {
                         <div style="display:flex; gap:12px; margin-top:4px;">
                             <div>
                                 <span style="color:#666; font-size:0.85rem;">Anterior:</span><br>
-                                <span style="color:#dc3545;">${escapeHtml(anterior)}</span>
+                                <span style="color:#b30c1c;">${escapeHtml(anterior)}</span>
                             </div>
                             <div style="border-left:1px solid #ddd; padding-left:12px;">
                                 <span style="color:#666; font-size:0.85rem;">Nuevo:</span><br>

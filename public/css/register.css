@@ -140,7 +140,7 @@ body::after {
 
 .form-control:focus {
   box-shadow: none;
-  border-color: #0d6efd;
+  border-color: #00304D;
   background: rgba(255, 255, 255, 0.9);
 }
 
@@ -175,7 +175,7 @@ body::after {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   margin: 8px 0 !important;
-  border-left: 3px solid #0d6efd;
+  border-left: 3px solid #00304D;
 }
 
 .password-checklist p {

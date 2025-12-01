@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(data => {
                 if (data.existe) {
                     // Usuario ya existe
-                    icono.innerHTML = '<i class="bi bi-x-circle" style="color:#dc3545;"></i>';
+                    icono.innerHTML = '<i class="bi bi-x-circle" style="color:#b30c1c;"></i>';
                     mensaje.textContent = data.mensaje;
                     mensaje.classList.remove("text-success", "text-muted");
                     mensaje.classList.add("text-danger");

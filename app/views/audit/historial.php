@@ -141,7 +141,9 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                     
                                     <!-- Contenedor de detalles (oculto, para ser extraído por JavaScript) -->
                                     <div id="modal-detalles-<?= $cambio['id'] ?>" class="modal-detalles-data" style="display: none;">
-                                        <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                        <div class="modal-header" style="background: linear-gradient(135deg, #00304D 0%, #007832 100%);
+
+ color: white;">
                                             <div class="w-100">
                                                 <h5 class="modal-title" id="modal-label-<?= $cambio['id'] ?>">
                                                     <i class="bi bi-clock-history"></i> Historial Detallado de Cambio
@@ -158,7 +160,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                                 </h6>
                                                 <div class="row g-3">
                                                     <div class="col-md-3">
-                                                        <div class="p-3 rounded" style="background-color: #f8f9fa; border-left: 4px solid #0d6efd;">
+                                                        <div class="p-3 rounded" style="background-color: #f8f9fa; border-left: 4px solid #00304D;">
                                                             <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Fecha y Hora</small>
                                                             <div class="mt-2">
                                                                 <strong class="d-block"><?= date('d/m/Y', strtotime($cambio['fecha_cambio'])) ?></strong>
@@ -175,7 +177,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
-                                                        <div class="p-3 rounded" style="background-color: #f8f9fa; border-left: 4px solid #dc3545;">
+                                                        <div class="p-3 rounded" style="background-color: #f8f9fa; border-left: 4px solid #b30c1c;">
                                                             <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Tipo de Acción</small>
                                                             <div class="mt-2">
                                                                 <span class="accion-badge accion-<?= str_replace(['/', ' '], '-', strtolower($accion)) ?>"><?= htmlspecialchars($texto) ?></span>

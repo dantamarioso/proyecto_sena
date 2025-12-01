@@ -110,7 +110,7 @@
                             <img id="preview_editar"
                                  src="<?= !empty($usuario['foto']) ? BASE_URL . '/' . htmlspecialchars($usuario['foto']) : BASE_URL . '/img/default_user.png' ?>"
                                  width="80" height="80"
-                                 style="object-fit:cover;border-radius:50%;border:3px solid #3b82f6;display:block;">
+                                 style="object-fit:cover;border-radius:50%;border:3px solid #00304D;display:block;">
                         </div>
                     </div>
 

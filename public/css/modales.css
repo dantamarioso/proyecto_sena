@@ -154,7 +154,7 @@
 }
 
 .alert-danger .alert-icon {
-    color: #dc3545;
+    color: #b30c1c;
 }
 
 .alert-warning {
@@ -184,7 +184,7 @@
 }
 
 .alert-primary .alert-icon {
-    color: #0d6efd;
+    color: #00304D;
 }
 
 .alert-secondary {
@@ -322,11 +322,11 @@
 }
 
 .toast.toast-danger {
-    border-left: 3px solid #dc3545;
+    border-left: 3px solid #b30c1c;
 }
 
 .toast.toast-danger .toast-icon {
-    color: #dc3545;
+    color: #b30c1c;
 }
 
 .toast.toast-warning {
@@ -419,7 +419,7 @@
     font-size: 2.5rem;
     text-align: center;
     margin-bottom: 1rem;
-    color: #dc3545;
+    color: #b30c1c;
 }
 
 .confirm-title {
@@ -488,7 +488,7 @@
     width: 50px;
     height: 50px;
     border: 4px solid #f3f3f3;
-    border-top: 4px solid #0d6efd;
+    border-top: 4px solid #00304D;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }

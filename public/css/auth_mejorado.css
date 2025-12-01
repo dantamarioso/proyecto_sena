@@ -1,7 +1,9 @@
 /* ===================== AUTH STYLES ===================== */
 
 body.auth-page {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #00304D 0%, #007832 100%);
+
+
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -120,7 +122,9 @@ body.auth-page {
 }
 
 .auth-btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #00304D 0%, #007832 100%);
+
+
     color: white;
     margin-top: 10px;
 }
@@ -177,7 +181,7 @@ body.auth-page {
 .alert-danger {
     background-color: #fee2e2;
     color: #991b1b;
-    border-left: 4px solid #dc3545;
+    border-left: 4px solid #b30c1c;
 }
 
 .alert-success {
@@ -229,7 +233,7 @@ body.auth-page {
     font-size: 13px;
     margin-bottom: 6px;
     font-weight: 500;
-    color: #dc3545;
+    color: #b30c1c;
     transition: all 0.3s ease;
 }
 
@@ -239,7 +243,7 @@ body.auth-page {
 }
 
 .password-checklist li.invalid {
-    color: #dc3545 !important;
+    color: #b30c1c !important;
 }
 
 /* Terms and Conditions */

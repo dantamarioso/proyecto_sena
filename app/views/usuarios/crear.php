@@ -70,7 +70,7 @@
                             <label class="form-label">Vista previa</label>
                             <img id="preview_crear" src="" 
                                  width="80" height="80"
-                                 style="object-fit:cover;border-radius:50%;border:3px solid #3b82f6;display:block;">
+                                 style="object-fit:cover;border-radius:50%;border:3px solid #00304D;display:block;">
                         </div>
                     </div>
 
@@ -296,7 +296,7 @@
                 element.classList.remove('valid');
                 element.classList.add('invalid');
                 element.innerHTML = element.innerHTML.replace('✓', '✖');
-                element.style.color = '#dc3545';
+                element.style.color = '#b30c1c';
             }
         }
 

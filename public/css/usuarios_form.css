@@ -38,7 +38,7 @@
 
 .form-control:focus,
 .form-select:focus {
-    border-color: #3b82f6;
+    border-color: #00304D;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
     outline: none;
 }
@@ -71,8 +71,8 @@
 
 .input-group-text:hover {
     background-color: #e5e7eb;
-    color: #3b82f6;
-    border-color: #3b82f6;
+    color: #00304D;
+    border-color: #00304D;
 }
 
 .input-group .form-control {
@@ -86,7 +86,7 @@
 }
 
 .form-control[type="file"]::file-selector-button {
-    background-color: #3b82f6;
+    background-color: #00304D;
     color: white;
     padding: 6px 12px;
     margin-right: 12px;
@@ -105,12 +105,12 @@
 small {
     display: block;
     margin-top: 6px;
-    color: #6b7280;
+    color: #000000;
     font-size: 12px;
 }
 
 small.text-danger {
-    color: #dc3545;
+    color: #b30c1c;
 }
 
 small.text-muted {
@@ -140,7 +140,7 @@ small.text-muted {
 
 #preview_crear:hover,
 #preview_editar:hover {
-    border-color: #3b82f6;
+    border-color: #00304D;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
@@ -157,7 +157,7 @@ small.text-muted {
 }
 
 .btn-primary {
-    background-color: #0d6efd;
+    background-color: #00304D;
     color: white;
 }
 
@@ -190,7 +190,7 @@ small.text-muted {
 }
 
 .btn-danger {
-    background-color: #dc3545;
+    background-color: #b30c1c;
     color: white;
 }
 
@@ -254,42 +254,42 @@ small.text-muted {
     font-size: 14px;
     margin-bottom: 6px;
     font-weight: 600;
-    color: #dc3545;
+    color: #b30c1c;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
 }
 
 .password-checklist li.valid {
-    color: #39A900 !important;
+    color: #234611 !important;
     font-weight: 700;
 }
 
 .password-checklist li.invalid {
-    color: #dc3545 !important;
+    color: #b30c1c !important;
     font-weight: 600;
 }
 
 /* ===================== VALIDACIÓN DE NOMBRE DE USUARIO ===================== */
 .form-control.is-valid {
-    border-color: #39A900;
+    border-color: #234611;
     background-image: none;
     padding-right: calc(1.5em + 0.75rem);
 }
 
 .form-control.is-valid:focus {
-    border-color: #39A900;
+    border-color: #234611;
     box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
 }
 
 .form-control.is-invalid {
-    border-color: #dc3545;
+    border-color: #b30c1c;
     background-image: none;
     padding-right: calc(1.5em + 0.75rem);
 }
 
 .form-control.is-invalid:focus {
-    border-color: #dc3545;
+    border-color: #b30c1c;
     box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
 }
 
@@ -311,7 +311,7 @@ small.text-muted {
 }
 
 .input-group .form-control.is-invalid + .input-group-text {
-    border-color: #dc3545;
+    border-color: #b30c1c;
     background-color: #f8f9fa;
 }
 
@@ -325,12 +325,12 @@ small.text-muted {
 
 #mensajeUsuarioCrear.text-success,
 #mensajeUsuarioEdit.text-success {
-    color: #39A900 !important;
+    color: #234611 !important;
 }
 
 #mensajeUsuarioCrear.text-danger,
 #mensajeUsuarioEdit.text-danger {
-    color: #dc3545 !important;
+    color: #b30c1c !important;
 }
 
 #mensajeUsuarioCrear.text-muted,

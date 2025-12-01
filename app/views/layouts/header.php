@@ -128,7 +128,7 @@
         .notification-toast.error {
             background-color: #fee2e2;
             color: #991b1b;
-            border-left: 4px solid #dc3545;
+            border-left: 4px solid #b30c1c;
         }
 
         .notification-toast.success {

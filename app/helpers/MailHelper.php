@@ -65,12 +65,12 @@ class MailHelper
         body { font-family: 'Work Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; background-color: #f5f5f5; }
         .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px 20px; }
         .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { color: #0d6efd; font-size: 28px; margin-bottom: 10px; }
-        .logo { font-size: 24px; font-weight: bold; color: #0d6efd; }
+        .header h1 { color: #00304D; font-size: 28px; margin-bottom: 10px; }
+        .logo { font-size: 24px; font-weight: bold; color: #00304D; }
         .content { text-align: center; }
         .content p { color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 20px; }
         .code-box { 
-            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            background: linear-gradient(135deg, #00304D 0%, #0a58ca 100%);
             border-radius: 8px;
             padding: 30px;
             margin: 30px 0;
