@@ -142,6 +142,7 @@ class Material extends Model
                 nombre = :nombre,
                 descripcion = :descripcion,
                 linea_id = :linea_id,
+                nodo_id = :nodo_id,
                 cantidad = :cantidad,
                 estado = :estado,
                 fecha_actualizacion = NOW()
@@ -154,6 +155,7 @@ class Material extends Model
             ':nombre'         => $data['nombre'],
             ':descripcion'    => $data['descripcion'],
             ':linea_id'       => $data['linea_id'],
+            ':nodo_id'        => intval($data['nodo_id'] ?? 0),
             ':cantidad'       => intval($data['cantidad']),
             ':estado'         => $data['estado'],
         ]);

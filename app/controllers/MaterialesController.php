@@ -474,11 +474,19 @@ class MaterialesController extends Controller
 
             if (empty($errores)) {
                 if ($materialModel->update($id, $data)) {
-                    // Registrar en auditoría
+                    // Registrar en auditoría - comparar cambios
                     $cambios = [];
                     foreach (['codigo', 'nombre', 'descripcion', 'nodo_id', 'linea_id', 'cantidad', 'estado'] as $campo) {
-                        if ($material[$campo] != $data[$campo]) {
-                            $cambios[$campo] = ['antes' => $material[$campo], 'despues' => $data[$campo]];
+                        $valorAnterior = $material[$campo] ?? null;
+                        $valorNuevo = $data[$campo] ?? null;
+                        
+                        // Comparar valores (conversión de tipos para nodo_id y linea_id)
+                        if ($campo === 'nodo_id' || $campo === 'linea_id') {
+                            if (intval($valorAnterior) != intval($valorNuevo)) {
+                                $cambios[$campo] = ['antes' => $valorAnterior, 'despues' => $valorNuevo];
+                            }
+                        } else if ($valorAnterior != $valorNuevo) {
+                            $cambios[$campo] = ['antes' => $valorAnterior, 'despues' => $valorNuevo];
                         }
                     }
                     if (!empty($cambios)) {

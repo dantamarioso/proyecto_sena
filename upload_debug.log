@@ -26,3 +26,7 @@
 [2025-12-01 16:42:58] MaterialArchivo::create() - Usuario ID: 4
 [2025-12-01 16:42:58] MaterialArchivo::create() - SQL: INSERT material_id=3, usuario_id=4, archivo=Proyecto fem fit.pdf
 [2025-12-01 16:42:58] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 8
+[2025-12-01 17:08:54] MaterialArchivo::create() - INICIANDO
+[2025-12-01 17:08:54] MaterialArchivo::create() - Usuario ID: 1
+[2025-12-01 17:08:54] MaterialArchivo::create() - SQL: INSERT material_id=1, usuario_id=1, archivo=Hoja_de_vida.pdf
+[2025-12-01 17:08:54] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 1
