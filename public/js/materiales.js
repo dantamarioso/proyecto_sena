@@ -444,33 +444,6 @@ function importarMateriales() {
                 errorsList.appendChild(li);
             }
 
-            // Mostrar información de debug si existe
-            if (data.debug) {
-                const debugLi = document.createElement('li');
-                debugLi.innerHTML = `<strong>Info de debug:</strong><br>
-                    - Extensión: ${data.debug.extension || 'N/A'}<br>
-                    - Delimitador: "${data.debug.delimitador || 'N/A'}"<br>
-                    - Total líneas: ${data.debug.total_lineas || 0}<br>
-                    - Primera línea: ${escapeHtml((data.debug.primera_linea || '').substring(0, 100))}<br>
-                    - Encabezados parseados: ${JSON.stringify(data.debug.encabezados_parseados || [])}`;
-                errorsList.appendChild(debugLi);
-            }
-            
-            // Mostrar debug de encabezados si existe
-            if (data.debug_encabezados_originales) {
-                const debugLi = document.createElement('li');
-                debugLi.innerHTML = `<strong>Encabezados originales:</strong> ${JSON.stringify(data.debug_encabezados_originales)}<br>
-                    <strong>Encabezados limpios:</strong> ${JSON.stringify(data.debug_encabezados_limpios)}`;
-                errorsList.appendChild(debugLi);
-            }
-
-            // Mostrar encabezados esperados si está disponible
-            if (data.encabezados_esperados) {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>Encabezados esperados:</strong> ${escapeHtml(data.encabezados_esperados.join(', '))}`;
-                errorsList.appendChild(li);
-            }
-
             errorsDiv.style.display = 'block';
         }
     })

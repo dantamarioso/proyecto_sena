@@ -1503,18 +1503,10 @@ class MaterialesController extends Controller
             // Procesar encabezados
             $encabezados = str_getcsv($primeraLinea, $delimitador);
             
-            // DEBUG TEMPORAL - Verificar encabezados parseados
             if (empty($encabezados) || count($encabezados) < 2) {
                 echo json_encode([
                     'success' => false, 
-                    'message' => 'Error al procesar encabezados del archivo.',
-                    'debug' => [
-                        'primera_linea' => substr($primeraLinea, 0, 200),
-                        'delimitador' => $delimitador,
-                        'encabezados_parseados' => $encabezados,
-                        'total_lineas' => count($lineas),
-                        'extension' => $extension
-                    ]
+                    'message' => 'Error al procesar encabezados del archivo.'
                 ]);
                 exit;
             }
@@ -1590,11 +1582,7 @@ class MaterialesController extends Controller
             if (!empty($camposFaltantes)) {
                 echo json_encode([
                     'success' => false,
-                    'message' => 'Faltan campos requeridos: ' . implode(', ', $camposFaltantes),
-                    'encabezados_encontrados' => array_keys($mapeoEncabezados),
-                    'encabezados_esperados' => ['código', 'nombre', 'línea o linea_id', 'nodo_id (opcional)', 'descripción (opcional)', 'cantidad (opcional)', 'estado (opcional)'],
-                    'debug_encabezados_originales' => $encabezados,
-                    'debug_encabezados_limpios' => $encabezadosLimpios
+                    'message' => 'Faltan campos requeridos: ' . implode(', ', $camposFaltantes) . '. Encabezados esperados: código, nombre, línea o linea_id, nodo_id (opcional), descripción (opcional), cantidad (opcional).'
                 ]);
                 exit;
             }
