@@ -1,0 +1,32 @@
+[2025-11-26 14:01:10] MaterialArchivo::create() - INICIANDO
+[2025-11-26 14:01:10] MaterialArchivo::create() - Usuario ID: 1
+[2025-11-26 14:01:10] MaterialArchivo::create() - SQL: INSERT material_id=1, usuario_id=1, archivo=Presentacion.pptx
+[2025-11-26 14:01:10] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 2
+[2025-11-27 16:50:00] MaterialArchivo::create() - INICIANDO
+[2025-11-27 16:50:00] MaterialArchivo::create() - Usuario ID: 1
+[2025-11-27 16:50:00] MaterialArchivo::create() - SQL: INSERT material_id=2, usuario_id=1, archivo=20251126140110_Presentacion.pptx
+[2025-11-27 16:50:00] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 3
+[2025-11-28 15:17:29] MaterialArchivo::create() - INICIANDO
+[2025-11-28 15:17:29] MaterialArchivo::create() - Usuario ID: 1
+[2025-11-28 15:17:29] MaterialArchivo::create() - SQL: INSERT material_id=2, usuario_id=1, archivo=Hoja_de_vida.pdf
+[2025-11-28 15:17:29] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 4
+[2025-12-01 16:40:00] MaterialArchivo::create() - INICIANDO
+[2025-12-01 16:40:00] MaterialArchivo::create() - Usuario ID: 4
+[2025-12-01 16:40:00] MaterialArchivo::create() - SQL: INSERT material_id=1, usuario_id=4, archivo=Proyecto fem fit.pdf
+[2025-12-01 16:40:00] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 5
+[2025-12-01 16:40:01] MaterialArchivo::create() - INICIANDO
+[2025-12-01 16:40:01] MaterialArchivo::create() - Usuario ID: 4
+[2025-12-01 16:40:01] MaterialArchivo::create() - SQL: INSERT material_id=1, usuario_id=4, archivo=Proyecto fem fit.pdf
+[2025-12-01 16:40:01] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 6
+[2025-12-01 16:40:01] MaterialArchivo::create() - INICIANDO
+[2025-12-01 16:40:01] MaterialArchivo::create() - Usuario ID: 4
+[2025-12-01 16:40:01] MaterialArchivo::create() - SQL: INSERT material_id=1, usuario_id=4, archivo=Proyecto fem fit.pdf
+[2025-12-01 16:40:01] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 7
+[2025-12-01 16:42:58] MaterialArchivo::create() - INICIANDO
+[2025-12-01 16:42:58] MaterialArchivo::create() - Usuario ID: 4
+[2025-12-01 16:42:58] MaterialArchivo::create() - SQL: INSERT material_id=3, usuario_id=4, archivo=Proyecto fem fit.pdf
+[2025-12-01 16:42:58] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 8
+[2025-12-01 17:08:54] MaterialArchivo::create() - INICIANDO
+[2025-12-01 17:08:54] MaterialArchivo::create() - Usuario ID: 1
+[2025-12-01 17:08:54] MaterialArchivo::create() - SQL: INSERT material_id=1, usuario_id=1, archivo=Hoja_de_vida.pdf
+[2025-12-01 17:08:54] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 1

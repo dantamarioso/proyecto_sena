@@ -1,0 +1,107 @@
+/* ===================== LAYOUT GENERAL ===================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    grid-template-rows: 1fr;
+    background-color: #f0f2f5;
+    font-family: "Work Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    color: #212529;
+}
+
+/* Sidebar estático - sin plegarse */
+body > .sidebar {
+    position: relative;
+    width: 260px;
+    height: 100vh;
+    grid-column: 1;
+    grid-row: 1;
+    overflow-y: auto;
+}
+
+/* Main wrapper en grid */
+body > .main-wrapper {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===================== CONTENIDO PRINCIPAL ===================== */
+.main-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.main-content {
+    flex: 1;
+    padding: 30px 20px;
+    overflow-y: auto;
+    background-color: #f5f5f5;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    body {
+        grid-template-columns: 1fr;
+    }
+
+    body > .sidebar {
+        grid-column: 1;
+        position: fixed;
+        width: 260px;
+        height: 100vh;
+        left: 0;
+        top: 0;
+        z-index: 999;
+        box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+    }
+
+    body > .main-wrapper {
+        grid-column: 1;
+    }
+
+    .main-content {
+        padding: 20px 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .main-content {
+        padding: 16px 12px;
+    }
+
+    body > .sidebar {
+        width: 100%;
+        max-width: 260px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 12px 10px;
+    }
+
+    h3, h4, h5 {
+        margin-bottom: 12px !important;
+    }
+}
+
+
+
