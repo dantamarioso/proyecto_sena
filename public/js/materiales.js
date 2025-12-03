@@ -292,13 +292,22 @@ function mostrarPreviewArchivo(e) {
     const archivo = e.target.files[0];
     if (!archivo) return;
 
+    const previewDiv = document.getElementById('import-preview');
+    const previewContent = document.getElementById('preview-content');
+    
+    // Si es XLSX, no mostrar preview (es binario)
+    const extension = archivo.name.split('.').pop().toLowerCase();
+    if (extension === 'xlsx' || extension === 'xls') {
+        previewContent.textContent = `Archivo Excel seleccionado: ${archivo.name}\nTamaño: ${(archivo.size / 1024).toFixed(2)} KB\n\nLos archivos Excel se procesarán automáticamente al importar.`;
+        previewDiv.style.display = 'block';
+        return;
+    }
+
+    // Para CSV y TXT, mostrar preview
     const reader = new FileReader();
     reader.onload = (event) => {
         const contenido = event.target.result;
         const lineas = contenido.split('\n').slice(0, 5); // Primeras 5 líneas
-        
-        const previewDiv = document.getElementById('import-preview');
-        const previewContent = document.getElementById('preview-content');
         
         previewContent.textContent = lineas.join('\n');
         previewDiv.style.display = 'block';

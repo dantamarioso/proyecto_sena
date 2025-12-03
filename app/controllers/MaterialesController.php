@@ -2352,7 +2352,6 @@ class MaterialesController extends Controller
                     $nodo['id'],
                     $nodo['nombre'],
                     $nodo['descripcion'] ?? '',
-                    $nodo['estado'] == 1 ? 'Activo' : 'Inactivo',
                 ], ';');
             }
             
