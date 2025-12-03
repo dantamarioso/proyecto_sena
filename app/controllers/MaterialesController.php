@@ -1520,16 +1520,18 @@ class MaterialesController extends Controller
             }
             
             $encabezadosLimpios = array_map(function($h) {
-                // Convertir a minúsculas y limpiar espacios
-                $h = strtolower(trim($h));
+                // Limpiar espacios
+                $h = trim($h);
                 // Eliminar BOM si existe
                 $h = str_replace("\xEF\xBB\xBF", '', $h);
-                // Eliminar acentos manualmente
+                // Eliminar acentos - IMPORTANTE: hacer esto ANTES de convertir a minúsculas
                 $h = str_replace(
-                    ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü'],
-                    ['a', 'e', 'i', 'o', 'u', 'n', 'u'],
+                    ['Á', 'É', 'Í', 'Ó', 'Ú', 'Ñ', 'Ü', 'á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü'],
+                    ['A', 'E', 'I', 'O', 'U', 'N', 'U', 'a', 'e', 'i', 'o', 'u', 'n', 'u'],
                     $h
                 );
+                // Ahora convertir a minúsculas
+                $h = strtolower($h);
                 // Eliminar espacios y caracteres especiales
                 $h = preg_replace('/[^a-z0-9_]/', '', $h);
                 return $h;
