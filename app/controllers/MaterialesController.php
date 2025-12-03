@@ -1376,6 +1376,7 @@ class MaterialesController extends Controller
 
         try {
             $lineas = [];
+            $delimitador = ';'; // Por defecto punto y coma
             
             // Procesar según tipo de archivo
             if (in_array($extension, ['xlsx', 'xls'])) {
@@ -1384,9 +1385,7 @@ class MaterialesController extends Controller
                 
                 try {
                     // Verificar que el archivo sea realmente un Excel válido
-                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                    $mimeType = finfo_file($finfo, $archivo['tmp_name']);
-                    finfo_close($finfo);
+                    $mimeType = mime_content_type($archivo['tmp_name']);
                     
                     $validMimeTypes = [
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
@@ -1415,30 +1414,49 @@ class MaterialesController extends Controller
                         exit;
                     }
                     
-                    // Obtener todas las filas
+                    // Obtener todas las filas sin parámetros especiales
                     $rows = $worksheet->toArray();
                     
-                    if (empty($rows) || count($rows) < 2) {
+                    if (empty($rows)) {
                         echo json_encode([
                             'success' => false, 
-                            'message' => 'El archivo Excel está vacío o no contiene datos suficientes.'
+                            'message' => 'El archivo Excel está vacío.'
                         ]);
                         exit;
                     }
                     
-                    // Filtrar filas vacías y convertir a formato de líneas de texto
+                    // Convertir filas a formato de líneas de texto
                     foreach ($rows as $row) {
                         // Saltar filas completamente vacías
-                        if (empty(array_filter($row, function($cell) { return !is_null($cell) && $cell !== ''; }))) {
+                        $hayDatos = false;
+                        foreach ($row as $cell) {
+                            if (!is_null($cell) && trim((string)$cell) !== '') {
+                                $hayDatos = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!$hayDatos) {
                             continue;
                         }
-                        // Convertir fila a texto CSV
-                        $lineas[] = implode(';', array_map(function($cell) {
-                            return str_replace([';', "\n", "\r"], [',', ' ', ''], (string)$cell);
-                        }, $row));
+                        
+                        // Convertir fila a texto CSV limpio
+                        $lineaLimpia = [];
+                        foreach ($row as $cell) {
+                            $valorLimpio = str_replace([';', "\n", "\r", "\t"], [',', ' ', ' ', ' '], (string)$cell);
+                            $lineaLimpia[] = trim($valorLimpio);
+                        }
+                        
+                        $lineas[] = implode(';', $lineaLimpia);
                     }
                     
-                    $delimitador = ';';
+                    if (empty($lineas)) {
+                        echo json_encode([
+                            'success' => false, 
+                            'message' => 'El archivo Excel no contiene datos válidos.'
+                        ]);
+                        exit;
+                    }
                     
                 } catch (\Exception $e) {
                     echo json_encode([
@@ -1471,8 +1489,7 @@ class MaterialesController extends Controller
                 }
 
                 // Detectar delimitador automáticamente
-                $primeraLinea = $lineas[0];
-                $delimitador = $this->detectarDelimitador($primeraLinea);
+                $delimitador = $this->detectarDelimitador($lineas[0]);
             }
             
             if (empty($lineas)) {
@@ -1480,8 +1497,28 @@ class MaterialesController extends Controller
                 exit;
             }
 
+            // Obtener primera línea
+            $primeraLinea = $lineas[0];
+            
             // Procesar encabezados
             $encabezados = str_getcsv($primeraLinea, $delimitador);
+            
+            // DEBUG TEMPORAL - Verificar encabezados parseados
+            if (empty($encabezados) || count($encabezados) < 2) {
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'Error al procesar encabezados del archivo.',
+                    'debug' => [
+                        'primera_linea' => substr($primeraLinea, 0, 200),
+                        'delimitador' => $delimitador,
+                        'encabezados_parseados' => $encabezados,
+                        'total_lineas' => count($lineas),
+                        'extension' => $extension
+                    ]
+                ]);
+                exit;
+            }
+            
             $encabezadosLimpios = array_map(function($h) {
                 // Convertir a minúsculas y limpiar espacios
                 $h = strtolower(trim($h));
@@ -1553,7 +1590,9 @@ class MaterialesController extends Controller
                     'success' => false,
                     'message' => 'Faltan campos requeridos: ' . implode(', ', $camposFaltantes),
                     'encabezados_encontrados' => array_keys($mapeoEncabezados),
-                    'encabezados_esperados' => ['código', 'nombre', 'línea o linea_id', 'nodo_id (opcional)', 'descripción (opcional)', 'cantidad (opcional)', 'estado (opcional)']
+                    'encabezados_esperados' => ['código', 'nombre', 'línea o linea_id', 'nodo_id (opcional)', 'descripción (opcional)', 'cantidad (opcional)', 'estado (opcional)'],
+                    'debug_encabezados_originales' => $encabezados,
+                    'debug_encabezados_limpios' => $encabezadosLimpios
                 ]);
                 exit;
             }
