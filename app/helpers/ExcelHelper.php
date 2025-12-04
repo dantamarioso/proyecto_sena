@@ -26,6 +26,19 @@ class ExcelHelper
     }
 
     /**
+     * Establecer formatos para columnas específicas
+     * @param array $formats Array asociativo: ['columna' => 'tipo'] donde tipo puede ser 'date', 'currency', 'number'
+     */
+    public function setColumnFormats($formats)
+    {
+        if ($this->currentSheet === null) {
+            $this->createSheet('Sheet1');
+        }
+        $this->sheets[$this->currentSheet]['formats'] = $formats;
+        return $this;
+    }
+
+    /**
      * Crear una nueva sheet o cambiar de sheet
      */
     public function createSheet($name = 'Sheet1')
@@ -35,7 +48,8 @@ class ExcelHelper
             $this->sheets[$name] = [
                 'headers' => [],
                 'data' => [],
-                'validations' => []
+                'validations' => [],
+                'formats' => []
             ];
             
             // Crear worksheet en PhpSpreadsheet
@@ -166,7 +180,33 @@ class ExcelHelper
                     $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
                     $cellCoordinate = $columnLetter . $rowIndex;
                     
-                    $worksheet->setCellValue($cellCoordinate, $value);
+                    // Aplicar formato específico según el tipo de columna
+                    $formatType = $sheetData['formats'][$colIndex] ?? null;
+                    
+                    if ($formatType === 'date' && !empty($value)) {
+                        // Convertir fecha a timestamp de Excel
+                        try {
+                            $dateTime = new DateTime($value);
+                            $excelDate = \PhpOffice\PhpSpreadsheet\Shared\Date::PHPToExcel($dateTime);
+                            $worksheet->setCellValue($cellCoordinate, $excelDate);
+                            $worksheet->getStyle($cellCoordinate)->getNumberFormat()
+                                ->setFormatCode('DD/MM/YYYY');
+                        } catch (Exception $e) {
+                            $worksheet->setCellValue($cellCoordinate, $value);
+                        }
+                    } elseif ($formatType === 'currency' && !empty($value)) {
+                        // Formato de moneda
+                        $worksheet->setCellValue($cellCoordinate, floatval($value));
+                        $worksheet->getStyle($cellCoordinate)->getNumberFormat()
+                            ->setFormatCode('$#,##0.00');
+                    } elseif ($formatType === 'number' && !empty($value)) {
+                        // Formato numérico
+                        $worksheet->setCellValue($cellCoordinate, floatval($value));
+                        $worksheet->getStyle($cellCoordinate)->getNumberFormat()
+                            ->setFormatCode('#,##0.00');
+                    } else {
+                        $worksheet->setCellValue($cellCoordinate, $value);
+                    }
                     
                     // Estilo de datos con filas alternadas
                     $bgColor = ($rowIndex % 2 == 0) ? 'F2F2F2' : 'FFFFFF';

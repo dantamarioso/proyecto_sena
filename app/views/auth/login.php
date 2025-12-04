@@ -9,20 +9,23 @@
 
                     <h3 class="text-center mb-4">Iniciar sesión</h3>
 
-                    <!-- Toast de registro exitoso -->
+                    <!-- Flash messages se manejan con toast -->
                     <?php if (!empty($_SESSION['flash_success'])): ?>
-                        <div class="position-fixed top-0 end-0 p-3" style="z-index:1080;">
-                            <div id="toast-success" class="toast align-items-center text-bg-success border-0"
-                                role="alert" aria-live="assertive" aria-atomic="true"
-                                data-bs-autohide="true" data-bs-delay="4000">
-                                <div class="d-flex">
-                                    <div class="toast-body">
-                                        <?= htmlspecialchars($_SESSION['flash_success']) ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                mostrarNotificacion('<?= addslashes($_SESSION['flash_success']) ?>', 'success', 5000);
+                            });
+                        </script>
                         <?php unset($_SESSION['flash_success']); ?>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($_SESSION['flash_error'])): ?>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                mostrarNotificacion('<?= addslashes($_SESSION['flash_error']) ?>', 'error', 5000);
+                            });
+                        </script>
+                        <?php unset($_SESSION['flash_error']); ?>
                     <?php endif; ?>
 
                     <!-- Errores de login -->

@@ -280,7 +280,14 @@ if (!isset($_SESSION['user'])) {
                 'descripcion': 'Descripción',
                 'nodo_id': 'Nodo',
                 'linea_id': 'Línea',
+                'fecha_adquisicion': 'Fecha de Adquisición',
+                'categoria': 'Categoría',
+                'presentacion': 'Presentación',
+                'medida': 'Medida',
                 'cantidad': 'Cantidad',
+                'valor_compra': 'Valor de Compra',
+                'proveedor': 'Proveedor',
+                'marca': 'Marca',
                 'estado': 'Estado'
             };
 
@@ -381,23 +388,61 @@ if (!isset($_SESSION['user'])) {
                     </div>
                 </div>
 
-                <div class="row mb-4">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Código:</strong></p>
+                        <p class="mb-2"><code>${escapeHtml(detalles.codigo || 'N/A')}</code></p>
+                    </div>
                     <div class="col-md-6">
                         <p><strong>Nombre:</strong></p>
                         <p class="mb-2">${escapeHtml(detalles.nombre || 'N/A')}</p>
-                        <small class="text-muted">Código: <code>${escapeHtml(detalles.codigo || 'N/A')}</code></small>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Nodo:</strong></p>
+                        <p><span class="badge bg-secondary">${escapeHtml(detalles.nodo_nombre || 'Sin nodo')}</span></p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Línea de Trabajo:</strong></p>
+                        <p><strong>Línea:</strong></p>
                         <p><span class="badge bg-info">${escapeHtml(lineaNombre)}</span></p>
                     </div>
                 </div>
 
                 <div class="card bg-light mb-4">
                     <div class="card-body">
-                        <h6 class="card-title">Información Adicional</h6>
-                        <p class="mb-2"><strong>Cantidad al momento de eliminar:</strong> ${parseInt(detalles.cantidad || 0)}</p>
-                        <p class="mb-0"><strong>Descripción:</strong> ${escapeHtml(detalles.descripcion || 'Sin descripción')}</p>
+                        <h6 class="card-title">Información del Producto</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <strong>Fecha de Adquisición:</strong> ${detalles.fecha_adquisicion || 'No especificada'}
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong>Categoría:</strong> ${escapeHtml(detalles.categoria || 'No especificada')}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <strong>Presentación:</strong> ${escapeHtml(detalles.presentacion || 'N/A')}
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <strong>Medida:</strong> ${escapeHtml(detalles.medida || 'N/A')}
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <strong>Cantidad:</strong> ${parseInt(detalles.cantidad || 0)}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <strong>Valor de Compra:</strong> ${detalles.valor_compra ? '$' + parseFloat(detalles.valor_compra).toLocaleString('es-CO', {minimumFractionDigits: 2}) : 'No especificado'}
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <strong>Proveedor:</strong> ${escapeHtml(detalles.proveedor || 'No especificado')}
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <strong>Marca:</strong> ${escapeHtml(detalles.marca || 'No especificada')}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -494,15 +539,25 @@ if (!isset($_SESSION['user'])) {
                         </div>
                     </div>
 
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <p><strong>Código:</strong></p>
+                            <p class="mb-2"><code>${escapeHtml(mov.material_codigo || 'N/A')}</code></p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Nodo:</strong></p>
+                            <p><span class="badge bg-secondary">${escapeHtml(mov.nodo_nombre || 'Sin nodo')}</span></p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Línea:</strong></p>
+                            <p><span class="badge bg-info">${escapeHtml(lineaNombre)}</span></p>
+                        </div>
+                    </div>
+
                     <div class="row mb-4">
-                        <div class="col-md-6">
+                        <div class="col-12">
                             <p><strong>Material:</strong></p>
                             <p class="mb-2">${escapeHtml(mov.material_nombre || 'N/A')}</p>
-                            <small class="text-muted">Código: <code>${escapeHtml(mov.material_codigo || 'N/A')}</code></small>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Línea de Trabajo:</strong></p>
-                            <p><span class="badge bg-info">${escapeHtml(lineaNombre)}</span></p>
                         </div>
                     </div>
 

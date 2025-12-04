@@ -37,16 +37,86 @@ $archivos = $archivoModel->getByMaterial($materialId);
                 <h4 class="mb-0"><?= htmlspecialchars($material['nombre']) ?></h4>
             </div>
             <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-6">
+                <div class="row mb-3">
+                    <div class="col-md-4">
                         <div class="mb-3">
                             <h6 class="text-muted">Código</h6>
                             <p class="mb-0"><code class="bg-light p-2 rounded"><?= htmlspecialchars($material['codigo']) ?></code></p>
                         </div>
+                    </div>
+                    <div class="col-md-4">
                         <div class="mb-3">
-                            <h6 class="text-muted">Cantidad Actual</h6>
-                            <p class="mb-0"><span class="badge bg-info"><?= intval($material['cantidad']) ?> unidades</span></p>
+                            <h6 class="text-muted">Nodo</h6>
+                            <p class="mb-0"><span class="badge bg-secondary"><?= htmlspecialchars($material['nodo_nombre'] ?? 'Sin nodo') ?></span></p>
                         </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Línea</h6>
+                            <p class="mb-0"><span class="badge bg-primary"><?= htmlspecialchars($material['linea_nombre'] ?? 'Sin línea') ?></span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Fecha de Adquisición</h6>
+                            <p class="mb-0"><?= $material['fecha_adquisicion'] ? date('d/m/Y', strtotime($material['fecha_adquisicion'])) : 'No especificada' ?></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Categoría</h6>
+                            <p class="mb-0"><?= htmlspecialchars($material['categoria'] ?? 'No especificada') ?></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Presentación</h6>
+                            <p class="mb-0"><?= htmlspecialchars($material['presentacion'] ?? 'N/A') ?></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Medida</h6>
+                            <p class="mb-0"><?= htmlspecialchars($material['MEDIDA'] ?? 'N/A') ?></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Cantidad</h6>
+                            <p class="mb-0"><span class="badge bg-info"><?= intval($material['cantidad']) ?></span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Valor de Compra</h6>
+                            <p class="mb-0"><?= $material['valor_compra'] ? '$ ' . number_format($material['valor_compra'], 2) : 'No especificado' ?></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Proveedor</h6>
+                            <p class="mb-0"><?= htmlspecialchars($material['proveedor'] ?? 'No especificado') ?></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Marca</h6>
+                            <p class="mb-0"><?= htmlspecialchars($material['marca'] ?? 'No especificada') ?></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
                         <div class="mb-3">
                             <h6 class="text-muted">Estado</h6>
                             <p class="mb-0">
@@ -54,27 +124,17 @@ $archivos = $archivoModel->getByMaterial($materialId);
                             </p>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <h6 class="text-muted">Línea de Trabajo</h6>
-                            <p class="mb-0"><span class="badge bg-primary"><?= htmlspecialchars($material['linea_nombre'] ?? 'Sin línea') ?></span></p>
-                        </div>
-                        <div class="mb-3">
-                            <h6 class="text-muted">Fecha Creación</h6>
-                            <p class="mb-0"><small><?= date('d/m/Y H:i', strtotime($material['fecha_creacion'] ?? 'now')) ?></small></p>
-                        </div>
-                        <div class="mb-3">
-                            <h6 class="text-muted">Última Actualización</h6>
-                            <p class="mb-0"><small><?= date('d/m/Y H:i', strtotime($material['fecha_actualizacion'] ?? 'now')) ?></small></p>
-                        </div>
-                    </div>
                 </div>
 
                 <hr>
 
-                <div class="mb-0">
-                    <h6 class="text-muted">Descripción</h6>
-                    <p><?= htmlspecialchars($material['descripcion'] ?? 'Sin descripción') ?></p>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted"><strong>Fecha Creación:</strong> <?= date('d/m/Y H:i', strtotime($material['fecha_creacion'] ?? 'now')) ?></small>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted"><strong>Última Actualización:</strong> <?= date('d/m/Y H:i', strtotime($material['fecha_actualizacion'] ?? 'now')) ?></small>
+                    </div>
                 </div>
             </div>
         </div>

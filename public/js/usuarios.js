@@ -409,8 +409,35 @@ document.addEventListener("DOMContentLoaded", () => {
                             lineaHtml = '—';
                         }
 
+                        // Verificar si el usuario está pendiente de asignación
+                        const isPending = (!u.nodo_id || !u.linea_id) && rol !== 'admin';
+                        
+                        // Botón de asignación si está pendiente
+                        const assignButtonHtml = isPending ? `
+                            <button class="btn btn-warning btn-sm mb-1 btn-asignar-nodo" 
+                                    data-id="${u.id}" 
+                                    data-nombre="${escapeHtml(u.nombre)}"
+                                    data-rol="${rol}"
+                                    data-nodo="${u.nodo_id || ''}"
+                                    data-linea="${u.linea_id || ''}"
+                                    title="Asignar rol, nodo y línea"
+                                    style="animation: pulse 2s infinite;">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                            </button>
+                        ` : `
+                            <button class="btn btn-secondary btn-sm btn-asignar-nodo" 
+                                    data-id="${u.id}" 
+                                    data-nombre="${escapeHtml(u.nombre)}"
+                                    data-rol="${rol}"
+                                    data-nodo="${u.nodo_id || ''}"
+                                    data-linea="${u.linea_id || ''}"
+                                    title="Reasignar nodo/línea">
+                                <i class="bi bi-map"></i>
+                            </button>
+                        `;
+
                         const rowHtml = `
-                            <tr>
+                            <tr data-user-id="${u.id}">
                                 <td>${u.id}</td>
                                 <td>${fotoHtml}</td>
                                 <td>${escapeHtml(u.nombre)}</td>
@@ -422,29 +449,30 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <td>${estadoHtml}</td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <a href="${BASE_URL}/?url=usuarios/detalles&id=${u.id}" class="btn btn-sm btn-info" title="Ver detalles">
+                                        <a href="${BASE_URL}/?url=usuarios/detalles&id=${u.id}" class="btn btn-info" title="Ver detalles">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        <a href="${BASE_URL}/?url=usuarios/editar&id=${u.id}" class="btn btn-sm btn-primary" title="Editar">
+                                        <a href="${BASE_URL}/?url=usuarios/editar&id=${u.id}" class="btn btn-primary" title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </a>
+                                        ${assignButtonHtml}
 
                                         ${
                                             u.estado == 1
                                             ? `<form class="d-inline" method="post" action="${BASE_URL}/?url=usuarios/bloquear">
                                                     <input type="hidden" name="id" value="${u.id}">
-                                                    <button class="btn btn-sm btn-warning" type="submit" title="Bloquear">
+                                                    <button class="btn btn-warning" type="submit" title="Bloquear">
                                                         <i class="bi bi-ban"></i>
                                                     </button>
                                                </form>`
                                             : `<form class="d-inline" method="post" action="${BASE_URL}/?url=usuarios/desbloquear">
                                                     <input type="hidden" name="id" value="${u.id}">
-                                                    <button class="btn btn-sm btn-success" type="submit" title="Desbloquear">
+                                                    <button class="btn btn-success" type="submit" title="Desbloquear">
                                                         <i class="bi bi-unlock"></i>
                                                     </button>
                                                </form>`
                                         }
-                                        <button class="btn btn-sm btn-danger btn-eliminar" data-id="${u.id}" data-nombre="${escapeHtml(u.nombre)}" title="Eliminar">
+                                        <button class="btn btn-danger btn-eliminar" data-id="${u.id}" data-nombre="${escapeHtml(u.nombre)}" title="Eliminar">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
@@ -536,8 +564,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Cargar usuarios automáticamente al abrir la página
-    fetchUsuarios(1);
+    // NO cargar usuarios automáticamente - usar el HTML inicial del servidor
+    // fetchUsuarios(1);
     
     // Cargar conteo de documentos para usuarios iniciales
     if (tbody) {

@@ -9,6 +9,15 @@ if (!isset($_SESSION['user'])) {
     tbody tr:only-child td {
         display: table-cell !important;
     }
+    
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+        }
+        50% {
+            box-shadow: 0 0 0 8px rgba(255, 193, 7, 0);
+        }
+    }
 </style>
 
 <div class="row justify-content-center">
@@ -76,7 +85,7 @@ if (!isset($_SESSION['user'])) {
                     </thead>
                     <tbody id="usuarios-body">
                     <?php foreach ($usuarios as $u): ?>
-                        <tr>
+                        <tr data-user-id="<?= $u['id'] ?>">
                             <td><?= $u['id'] ?></td>
                             <td>
                                 <?php if ($u['foto']): ?>
@@ -143,30 +152,47 @@ if (!isset($_SESSION['user'])) {
                                 <?php endif; ?>
                             </td>
                             <td class="text-center">
+                                <?php 
+                                // Detectar si el usuario está pendiente (sin nodo o línea asignada)
+                                $isPending = (empty($u['nodo_id']) || empty($u['linea_id'])) && $u['rol'] !== 'admin';
+                                ?>
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <a href="<?= BASE_URL ?>/usuarios/detalles?id=<?= $u['id'] ?>"
-                                       class="btn btn-info btn-sm" title="Ver detalles">
+                                    <a href="<?= BASE_URL ?>/usuarios/detalles?id=<?= $u['id'] ?>" 
+                                       class="btn btn-info" title="Ver detalles">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="<?= BASE_URL ?>/usuarios/editar?id=<?= $u['id'] ?>"
-                                       class="btn btn-primary btn-sm" title="Editar">
+                                    <a href="<?= BASE_URL ?>/usuarios/editar?id=<?= $u['id'] ?>" 
+                                       class="btn btn-primary" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <button class="btn btn-secondary btn-sm btn-asignar-nodo" 
-                                            data-id="<?= $u['id'] ?>" 
-                                            data-nombre="<?= htmlspecialchars($u['nombre']) ?>"
-                                            data-rol="<?= $u['rol'] ?>"
-                                            data-nodo="<?= $u['nodo_id'] ?? '' ?>"
-                                            data-linea="<?= $u['linea_id'] ?? '' ?>"
-                                            title="Asignar nodo/línea">
-                                        <i class="bi bi-map"></i>
-                                    </button>
-
+                                    <?php if ($isPending): ?>
+                                        <button class="btn btn-asignar-nodo" 
+                                                data-id="<?= $u['id'] ?>" 
+                                                data-nombre="<?= htmlspecialchars($u['nombre']) ?>"
+                                                data-rol="<?= $u['rol'] ?>"
+                                                data-nodo="<?= $u['nodo_id'] ?? '' ?>"
+                                                data-linea="<?= $u['linea_id'] ?? '' ?>"
+                                                title="Asignar rol, nodo y línea"
+                                                style="background-color: #ff9800; border-color: #ff9800; color: white; animation: pulse 2s infinite;">
+                                            <i class="bi bi-exclamation-triangle-fill"></i>
+                                        </button>
+                                    <?php else: ?>
+                                        <button class="btn btn-secondary btn-asignar-nodo" 
+                                                data-id="<?= $u['id'] ?>" 
+                                                data-nombre="<?= htmlspecialchars($u['nombre']) ?>"
+                                                data-rol="<?= $u['rol'] ?>"
+                                                data-nodo="<?= $u['nodo_id'] ?? '' ?>"
+                                                data-linea="<?= $u['linea_id'] ?? '' ?>"
+                                                title="Reasignar nodo/línea">
+                                            <i class="bi bi-map"></i>
+                                        </button>
+                                    <?php endif; ?>
+                                    
                                     <?php if ($u['estado'] == 1): ?>
                                         <form class="d-inline" method="post"
                                               action="<?= BASE_URL ?>/usuarios/bloquear">
                                             <input type="hidden" name="id" value="<?= $u['id'] ?>">
-                                            <button class="btn btn-warning btn-sm" type="submit" title="Bloquear">
+                                            <button class="btn btn-warning" type="submit" title="Bloquear">
                                                 <i class="bi bi-ban"></i>
                                             </button>
                                         </form>
@@ -174,12 +200,12 @@ if (!isset($_SESSION['user'])) {
                                         <form class="d-inline" method="post"
                                               action="<?= BASE_URL ?>/usuarios/desbloquear">
                                             <input type="hidden" name="id" value="<?= $u['id'] ?>">
-                                            <button class="btn btn-success btn-sm" type="submit" title="Desbloquear">
+                                            <button class="btn btn-success" type="submit" title="Desbloquear">
                                                 <i class="bi bi-unlock"></i>
                                             </button>
                                         </form>
                                     <?php endif; ?>
-                                    <button class="btn btn-danger btn-sm btn-eliminar" data-id="<?= $u['id'] ?>" data-nombre="<?= htmlspecialchars($u['nombre']) ?>" title="Eliminar">
+                                    <button class="btn btn-danger btn-eliminar" data-id="<?= $u['id'] ?>" data-nombre="<?= htmlspecialchars($u['nombre']) ?>" title="Eliminar">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
@@ -217,7 +243,7 @@ if (!isset($_SESSION['user'])) {
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Asignar Nodo y Línea</h5>
+                <h5 class="modal-title">Asignar Rol, Nodo y Línea</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="formAsignarNodo">
@@ -226,7 +252,17 @@ if (!isset($_SESSION['user'])) {
                     
                     <div class="mb-3">
                         <label class="form-label"><strong id="usuario-nombre"></strong></label>
-                        <small class="d-block text-muted">Rol: <span id="usuario-rol"></span></small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Rol <span class="text-danger">*</span></label>
+                        <select id="select-rol" class="form-select" required>
+                            <option value="usuario">Usuario</option>
+                            <option value="dinamizador">Dinamizador</option>
+                            <option value="invitado">Invitado</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <small class="text-muted" id="rol-help">Selecciona el rol antes de asignar nodo/línea</small>
                     </div>
 
                     <div class="mb-3" id="div-nodo-modal">
@@ -259,6 +295,7 @@ if (!isset($_SESSION['user'])) {
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const modal = new bootstrap.Modal(document.getElementById('modalAsignarNodo'));
+        const rolSelect = document.getElementById('select-rol');
         const nodoSelect = document.getElementById('select-nodo');
         const lineaSelect = document.getElementById('select-linea');
         const divLinea = document.getElementById('div-linea');
@@ -284,6 +321,11 @@ if (!isset($_SESSION['user'])) {
                     });
                 }
             }
+        });
+
+        // Actualizar campos cuando cambia el rol
+        rolSelect.addEventListener('change', function() {
+            actualizarCamposSegunRol(this.value);
         });
 
         // Función para mostrar/ocultar campos según el rol
@@ -315,45 +357,58 @@ if (!isset($_SESSION['user'])) {
             }
         }
 
-        // Manejar clic en botones de asignar nodo
-        document.querySelectorAll('.btn-asignar-nodo').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const usuarioId = this.dataset.id;
-                const usuarioNombre = this.dataset.nombre;
-                const usuarioRol = this.dataset.rol;
-                const usuarioNodo = this.dataset.nodo;
-                const usuarioLinea = this.dataset.linea;
+        // Función para configurar eventos de los botones de asignación
+        function configurarEventosAsignacion() {
+            // Usar delegación de eventos para que funcione después de AJAX
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.btn-asignar-nodo')) {
+                    e.preventDefault();
+                    const btn = e.target.closest('.btn-asignar-nodo');
+                    const usuarioId = btn.getAttribute('data-id');
+                    const usuarioNombre = btn.getAttribute('data-nombre');
+                    const usuarioRol = btn.getAttribute('data-rol');
+                    const usuarioNodo = btn.getAttribute('data-nodo');
+                    const usuarioLinea = btn.getAttribute('data-linea');
 
-                document.getElementById('usuario-id').value = usuarioId;
-                document.getElementById('usuario-nombre').textContent = usuarioNombre;
-                document.getElementById('usuario-rol').textContent = usuarioRol;
-                
-                // Actualizar campos visibles según rol
-                actualizarCamposSegunRol(usuarioRol);
+                    document.getElementById('usuario-id').value = usuarioId;
+                    document.getElementById('usuario-nombre').textContent = usuarioNombre;
+                    
+                    // Cargar rol actual
+                    rolSelect.value = usuarioRol || 'usuario';
+                    
+                    // Actualizar campos visibles según rol
+                    actualizarCamposSegunRol(usuarioRol || 'usuario');
 
-                // Cargar nodo actual si existe
-                if (usuarioNodo) {
-                    nodoSelect.value = usuarioNodo;
-                    nodoSelect.dispatchEvent(new Event('change'));
-                    if (usuarioLinea && usuarioRol === 'usuario') {
-                        setTimeout(() => {
-                            lineaSelect.value = usuarioLinea;
-                        }, 100);
+                    // Cargar nodo actual si existe
+                    if (usuarioNodo) {
+                        nodoSelect.value = usuarioNodo;
+                        nodoSelect.dispatchEvent(new Event('change'));
+                        if (usuarioLinea && (usuarioRol === 'usuario' || !usuarioRol)) {
+                            setTimeout(() => {
+                                lineaSelect.value = usuarioLinea;
+                            }, 100);
+                        }
+                    } else {
+                        nodoSelect.value = '';
+                        lineaSelect.innerHTML = '<option value="">-- Selecciona una línea --</option>';
                     }
-                }
 
-                modal.show();
+                    modal.show();
+                }
             });
-        });
+        }
+        
+        // Configurar eventos de asignación
+        configurarEventosAsignacion();
 
         // Manejar submit del formulario
         formAsignar.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const usuarioId = document.getElementById('usuario-id').value;
+            const rol = rolSelect.value;
             const nodoId = nodoSelect.value || null;
             const lineaId = lineaSelect.value || null;
-            const rol = document.getElementById('usuario-rol').textContent;
 
             // Validar según el rol
             if (rol === 'usuario' && !nodoId) {
@@ -377,7 +432,7 @@ if (!isset($_SESSION['user'])) {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: 'usuario_id=' + usuarioId + '&nodo_id=' + (nodoId || '') + '&linea_id=' + (lineaId || '')
+                body: 'usuario_id=' + usuarioId + '&rol=' + rol + '&nodo_id=' + (nodoId || '') + '&linea_id=' + (lineaId || '')
             })
             .then(response => response.json())
             .then(data => {
@@ -395,4 +450,58 @@ if (!isset($_SESSION['user'])) {
             });
         });
     });
+</script>
+
+<!-- Script separado para manejar parámetros URL (fuera de DOMContentLoaded) -->
+<script>
+// Ejecutar después de que TODO esté cargado
+window.addEventListener('load', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const assignUserId = urlParams.get('assign_user_id');
+    const userId = urlParams.get('user_id');
+    
+    // Asignación rápida desde notificaciones
+    if (assignUserId) {
+        setTimeout(() => {
+            const assignButtons = document.querySelectorAll('.btn-asignar-nodo');
+            
+            let assignButton = null;
+            assignButtons.forEach(btn => {
+                const btnId = btn.getAttribute('data-id');
+                if (btnId == assignUserId) {
+                    assignButton = btn;
+                }
+            });
+            
+            if (assignButton) {
+                const row = assignButton.closest('tr');
+                if (row) {
+                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    row.style.backgroundColor = '#fff3cd';
+                    setTimeout(() => row.style.backgroundColor = '', 3000);
+                }
+                
+                setTimeout(() => {
+                    assignButton.click();
+                    setTimeout(() => {
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }, 1000);
+                }, 500);
+            }
+        }, 800);
+    }
+    
+    // Edición de usuario existente
+    if (userId) {
+        setTimeout(() => {
+            const userRow = document.querySelector(`tr[data-user-id="${userId}"]`);
+            if (userRow) {
+                userRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                userRow.style.backgroundColor = '#fff3cd';
+                setTimeout(() => userRow.style.backgroundColor = '', 2000);
+            }
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }, 500);
+    }
+});
 </script>

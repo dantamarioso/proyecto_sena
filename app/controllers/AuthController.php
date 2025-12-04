@@ -227,9 +227,30 @@ class AuthController extends Controller
                         $_SESSION['flash_error'] = "Debes verificar tu email antes de iniciar sesión.";
                         $this->redirect('auth/verifyEmail');
                         exit;
-                    } else if (empty($user['nodo_id']) || empty($user['linea_id'])) {
-                        // Verificar que un administrador haya asignado nodo y línea
-                        $errores[] = "Tu cuenta está pendiente de activación por un administrador. Se te asignará un nodo y línea pronto.";
+                    } else if (empty($user['nodo_id'])) {
+                        // Verificar que tenga nodo asignado (requerido para todos los roles excepto admin)
+                        if ($user['rol'] !== 'admin') {
+                            $errores[] = "Tu cuenta está pendiente de activación por un administrador. Se te asignará un nodo pronto.";
+                        } else {
+                            // Admin puede iniciar sesión sin nodo/línea
+                            session_regenerate_id(true);
+
+                            $_SESSION['user'] = [
+                                'id'       => $user['id'],
+                                'nombre'   => $user['nombre'],
+                                'cargo'    => $user['cargo'],
+                                'foto'     => $user['foto'],
+                                'rol'      => $user['rol'] ?? 'usuario',
+                                'nodo_id'  => $user['nodo_id'] ?? null,
+                                'linea_id' => $user['linea_id'] ?? null,
+                            ];
+
+                            $this->redirectReplace('home/index');
+                            exit;
+                        }
+                    } else if (empty($user['linea_id']) && $user['rol'] === 'usuario') {
+                        // Solo usuarios normales requieren línea asignada (dinamizadores no)
+                        $errores[] = "Tu cuenta está pendiente de activación por un administrador. Se te asignará una línea pronto.";
                     } else {
                         session_regenerate_id(true);
 

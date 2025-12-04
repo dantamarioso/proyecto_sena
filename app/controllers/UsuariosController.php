@@ -527,13 +527,14 @@ class UsuariosController extends Controller
         }
 
         $usuario_id = intval($_POST['usuario_id'] ?? 0);
-        $nodo_id = intval($_POST['nodo_id'] ?? 0);
+        $rol = trim($_POST['rol'] ?? '');
+        $nodo_id = !empty($_POST['nodo_id']) ? intval($_POST['nodo_id']) : null;
         $linea_id = !empty($_POST['linea_id']) ? intval($_POST['linea_id']) : null;
 
         // Log de debug
-        file_put_contents(__DIR__ . '/../asignarNodo.log', date('Y-m-d H:i:s') . " - usuario_id: $usuario_id, nodo_id: $nodo_id, linea_id: " . ($linea_id ?? 'NULL') . "\n", FILE_APPEND);
+        file_put_contents(__DIR__ . '/../asignarNodo.log', date('Y-m-d H:i:s') . " - usuario_id: $usuario_id, rol: $rol, nodo_id: $nodo_id, linea_id: " . ($linea_id ?? 'NULL') . "\n", FILE_APPEND);
 
-        if ($usuario_id <= 0 || $nodo_id <= 0) {
+        if ($usuario_id <= 0 || empty($rol)) {
             echo json_encode(['success' => false, 'message' => 'Datos inválidos']);
             exit;
         }
@@ -547,31 +548,47 @@ class UsuariosController extends Controller
             exit;
         }
 
-        // Validar que si es usuario, tiene línea asignada
-        if ($usuario['rol'] === 'usuario' && $linea_id === null) {
-            echo json_encode(['success' => false, 'message' => 'Los usuarios deben tener una línea asignada']);
-            exit;
+        // Validaciones según el rol
+        if ($rol === 'usuario') {
+            if ($nodo_id === null || $linea_id === null) {
+                echo json_encode(['success' => false, 'message' => 'Los usuarios deben tener nodo y línea asignados']);
+                exit;
+            }
+        } elseif ($rol === 'dinamizador') {
+            if ($nodo_id === null) {
+                echo json_encode(['success' => false, 'message' => 'Los dinamizadores deben tener un nodo asignado']);
+                exit;
+            }
+            // Dinamizadores no necesitan línea específica
+            $linea_id = null;
+        } elseif ($rol === 'admin' || $rol === 'invitado') {
+            // Admin e invitado no necesitan nodo ni línea
+            $nodo_id = null;
+            $linea_id = null;
         }
 
-        // Asignar nodo y línea
-        if ($userModel->asignarNodo($usuario_id, $nodo_id, $linea_id)) {
+        // Asignar rol, nodo y línea
+        if ($userModel->asignarNodoYRol($usuario_id, $rol, $nodo_id, $linea_id)) {
             // Registrar en auditoría
             $auditModel = new Audit();
+            $cambios = [
+                'rol' => ['anterior' => $usuario['rol'] ?? 'Sin asignar', 'nuevo' => $rol],
+                'nodo_id' => ['anterior' => $usuario['nodo_id'] ?? 'Sin asignar', 'nuevo' => $nodo_id ?? 'Sin asignar'],
+                'linea_id' => ['anterior' => $usuario['linea_id'] ?? 'Sin asignar', 'nuevo' => $linea_id ?? 'Sin asignar']
+            ];
+            
             $auditModel->registrarCambio(
                 $usuario_id,
                 'usuarios',
                 $usuario_id,
                 'actualizar',
-                [
-                    'nodo_id' => ['anterior' => $usuario['nodo_id'] ?? 'Sin asignar', 'nuevo' => $nodo_id],
-                    'linea_id' => ['anterior' => $usuario['linea_id'] ?? 'Sin asignar', 'nuevo' => $linea_id ?? 'Sin asignar']
-                ],
+                $cambios,
                 $_SESSION['user']['id']
             );
 
-            echo json_encode(['success' => true, 'message' => 'Nodo y línea asignados correctamente']);
+            echo json_encode(['success' => true, 'message' => 'Rol, nodo y línea asignados correctamente']);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Error al asignar nodo y línea']);
+            echo json_encode(['success' => false, 'message' => 'Error al asignar rol, nodo y línea']);
         }
         exit;
     }
@@ -609,14 +626,14 @@ class UsuariosController extends Controller
                 'usuarios',
                 $id,
                 'eliminar',
-                json_encode([
+                [
                     'id' => $usuario['id'],
                     'nombre' => $usuario['nombre'] ?? 'Desconocido',
                     'correo' => $usuario['correo'] ?? '',
                     'nombre_usuario' => $usuario['nombre_usuario'] ?? '',
                     'rol' => $usuario['rol'] ?? 'usuario',
                     'estado' => ($usuario['estado'] ?? 1) == 1 ? 'Activo' : 'Bloqueado'
-                ]),
+                ],
                 $_SESSION['user']['id']
             );
             
@@ -881,6 +898,26 @@ class UsuariosController extends Controller
                 'problemas' => [$e->getMessage()]
             ]);
         }
+        exit;
+    }
+
+    /* =========================================================
+       NOTIFICACIONES DE USUARIOS PENDIENTES
+    ========================================================== */
+    public function getPendingNotifications()
+    {
+        header('Content-Type: application/json');
+        $this->requireAdmin();
+
+        $userModel = new User();
+        $pendingUsers = $userModel->getPendingUsers();
+        $count = $userModel->countPendingUsers();
+
+        echo json_encode([
+            'success' => true,
+            'count' => $count,
+            'users' => $pendingUsers
+        ]);
         exit;
     }
 }

@@ -223,11 +223,18 @@ INSERT INTO `linea_nodo` (`id`, `linea_id`, `nodo_id`, `estado`, `fecha_creacion
 CREATE TABLE `materiales` (
   `id` int(11) NOT NULL,
   `codigo` varchar(50) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `descripcion` text DEFAULT NULL,
-  `linea_id` int(11) DEFAULT NULL,
   `nodo_id` int(11) DEFAULT NULL,
+  `linea_id` int(11) DEFAULT NULL,
+  `nombre` varchar(100) NOT NULL,
+  `fecha_adquisicion` date DEFAULT NULL,
+  `categoria` varchar(100) DEFAULT NULL,
+  `presentacion` varchar(100) DEFAULT NULL,
+  `medida` varchar(50) DEFAULT NULL,
   `cantidad` int(11) DEFAULT 0,
+  `valor_compra` decimal(15,2) DEFAULT NULL,
+  `proveedor` varchar(200) DEFAULT NULL,
+  `marca` varchar(100) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
   `estado` tinyint(4) DEFAULT 1,
   `creado_por` int(11) DEFAULT NULL,
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -238,10 +245,10 @@ CREATE TABLE `materiales` (
 -- Volcado de datos para la tabla `materiales`
 --
 
-INSERT INTO `materiales` (`id`, `codigo`, `nombre`, `descripcion`, `linea_id`, `nodo_id`, `cantidad`, `estado`, `creado_por`, `fecha_creacion`, `fecha_actualizacion`) VALUES
-(1, '1', 'prueba', 'prueba', 1, 9, 10, 1, NULL, '2025-11-25 23:20:27', '2025-12-01 16:43:38'),
-(2, 'wqq', 'wqw', 'qwqw', 1, 2, 232, 1, NULL, '2025-11-26 20:16:17', '2025-11-28 14:17:31'),
-(3, '2454g', 'jgbhj', 'gdghfr', 1, 3, 5, 1, NULL, '2025-12-01 15:42:46', '2025-12-01 16:20:54');
+INSERT INTO `materiales` (`id`, `codigo`, `nodo_id`, `linea_id`, `nombre`, `fecha_adquisicion`, `categoria`, `presentacion`, `medida`, `cantidad`, `valor_compra`, `proveedor`, `marca`, `descripcion`, `estado`, `creado_por`, `fecha_creacion`, `fecha_actualizacion`) VALUES
+(1, '1', 9, 1, 'prueba', NULL, NULL, NULL, NULL, 10, NULL, NULL, NULL, 'prueba', 1, NULL, '2025-11-25 23:20:27', '2025-12-01 16:43:38'),
+(2, 'wqq', 2, 1, 'wqw', NULL, NULL, NULL, NULL, 232, NULL, NULL, NULL, 'qwqw', 1, NULL, '2025-11-26 20:16:17', '2025-11-28 14:17:31'),
+(3, '2454g', 3, 1, 'jgbhj', NULL, NULL, NULL, NULL, 5, NULL, NULL, NULL, 'gdghfr', 1, NULL, '2025-12-01 15:42:46', '2025-12-01 16:20:54');
 
 -- --------------------------------------------------------
 

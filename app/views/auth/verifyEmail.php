@@ -6,17 +6,21 @@
             <h4 class="text-center">Completa tu registro confirmando tu correo</h4>
 
             <?php if (!empty($_SESSION['flash_error'])): ?>
-                <div class="alert alert-danger">
-                    <i class="bi bi-exclamation-circle me-2"></i>
-                    <?= htmlspecialchars($_SESSION['flash_error']); unset($_SESSION['flash_error']); ?>
-                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        mostrarNotificacion('<?= addslashes($_SESSION['flash_error']) ?>', 'error', 5000);
+                    });
+                </script>
+                <?php unset($_SESSION['flash_error']); ?>
             <?php endif; ?>
 
             <?php if (!empty($_SESSION['flash_success'])): ?>
-                <div class="alert alert-success">
-                    <i class="bi bi-check-circle me-2"></i>
-                    <?= htmlspecialchars($_SESSION['flash_success']); unset($_SESSION['flash_success']); ?>
-                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        mostrarNotificacion('<?= addslashes($_SESSION['flash_success']) ?>', 'success', 5000);
+                    });
+                </script>
+                <?php unset($_SESSION['flash_success']); ?>
             <?php endif; ?>
 
             <div class="text-muted mb-4">

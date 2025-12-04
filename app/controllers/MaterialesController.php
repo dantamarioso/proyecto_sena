@@ -249,13 +249,20 @@ class MaterialesController extends Controller
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Content-Type: application/json; charset=utf-8');
             $data = [
-                'codigo'        => trim($_POST['codigo'] ?? ''),
-                'nombre'        => trim($_POST['nombre'] ?? ''),
-                'descripcion'   => trim($_POST['descripcion'] ?? ''),
-                'linea_id'      => intval($_POST['linea_id'] ?? 0),
-                'cantidad'      => intval($_POST['cantidad'] ?? 0),
-                'estado'        => intval($_POST['estado'] ?? 1),
-                'nodo_id'       => null, // Se establece a continuación
+                'codigo'            => trim($_POST['codigo'] ?? ''),
+                'nombre'            => trim($_POST['nombre'] ?? ''),
+                'descripcion'       => trim($_POST['descripcion'] ?? ''),
+                'linea_id'          => intval($_POST['linea_id'] ?? 0),
+                'nodo_id'           => null, // Se establece a continuación
+                'fecha_adquisicion' => trim($_POST['fecha_adquisicion'] ?? ''),
+                'categoria'         => trim($_POST['categoria'] ?? ''),
+                'presentacion'      => trim($_POST['presentacion'] ?? ''),
+                'MEDIDA'          => trim($_POST['MEDIDA'] ?? ''),
+                'cantidad'          => intval($_POST['cantidad'] ?? 0),
+                'valor_compra'      => trim($_POST['valor_compra'] ?? ''),
+                'proveedor'         => trim($_POST['proveedor'] ?? ''),
+                'marca'             => trim($_POST['marca'] ?? ''),
+                'estado'            => intval($_POST['estado'] ?? 1),
             ];
 
             // Determinar nodo_id según el rol
@@ -404,13 +411,20 @@ class MaterialesController extends Controller
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Content-Type: application/json; charset=utf-8');
             $data = [
-                'codigo'        => trim($_POST['codigo'] ?? ''),
-                'nombre'        => trim($_POST['nombre'] ?? ''),
-                'descripcion'   => trim($_POST['descripcion'] ?? ''),
-                'linea_id'      => intval($_POST['linea_id'] ?? 0),
-                'cantidad'      => intval($_POST['cantidad'] ?? 0),
-                'estado'        => intval($_POST['estado'] ?? 1),
-                'nodo_id'       => null, // Se establece a continuación
+                'codigo'            => trim($_POST['codigo'] ?? ''),
+                'nombre'            => trim($_POST['nombre'] ?? ''),
+                'descripcion'       => trim($_POST['descripcion'] ?? ''),
+                'linea_id'          => intval($_POST['linea_id'] ?? 0),
+                'nodo_id'           => null, // Se establece a continuación
+                'fecha_adquisicion' => trim($_POST['fecha_adquisicion'] ?? ''),
+                'categoria'         => trim($_POST['categoria'] ?? ''),
+                'presentacion'      => trim($_POST['presentacion'] ?? ''),
+                'MEDIDA'          => trim($_POST['MEDIDA'] ?? ''),
+                'cantidad'          => intval($_POST['cantidad'] ?? 0),
+                'valor_compra'      => trim($_POST['valor_compra'] ?? ''),
+                'proveedor'         => trim($_POST['proveedor'] ?? ''),
+                'marca'             => trim($_POST['marca'] ?? ''),
+                'estado'            => intval($_POST['estado'] ?? 1),
             ];
 
             // Determinar nodo_id según el rol
@@ -476,7 +490,7 @@ class MaterialesController extends Controller
                 if ($materialModel->update($id, $data)) {
                     // Registrar en auditoría - comparar cambios
                     $cambios = [];
-                    foreach (['codigo', 'nombre', 'descripcion', 'nodo_id', 'linea_id', 'cantidad', 'estado'] as $campo) {
+                    foreach (['codigo', 'nombre', 'descripcion', 'nodo_id', 'linea_id', 'fecha_adquisicion', 'categoria', 'presentacion', 'medida', 'cantidad', 'valor_compra', 'proveedor', 'marca', 'estado'] as $campo) {
                         $valorAnterior = $material[$campo] ?? null;
                         $valorNuevo = $data[$campo] ?? null;
                         
@@ -1414,10 +1428,12 @@ class MaterialesController extends Controller
                         exit;
                     }
                     
-                    // Obtener todas las filas sin parámetros especiales
-                    $rows = $worksheet->toArray();
+                    // Obtener el rango más alto de datos
+                    $highestRow = $worksheet->getHighestRow();
+                    $highestColumn = $worksheet->getHighestColumn();
+                    $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
                     
-                    if (empty($rows)) {
+                    if ($highestRow < 2) {
                         echo json_encode([
                             'success' => false, 
                             'message' => 'El archivo Excel está vacío.'
@@ -1425,29 +1441,60 @@ class MaterialesController extends Controller
                         exit;
                     }
                     
-                    // Convertir filas a formato de líneas de texto
-                    foreach ($rows as $row) {
-                        // Saltar filas completamente vacías
-                        $hayDatos = false;
-                        foreach ($row as $cell) {
-                            if (!is_null($cell) && trim((string)$cell) !== '') {
-                                $hayDatos = true;
-                                break;
-                            }
-                        }
-                        
-                        if (!$hayDatos) {
-                            continue;
-                        }
-                        
-                        // Convertir fila a texto CSV limpio
+                    // Convertir filas a formato de líneas de texto, procesando celda por celda
+                    for ($row = 1; $row <= $highestRow; $row++) {
                         $lineaLimpia = [];
-                        foreach ($row as $cell) {
-                            $valorLimpio = str_replace([';', "\n", "\r", "\t"], [',', ' ', ' ', ' '], (string)$cell);
+                        $hayDatos = false;
+                        
+                        for ($col = 1; $col <= $highestColumnIndex; $col++) {
+                            $cell = $worksheet->getCellByColumnAndRow($col, $row);
+                            $valor = $cell->getValue();
+                            $formatCode = $cell->getStyle()->getNumberFormat()->getFormatCode();
+                            
+                            // Verificar si hay datos en la fila
+                            if (!is_null($valor) && trim((string)$valor) !== '') {
+                                $hayDatos = true;
+                            }
+                            
+                            // Convertir el valor según su tipo y formato
+                            if (\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)) {
+                                // Es una fecha de Excel con formato de fecha
+                                try {
+                                    $dateValue = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($valor);
+                                    $valorLimpio = $dateValue->format('Y-m-d');
+                                } catch (Exception $e) {
+                                    $valorLimpio = (string)$valor;
+                                }
+                            } elseif (is_numeric($valor) && $valor > 40000 && $valor < 60000 && 
+                                     (strpos($formatCode, 'd') !== false || strpos($formatCode, 'm') !== false || strpos($formatCode, 'y') !== false)) {
+                                // Parece ser una fecha serializada (número entre 40000-60000 con formato de fecha)
+                                try {
+                                    $dateValue = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($valor);
+                                    $valorLimpio = $dateValue->format('Y-m-d');
+                                } catch (Exception $e) {
+                                    $valorLimpio = (string)$valor;
+                                }
+                            } elseif (is_numeric($valor) && (strpos($formatCode, '$') !== false || strpos($formatCode, '#,##0') !== false)) {
+                                // Es un número con formato de moneda o con separadores de miles
+                                // Obtener el valor calculado (formateado) para preservar decimales
+                                $valorLimpio = $cell->getCalculatedValue();
+                            } elseif (is_numeric($valor)) {
+                                // Es un número simple - preservar como está
+                                $valorLimpio = (string)$valor;
+                            } else {
+                                // Es texto - obtener valor formateado
+                                $valorLimpio = $cell->getFormattedValue();
+                                // Limpiar caracteres especiales que puedan romper CSV
+                                $valorLimpio = str_replace([';', "\n", "\r", "\t"], [',', ' ', ' ', ' '], $valorLimpio);
+                            }
+                            
                             $lineaLimpia[] = trim($valorLimpio);
                         }
                         
-                        $lineas[] = implode(';', $lineaLimpia);
+                        // Solo agregar filas que tengan datos
+                        if ($hayDatos) {
+                            $lineas[] = implode(';', $lineaLimpia);
+                        }
                     }
                     
                     if (empty($lineas)) {
@@ -1564,6 +1611,27 @@ class MaterialesController extends Controller
                 elseif (in_array($limpio, ['estado', 'status', 'state', 'active', 'activo'])) {
                     $mapeoEncabezados['estado'] = $idx;
                 }
+                elseif (in_array($limpio, ['fecha_adquisicion', 'fecha_compra', 'purchase_date', 'fecha', 'date', 'adquisicion'])) {
+                    $mapeoEncabezados['fecha_adquisicion'] = $idx;
+                }
+                elseif (in_array($limpio, ['categoria', 'category', 'tipo', 'type', 'cat'])) {
+                    $mapeoEncabezados['categoria'] = $idx;
+                }
+                elseif (in_array($limpio, ['presentacion', 'presentation', 'formato', 'format'])) {
+                    $mapeoEncabezados['presentacion'] = $idx;
+                }
+                elseif (in_array($limpio, ['medida', 'unidad', 'unit', 'measure', 'medicion', 'measurement'])) {
+                    $mapeoEncabezados['medida'] = $idx;
+                }
+                elseif (in_array($limpio, ['valor_compra', 'precio', 'price', 'valor', 'cost', 'costo', 'valor_unitario'])) {
+                    $mapeoEncabezados['valor_compra'] = $idx;
+                }
+                elseif (in_array($limpio, ['proveedor', 'supplier', 'vendor', 'provider'])) {
+                    $mapeoEncabezados['proveedor'] = $idx;
+                }
+                elseif (in_array($limpio, ['marca', 'brand', 'fabricante', 'manufacturer'])) {
+                    $mapeoEncabezados['marca'] = $idx;
+                }
             }
 
             // Verificar si faltan campos requeridos usando el mapeo
@@ -1640,6 +1708,47 @@ class MaterialesController extends Controller
                     $estado = isset($mapeoEncabezados['estado'])
                         ? $this->limpiarEstado($datosLinea[$mapeoEncabezados['estado']] ?? '1')
                         : 1;
+                    
+                    // DEBUG: Log TODOS los datos de la línea
+                    error_log("=== IMPORTACIÓN LÍNEA $i ===");
+                    error_log("Datos completos: " . json_encode($datosLinea));
+                    error_log("Mapeo fecha index: " . (isset($mapeoEncabezados['fecha_adquisicion']) ? $mapeoEncabezados['fecha_adquisicion'] : 'NO MAPEADO'));
+                    error_log("Mapeo valor index: " . (isset($mapeoEncabezados['valor_compra']) ? $mapeoEncabezados['valor_compra'] : 'NO MAPEADO'));
+                    
+                    // Nuevos campos
+                    $fecha_adquisicion_raw = isset($mapeoEncabezados['fecha_adquisicion']) 
+                        ? ($datosLinea[$mapeoEncabezados['fecha_adquisicion']] ?? '') 
+                        : '';
+                    error_log("Fecha raw extraída: '" . $fecha_adquisicion_raw . "'");
+                    $fecha_adquisicion = $this->limpiarFecha($fecha_adquisicion_raw);
+                    error_log("Fecha limpia: '" . ($fecha_adquisicion ?? 'NULL') . "'");
+                    
+                    $categoria = isset($mapeoEncabezados['categoria'])
+                        ? $this->limpiarTexto($datosLinea[$mapeoEncabezados['categoria']] ?? '')
+                        : null;
+                    
+                    $presentacion = isset($mapeoEncabezados['presentacion'])
+                        ? $this->limpiarTexto($datosLinea[$mapeoEncabezados['presentacion']] ?? '')
+                        : null;
+                    
+                    $medida = isset($mapeoEncabezados['medida'])
+                        ? $this->limpiarTexto($datosLinea[$mapeoEncabezados['medida']] ?? '')
+                        : null;
+                    
+                    $valor_compra_raw = isset($mapeoEncabezados['valor_compra']) 
+                        ? ($datosLinea[$mapeoEncabezados['valor_compra']] ?? '') 
+                        : '';
+                    error_log("Valor raw extraído: '" . $valor_compra_raw . "'");
+                    $valor_compra = $this->limpiarDecimal($valor_compra_raw);
+                    error_log("Valor limpio: '" . ($valor_compra ?? 'NULL') . "'");
+                    
+                    $proveedor = isset($mapeoEncabezados['proveedor'])
+                        ? $this->limpiarTexto($datosLinea[$mapeoEncabezados['proveedor']] ?? '')
+                        : null;
+                    
+                    $marca = isset($mapeoEncabezados['marca'])
+                        ? $this->limpiarTexto($datosLinea[$mapeoEncabezados['marca']] ?? '')
+                        : null;
 
                     // Validaciones básicas
                     if (empty($codigo) || empty($nombre)) {
@@ -1749,6 +1858,13 @@ class MaterialesController extends Controller
                         'cantidad' => max(0, $cantidad),
                         'estado' => $estado,
                         'nodo_id' => $nodo_id,
+                        'fecha_adquisicion' => $fecha_adquisicion,
+                        'categoria' => $categoria,
+                        'presentacion' => $presentacion,
+                        'medida' => $medida,
+                        'valor_compra' => $valor_compra,
+                        'proveedor' => $proveedor,
+                        'marca' => $marca,
                     ];
 
                     // Validar
@@ -1913,6 +2029,154 @@ class MaterialesController extends Controller
     }
 
     /**
+     * Limpiar fecha - Convertir a formato Y-m-d o null
+     */
+    private function limpiarFecha($valor)
+    {
+        $valor = trim($valor);
+        if (empty($valor) || $valor === '0' || strtoupper($valor) === 'NULL' || strtolower($valor) === 'no especificada') {
+            return null;
+        }
+        
+        // Si ya está en formato Y-m-d, retornarlo directamente
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $valor)) {
+            return $valor;
+        }
+        
+        // Si es un número (fecha serializada de Excel), convertir
+        if (is_numeric($valor) && $valor > 1) {
+            try {
+                // Excel serializa fechas como número de días desde 1900-01-01
+                // Ajustar por el bug de Excel con 1900 como año bisiesto
+                $excelEpoch = new DateTime('1899-12-30');
+                $excelEpoch->modify('+' . intval($valor) . ' days');
+                return $excelEpoch->format('Y-m-d');
+            } catch (Exception $e) {
+                error_log("Error convirtiendo fecha Excel numérica '$valor': " . $e->getMessage());
+                return null;
+            }
+        }
+        
+        // Intentar parsear diferentes formatos de fecha comunes
+        $formatos = [
+            'd/m/Y',   // 20/12/2025
+            'd-m-Y',   // 20-12-2025
+            'm/d/Y',   // 12/20/2025
+            'm-d-Y',   // 12-20-2025
+            'Y/m/d',   // 2025/12/20
+            'd/m/y',   // 20/12/25
+            'd-m-y',   // 20-12-25
+        ];
+        
+        foreach ($formatos as $formato) {
+            $fecha = DateTime::createFromFormat($formato, $valor);
+            if ($fecha !== false) {
+                // Verificar que el formato coincida exactamente
+                if ($fecha->format($formato) === $valor) {
+                    return $fecha->format('Y-m-d');
+                }
+            }
+        }
+        
+        // Intentar con strtotime como último recurso
+        $timestamp = strtotime($valor);
+        if ($timestamp !== false && $timestamp > 0) {
+            return date('Y-m-d', $timestamp);
+        }
+        
+        error_log("No se pudo convertir fecha: '$valor'");
+        return null;
+    }
+
+    /**
+     * Limpiar valor decimal - Extraer número decimal válido o null
+     */
+    private function limpiarDecimal($valor)
+    {
+        $valorOriginal = $valor;
+        $valor = trim($valor);
+        
+        if (empty($valor) || strtolower($valor) === 'null' || strtolower($valor) === 'no especificado') {
+            return null;
+        }
+        
+        // Si ya es numérico directo, retornarlo
+        if (is_numeric($valor)) {
+            $numero = floatval($valor);
+            return $numero > 0 ? $numero : null;
+        }
+        
+        // Eliminar símbolos de moneda ($, €, etc.), espacios y otros caracteres no numéricos
+        // Mantener solo dígitos, puntos, comas y signo negativo
+        $valor = preg_replace('/[^\d.,\-]/', '', $valor);
+        
+        if (empty($valor)) {
+            error_log("limpiarDecimal: Después de limpiar quedó vacío. Original='$valorOriginal'");
+            return null;
+        }
+        
+        // Determinar el formato basándose en la posición de puntos y comas
+        $numPuntos = substr_count($valor, '.');
+        $numComas = substr_count($valor, ',');
+        
+        if ($numComas === 0 && $numPuntos === 0) {
+            // Solo dígitos: 1890000
+            $numero = floatval($valor);
+        } elseif ($numComas === 1 && $numPuntos === 0) {
+            // Solo una coma: puede ser 1234,56 (europeo) o separador de miles
+            $partes = explode(',', $valor);
+            if (strlen($partes[1]) <= 2) {
+                // Es decimal europeo: 1234,56
+                $valor = str_replace(',', '.', $valor);
+            } else {
+                // Es separador de miles incorrecto
+                $valor = str_replace(',', '', $valor);
+            }
+            $numero = floatval($valor);
+        } elseif ($numPuntos === 1 && $numComas === 0) {
+            // Solo un punto: puede ser 1234.56 (americano) o 1.234 (miles europeo)
+            $partes = explode('.', $valor);
+            if (strlen($partes[1]) <= 2) {
+                // Es decimal americano: 1234.56
+                $numero = floatval($valor);
+            } else {
+                // Es separador de miles: 1.234
+                $valor = str_replace('.', '', $valor);
+                $numero = floatval($valor);
+            }
+        } elseif ($numPuntos > 0 && $numComas > 0) {
+            // Formato mixto: determinar cuál es el separador decimal
+            $ultimoPunto = strrpos($valor, '.');
+            $ultimaComa = strrpos($valor, ',');
+            
+            if ($ultimaComa > $ultimoPunto) {
+                // Formato europeo: 1.890.000,00
+                $valor = str_replace('.', '', $valor);  // Eliminar puntos (miles)
+                $valor = str_replace(',', '.', $valor);  // Coma a punto (decimal)
+            } else {
+                // Formato americano: 1,890,000.00
+                $valor = str_replace(',', '', $valor);  // Eliminar comas (miles)
+            }
+            $numero = floatval($valor);
+        } elseif ($numPuntos > 1) {
+            // Múltiples puntos: formato europeo 1.890.000
+            $valor = str_replace('.', '', $valor);
+            $numero = floatval($valor);
+        } elseif ($numComas > 1) {
+            // Múltiples comas: formato americano 1,890,000
+            $valor = str_replace(',', '', $valor);
+            $numero = floatval($valor);
+        } else {
+            $numero = floatval($valor);
+        }
+        
+        $resultado = $numero > 0 ? $numero : null;
+        error_log("limpiarDecimal: '$valorOriginal' -> '$valor' -> " . ($resultado ?? 'NULL'));
+        
+        return $resultado;
+    }
+
+    /**
      * Detectar delimitador del archivo
      */
     private function detectarDelimitador($linea)
@@ -1971,14 +2235,11 @@ class MaterialesController extends Controller
                 }
             }
 
-            if (empty($materiales)) {
-                echo json_encode(['success' => false, 'message' => 'No hay materiales para exportar']);
-                exit;
-            }
-
             // Obtener listas de nodos y líneas según rol
             $todosNodos = $nodoModel->all();
             $todasLineas = $lineaModel->all();
+
+            // Si no hay materiales, exportar plantilla vacía con encabezados
 
             // Crear Excel con soporte de múltiples sheets
             $excel = new ExcelHelper();
@@ -1989,9 +2250,15 @@ class MaterialesController extends Controller
             $excel->createSheet('Materiales');
             
             // Encabezados unificados para todos los roles
-            $encabezados = ['CÓDIGO', 'NOMBRE', 'DESCRIPCIÓN', 'NODO', 'LINEA', 'CANTIDAD'];
+            $encabezados = ['CÓDIGO', 'NODO', 'LINEA', 'NOMBRE', 'DESCRIPCIÓN', 'FECHA ADQUISICIÓN', 'CATEGORÍA', 'PRESENTACIÓN', 'MEDIDA', 'CANTIDAD', 'VALOR COMPRA', 'PROVEEDOR', 'MARCA', 'ESTADO'];
             
             $excel->setHeaders($encabezados);
+            
+            // Definir formatos de columnas: índice => tipo
+            $excel->setColumnFormats([
+                6 => 'date',      // FECHA ADQUISICIÓN (columna 6)
+                11 => 'currency', // VALOR COMPRA (columna 11)
+            ]);
 
             // Ordenar materiales
             usort($materiales, function($a, $b) {
@@ -2002,11 +2269,19 @@ class MaterialesController extends Controller
             foreach ($materiales as $mat) {
                 $excel->addRow([
                     $mat['codigo'],
-                    $mat['nombre'],
-                    $mat['descripcion'] ?? '',
                     $mat['nodo_nombre'] ?? '',
                     $mat['linea_nombre'] ?? '',
+                    $mat['nombre'],
+                    $mat['descripcion'] ?? '',
+                    $mat['fecha_adquisicion'] ?? '',
+                    $mat['categoria'] ?? '',
+                    $mat['presentacion'] ?? '',
+                    $mat['medida'] ?? '',
                     $mat['cantidad'],
+                    $mat['valor_compra'] ?? '',
+                    $mat['proveedor'] ?? '',
+                    $mat['marca'] ?? '',
+                    $mat['estado'] == 1 ? 'Activo' : 'Inactivo',
                 ]);
             }
 
@@ -2120,13 +2395,8 @@ class MaterialesController extends Controller
                 }
             }
 
-            if (empty($materiales)) {
-                echo json_encode(['success' => false, 'message' => 'No hay materiales para exportar']);
-                exit;
-            }
-
-            // Encabezados unificados para todos los roles
-            $encabezados = ['codigo', 'nombre', 'descripcion', 'nodo', 'linea', 'cantidad'];
+            // Encabezados unificados para todos los roles (exportar aunque no haya materiales)
+            $encabezados = ['codigo', 'nodo', 'linea', 'nombre', 'descripcion', 'fecha_adquisicion', 'categoria', 'presentacion', 'medida', 'cantidad', 'valor_compra', 'proveedor', 'marca', 'estado'];
 
             // Ordenar materiales
             usort($materiales, function($a, $b) {
@@ -2146,11 +2416,19 @@ class MaterialesController extends Controller
             foreach ($materiales as $mat) {
                 fputcsv($output, [
                     $mat['codigo'],
-                    $mat['nombre'],
-                    $mat['descripcion'] ?? '',
                     $mat['nodo_nombre'] ?? '',
                     $mat['linea_nombre'] ?? '',
+                    $mat['nombre'],
+                    $mat['descripcion'] ?? '',
+                    $mat['fecha_adquisicion'] ?? '',
+                    $mat['categoria'] ?? '',
+                    $mat['presentacion'] ?? '',
+                    $mat['medida'] ?? '',
                     $mat['cantidad'],
+                    $mat['valor_compra'] ?? '',
+                    $mat['proveedor'] ?? '',
+                    $mat['marca'] ?? '',
+                    $mat['estado'] == 1 ? 'activo' : 'inactivo',
                 ], ';');
             }
 
@@ -2214,12 +2492,7 @@ class MaterialesController extends Controller
                 }
             }
 
-            if (empty($materiales)) {
-                echo json_encode(['success' => false, 'message' => 'No hay materiales para exportar']);
-                exit;
-            }
-
-            // Crear archivo ZIP en memoria
+            // Crear archivo ZIP en memoria (exportar aunque no haya materiales)
             $zipFile = tempnam(sys_get_temp_dir(), 'materiales_') . '.zip';
             $zip = new ZipArchive();
             
@@ -2388,43 +2661,26 @@ class MaterialesController extends Controller
             // Crear contenido TXT con tabulaciones
             $txtContent = "\xEF\xBB\xBF"; // BOM UTF-8
             
-            // Encabezados según rol
-            if ($rol === 'admin') {
-                $txtContent .= "CODIGO\tNOMBRE\tDESCRIPCION\tNODO_ID\tLINEA_ID\tCANTIDAD\n";
-                foreach ($materiales as $mat) {
-                    $txtContent .= sprintf(
-                        "%s\t%s\t%s\t%s\t%s\t%s\n",
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['descripcion'] ?? '',
-                        $mat['nodo_id'] ?? '',
-                        $mat['linea_id'] ?? '',
-                        $mat['cantidad']
-                    );
-                }
-            } elseif ($rol === 'dinamizador') {
-                $txtContent .= "CODIGO\tNOMBRE\tDESCRIPCION\tLINEA_ID\tCANTIDAD\n";
-                foreach ($materiales as $mat) {
-                    $txtContent .= sprintf(
-                        "%s\t%s\t%s\t%s\t%s\n",
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['descripcion'] ?? '',
-                        $mat['linea_id'] ?? '',
-                        $mat['cantidad']
-                    );
-                }
-            } else { // usuario
-                $txtContent .= "CODIGO\tNOMBRE\tDESCRIPCION\tCANTIDAD\n";
-                foreach ($materiales as $mat) {
-                    $txtContent .= sprintf(
-                        "%s\t%s\t%s\t%s\n",
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['descripcion'] ?? '',
-                        $mat['cantidad']
-                    );
-                }
+            // Encabezados unificados
+            $txtContent .= "CODIGO\tNODO\tLINEA\tNOMBRE\tDESCRIPCION\tFECHA_ADQUISICION\tCATEGORIA\tPRESENTACION\tMEDIDA\tCANTIDAD\tVALOR_COMPRA\tPROVEEDOR\tMARCA\tESTADO\n";
+            foreach ($materiales as $mat) {
+                $txtContent .= sprintf(
+                    "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+                    $mat['codigo'],
+                    $mat['nodo_nombre'] ?? '',
+                    $mat['linea_nombre'] ?? '',
+                    $mat['nombre'],
+                    $mat['descripcion'] ?? '',
+                    $mat['fecha_adquisicion'] ?? '',
+                    $mat['categoria'] ?? '',
+                    $mat['presentacion'] ?? '',
+                    $mat['medida'] ?? '',
+                    $mat['cantidad'],
+                    $mat['valor_compra'] ?? '',
+                    $mat['proveedor'] ?? '',
+                    $mat['marca'] ?? '',
+                    $mat['estado'] == 1 ? 'activo' : 'inactivo'
+                );
             }
 
             // Headers para descarga
@@ -2485,14 +2741,8 @@ class MaterialesController extends Controller
                 exit;
             }
 
-            // Definir encabezados según rol
-            if ($rol === 'admin') {
-                $encabezados = ['ID', 'Código', 'Nombre', 'Nodo', 'Línea', 'Cantidad', 'Estado'];
-            } elseif ($rol === 'dinamizador') {
-                $encabezados = ['ID', 'Código', 'Nombre', 'Línea', 'Cantidad', 'Estado'];
-            } else {
-                $encabezados = ['ID', 'Código', 'Nombre', 'Cantidad', 'Estado'];
-            }
+            // Definir encabezados unificados
+            $encabezados = ['Código', 'Nodo', 'Línea', 'Nombre', 'Descripción', 'Fecha Adq.', 'Categoría', 'Presentación', 'Medida', 'Cantidad', 'Valor', 'Proveedor', 'Marca', 'Estado'];
 
             // Crear PDF
             $pdf = new PdfHelper('Reporte de Materiales');
@@ -2503,41 +2753,25 @@ class MaterialesController extends Controller
                 return $b['id'] - $a['id'];
             });
 
-            // Agregar datos según rol
+            // Agregar datos unificados
             $datos = [];
-            if ($rol === 'admin') {
-                foreach ($materiales as $mat) {
-                    $datos[] = [
-                        $mat['id'],
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['nodo_nombre'] ?? 'Sin nodo',
-                        $mat['linea_nombre'] ?? 'Sin línea',
-                        $mat['cantidad'],
-                        $mat['estado'] == 1 ? 'Activo' : 'Inactivo',
-                    ];
-                }
-            } elseif ($rol === 'dinamizador') {
-                foreach ($materiales as $mat) {
-                    $datos[] = [
-                        $mat['id'],
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['linea_nombre'] ?? 'Sin línea',
-                        $mat['cantidad'],
-                        $mat['estado'] == 1 ? 'Activo' : 'Inactivo',
-                    ];
-                }
-            } else {
-                foreach ($materiales as $mat) {
-                    $datos[] = [
-                        $mat['id'],
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['cantidad'],
-                        $mat['estado'] == 1 ? 'Activo' : 'Inactivo',
-                    ];
-                }
+            foreach ($materiales as $mat) {
+                $datos[] = [
+                    $mat['codigo'],
+                    $mat['nodo_nombre'] ?? '',
+                    $mat['linea_nombre'] ?? '',
+                    $mat['nombre'],
+                    $mat['descripcion'] ?? '',
+                    $mat['fecha_adquisicion'] ?? '',
+                    $mat['categoria'] ?? '',
+                    $mat['presentacion'] ?? '',
+                    $mat['medida'] ?? '',
+                    $mat['cantidad'],
+                    $mat['valor_compra'] ?? '',
+                    $mat['proveedor'] ?? '',
+                    $mat['marca'] ?? '',
+                    $mat['estado'] == 1 ? 'Activo' : 'Inactivo',
+                ];
             }
 
             $pdf->setData($datos);

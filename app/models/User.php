@@ -499,6 +499,25 @@ class User extends Model
     }
 
     /**
+     * Asignar rol, nodo y línea al usuario
+     */
+    public function asignarNodoYRol($usuario_id, $rol, $nodo_id = null, $linea_id = null)
+    {
+        $stmt = $this->db->prepare("
+            UPDATE usuarios 
+            SET rol = :rol, nodo_id = :nodo_id, linea_id = :linea_id
+            WHERE id = :usuario_id
+        ");
+        
+        return $stmt->execute([
+            ':usuario_id' => $usuario_id,
+            ':rol' => $rol,
+            ':nodo_id' => $nodo_id,
+            ':linea_id' => $linea_id,
+        ]);
+    }
+
+    /**
      * Obtener nodo del usuario
      */
     public function getNodo($usuario_id)
@@ -597,5 +616,39 @@ class User extends Model
         ");
         $stmt->execute([':linea_id' => $linea_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Obtener usuarios pendientes de asignación (sin nodo o línea)
+     */
+    public function getPendingUsers()
+    {
+        $stmt = $this->db->prepare("
+            SELECT id, nombre, correo, nombre_usuario, rol, fecha_creacion
+            FROM usuarios 
+            WHERE (nodo_id IS NULL OR linea_id IS NULL)
+            AND rol != 'admin'
+            AND estado = 1
+            ORDER BY fecha_creacion DESC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Contar usuarios pendientes de asignación
+     */
+    public function countPendingUsers()
+    {
+        $stmt = $this->db->prepare("
+            SELECT COUNT(*) as total
+            FROM usuarios 
+            WHERE (nodo_id IS NULL OR linea_id IS NULL)
+            AND rol != 'admin'
+            AND estado = 1
+        ");
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)$result['total'];
     }
 }

@@ -25,23 +25,11 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
                 <form id="form-editar-material" class="needs-validation">
                     <input type="hidden" name="id" value="<?= $material['id'] ?>">
 
-                    <!-- Código y Nombre -->
-                    <div class="row">
-                        <div class="col-12 col-md-6 mb-3">
-                            <label class="form-label">Código del Producto *</label>
-                            <input type="text" name="codigo" class="form-control" value="<?= htmlspecialchars($material['codigo']) ?>" placeholder="Ej: MAT-001" required maxlength="50">
-                            <small class="form-text text-muted">Código único del material</small>
-                        </div>
-                        <div class="col-12 col-md-6 mb-3">
-                            <label class="form-label">Nombre del Material *</label>
-                            <input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($material['nombre']) ?>" placeholder="Ej: Silicona" required maxlength="100">
-                        </div>
-                    </div>
-
-                    <!-- Descripción -->
+                    <!-- Código del Material -->
                     <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <textarea name="descripcion" class="form-control" rows="3" placeholder="Detalles adicionales del material..."><?= htmlspecialchars($material['descripcion'] ?? '') ?></textarea>
+                        <label class="form-label">Código de Material *</label>
+                        <input type="text" name="codigo" class="form-control" value="<?= htmlspecialchars($material['codigo']) ?>" placeholder="Ej: MAT-001" required maxlength="50">
+                        <small class="form-text text-muted">Código único del material</small>
                     </div>
 
                     <?php 
@@ -88,9 +76,9 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
                         </div>
                     <?php endif; ?>
 
-                    <!-- Línea de Trabajo -->
+                    <!-- Línea -->
                     <div class="mb-3">
-                        <label class="form-label">Línea de Trabajo *</label>
+                        <label class="form-label">Línea *</label>
                         <select name="linea_id" class="form-select" required>
                             <option value="">-- Seleccionar línea --</option>
                             <?php foreach ($lineas as $linea): ?>
@@ -101,20 +89,73 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
                         </select>
                     </div>
 
-                    <!-- Cantidad y Estado -->
+                    <!-- Nombre del Material -->
+                    <div class="mb-3">
+                        <label class="form-label">Nombre *</label>
+                        <input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($material['nombre']) ?>" placeholder="Ej: Silicona" required maxlength="100">
+                    </div>
+
+                    <!-- Fecha de Adquisición -->
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de Adquisición</label>
+                        <input type="date" name="fecha_adquisicion" class="form-control" value="<?= htmlspecialchars($material['fecha_adquisicion'] ?? '') ?>">
+                    </div>
+
+                    <!-- Categoría, Presentación, Medida -->
+                    <div class="row">
+                        <div class="col-12 col-md-4 mb-3">
+                            <label class="form-label">Categoría</label>
+                            <input type="text" name="categoria" class="form-control" value="<?= htmlspecialchars($material['categoria'] ?? '') ?>" placeholder="Ej: Químicos" maxlength="100">
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <label class="form-label">Presentación</label>
+                            <input type="text" name="presentacion" class="form-control" value="<?= htmlspecialchars($material['presentacion'] ?? '') ?>" placeholder="Ej: Cartucho" maxlength="100">
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <label class="form-label">Medida</label>
+                            <input type="text" name="medida" class="form-control" value="<?= htmlspecialchars($material['medida'] ?? '') ?>" placeholder="Ej: Unidad, Litro" maxlength="50">
+                        </div>
+                    </div>
+
+                    <!-- Cantidad -->
+                    <div class="mb-3">
+                        <label class="form-label">Cantidad *</label>
+                        <input type="number" name="cantidad" class="form-control" placeholder="0" value="<?= intval($material['cantidad']) ?>" min="0" step="1" required>
+                        <small class="form-text text-muted">Solo se aceptan números enteros. Use entrada/salida para registrar cambios</small>
+                    </div>
+
+                    <!-- Valor de Compra -->
+                    <div class="mb-3">
+                        <label class="form-label">Valor de Compra</label>
+                        <input type="number" name="valor_compra" class="form-control" value="<?= htmlspecialchars($material['valor_compra'] ?? '') ?>" placeholder="0.00" step="0.01" min="0">
+                        <small class="form-text text-muted">Valor unitario en pesos colombianos</small>
+                    </div>
+
+                    <!-- Proveedor y Marca -->
                     <div class="row">
                         <div class="col-12 col-md-6 mb-3">
-                            <label class="form-label">Cantidad Actual *</label>
-                            <input type="number" name="cantidad" class="form-control" placeholder="0" value="<?= intval($material['cantidad']) ?>" min="0" step="1" required>
-                            <small class="form-text text-muted">Solo se aceptan números enteros. Use entrada/salida para registrar cambios</small>
+                            <label class="form-label">Proveedor</label>
+                            <input type="text" name="proveedor" class="form-control" value="<?= htmlspecialchars($material['proveedor'] ?? '') ?>" placeholder="Nombre del proveedor" maxlength="200">
                         </div>
                         <div class="col-12 col-md-6 mb-3">
-                            <label class="form-label">Estado</label>
-                            <select name="estado" class="form-select">
-                                <option value="1" <?= $material['estado'] == 1 ? 'selected' : '' ?>>Activo</option>
-                                <option value="0" <?= $material['estado'] == 0 ? 'selected' : '' ?>>Inactivo</option>
-                            </select>
+                            <label class="form-label">Marca</label>
+                            <input type="text" name="marca" class="form-control" value="<?= htmlspecialchars($material['marca'] ?? '') ?>" placeholder="Marca del producto" maxlength="100">
                         </div>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="3" placeholder="Detalles adicionales del material..."><?= htmlspecialchars($material['descripcion'] ?? '') ?></textarea>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="mb-3">
+                        <label class="form-label">Estado</label>
+                        <select name="estado" class="form-select">
+                            <option value="1" <?= $material['estado'] == 1 ? 'selected' : '' ?>>Activo</option>
+                            <option value="0" <?= $material['estado'] == 0 ? 'selected' : '' ?>>Inactivo</option>
+                        </select>
                     </div>
 
                     <!-- Información adicional -->

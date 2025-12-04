@@ -109,18 +109,27 @@ class Material extends Model
         
         $stmt = $this->db->prepare("
             INSERT INTO materiales 
-            (codigo, nombre, descripcion, linea_id, cantidad, estado, nodo_id) 
-            VALUES (:codigo, :nombre, :descripcion, :linea_id, :cantidad, :estado, :nodo_id)
+            (codigo, nodo_id, linea_id, nombre, fecha_adquisicion, categoria, presentacion, 
+             medida, cantidad, valor_compra, proveedor, marca, descripcion, estado) 
+            VALUES (:codigo, :nodo_id, :linea_id, :nombre, :fecha_adquisicion, :categoria, :presentacion,
+                    :medida, :cantidad, :valor_compra, :proveedor, :marca, :descripcion, :estado)
         ");
 
         if ($stmt->execute([
-            ':codigo'         => $data['codigo'],
-            ':nombre'         => $data['nombre'],
-            ':descripcion'    => $data['descripcion'],
-            ':linea_id'       => $data['linea_id'],
-            ':cantidad'       => intval($data['cantidad'] ?? 0),
-            ':estado'         => $data['estado'] ?? 1,
-            ':nodo_id'        => intval($data['nodo_id'] ?? 0),
+            ':codigo'            => $data['codigo'],
+            ':nodo_id'           => !empty($data['nodo_id']) ? intval($data['nodo_id']) : null,
+            ':linea_id'          => !empty($data['linea_id']) ? intval($data['linea_id']) : null,
+            ':nombre'            => $data['nombre'],
+            ':fecha_adquisicion' => !empty($data['fecha_adquisicion']) ? $data['fecha_adquisicion'] : null,
+            ':categoria'         => $data['categoria'] ?? null,
+            ':presentacion'      => $data['presentacion'] ?? null,
+            ':medida'            => $data['medida'] ?? null,
+            ':cantidad'          => intval($data['cantidad'] ?? 0),
+            ':valor_compra'      => !empty($data['valor_compra']) ? floatval($data['valor_compra']) : null,
+            ':proveedor'         => $data['proveedor'] ?? null,
+            ':marca'             => $data['marca'] ?? null,
+            ':descripcion'       => $data['descripcion'] ?? null,
+            ':estado'            => $data['estado'] ?? 1,
         ])) {
             return $this->db->lastInsertId();
         }
@@ -139,25 +148,39 @@ class Material extends Model
         $stmt = $this->db->prepare("
             UPDATE materiales SET
                 codigo = :codigo,
-                nombre = :nombre,
-                descripcion = :descripcion,
-                linea_id = :linea_id,
                 nodo_id = :nodo_id,
+                linea_id = :linea_id,
+                nombre = :nombre,
+                fecha_adquisicion = :fecha_adquisicion,
+                categoria = :categoria,
+                presentacion = :presentacion,
+                medida = :medida,
                 cantidad = :cantidad,
+                valor_compra = :valor_compra,
+                proveedor = :proveedor,
+                marca = :marca,
+                descripcion = :descripcion,
                 estado = :estado,
                 fecha_actualizacion = NOW()
             WHERE id = :id
         ");
 
         return $stmt->execute([
-            ':id'             => $id,
-            ':codigo'         => $data['codigo'],
-            ':nombre'         => $data['nombre'],
-            ':descripcion'    => $data['descripcion'],
-            ':linea_id'       => $data['linea_id'],
-            ':nodo_id'        => intval($data['nodo_id'] ?? 0),
-            ':cantidad'       => intval($data['cantidad']),
-            ':estado'         => $data['estado'],
+            ':id'                => $id,
+            ':codigo'            => $data['codigo'],
+            ':nodo_id'           => !empty($data['nodo_id']) ? intval($data['nodo_id']) : null,
+            ':linea_id'          => !empty($data['linea_id']) ? intval($data['linea_id']) : null,
+            ':nombre'            => $data['nombre'],
+            ':fecha_adquisicion' => !empty($data['fecha_adquisicion']) ? $data['fecha_adquisicion'] : null,
+            ':categoria'         => $data['categoria'] ?? null,
+            ':presentacion'      => $data['presentacion'] ?? null,
+            ':medida'            => $data['medida'] ?? null,
+            ':cantidad'          => intval($data['cantidad']),
+            ':valor_compra'      => !empty($data['valor_compra']) ? floatval($data['valor_compra']) : null,
+            ':proveedor'         => $data['proveedor'] ?? null,
+            ':marca'             => $data['marca'] ?? null,
+            ':descripcion'       => $data['descripcion'] ?? null,
+            ':estado'            => $data['estado'],
         ]);
     }
 

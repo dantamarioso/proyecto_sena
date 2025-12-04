@@ -93,25 +93,102 @@ async function verDetalles(materialId) {
 
         if (data.success) {
             const material = data.material;
+            
+            // Formatear valor de compra
+            const valorCompra = material.valor_compra 
+                ? '$ ' + parseFloat(material.valor_compra).toLocaleString('es-CO', {minimumFractionDigits: 2, maximumFractionDigits: 2})
+                : 'No especificado';
+            
+            // Formatear fecha de adquisición
+            const fechaAdquisicion = material.fecha_adquisicion 
+                ? new Date(material.fecha_adquisicion + 'T00:00:00').toLocaleDateString('es-CO')
+                : 'No especificada';
+            
             detallesDiv.innerHTML = `
                 <div class="row mb-3">
-                    <div class="col-md-6">
-                        <p><strong>Código:</strong> <code>${escapeHtml(material.codigo)}</code></p>
-                        <p><strong>Nombre:</strong> ${escapeHtml(material.nombre)}</p>
-                        <p><strong>Línea:</strong> <span class="badge bg-primary">${escapeHtml(material.linea_nombre)}</span></p>
+                    <div class="col-md-4">
+                        <p class="mb-2"><strong>Código:</strong></p>
+                        <p><code class="bg-light p-2 rounded">${escapeHtml(material.codigo)}</code></p>
                     </div>
-                    <div class="col-md-6">
-                        <p><strong>Cantidad:</strong> <strong>${parseInt(material.cantidad)}</strong> unidades</p>
-                        <p><strong>Estado:</strong> <span class="badge ${material.estado == 1 ? 'bg-success' : 'bg-danger'}">${material.estado == 1 ? 'Activo' : 'Inactivo'}</span></p>
+                    <div class="col-md-4">
+                        <p class="mb-2"><strong>Nodo:</strong></p>
+                        <p><span class="badge bg-secondary">${escapeHtml(material.nodo_nombre || 'Sin nodo')}</span></p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-2"><strong>Línea:</strong></p>
+                        <p><span class="badge bg-primary">${escapeHtml(material.linea_nombre || 'Sin línea')}</span></p>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <p><strong>Descripción:</strong></p>
-                    <p class="text-muted">${escapeHtml(material.descripcion || 'Sin descripción')}</p>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <p class="mb-2"><strong>Nombre:</strong></p>
+                        <p class="h5">${escapeHtml(material.nombre)}</p>
+                    </div>
                 </div>
+
+                <div class="card bg-light mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title mb-3">Información del Producto</h6>
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <small class="text-muted d-block">Fecha de Adquisición</small>
+                                <strong>${fechaAdquisicion}</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted d-block">Categoría</small>
+                                <strong>${escapeHtml(material.categoria || 'No especificada')}</strong>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Presentación</small>
+                                <strong>${escapeHtml(material.presentacion || 'N/A')}</strong>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Medida</small>
+                                <strong>${escapeHtml(material.medida || 'N/A')}</strong>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Cantidad</small>
+                                <strong class="text-primary">${parseInt(material.cantidad)}</strong>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Valor de Compra</small>
+                                <strong>${valorCompra}</strong>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Proveedor</small>
+                                <strong>${escapeHtml(material.proveedor || 'No especificado')}</strong>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Marca</small>
+                                <strong>${escapeHtml(material.marca || 'No especificada')}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <p class="mb-2"><strong>Estado:</strong></p>
+                        <p><span class="badge ${material.estado == 1 ? 'bg-success' : 'bg-danger'}">${material.estado == 1 ? 'Activo' : 'Inactivo'}</span></p>
+                    </div>
+                </div>
+
+                <hr>
+
                 <div class="text-muted small">
-                    <p>Creado: ${new Date(material.fecha_creacion).toLocaleString()}</p>
-                    <p>Última actualización: ${new Date(material.fecha_actualizacion).toLocaleString()}</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Creado:</strong> ${new Date(material.fecha_creacion).toLocaleString('es-CO')}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Última actualización:</strong> ${new Date(material.fecha_actualizacion).toLocaleString('es-CO')}
+                        </div>
+                    </div>
                 </div>
             `;
         } else {

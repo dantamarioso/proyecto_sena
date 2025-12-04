@@ -79,6 +79,16 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                     <?php foreach ($cambios as $cambio): ?>
                         <?php 
                         $detallesRaw = json_decode($cambio['detalles'], true);
+                        
+                        // Si el decode falla (array vacío), podría ser doble encoding
+                        if (empty($detallesRaw) && !empty($cambio['detalles'])) {
+                            // Intentar decodificar dos veces para casos con doble escape
+                            $segundoIntento = json_decode($cambio['detalles'], true);
+                            if (is_string($segundoIntento)) {
+                                $detallesRaw = json_decode($segundoIntento, true);
+                            }
+                        }
+                        
                         $detalles = is_array($detallesRaw) ? $detallesRaw : [];
                         $tieneDetalles = !empty($detalles);
                         
@@ -207,54 +217,78 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                             
                                             <!-- Sección de Cambios Detallados -->
                                             <div>
-                                                <h6 class="mb-3" style="color: #667eea;">
-                                                    <i class="bi bi-list-check"></i> Campos Modificados (<?= count($detalles) ?> cambio<?= count($detalles) !== 1 ? 's' : '' ?>)
-                                                </h6>
-                                                
-                                                <div class="cambios-detallados">
-                                                    <?php $contador = 0; foreach ($detalles as $campo => $valor): $contador++; ?>
-                                                        <div class="cambio-item">
-                                                            <div class="cambio-header">
-                                                                <i class="bi bi-pencil-square"></i>
-                                                                <span class="cambio-campo"><?= htmlspecialchars($campo) ?></span>
-                                                                <span class="badge badge-pill" style="background-color: #667eea; font-size: 0.7rem;">Cambio <?= $contador ?></span>
+                                                <?php if ($accion === 'eliminar'): ?>
+                                                    <h6 class="mb-3" style="color: #b30c1c;">
+                                                        <i class="bi bi-trash"></i> Datos del Registro Eliminado
+                                                    </h6>
+                                                    
+                                                    <div class="alert alert-danger mb-3">
+                                                        <i class="bi bi-exclamation-triangle"></i> Este registro fue eliminado permanentemente del sistema.
+                                                    </div>
+                                                    
+                                                    <div class="cambios-detallados">
+                                                        <?php foreach ($detalles as $campo => $valor): ?>
+                                                            <div class="cambio-item">
+                                                                <div class="cambio-header">
+                                                                    <i class="bi bi-file-earmark-text"></i>
+                                                                    <span class="cambio-campo"><?= htmlspecialchars($campo) ?></span>
+                                                                </div>
+                                                                <div class="alert alert-light mb-0 mt-2" style="font-size: 0.95rem; border-left: 3px solid #b30c1c;">
+                                                                    <strong><?= htmlspecialchars($valor) ?></strong>
+                                                                </div>
                                                             </div>
-                                                            
-                                                            <?php if (is_array($valor)): ?>
-                                                                <div class="cambio-valores">
-                                                                    <div class="valor-anterior">
-                                                                        <span class="valor-label">
-                                                                            <i class="bi bi-arrow-left"></i> Valor Anterior
-                                                                        </span>
-                                                                        <div class="valor-box <?= empty($valor['anterior']) ? 'vacio' : '' ?>">
-                                                                            <?php if (empty($valor['anterior'])): ?>
-                                                                                (sin valor previo)
-                                                                            <?php else: ?>
-                                                                                <?= htmlspecialchars($valor['anterior']) ?>
-                                                                            <?php endif; ?>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <h6 class="mb-3" style="color: #667eea;">
+                                                        <i class="bi bi-list-check"></i> Campos Modificados (<?= count($detalles) ?> cambio<?= count($detalles) !== 1 ? 's' : '' ?>)
+                                                    </h6>
+                                                    
+                                                    <div class="cambios-detallados">
+                                                        <?php $contador = 0; foreach ($detalles as $campo => $valor): $contador++; ?>
+                                                            <div class="cambio-item">
+                                                                <div class="cambio-header">
+                                                                    <i class="bi bi-pencil-square"></i>
+                                                                    <span class="cambio-campo"><?= htmlspecialchars($campo) ?></span>
+                                                                    <span class="badge badge-pill" style="background-color: #667eea; font-size: 0.7rem;">Cambio <?= $contador ?></span>
+                                                                </div>
+                                                                
+                                                                <?php if (is_array($valor)): ?>
+                                                                    <div class="cambio-valores">
+                                                                        <div class="valor-anterior">
+                                                                            <span class="valor-label">
+                                                                                <i class="bi bi-arrow-left"></i> Valor Anterior
+                                                                            </span>
+                                                                            <div class="valor-box <?= empty($valor['anterior']) ? 'vacio' : '' ?>">
+                                                                                <?php if (empty($valor['anterior'])): ?>
+                                                                                    (sin valor previo)
+                                                                                <?php else: ?>
+                                                                                    <?= htmlspecialchars($valor['anterior']) ?>
+                                                                                <?php endif; ?>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="valor-nuevo">
+                                                                            <span class="valor-label">
+                                                                                <i class="bi bi-arrow-right"></i> Valor Nuevo
+                                                                            </span>
+                                                                            <div class="valor-box <?= empty($valor['nuevo']) ? 'vacio' : '' ?>">
+                                                                                <?php if (empty($valor['nuevo'])): ?>
+                                                                                    (sin valor)
+                                                                                <?php else: ?>
+                                                                                    <?= htmlspecialchars($valor['nuevo']) ?>
+                                                                                <?php endif; ?>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="valor-nuevo">
-                                                                        <span class="valor-label">
-                                                                            <i class="bi bi-arrow-right"></i> Valor Nuevo
-                                                                        </span>
-                                                                        <div class="valor-box <?= empty($valor['nuevo']) ? 'vacio' : '' ?>">
-                                                                            <?php if (empty($valor['nuevo'])): ?>
-                                                                                (sin valor)
-                                                                            <?php else: ?>
-                                                                                <?= htmlspecialchars($valor['nuevo']) ?>
-                                                                            <?php endif; ?>
-                                                                        </div>
+                                                                <?php else: ?>
+                                                                    <div class="alert alert-info mb-0 mt-2" style="font-size: 0.9rem;">
+                                                                        <i class="bi bi-info-circle"></i> <?= htmlspecialchars($valor) ?>
                                                                     </div>
-                                                                </div>
-                                                            <?php else: ?>
-                                                                <div class="alert alert-info mb-0 mt-2" style="font-size: 0.9rem;">
-                                                                    <i class="bi bi-info-circle"></i> <?= htmlspecialchars($valor) ?>
-                                                                </div>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                    <?php endforeach; ?>
-                                                </div>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </div>
