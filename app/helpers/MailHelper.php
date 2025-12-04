@@ -1,12 +1,16 @@
 <?php
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+
+// Cargar autoload de Composer si no está cargado
+$autoloadPath = __DIR__ . '/../../vendor/autoload.php';
+if (file_exists($autoloadPath)) {
+    require_once $autoloadPath;
+}
 
 class MailHelper
 {
     public static function sendCode($correo, $asunto, $codigo, $tipo = 'recuperacion')
     {
-        $mail = new PHPMailer(true);
+        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
 
         try {
             // Cargar variables de entorno
@@ -38,7 +42,9 @@ class MailHelper
             $mail->Body = $htmlBody;
 
             return $mail->send();
-        } catch (Exception $e) {
+        } catch (\PHPMailer\PHPMailer\Exception $e) {
+            return false;
+        } catch (\Exception $e) {
             return false;
         }
     }

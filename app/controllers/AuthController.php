@@ -227,6 +227,9 @@ class AuthController extends Controller
                         $_SESSION['flash_error'] = "Debes verificar tu email antes de iniciar sesión.";
                         $this->redirect('auth/verifyEmail');
                         exit;
+                    } else if (empty($user['nodo_id']) || empty($user['linea_id'])) {
+                        // Verificar que un administrador haya asignado nodo y línea
+                        $errores[] = "Tu cuenta está pendiente de activación por un administrador. Se te asignará un nodo y línea pronto.";
                     } else {
                         session_regenerate_id(true);
 
@@ -307,7 +310,7 @@ class AuthController extends Controller
 
                 $hash = password_hash($password, PASSWORD_DEFAULT);
 
-                // Crear usuario con email sin verificar (email_verified = 0)
+                // Crear usuario con email sin verificar y sin asignaciones (pendiente de admin)
                 $nuevoUsuarioId = $userModel->create([
                     'nombre'         => $nombre_completo,
                     'correo'         => $correo,
@@ -316,6 +319,8 @@ class AuthController extends Controller
                     'estado'         => 1,
                     'rol'            => 'usuario',
                     'email_verified' => 0,
+                    'nodo_id'        => null,
+                    'linea_id'       => null,
                 ]);
 
                 // Registrar en auditoría
@@ -416,7 +421,7 @@ class AuthController extends Controller
             
             unset($_SESSION['register_correo']);
 
-            $_SESSION['flash_success'] = "Email verificado correctamente. ¡Ahora puedes iniciar sesión!";
+            $_SESSION['flash_success'] = "Email verificado correctamente. Tu cuenta está pendiente de activación por un administrador que te asignará un nodo y línea.";
             $this->redirect("auth/login");
         } else {
             $_SESSION['flash_error'] = "Código incorrecto o expirado.";
