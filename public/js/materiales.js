@@ -292,14 +292,32 @@ function mostrarPreviewArchivo(e) {
     const archivo = e.target.files[0];
     if (!archivo) return;
 
+<<<<<<< HEAD
+=======
+    const previewDiv = document.getElementById('import-preview');
+    const previewContent = document.getElementById('preview-content');
+    
+    // Si es XLSX, no mostrar preview (es binario)
+    const extension = archivo.name.split('.').pop().toLowerCase();
+    if (extension === 'xlsx' || extension === 'xls') {
+        previewContent.textContent = `Archivo Excel seleccionado: ${archivo.name}\nTamaño: ${(archivo.size / 1024).toFixed(2)} KB\n\nLos archivos Excel se procesarán automáticamente al importar.`;
+        previewDiv.style.display = 'block';
+        return;
+    }
+
+    // Para CSV y TXT, mostrar preview
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
     const reader = new FileReader();
     reader.onload = (event) => {
         const contenido = event.target.result;
         const lineas = contenido.split('\n').slice(0, 5); // Primeras 5 líneas
         
+<<<<<<< HEAD
         const previewDiv = document.getElementById('import-preview');
         const previewContent = document.getElementById('preview-content');
         
+=======
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
         previewContent.textContent = lineas.join('\n');
         previewDiv.style.display = 'block';
     };
@@ -435,6 +453,7 @@ function importarMateriales() {
                 errorsList.appendChild(li);
             }
 
+<<<<<<< HEAD
             // Mostrar encabezados esperados si está disponible
             if (data.encabezados_esperados) {
                 const li = document.createElement('li');
@@ -442,6 +461,8 @@ function importarMateriales() {
                 errorsList.appendChild(li);
             }
 
+=======
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
             errorsDiv.style.display = 'block';
         }
     })

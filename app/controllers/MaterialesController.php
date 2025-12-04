@@ -1362,9 +1362,15 @@ class MaterialesController extends Controller
         $nombreArchivo = strtolower(pathinfo($archivo['name'], PATHINFO_FILENAME));
         $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
 
+<<<<<<< HEAD
         // Validar extensión
         if (!in_array($extension, ['csv', 'txt'])) {
             echo json_encode(['success' => false, 'message' => 'Solo se aceptan archivos CSV o TXT.']);
+=======
+        // Validar extensión - Ahora acepta CSV, TXT y XLSX
+        if (!in_array($extension, ['csv', 'txt', 'xlsx', 'xls'])) {
+            echo json_encode(['success' => false, 'message' => 'Solo se aceptan archivos CSV, TXT, XLS o XLSX.']);
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
             exit;
         }
 
@@ -1375,6 +1381,7 @@ class MaterialesController extends Controller
         }
 
         try {
+<<<<<<< HEAD
             // Leer contenido del archivo
             $contenido = file_get_contents($archivo['tmp_name']);
             if ($contenido === false) {
@@ -1389,11 +1396,131 @@ class MaterialesController extends Controller
                 return trim($line) !== '';
             });
 
+=======
+            $lineas = [];
+            $delimitador = ';'; // Por defecto punto y coma
+            
+            // Procesar según tipo de archivo
+            if (in_array($extension, ['xlsx', 'xls'])) {
+                // Procesar archivo Excel con PhpSpreadsheet
+                require_once __DIR__ . '/../../vendor/autoload.php';
+                
+                try {
+                    // Verificar que el archivo sea realmente un Excel válido
+                    $mimeType = mime_content_type($archivo['tmp_name']);
+                    
+                    $validMimeTypes = [
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+                        'application/vnd.ms-excel', // .xls
+                        'application/zip' // A veces .xlsx se detecta como zip
+                    ];
+                    
+                    if (!in_array($mimeType, $validMimeTypes)) {
+                        echo json_encode([
+                            'success' => false, 
+                            'message' => 'El archivo no es un Excel válido. Por favor, exporta el archivo como CSV desde Excel (Guardar como → CSV).',
+                            'mime_detected' => $mimeType
+                        ]);
+                        exit;
+                    }
+                    
+                    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($archivo['tmp_name']);
+                    $worksheet = $spreadsheet->getActiveSheet();
+                    
+                    // Verificar si la hoja está protegida
+                    if ($worksheet->getProtection()->getSheet()) {
+                        echo json_encode([
+                            'success' => false, 
+                            'message' => 'El archivo Excel está protegido. Por favor, remueve la protección o exporta como CSV sin protección.'
+                        ]);
+                        exit;
+                    }
+                    
+                    // Obtener todas las filas sin parámetros especiales
+                    $rows = $worksheet->toArray();
+                    
+                    if (empty($rows)) {
+                        echo json_encode([
+                            'success' => false, 
+                            'message' => 'El archivo Excel está vacío.'
+                        ]);
+                        exit;
+                    }
+                    
+                    // Convertir filas a formato de líneas de texto
+                    foreach ($rows as $row) {
+                        // Saltar filas completamente vacías
+                        $hayDatos = false;
+                        foreach ($row as $cell) {
+                            if (!is_null($cell) && trim((string)$cell) !== '') {
+                                $hayDatos = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!$hayDatos) {
+                            continue;
+                        }
+                        
+                        // Convertir fila a texto CSV limpio
+                        $lineaLimpia = [];
+                        foreach ($row as $cell) {
+                            $valorLimpio = str_replace([';', "\n", "\r", "\t"], [',', ' ', ' ', ' '], (string)$cell);
+                            $lineaLimpia[] = trim($valorLimpio);
+                        }
+                        
+                        $lineas[] = implode(';', $lineaLimpia);
+                    }
+                    
+                    if (empty($lineas)) {
+                        echo json_encode([
+                            'success' => false, 
+                            'message' => 'El archivo Excel no contiene datos válidos.'
+                        ]);
+                        exit;
+                    }
+                    
+                } catch (\Exception $e) {
+                    echo json_encode([
+                        'success' => false, 
+                        'message' => 'Error al procesar el archivo Excel. Recomendación: Abre el archivo en Excel y guárdalo como CSV (Archivo → Guardar como → CSV).',
+                        'error_detalle' => $e->getMessage()
+                    ]);
+                    exit;
+                }
+                
+            } else {
+                // Procesar archivo CSV/TXT
+                // Leer contenido del archivo
+                $contenido = file_get_contents($archivo['tmp_name']);
+                if ($contenido === false) {
+                    throw new Exception('Error al leer el archivo.');
+                }
+
+                // Convertir a UTF-8 si es necesario
+                $contenido = mb_convert_encoding($contenido, 'UTF-8', mb_detect_encoding($contenido, 'UTF-8, ISO-8859-1', true));
+
+                // Detectar delimitador (coma, punto y coma, tabulación)
+                $lineas = array_filter(explode("\n", trim($contenido)), function($line) {
+                    return trim($line) !== '';
+                });
+                
+                if (empty($lineas)) {
+                    echo json_encode(['success' => false, 'message' => 'El archivo está vacío.']);
+                    exit;
+                }
+
+                // Detectar delimitador automáticamente
+                $delimitador = $this->detectarDelimitador($lineas[0]);
+            }
+            
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
             if (empty($lineas)) {
                 echo json_encode(['success' => false, 'message' => 'El archivo está vacío.']);
                 exit;
             }
 
+<<<<<<< HEAD
             // Detectar delimitador automáticamente
             $primeraLinea = $lineas[0];
             $delimitador = $this->detectarDelimitador($primeraLinea);
@@ -1407,11 +1534,49 @@ class MaterialesController extends Controller
             // Validar encabezados requeridos (flexibilidad en nombres)
             $camposRequeridos = ['codigo', 'nombre', 'linea'];
             $camposEncontrados = [];
+=======
+            // Obtener primera línea
+            $primeraLinea = $lineas[0];
+            
+            // Procesar encabezados
+            $encabezados = str_getcsv($primeraLinea, $delimitador);
+            
+            if (empty($encabezados) || count($encabezados) < 2) {
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'Error al procesar encabezados del archivo.'
+                ]);
+                exit;
+            }
+            
+            $encabezadosLimpios = array_map(function($h) {
+                // Limpiar espacios
+                $h = trim($h);
+                // Eliminar BOM si existe
+                $h = str_replace("\xEF\xBB\xBF", '', $h);
+                // Eliminar acentos - IMPORTANTE: hacer esto ANTES de convertir a minúsculas
+                $h = str_replace(
+                    ['Á', 'É', 'Í', 'Ó', 'Ú', 'Ñ', 'Ü', 'á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü'],
+                    ['A', 'E', 'I', 'O', 'U', 'N', 'U', 'a', 'e', 'i', 'o', 'u', 'n', 'u'],
+                    $h
+                );
+                // Ahora convertir a minúsculas
+                $h = strtolower($h);
+                // Eliminar espacios y caracteres especiales
+                $h = preg_replace('/[^a-z0-9_]/', '', $h);
+                return $h;
+            }, $encabezados);
+
+            // Validar encabezados requeridos (flexibilidad en nombres)
+            $camposRequeridos = ['codigo', 'nombre'];
+            $requiereLinea = false; // Se validará que tenga linea O linea_id
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
             $mapeoEncabezados = [];
 
             foreach ($encabezados as $idx => $encabezado) {
                 $limpio = $encabezadosLimpios[$idx];
                 
+<<<<<<< HEAD
                 if (in_array($limpio, ['codigo', 'code', 'product_code', 'codigo_producto', 'product_code_', 'cod'])) {
                     $mapeoEncabezados['codigo'] = $idx;
                     $camposEncontrados[] = 'codigo';
@@ -1425,6 +1590,27 @@ class MaterialesController extends Controller
                     $camposEncontrados[] = 'linea';
                 }
                 elseif (in_array($limpio, ['descripcion', 'description', 'desc', 'descrip', 'descripción'])) {
+=======
+                if (in_array($limpio, ['codigo', 'code', 'product_code', 'codigo_producto', 'product_code_', 'cod', 'sku'])) {
+                    $mapeoEncabezados['codigo'] = $idx;
+                }
+                elseif (in_array($limpio, ['nombre', 'name', 'producto', 'product_name', 'product', 'descripcion_corta'])) {
+                    $mapeoEncabezados['nombre'] = $idx;
+                }
+                elseif (in_array($limpio, ['linea_id', 'line_id', 'id_linea'])) {
+                    $mapeoEncabezados['linea_id'] = $idx;
+                }
+                elseif (in_array($limpio, ['linea', 'line'])) {
+                    $mapeoEncabezados['linea'] = $idx;
+                }
+                elseif (in_array($limpio, ['nodo_id', 'node_id', 'id_nodo'])) {
+                    $mapeoEncabezados['nodo_id'] = $idx;
+                }
+                elseif (in_array($limpio, ['nodo', 'node'])) {
+                    $mapeoEncabezados['nodo'] = $idx;
+                }
+                elseif (in_array($limpio, ['descripcion', 'description', 'desc', 'descrip'])) {
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                     $mapeoEncabezados['descripcion'] = $idx;
                 }
                 elseif (in_array($limpio, ['cantidad', 'quantity', 'stock', 'qty', 'count', 'cantidad_inicial'])) {
@@ -1433,6 +1619,7 @@ class MaterialesController extends Controller
                 elseif (in_array($limpio, ['estado', 'status', 'state', 'active', 'activo'])) {
                     $mapeoEncabezados['estado'] = $idx;
                 }
+<<<<<<< HEAD
                 elseif (in_array($limpio, ['nodo', 'node', 'nodo_id', 'node_id'])) {
                     $mapeoEncabezados['nodo'] = $idx;
                 }
@@ -1446,6 +1633,27 @@ class MaterialesController extends Controller
                     'message' => 'Faltan campos requeridos: ' . implode(', ', $camposFaltantes),
                     'encabezados_encontrados' => $camposEncontrados,
                     'encabezados_esperados' => ['código', 'nombre', 'línea', 'descripción (opcional)', 'cantidad (opcional)', 'estado (opcional)']
+=======
+            }
+
+            // Verificar si faltan campos requeridos usando el mapeo
+            $camposFaltantes = [];
+            foreach ($camposRequeridos as $campo) {
+                if (!isset($mapeoEncabezados[$campo])) {
+                    $camposFaltantes[] = $campo;
+                }
+            }
+            
+            // Verificar que tenga linea O linea_id
+            if (!isset($mapeoEncabezados['linea']) && !isset($mapeoEncabezados['linea_id'])) {
+                $camposFaltantes[] = 'linea o linea_id';
+            }
+            
+            if (!empty($camposFaltantes)) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Faltan campos requeridos: ' . implode(', ', $camposFaltantes) . '. Encabezados esperados: código, nombre, línea o linea_id, nodo_id (opcional), descripción (opcional), cantidad (opcional).'
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                 ]);
                 exit;
             }
@@ -1454,6 +1662,10 @@ class MaterialesController extends Controller
             $materialModel = new Material();
             $erroresImportacion = [];
             $materialesCreados = 0;
+<<<<<<< HEAD
+=======
+            $materialesOmitidos = 0;
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
             $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
             $linea_user = $_SESSION['user']['linea_id'] ?? null;
 
@@ -1491,10 +1703,13 @@ class MaterialesController extends Controller
                         ? $this->limpiarNombre($datosLinea[$mapeoEncabezados['nombre']] ?? '')
                         : '';
                     
+<<<<<<< HEAD
                     $nombreLinea = isset($mapeoEncabezados['linea'])
                         ? $this->limpiarTexto($datosLinea[$mapeoEncabezados['linea']] ?? '')
                         : '';
                     
+=======
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                     $descripcion = isset($mapeoEncabezados['descripcion'])
                         ? $this->limpiarDescripcion($datosLinea[$mapeoEncabezados['descripcion']] ?? '')
                         : '';
@@ -1507,6 +1722,7 @@ class MaterialesController extends Controller
                         ? $this->limpiarEstado($datosLinea[$mapeoEncabezados['estado']] ?? '1')
                         : 1;
 
+<<<<<<< HEAD
                     // Validaciones
                     if (empty($codigo) || empty($nombre) || empty($nombreLinea)) {
                         $erroresImportacion[$i] = 'Falta código, nombre o línea';
@@ -1517,6 +1733,37 @@ class MaterialesController extends Controller
                     $linea_id = $mapa_lineas[$nombreLinea] ?? null;
                     if (!$linea_id) {
                         $erroresImportacion[$i] = "Línea '$nombreLinea' no encontrada";
+=======
+                    // Validaciones básicas
+                    if (empty($codigo) || empty($nombre)) {
+                        $erroresImportacion[$i] = 'Falta código o nombre';
+                        continue;
+                    }
+
+                    // Determinar linea_id: puede venir como ID directo o como nombre
+                    $linea_id = null;
+                    if (isset($mapeoEncabezados['linea_id'])) {
+                        // Si viene linea_id, usarlo directamente
+                        $linea_id = intval(trim($datosLinea[$mapeoEncabezados['linea_id']] ?? ''));
+                        if ($linea_id <= 0) {
+                            $erroresImportacion[$i] = 'linea_id inválido';
+                            continue;
+                        }
+                    } elseif (isset($mapeoEncabezados['linea'])) {
+                        // Si viene nombre de línea, buscar el ID
+                        $nombreLinea = $this->limpiarTexto($datosLinea[$mapeoEncabezados['linea']] ?? '');
+                        if (empty($nombreLinea)) {
+                            $erroresImportacion[$i] = 'Línea vacía';
+                            continue;
+                        }
+                        $linea_id = $mapa_lineas[$nombreLinea] ?? null;
+                        if (!$linea_id) {
+                            $erroresImportacion[$i] = "Línea '$nombreLinea' no encontrada";
+                            continue;
+                        }
+                    } else {
+                        $erroresImportacion[$i] = 'Falta línea o linea_id';
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                         continue;
                     }
 
@@ -1526,14 +1773,22 @@ class MaterialesController extends Controller
                         continue;
                     }
 
+<<<<<<< HEAD
                     // Validar código único
                     if ($materialModel->codigoExiste($codigo)) {
                         $erroresImportacion[$i] = "El código '$codigo' ya existe";
                         continue;
+=======
+                    // Validar código único - OMITIR si ya existe en lugar de error
+                    if ($materialModel->codigoExiste($codigo)) {
+                        $materialesOmitidos++;
+                        continue; // Omitir silenciosamente materiales duplicados
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                     }
 
                     // Determinar nodo
                     $nodo_id = $nodo_user; // Por defecto, el nodo del usuario
+<<<<<<< HEAD
                     if ($rol === 'admin' && isset($mapeoEncabezados['nodo'])) {
                         // Admin puede especificar nodo
                         $nodoNombre = $this->limpiarTexto($datosLinea[$mapeoEncabezados['nodo']] ?? '');
@@ -1543,6 +1798,26 @@ class MaterialesController extends Controller
                             $nodoResult = $stmt->fetch(PDO::FETCH_ASSOC);
                             if ($nodoResult) {
                                 $nodo_id = $nodoResult['id'];
+=======
+                    if ($rol === 'admin') {
+                        // Admin puede especificar nodo por ID o nombre
+                        if (isset($mapeoEncabezados['nodo_id'])) {
+                            // Si viene nodo_id, usarlo directamente
+                            $nodo_id_csv = intval(trim($datosLinea[$mapeoEncabezados['nodo_id']] ?? ''));
+                            if ($nodo_id_csv > 0) {
+                                $nodo_id = $nodo_id_csv;
+                            }
+                        } elseif (isset($mapeoEncabezados['nodo'])) {
+                            // Si viene nombre de nodo, buscar el ID
+                            $nodoNombre = $this->limpiarTexto($datosLinea[$mapeoEncabezados['nodo']] ?? '');
+                            if (!empty($nodoNombre)) {
+                                $stmt = $db->prepare("SELECT id FROM nodos WHERE LOWER(REPLACE(nombre, ' ', '')) = LOWER(REPLACE(:nombre, ' ', '')) AND estado = 1");
+                                $stmt->execute([':nombre' => $nodoNombre]);
+                                $nodoResult = $stmt->fetch(PDO::FETCH_ASSOC);
+                                if ($nodoResult) {
+                                    $nodo_id = $nodoResult['id'];
+                                }
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                             }
                         }
                     }
@@ -1602,17 +1877,38 @@ class MaterialesController extends Controller
             }
 
             // Respuesta
+<<<<<<< HEAD
             $respuesta = [
                 'success' => true,
                 'message' => "Importación completada. Se crearon $materialesCreados materiales.",
                 'materiales_creados' => $materialesCreados,
+=======
+            $mensaje = "Importación completada. Se crearon $materialesCreados materiales.";
+            if ($materialesOmitidos > 0) {
+                $mensaje .= " Se omitieron $materialesOmitidos materiales duplicados.";
+            }
+            
+            $respuesta = [
+                'success' => true,
+                'message' => $mensaje,
+                'materiales_creados' => $materialesCreados,
+                'materiales_omitidos' => $materialesOmitidos,
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                 'total_procesados' => count($lineas) - 1,
             ];
 
             if (!empty($erroresImportacion)) {
                 $respuesta['advertencias'] = true;
                 $respuesta['errores_por_linea'] = $erroresImportacion;
+<<<<<<< HEAD
                 $respuesta['message'] = "Se crearon $materialesCreados materiales, pero hubo " . count($erroresImportacion) . " errores.";
+=======
+                $respuesta['message'] = "Se crearon $materialesCreados materiales";
+                if ($materialesOmitidos > 0) {
+                    $respuesta['message'] .= ", se omitieron $materialesOmitidos duplicados";
+                }
+                $respuesta['message'] .= ", pero hubo " . count($erroresImportacion) . " errores.";
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
             }
 
             echo json_encode($respuesta);
@@ -1790,6 +2086,7 @@ class MaterialesController extends Controller
             // ============================================================
             $excel->createSheet('Materiales');
             
+<<<<<<< HEAD
             // Definir encabezados según rol (SIN ID)
             if ($rol === 'admin') {
                 $encabezados = ['CÓDIGO', 'NOMBRE', 'DESCRIPCIÓN', 'NODO', 'LÍNEA', 'CANTIDAD', 'ESTADO', 'FECHA CREACIÓN'];
@@ -1797,6 +2094,15 @@ class MaterialesController extends Controller
                 $encabezados = ['CÓDIGO', 'NOMBRE', 'DESCRIPCIÓN', 'LÍNEA', 'CANTIDAD', 'ESTADO', 'FECHA CREACIÓN'];
             } else { // usuario
                 $encabezados = ['CÓDIGO', 'NOMBRE', 'DESCRIPCIÓN', 'CANTIDAD', 'ESTADO', 'FECHA CREACIÓN'];
+=======
+            // Definir encabezados según rol - SOLO IDs
+            if ($rol === 'admin') {
+                $encabezados = ['CÓDIGO', 'NOMBRE', 'DESCRIPCIÓN', 'NODO_ID', 'LINEA_ID', 'CANTIDAD'];
+            } elseif ($rol === 'dinamizador') {
+                $encabezados = ['CÓDIGO', 'NOMBRE', 'DESCRIPCIÓN', 'LINEA_ID', 'CANTIDAD'];
+            } else { // usuario
+                $encabezados = ['CÓDIGO', 'NOMBRE', 'DESCRIPCIÓN', 'CANTIDAD'];
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
             }
             
             $excel->setHeaders($encabezados);
@@ -1806,17 +2112,24 @@ class MaterialesController extends Controller
                 return $b['id'] - $a['id'];
             });
 
+<<<<<<< HEAD
             // Agregar datos según rol (SIN ID)
             if ($rol === 'admin') {
                 // Admin ve: CÓDIGO, NOMBRE, DESCRIPCIÓN, NODO, LÍNEA, CANTIDAD, ESTADO, FECHA
                 $nodoNames = array_map(function($n) { return $n['nombre']; }, $todosNodos);
                 $lineaNames = array_map(function($l) { return $l['nombre']; }, $todasLineas);
 
+=======
+            // Agregar datos según rol - SOLO IDs
+            if ($rol === 'admin') {
+                // Admin ve: CÓDIGO, NOMBRE, DESCRIPCIÓN, NODO_ID, LINEA_ID, CANTIDAD
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                 foreach ($materiales as $mat) {
                     $excel->addRow([
                         $mat['codigo'],
                         $mat['nombre'],
                         $mat['descripcion'] ?? '',
+<<<<<<< HEAD
                         $mat['nodo_nombre'] ?? 'Sin nodo',
                         $mat['linea_nombre'] ?? 'Sin línea',
                         $mat['cantidad'],
@@ -1833,11 +2146,24 @@ class MaterialesController extends Controller
                 // Dinamizador ve: CÓDIGO, NOMBRE, DESCRIPCIÓN, LÍNEA, CANTIDAD, ESTADO, FECHA
                 $lineaNames = array_map(function($l) { return $l['nombre']; }, $todasLineas);
 
+=======
+                        $mat['nodo_id'] ?? '',
+                        $mat['linea_id'] ?? '',
+                        $mat['cantidad'],
+                    ]);
+                }
+
+                // Sin validaciones ya que no hay columnas de nombres
+
+            } elseif ($rol === 'dinamizador') {
+                // Dinamizador ve: CÓDIGO, NOMBRE, DESCRIPCIÓN, LINEA_ID, CANTIDAD
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                 foreach ($materiales as $mat) {
                     $excel->addRow([
                         $mat['codigo'],
                         $mat['nombre'],
                         $mat['descripcion'] ?? '',
+<<<<<<< HEAD
                         $mat['linea_nombre'] ?? 'Sin línea',
                         $mat['cantidad'],
                         $mat['estado'] == 1 ? 'Activo' : 'Inactivo',
@@ -1850,24 +2176,45 @@ class MaterialesController extends Controller
 
             } else { // usuario
                 // Usuario ve: CÓDIGO, NOMBRE, DESCRIPCIÓN, CANTIDAD, ESTADO, FECHA
+=======
+                        $mat['linea_id'] ?? '',
+                        $mat['cantidad'],
+                    ]);
+                }
+
+                // Sin validaciones ya que no hay columna de nombre
+
+            } else { // usuario
+                // Usuario ve: CÓDIGO, NOMBRE, DESCRIPCIÓN, CANTIDAD
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                 foreach ($materiales as $mat) {
                     $excel->addRow([
                         $mat['codigo'],
                         $mat['nombre'],
                         $mat['descripcion'] ?? '',
                         $mat['cantidad'],
+<<<<<<< HEAD
                         $mat['estado'] == 1 ? 'Activo' : 'Inactivo',
                         $mat['fecha_creacion'] ? date('Y-m-d', strtotime($mat['fecha_creacion'])) : 'N/A',
+=======
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                     ]);
                 }
                 // Usuario no tiene validaciones
             }
 
             // ============================================================
+<<<<<<< HEAD
             // SHEET 2: LÍNEAS
             // ============================================================
             $excel->createSheet('Lineas');
             $excel->setHeaders(['NOMBRE', 'DESCRIPCIÓN', 'ESTADO', 'CANTIDAD DE MATERIALES']);
+=======
+            // SHEET 2: LÍNEAS CON ID
+            // ============================================================
+            $excel->createSheet('Lineas');
+            $excel->setHeaders(['ID', 'NOMBRE', 'DESCRIPCIÓN']);
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
             
             // Obtener líneas según el rol del usuario
             $lineasExportar = [];
@@ -1888,6 +2235,7 @@ class MaterialesController extends Controller
                 $lineasExportar = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
             
+<<<<<<< HEAD
             // Contar materiales por línea
             foreach ($lineasExportar as $linea) {
                 $countMateriales = 0;
@@ -1911,6 +2259,54 @@ class MaterialesController extends Controller
             // Headers para descarga - Usar XML si hay múltiples sheets
             $extension = ($excel->getSheetCount() > 1) ? 'xml' : 'csv';
             $contentType = ($extension === 'xml') ? 'application/vnd.ms-excel' : 'text/csv; charset=UTF-8';
+=======
+            // Agregar líneas con ID
+            foreach ($lineasExportar as $linea) {
+                $excel->addRow([
+                    $linea['id'],
+                    $linea['nombre'],
+                    $linea['descripcion'] ?? '',
+                ]);
+            }
+
+            // ============================================================
+            // SHEET 3: NODOS CON ID
+            // ============================================================
+            $excel->createSheet('Nodos');
+            $excel->setHeaders(['ID', 'NOMBRE', 'DESCRIPCIÓN']);
+            
+            // Obtener nodos según el rol del usuario
+            $nodosExportar = [];
+            if ($rol === 'admin') {
+                // Admin: todos los nodos
+                $nodosExportar = $todosNodos;
+            } else {
+                // Dinamizador y usuario: solo su nodo
+                if ($nodo_user) {
+                    $nodoModel = new Nodo();
+                    $nodoUsuario = $nodoModel->getById($nodo_user);
+                    if ($nodoUsuario) {
+                        $nodosExportar[] = $nodoUsuario;
+                    }
+                }
+            }
+            
+            // Agregar nodos con ID
+            foreach ($nodosExportar as $nodo) {
+                $excel->addRow([
+                    $nodo['id'],
+                    $nodo['nombre'],
+                    $nodo['descripcion'] ?? '',
+                ]);
+            }
+
+            // Generar archivo Excel en formato XLSX con PhpSpreadsheet
+            $excelContent = $excel->generate();
+
+            // Headers para descarga - XLSX
+            $extension = 'xlsx';
+            $contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
             $filename = 'materiales_' . date('Y-m-d_H-i-s') . '.' . $extension;
             
             header('Content-Type: ' . $contentType);
@@ -1930,6 +2326,418 @@ class MaterialesController extends Controller
     }
 
     /* =========================================================
+<<<<<<< HEAD
+=======
+       EXPORTAR MATERIALES A CSV
+    ========================================================== */
+    public function exportarMaterialesCSV()
+    {
+        $this->requireAuth();
+
+        try {
+            $materialModel = new Material();
+            
+            // Determinar qué materiales puede ver según su rol
+            $rol = $_SESSION['user']['rol'] ?? 'usuario';
+            $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
+            $linea_user = $_SESSION['user']['linea_id'] ?? null;
+
+            $todosLosMateriales = $materialModel->all();
+            $materiales = [];
+
+            if ($rol === 'admin') {
+                $materiales = $todosLosMateriales;
+            } elseif ($rol === 'dinamizador') {
+                foreach ($todosLosMateriales as $mat) {
+                    if ($mat['nodo_id'] == $nodo_user) {
+                        $materiales[] = $mat;
+                    }
+                }
+            } elseif ($rol === 'usuario') {
+                foreach ($todosLosMateriales as $mat) {
+                    if ($mat['nodo_id'] == $nodo_user && $mat['linea_id'] == $linea_user) {
+                        $materiales[] = $mat;
+                    }
+                }
+            }
+
+            if (empty($materiales)) {
+                echo json_encode(['success' => false, 'message' => 'No hay materiales para exportar']);
+                exit;
+            }
+
+            // Definir encabezados según rol - SOLO IDs
+            if ($rol === 'admin') {
+                $encabezados = ['codigo', 'nombre', 'descripcion', 'nodo_id', 'linea_id', 'cantidad'];
+            } elseif ($rol === 'dinamizador') {
+                $encabezados = ['codigo', 'nombre', 'descripcion', 'linea_id', 'cantidad'];
+            } else { // usuario
+                $encabezados = ['codigo', 'nombre', 'descripcion', 'cantidad'];
+            }
+
+            // Ordenar materiales
+            usort($materiales, function($a, $b) {
+                return $b['id'] - $a['id'];
+            });
+
+            // Crear archivo CSV
+            $output = fopen('php://memory', 'r+');
+            
+            // Escribir BOM para UTF-8
+            fwrite($output, "\xEF\xBB\xBF");
+            
+            // Escribir encabezados
+            fputcsv($output, $encabezados, ';');
+
+            // Agregar datos según rol - SOLO IDs
+            if ($rol === 'admin') {
+                foreach ($materiales as $mat) {
+                    fputcsv($output, [
+                        $mat['codigo'],
+                        $mat['nombre'],
+                        $mat['descripcion'] ?? '',
+                        $mat['nodo_id'] ?? '',
+                        $mat['linea_id'] ?? '',
+                        $mat['cantidad'],
+                    ], ';');
+                }
+            } elseif ($rol === 'dinamizador') {
+                foreach ($materiales as $mat) {
+                    fputcsv($output, [
+                        $mat['codigo'],
+                        $mat['nombre'],
+                        $mat['descripcion'] ?? '',
+                        $mat['linea_id'] ?? '',
+                        $mat['cantidad'],
+                    ], ';');
+                }
+            } else { // usuario
+                foreach ($materiales as $mat) {
+                    fputcsv($output, [
+                        $mat['codigo'],
+                        $mat['nombre'],
+                        $mat['descripcion'] ?? '',
+                        $mat['cantidad'],
+                    ], ';');
+                }
+            }
+
+            // Obtener contenido
+            rewind($output);
+            $csvContent = stream_get_contents($output);
+            fclose($output);
+
+            // Headers para descarga
+            $filename = 'materiales_' . date('Y-m-d_H-i-s') . '.csv';
+            
+            header('Content-Type: text/csv; charset=UTF-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Content-Length: ' . strlen($csvContent));
+            header('Cache-Control: no-cache, no-store, must-revalidate');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+
+            echo $csvContent;
+
+        } catch (Exception $e) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['success' => false, 'message' => 'Error al exportar: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    /* =========================================================
+       EXPORTAR MATERIALES A CSV EN ZIP (3 ARCHIVOS)
+    ========================================================== */
+    public function exportarMaterialesCSVZip()
+    {
+        $this->requireAuth();
+
+        try {
+            $materialModel = new Material();
+            $nodoModel = new Nodo();
+            $lineaModel = new Linea();
+            
+            // Determinar qué materiales puede ver según su rol
+            $rol = $_SESSION['user']['rol'] ?? 'usuario';
+            $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
+            $linea_user = $_SESSION['user']['linea_id'] ?? null;
+
+            $todosLosMateriales = $materialModel->all();
+            $materiales = [];
+
+            if ($rol === 'admin') {
+                $materiales = $todosLosMateriales;
+            } elseif ($rol === 'dinamizador') {
+                foreach ($todosLosMateriales as $mat) {
+                    if ($mat['nodo_id'] == $nodo_user) {
+                        $materiales[] = $mat;
+                    }
+                }
+            } elseif ($rol === 'usuario') {
+                foreach ($todosLosMateriales as $mat) {
+                    if ($mat['nodo_id'] == $nodo_user && $mat['linea_id'] == $linea_user) {
+                        $materiales[] = $mat;
+                    }
+                }
+            }
+
+            if (empty($materiales)) {
+                echo json_encode(['success' => false, 'message' => 'No hay materiales para exportar']);
+                exit;
+            }
+
+            // Crear archivo ZIP en memoria
+            $zipFile = tempnam(sys_get_temp_dir(), 'materiales_') . '.zip';
+            $zip = new ZipArchive();
+            
+            if ($zip->open($zipFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+                throw new Exception('No se pudo crear el archivo ZIP');
+            }
+
+            // ===== ARCHIVO 1: MATERIALES =====
+            $csvMateriales = fopen('php://memory', 'r+');
+            fwrite($csvMateriales, "\xEF\xBB\xBF");
+            
+            if ($rol === 'admin') {
+                fputcsv($csvMateriales, ['codigo', 'nombre', 'descripcion', 'nodo_id', 'linea_id', 'cantidad'], ';');
+                foreach ($materiales as $mat) {
+                    fputcsv($csvMateriales, [
+                        $mat['codigo'],
+                        $mat['nombre'],
+                        $mat['descripcion'] ?? '',
+                        $mat['nodo_id'] ?? '',
+                        $mat['linea_id'] ?? '',
+                        $mat['cantidad'],
+                    ], ';');
+                }
+            } elseif ($rol === 'dinamizador') {
+                fputcsv($csvMateriales, ['codigo', 'nombre', 'descripcion', 'linea_id', 'cantidad'], ';');
+                foreach ($materiales as $mat) {
+                    fputcsv($csvMateriales, [
+                        $mat['codigo'],
+                        $mat['nombre'],
+                        $mat['descripcion'] ?? '',
+                        $mat['linea_id'] ?? '',
+                        $mat['cantidad'],
+                    ], ';');
+                }
+            } else {
+                fputcsv($csvMateriales, ['codigo', 'nombre', 'descripcion', 'cantidad'], ';');
+                foreach ($materiales as $mat) {
+                    fputcsv($csvMateriales, [
+                        $mat['codigo'],
+                        $mat['nombre'],
+                        $mat['descripcion'] ?? '',
+                        $mat['cantidad'],
+                    ], ';');
+                }
+            }
+            
+            rewind($csvMateriales);
+            $zip->addFromString('materiales_export/materiales.csv', stream_get_contents($csvMateriales));
+            fclose($csvMateriales);
+
+            // ===== ARCHIVO 2: LÍNEAS =====
+            $csvLineas = fopen('php://memory', 'r+');
+            fwrite($csvLineas, "\xEF\xBB\xBF");
+            fputcsv($csvLineas, ['id', 'nombre', 'descripcion'], ';');
+            
+            // Obtener líneas según el rol del usuario
+            $todasLineas = $lineaModel->all();
+            $lineasExportar = [];
+            
+            if ($rol === 'admin') {
+                $lineasExportar = $todasLineas;
+            } else {
+                $db = Database::getInstance();
+                $stmt = $db->prepare("
+                    SELECT DISTINCT l.* FROM lineas l
+                    INNER JOIN linea_nodo ln ON l.id = ln.linea_id
+                    WHERE ln.nodo_id = :nodo_id AND ln.estado = 1 AND l.estado = 1
+                    ORDER BY l.nombre ASC
+                ");
+                $stmt->execute([':nodo_id' => $nodo_user]);
+                $lineasExportar = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
+            
+            foreach ($lineasExportar as $linea) {
+                fputcsv($csvLineas, [
+                    $linea['id'],
+                    $linea['nombre'],
+                    $linea['descripcion'] ?? '',
+                ], ';');
+            }
+            
+            rewind($csvLineas);
+            $zip->addFromString('materiales_export/lineas.csv', stream_get_contents($csvLineas));
+            fclose($csvLineas);
+
+            // ===== ARCHIVO 3: NODOS =====
+            $csvNodos = fopen('php://memory', 'r+');
+            fwrite($csvNodos, "\xEF\xBB\xBF");
+            fputcsv($csvNodos, ['id', 'nombre', 'descripcion'], ';');
+            
+            // Obtener nodos según el rol del usuario
+            $todosNodos = $nodoModel->all();
+            $nodosExportar = [];
+            
+            if ($rol === 'admin') {
+                $nodosExportar = $todosNodos;
+            } else {
+                if ($nodo_user) {
+                    $nodoUsuario = $nodoModel->getById($nodo_user);
+                    if ($nodoUsuario) {
+                        $nodosExportar[] = $nodoUsuario;
+                    }
+                }
+            }
+            
+            foreach ($nodosExportar as $nodo) {
+                fputcsv($csvNodos, [
+                    $nodo['id'],
+                    $nodo['nombre'],
+                    $nodo['descripcion'] ?? '',
+                ], ';');
+            }
+            
+            rewind($csvNodos);
+            $zip->addFromString('materiales_export/nodos.csv', stream_get_contents($csvNodos));
+            fclose($csvNodos);
+
+            // Cerrar ZIP
+            $zip->close();
+
+            // Leer el archivo ZIP
+            $zipContent = file_get_contents($zipFile);
+            unlink($zipFile);
+
+            // Headers para descarga
+            $filename = 'materiales_completo_' . date('Y-m-d_H-i-s') . '.zip';
+            
+            header('Content-Type: application/zip');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Content-Length: ' . strlen($zipContent));
+            header('Cache-Control: no-cache, no-store, must-revalidate');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+
+            echo $zipContent;
+
+        } catch (Exception $e) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['success' => false, 'message' => 'Error al exportar: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    /* =========================================================
+       EXPORTAR MATERIALES A TXT
+    ========================================================== */
+    public function exportarMaterialesTXT()
+    {
+        $this->requireAuth();
+
+        try {
+            $materialModel = new Material();
+            
+            // Determinar qué materiales puede ver según su rol
+            $rol = $_SESSION['user']['rol'] ?? 'usuario';
+            $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
+            $linea_user = $_SESSION['user']['linea_id'] ?? null;
+
+            $todosLosMateriales = $materialModel->all();
+            $materiales = [];
+
+            if ($rol === 'admin') {
+                $materiales = $todosLosMateriales;
+            } elseif ($rol === 'dinamizador') {
+                foreach ($todosLosMateriales as $mat) {
+                    if ($mat['nodo_id'] == $nodo_user) {
+                        $materiales[] = $mat;
+                    }
+                }
+            } elseif ($rol === 'usuario') {
+                foreach ($todosLosMateriales as $mat) {
+                    if ($mat['nodo_id'] == $nodo_user && $mat['linea_id'] == $linea_user) {
+                        $materiales[] = $mat;
+                    }
+                }
+            }
+
+            if (empty($materiales)) {
+                echo json_encode(['success' => false, 'message' => 'No hay materiales para exportar']);
+                exit;
+            }
+
+            // Ordenar materiales
+            usort($materiales, function($a, $b) {
+                return $b['id'] - $a['id'];
+            });
+
+            // Crear contenido TXT con tabulaciones
+            $txtContent = "\xEF\xBB\xBF"; // BOM UTF-8
+            
+            // Encabezados según rol
+            if ($rol === 'admin') {
+                $txtContent .= "CODIGO\tNOMBRE\tDESCRIPCION\tNODO_ID\tLINEA_ID\tCANTIDAD\n";
+                foreach ($materiales as $mat) {
+                    $txtContent .= sprintf(
+                        "%s\t%s\t%s\t%s\t%s\t%s\n",
+                        $mat['codigo'],
+                        $mat['nombre'],
+                        $mat['descripcion'] ?? '',
+                        $mat['nodo_id'] ?? '',
+                        $mat['linea_id'] ?? '',
+                        $mat['cantidad']
+                    );
+                }
+            } elseif ($rol === 'dinamizador') {
+                $txtContent .= "CODIGO\tNOMBRE\tDESCRIPCION\tLINEA_ID\tCANTIDAD\n";
+                foreach ($materiales as $mat) {
+                    $txtContent .= sprintf(
+                        "%s\t%s\t%s\t%s\t%s\n",
+                        $mat['codigo'],
+                        $mat['nombre'],
+                        $mat['descripcion'] ?? '',
+                        $mat['linea_id'] ?? '',
+                        $mat['cantidad']
+                    );
+                }
+            } else { // usuario
+                $txtContent .= "CODIGO\tNOMBRE\tDESCRIPCION\tCANTIDAD\n";
+                foreach ($materiales as $mat) {
+                    $txtContent .= sprintf(
+                        "%s\t%s\t%s\t%s\n",
+                        $mat['codigo'],
+                        $mat['nombre'],
+                        $mat['descripcion'] ?? '',
+                        $mat['cantidad']
+                    );
+                }
+            }
+
+            // Headers para descarga
+            $filename = 'materiales_' . date('Y-m-d_H-i-s') . '.txt';
+            
+            header('Content-Type: text/plain; charset=UTF-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Content-Length: ' . strlen($txtContent));
+            header('Cache-Control: no-cache, no-store, must-revalidate');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+
+            echo $txtContent;
+
+        } catch (Exception $e) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['success' => false, 'message' => 'Error al exportar: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    /* =========================================================
+>>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
        EXPORTAR MATERIALES A PDF
     ========================================================== */
     public function exportarMaterialesPDF()

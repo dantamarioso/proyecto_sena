@@ -1,0 +1,33 @@
+[03-Dec-2025 21:19:32 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1456
+[03-Dec-2025 21:19:32 Europe/Berlin] PHP Deprecated:  str_getcsv(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1456
+[03-Dec-2025 21:19:32 Europe/Berlin] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1459
+[03-Dec-2025 21:20:39 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1484
+[03-Dec-2025 21:20:39 Europe/Berlin] PHP Deprecated:  str_getcsv(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1484
+[03-Dec-2025 21:20:39 Europe/Berlin] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1487
+[03-Dec-2025 21:27:40 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1484
+[03-Dec-2025 21:27:40 Europe/Berlin] PHP Deprecated:  str_getcsv(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1484
+[03-Dec-2025 21:27:40 Europe/Berlin] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1487
+[03-Dec-2025 21:31:13 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1484
+[03-Dec-2025 21:31:13 Europe/Berlin] PHP Deprecated:  str_getcsv(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1484
+[03-Dec-2025 21:31:13 Europe/Berlin] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1487
+[03-Dec-2025 21:32:35 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1484
+[03-Dec-2025 21:32:35 Europe/Berlin] PHP Deprecated:  str_getcsv(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1484
+[03-Dec-2025 21:32:35 Europe/Berlin] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1487
+[03-Dec-2025 21:33:47 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1506
+[03-Dec-2025 21:33:47 Europe/Berlin] PHP Deprecated:  str_getcsv(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1506
+[03-Dec-2025 21:33:47 Europe/Berlin] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1509
+[03-Dec-2025 21:34:12 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1506
+[03-Dec-2025 21:34:12 Europe/Berlin] PHP Deprecated:  str_getcsv(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1506
+[03-Dec-2025 21:34:12 Europe/Berlin] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1509
+[03-Dec-2025 21:35:07 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1506
+[03-Dec-2025 21:35:07 Europe/Berlin] PHP Deprecated:  str_getcsv(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1506
+[03-Dec-2025 21:35:07 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1514
+[03-Dec-2025 21:35:07 Europe/Berlin] PHP Deprecated:  substr(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1514
+[03-Dec-2025 21:35:28 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1506
+[03-Dec-2025 21:35:28 Europe/Berlin] PHP Deprecated:  str_getcsv(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1506
+[03-Dec-2025 21:35:28 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1514
+[03-Dec-2025 21:35:28 Europe/Berlin] PHP Deprecated:  substr(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1514
+[03-Dec-2025 21:36:05 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1506
+[03-Dec-2025 21:36:05 Europe/Berlin] PHP Deprecated:  str_getcsv(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1506
+[03-Dec-2025 21:36:05 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1514
+[03-Dec-2025 21:36:05 Europe/Berlin] PHP Deprecated:  substr(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1514
