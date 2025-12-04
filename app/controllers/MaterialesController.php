@@ -1647,35 +1647,49 @@ class MaterialesController extends Controller
                         continue;
                     }
 
-                    // Determinar linea_id: puede venir como ID directo o como nombre
+                    // Determinar linea_id: detectar automáticamente si es ID o nombre
                     $linea_id = null;
+                    $valorLinea = null;
+                    
+                    // Primero intentar con columna 'linea_id' o 'linea'
                     if (isset($mapeoEncabezados['linea_id'])) {
-                        // Si viene linea_id, usarlo directamente
-                        $linea_id = intval(trim($datosLinea[$mapeoEncabezados['linea_id']] ?? ''));
-                        if ($linea_id <= 0) {
-                            $erroresImportacion[$i] = 'linea_id inválido';
-                            continue;
-                        }
+                        $valorLinea = trim($datosLinea[$mapeoEncabezados['linea_id']] ?? '');
                     } elseif (isset($mapeoEncabezados['linea'])) {
-                        // Si viene nombre de línea, buscar el ID
-                        $nombreLinea = $this->limpiarTexto($datosLinea[$mapeoEncabezados['linea']] ?? '');
-                        if (empty($nombreLinea)) {
-                            $erroresImportacion[$i] = 'Línea vacía';
+                        $valorLinea = trim($datosLinea[$mapeoEncabezados['linea']] ?? '');
+                    } else {
+                        $erroresImportacion[$i] = 'Falta columna línea o linea_id';
+                        continue;
+                    }
+
+                    if (empty($valorLinea)) {
+                        $erroresImportacion[$i] = 'Línea vacía';
+                        continue;
+                    }
+
+                    // Detectar si es ID numérico o nombre
+                    if (is_numeric($valorLinea) && intval($valorLinea) > 0) {
+                        // Es un ID numérico
+                        $linea_id = intval($valorLinea);
+                        // Verificar que exista
+                        $stmt = $db->prepare("SELECT id FROM lineas WHERE id = :id AND estado = 1");
+                        $stmt->execute([':id' => $linea_id]);
+                        if (!$stmt->fetch(PDO::FETCH_ASSOC)) {
+                            $erroresImportacion[$i] = "Línea con ID '$linea_id' no encontrada";
                             continue;
                         }
+                    } else {
+                        // Es un nombre de línea
+                        $nombreLinea = $this->limpiarTexto($valorLinea);
                         $linea_id = $mapa_lineas[$nombreLinea] ?? null;
                         if (!$linea_id) {
                             $erroresImportacion[$i] = "Línea '$nombreLinea' no encontrada";
                             continue;
                         }
-                    } else {
-                        $erroresImportacion[$i] = 'Falta línea o linea_id';
-                        continue;
                     }
 
                     // Verificar acceso a la línea
                     if (!in_array($linea_id, $lineasAccesiblesIds)) {
-                        $erroresImportacion[$i] = "No tiene acceso a la línea '$nombreLinea'";
+                        $erroresImportacion[$i] = "No tiene acceso a la línea con ID '$linea_id'";
                         continue;
                     }
 
@@ -1689,16 +1703,28 @@ class MaterialesController extends Controller
                     $nodo_id = $nodo_user; // Por defecto, el nodo del usuario
                     if ($rol === 'admin') {
                         // Admin puede especificar nodo por ID o nombre
+                        $valorNodo = null;
+                        
                         if (isset($mapeoEncabezados['nodo_id'])) {
-                            // Si viene nodo_id, usarlo directamente
-                            $nodo_id_csv = intval(trim($datosLinea[$mapeoEncabezados['nodo_id']] ?? ''));
-                            if ($nodo_id_csv > 0) {
-                                $nodo_id = $nodo_id_csv;
-                            }
+                            $valorNodo = trim($datosLinea[$mapeoEncabezados['nodo_id']] ?? '');
                         } elseif (isset($mapeoEncabezados['nodo'])) {
-                            // Si viene nombre de nodo, buscar el ID
-                            $nodoNombre = $this->limpiarTexto($datosLinea[$mapeoEncabezados['nodo']] ?? '');
-                            if (!empty($nodoNombre)) {
+                            $valorNodo = trim($datosLinea[$mapeoEncabezados['nodo']] ?? '');
+                        }
+
+                        if (!empty($valorNodo)) {
+                            // Detectar si es ID numérico o nombre
+                            if (is_numeric($valorNodo) && intval($valorNodo) > 0) {
+                                // Es un ID numérico
+                                $nodo_id_csv = intval($valorNodo);
+                                // Verificar que exista
+                                $stmt = $db->prepare("SELECT id FROM nodos WHERE id = :id AND estado = 1");
+                                $stmt->execute([':id' => $nodo_id_csv]);
+                                if ($stmt->fetch(PDO::FETCH_ASSOC)) {
+                                    $nodo_id = $nodo_id_csv;
+                                }
+                            } else {
+                                // Es un nombre de nodo
+                                $nodoNombre = $this->limpiarTexto($valorNodo);
                                 $stmt = $db->prepare("SELECT id FROM nodos WHERE LOWER(REPLACE(nombre, ' ', '')) = LOWER(REPLACE(:nombre, ' ', '')) AND estado = 1");
                                 $stmt->execute([':nombre' => $nodoNombre]);
                                 $nodoResult = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -1962,14 +1988,8 @@ class MaterialesController extends Controller
             // ============================================================
             $excel->createSheet('Materiales');
             
-            // Definir encabezados según rol - SOLO IDs
-            if ($rol === 'admin') {
-                $encabezados = ['CÓDIGO', 'NOMBRE', 'DESCRIPCIÓN', 'NODO_ID', 'LINEA_ID', 'CANTIDAD'];
-            } elseif ($rol === 'dinamizador') {
-                $encabezados = ['CÓDIGO', 'NOMBRE', 'DESCRIPCIÓN', 'LINEA_ID', 'CANTIDAD'];
-            } else { // usuario
-                $encabezados = ['CÓDIGO', 'NOMBRE', 'DESCRIPCIÓN', 'CANTIDAD'];
-            }
+            // Encabezados unificados para todos los roles
+            $encabezados = ['CÓDIGO', 'NOMBRE', 'DESCRIPCIÓN', 'NODO', 'LINEA', 'CANTIDAD'];
             
             $excel->setHeaders($encabezados);
 
@@ -1978,47 +1998,16 @@ class MaterialesController extends Controller
                 return $b['id'] - $a['id'];
             });
 
-            // Agregar datos según rol - SOLO IDs
-            if ($rol === 'admin') {
-                // Admin ve: CÓDIGO, NOMBRE, DESCRIPCIÓN, NODO_ID, LINEA_ID, CANTIDAD
-                foreach ($materiales as $mat) {
-                    $excel->addRow([
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['descripcion'] ?? '',
-                        $mat['nodo_id'] ?? '',
-                        $mat['linea_id'] ?? '',
-                        $mat['cantidad'],
-                    ]);
-                }
-
-                // Sin validaciones ya que no hay columnas de nombres
-
-            } elseif ($rol === 'dinamizador') {
-                // Dinamizador ve: CÓDIGO, NOMBRE, DESCRIPCIÓN, LINEA_ID, CANTIDAD
-                foreach ($materiales as $mat) {
-                    $excel->addRow([
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['descripcion'] ?? '',
-                        $mat['linea_id'] ?? '',
-                        $mat['cantidad'],
-                    ]);
-                }
-
-                // Sin validaciones ya que no hay columna de nombre
-
-            } else { // usuario
-                // Usuario ve: CÓDIGO, NOMBRE, DESCRIPCIÓN, CANTIDAD
-                foreach ($materiales as $mat) {
-                    $excel->addRow([
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['descripcion'] ?? '',
-                        $mat['cantidad'],
-                    ]);
-                }
-                // Usuario no tiene validaciones
+            // Agregar datos - Mismo formato para todos los roles
+            foreach ($materiales as $mat) {
+                $excel->addRow([
+                    $mat['codigo'],
+                    $mat['nombre'],
+                    $mat['descripcion'] ?? '',
+                    $mat['nodo_nombre'] ?? '',
+                    $mat['linea_nombre'] ?? '',
+                    $mat['cantidad'],
+                ]);
             }
 
             // ============================================================
@@ -2061,21 +2050,8 @@ class MaterialesController extends Controller
             $excel->createSheet('Nodos');
             $excel->setHeaders(['ID', 'NOMBRE', 'DESCRIPCIÓN']);
             
-            // Obtener nodos según el rol del usuario
-            $nodosExportar = [];
-            if ($rol === 'admin') {
-                // Admin: todos los nodos
-                $nodosExportar = $todosNodos;
-            } else {
-                // Dinamizador y usuario: solo su nodo
-                if ($nodo_user) {
-                    $nodoModel = new Nodo();
-                    $nodoUsuario = $nodoModel->getById($nodo_user);
-                    if ($nodoUsuario) {
-                        $nodosExportar[] = $nodoUsuario;
-                    }
-                }
-            }
+            // Todos los roles ven todos los nodos
+            $nodosExportar = $todosNodos;
             
             // Agregar nodos con ID
             foreach ($nodosExportar as $nodo) {
@@ -2149,14 +2125,8 @@ class MaterialesController extends Controller
                 exit;
             }
 
-            // Definir encabezados según rol - SOLO IDs
-            if ($rol === 'admin') {
-                $encabezados = ['codigo', 'nombre', 'descripcion', 'nodo_id', 'linea_id', 'cantidad'];
-            } elseif ($rol === 'dinamizador') {
-                $encabezados = ['codigo', 'nombre', 'descripcion', 'linea_id', 'cantidad'];
-            } else { // usuario
-                $encabezados = ['codigo', 'nombre', 'descripcion', 'cantidad'];
-            }
+            // Encabezados unificados para todos los roles
+            $encabezados = ['codigo', 'nombre', 'descripcion', 'nodo', 'linea', 'cantidad'];
 
             // Ordenar materiales
             usort($materiales, function($a, $b) {
@@ -2172,37 +2142,16 @@ class MaterialesController extends Controller
             // Escribir encabezados
             fputcsv($output, $encabezados, ';');
 
-            // Agregar datos según rol - SOLO IDs
-            if ($rol === 'admin') {
-                foreach ($materiales as $mat) {
-                    fputcsv($output, [
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['descripcion'] ?? '',
-                        $mat['nodo_id'] ?? '',
-                        $mat['linea_id'] ?? '',
-                        $mat['cantidad'],
-                    ], ';');
-                }
-            } elseif ($rol === 'dinamizador') {
-                foreach ($materiales as $mat) {
-                    fputcsv($output, [
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['descripcion'] ?? '',
-                        $mat['linea_id'] ?? '',
-                        $mat['cantidad'],
-                    ], ';');
-                }
-            } else { // usuario
-                foreach ($materiales as $mat) {
-                    fputcsv($output, [
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['descripcion'] ?? '',
-                        $mat['cantidad'],
-                    ], ';');
-                }
+            // Agregar datos - Mismo formato para todos los roles
+            foreach ($materiales as $mat) {
+                fputcsv($output, [
+                    $mat['codigo'],
+                    $mat['nombre'],
+                    $mat['descripcion'] ?? '',
+                    $mat['nodo_nombre'] ?? '',
+                    $mat['linea_nombre'] ?? '',
+                    $mat['cantidad'],
+                ], ';');
             }
 
             // Obtener contenido
@@ -2282,39 +2231,17 @@ class MaterialesController extends Controller
             $csvMateriales = fopen('php://memory', 'r+');
             fwrite($csvMateriales, "\xEF\xBB\xBF");
             
-            if ($rol === 'admin') {
-                fputcsv($csvMateriales, ['codigo', 'nombre', 'descripcion', 'nodo_id', 'linea_id', 'cantidad'], ';');
-                foreach ($materiales as $mat) {
-                    fputcsv($csvMateriales, [
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['descripcion'] ?? '',
-                        $mat['nodo_id'] ?? '',
-                        $mat['linea_id'] ?? '',
-                        $mat['cantidad'],
-                    ], ';');
-                }
-            } elseif ($rol === 'dinamizador') {
-                fputcsv($csvMateriales, ['codigo', 'nombre', 'descripcion', 'linea_id', 'cantidad'], ';');
-                foreach ($materiales as $mat) {
-                    fputcsv($csvMateriales, [
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['descripcion'] ?? '',
-                        $mat['linea_id'] ?? '',
-                        $mat['cantidad'],
-                    ], ';');
-                }
-            } else {
-                fputcsv($csvMateriales, ['codigo', 'nombre', 'descripcion', 'cantidad'], ';');
-                foreach ($materiales as $mat) {
-                    fputcsv($csvMateriales, [
-                        $mat['codigo'],
-                        $mat['nombre'],
-                        $mat['descripcion'] ?? '',
-                        $mat['cantidad'],
-                    ], ';');
-                }
+            // Encabezados y datos unificados para todos los roles
+            fputcsv($csvMateriales, ['codigo', 'nombre', 'descripcion', 'nodo', 'linea', 'cantidad'], ';');
+            foreach ($materiales as $mat) {
+                fputcsv($csvMateriales, [
+                    $mat['codigo'],
+                    $mat['nombre'],
+                    $mat['descripcion'] ?? '',
+                    $mat['nodo_nombre'] ?? '',
+                    $mat['linea_nombre'] ?? '',
+                    $mat['cantidad'],
+                ], ';');
             }
             
             rewind($csvMateriales);
