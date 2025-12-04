@@ -1,15 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => '__root__',
-<<<<<<< HEAD
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'c558451981975be270dc6a0c7c7ae44ec374f49e',
-=======
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => null,
->>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
+        'reference' => 'b0f18be3aea82f96cc7a10fbbcb0c03af79cef3b',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -17,28 +11,29 @@
     ),
     'versions' => array(
         '__root__' => array(
-<<<<<<< HEAD
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'c558451981975be270dc6a0c7c7ae44ec374f49e',
-=======
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => null,
->>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
+            'reference' => 'b0f18be3aea82f96cc7a10fbbcb0c03af79cef3b',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-<<<<<<< HEAD
-=======
         'composer/pcre' => array(
             'pretty_version' => '3.3.2',
             'version' => '3.3.2.0',
             'reference' => 'b2bed4734f0cc156ee1fe9c0da2550420d99a21e',
             'type' => 'library',
             'install_path' => __DIR__ . '/./pcre',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'ezyang/htmlpurifier' => array(
+            'pretty_version' => 'v4.19.0',
+            'version' => '4.19.0.0',
+            'reference' => 'b287d2a16aceffbf6e0295559b39662612b77fcf',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../ezyang/htmlpurifier',
             'aliases' => array(),
             'dev_requirement' => false,
         ),
@@ -69,22 +64,19 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
->>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
         'phpmailer/phpmailer' => array(
-            'pretty_version' => 'v7.0.0',
-            'version' => '7.0.0.0',
-            'reference' => 'c7111310c6116ba508a6a170a89eaaed2129bd42',
+            'pretty_version' => 'v7.0.1',
+            'version' => '7.0.1.0',
+            'reference' => '360ae911ce62e25e11249f6140fa58939f556ebe',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpmailer/phpmailer',
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-<<<<<<< HEAD
-=======
         'phpoffice/phpspreadsheet' => array(
-            'pretty_version' => '5.3.0',
-            'version' => '5.3.0.0',
-            'reference' => '4d597c1aacdde1805a33c525b9758113ea0d90df',
+            'pretty_version' => '1.30.1',
+            'version' => '1.30.1.0',
+            'reference' => 'fa8257a579ec623473eabfe49731de5967306c4c',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpoffice/phpspreadsheet',
             'aliases' => array(),
@@ -126,6 +118,5 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
->>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
     ),
 );

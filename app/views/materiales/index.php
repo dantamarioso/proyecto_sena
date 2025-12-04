@@ -237,32 +237,20 @@ if (!isset($_SESSION['user'])) {
                 <div class="alert alert-info mb-3">
                     <strong><i class="bi bi-info-circle"></i> Instrucciones:</strong>
                     <ul class="mb-0 mt-2">
-<<<<<<< HEAD
-                        <li>El archivo debe ser <strong>CSV o TXT</strong> con máximo <strong>5 MB</strong></li>
-                        <li>Campos requeridos: <strong>Código</strong>, <strong>Nombre</strong>, <strong>Línea</strong></li>
-                        <li>Campos opcionales: Descripción, Cantidad, Estado</li>
-                        <li>Los datos se limpiarán automáticamente (espacios, mayúsculas, etc.)</li>
-                        <li>Se detectará automáticamente el delimitador (coma, punto y coma, tabulación)</li>
-=======
+                    <ul>
                         <li>El archivo debe ser <strong>CSV, TXT o XLSX</strong> con máximo <strong>5 MB</strong></li>
                         <li>Campos requeridos: <strong>Código</strong>, <strong>Nombre</strong>, <strong>Línea o Linea_ID</strong></li>
                         <li>Campos opcionales: Descripción, Cantidad, Estado, Nodo_ID</li>
                         <li>Los datos se limpiarán automáticamente (espacios, mayúsculas, etc.)</li>
                         <li>Para CSV/TXT: Se detectará automáticamente el delimitador (coma, punto y coma, tabulación)</li>
->>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                     </ul>
                 </div>
 
                 <form id="formularioImportar" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="archivo-importar" class="form-label">Selecciona el archivo</label>
-<<<<<<< HEAD
-                        <input type="file" class="form-control" id="archivo-importar" name="archivo" accept=".csv,.txt" required>
-                        <small class="form-text text-muted">CSV o TXT (máximo 5 MB)</small>
-=======
                         <input type="file" class="form-control" id="archivo-importar" name="archivo" accept=".csv,.txt,.xlsx,.xls" required>
                         <small class="form-text text-muted">CSV, TXT o XLSX (máximo 5 MB)</small>
->>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                     </div>
 
                     <div id="import-preview" style="display: none;">
@@ -310,10 +298,6 @@ if (!isset($_SESSION['user'])) {
             <div class="modal-body">
                 <p class="text-muted mb-4">Selecciona el formato en el que deseas descargar los materiales:</p>
                 <div class="d-grid gap-2">
-<<<<<<< HEAD
-                    <button type="button" class="btn btn-outline-primary btn-lg" id="btn-descargar-csv">
-                        <i class="bi bi-file-earmark-spreadsheet"></i> Descargar como Excel (CSV)
-=======
                     <button type="button" class="btn btn-outline-success btn-lg" id="btn-descargar-xlsx">
                         <i class="bi bi-file-earmark-excel"></i> Descargar como Excel (XLSX)
                     </button>
@@ -322,7 +306,6 @@ if (!isset($_SESSION['user'])) {
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-lg" id="btn-descargar-txt">
                         <i class="bi bi-file-earmark-text"></i> Descargar como TXT
->>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
                     </button>
                     <button type="button" class="btn btn-outline-danger btn-lg" id="btn-descargar-pdf">
                         <i class="bi bi-file-earmark-pdf"></i> Descargar como PDF
@@ -333,8 +316,6 @@ if (!isset($_SESSION['user'])) {
     </div>
 </div>
 
-<<<<<<< HEAD
-=======
 <!-- Modal: Opciones de descarga CSV -->
 <div class="modal fade" id="modalOpcionesCSV" tabindex="-1">
     <div class="modal-dialog">
@@ -360,7 +341,6 @@ if (!isset($_SESSION['user'])) {
     </div>
 </div>
 
->>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
 <!-- Modal: Ver Detalles -->
 <div class="modal fade" id="modalDetalles" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -421,18 +401,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Botones de descarga
-<<<<<<< HEAD
-    document.getElementById('btn-descargar-csv').addEventListener('click', () => {
-=======
     document.getElementById('btn-descargar-xlsx').addEventListener('click', () => {
->>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
         window.location.href = `${window.BASE_URL}/materiales/exportarMateriales`;
         const modal = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
         modal.hide();
     });
 
-<<<<<<< HEAD
-=======
     document.getElementById('btn-descargar-csv').addEventListener('click', () => {
         // Cerrar modal de formato y abrir modal de opciones CSV
         const modalExportar = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
@@ -461,8 +435,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const modal = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
         modal.hide();
     });
-
->>>>>>> d453d91ce6f42fa6fce17a1a7f1a14e75be1b343
     document.getElementById('btn-descargar-pdf').addEventListener('click', () => {
         const pdfUrl = `${window.BASE_URL}/materiales/exportarMaterialesPDF`;
         // Abrir en nueva ventana

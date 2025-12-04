@@ -31,3 +31,7 @@
 [03-Dec-2025 21:36:05 Europe/Berlin] PHP Deprecated:  str_getcsv(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1506
 [03-Dec-2025 21:36:05 Europe/Berlin] PHP Warning:  Undefined variable $primeraLinea in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1514
 [03-Dec-2025 21:36:05 Europe/Berlin] PHP Deprecated:  substr(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 1514
+[04-Dec-2025 02:46:15 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "<<", expecting end of file in C:\xampp\htdocs\proyecto_sena\vendor\composer\platform_check.php on line 7
+[04-Dec-2025 02:46:52 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "<<", expecting end of file in C:\xampp\htdocs\proyecto_sena\vendor\composer\platform_check.php on line 7
+[04-Dec-2025 02:46:53 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "<<", expecting end of file in C:\xampp\htdocs\proyecto_sena\vendor\composer\platform_check.php on line 7
+[04-Dec-2025 02:46:54 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "<<", expecting end of file in C:\xampp\htdocs\proyecto_sena\vendor\composer\platform_check.php on line 7
