@@ -44,9 +44,13 @@ function initializeSidebar() {
     // ========== CERRAR SIDEBAR AL HACER CLIC EN ENLACE ==========
     function setupSidebarLinks() {
         document.querySelectorAll(".sidebar-nav a").forEach((link) => {
-            link.addEventListener("click", () => {
+            link.addEventListener("click", (e) => {
+                // Solo cerrar si estamos en mobile
                 if (window.innerWidth <= 768) {
-                    sidebar.classList.remove("mobile-open");
+                    // Pequeño delay para que el navegador procese el clic
+                    setTimeout(() => {
+                        sidebar.classList.remove("mobile-open");
+                    }, 100);
                 }
             });
         });
@@ -55,14 +59,19 @@ function initializeSidebar() {
     // ========== CERRAR SIDEBAR AL HACER CLIC FUERA ==========
     function setupClickOutside() {
         document.addEventListener("click", (e) => {
-            if (
-                window.innerWidth <= 768 &&
-                !sidebar.contains(e.target) &&
-                !document.getElementById("sidebar-toggle-btn")?.contains(e.target)
-            ) {
-                sidebar.classList.remove("mobile-open");
-            }
-        });
+            // Verificar si estamos en mobile
+            if (window.innerWidth > 768) return;
+
+            // NO cerrar si es el botón de toggle
+            const toggleBtn = document.getElementById("sidebar-toggle-btn");
+            if (toggleBtn && toggleBtn.contains(e.target)) return;
+
+            // NO cerrar si está dentro del sidebar (incluyendo sus descendientes)
+            if (sidebar.contains(e.target)) return;
+
+            // Cerrar sidebar si el clic fue fuera
+            sidebar.classList.remove("mobile-open");
+        }, true); // Usar captura para ser más preciso
     }
 
     // ========== MANEJAR REDIMENSIONAMIENTO ==========
@@ -131,14 +140,21 @@ function setupModalHandlers() {
 // ========== SISTEMA DE NOTIFICACIONES ==========
 function setupNotifications() {
     const notificationsBtn = document.getElementById('notificationsBtn');
-    const notificationsModal = document.getElementById('notificationsModal');
+    let notificationsModal = document.getElementById('notificationsModal');
+    
+    if (!notificationsBtn || !notificationsModal) {
+        console.warn('Notifications setup: missing button or modal');
+        return; // No es admin
+    }
+
+    console.log('✓ Notifications setup initialized');
+    console.log('Modal parent:', notificationsModal.parentElement.nodeName, '- ID:', notificationsModal.parentElement.id);
+
     const closeModalBtn = document.getElementById('closeNotificationsModal');
     const notificationBadge = document.getElementById('notificationBadge');
     const notificationCount = document.getElementById('notificationCount');
     const notificationsList = document.getElementById('notificationsList');
     const sidebar = document.getElementById('sidebar');
-
-    if (!notificationsBtn) return; // No es admin
 
     // Cargar notificaciones inicialmente
     loadNotifications();
@@ -159,38 +175,71 @@ function setupNotifications() {
         }
     });
 
-    // Cerrar modal con botón X
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', function() {
+    // Agregar listeners directamente al botón y overlay
+    // Sin setTimeout porque el modal ya está en el DOM
+    const closeBtn = document.getElementById('closeNotificationsModal');
+    const overlay = document.querySelector('#notificationsModal .notifications-modal-overlay');
+    
+    if (closeBtn) {
+        console.log('✓ Close button found, adding listener');
+        closeBtn.addEventListener('click', function(e) {
+            console.log('Close button clicked!');
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Setting display to none');
             notificationsModal.style.display = 'none';
             document.body.style.overflow = '';
+            console.log('Modal display:', notificationsModal.style.display);
         });
+    } else {
+        console.warn('✗ Close button not found');
     }
-
-    // Cerrar modal al hacer clic en el overlay
-    const overlay = notificationsModal?.querySelector('.notifications-modal-overlay');
+    
     if (overlay) {
-        overlay.addEventListener('click', function() {
+        console.log('✓ Overlay found, adding listener');
+        overlay.addEventListener('click', function(e) {
+            console.log('Overlay clicked!');
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Setting display to none from overlay');
             notificationsModal.style.display = 'none';
             document.body.style.overflow = '';
         });
+    } else {
+        console.warn('✗ Overlay not found');
     }
 
     // Cerrar con tecla ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && notificationsModal.style.display === 'flex') {
+            console.log('ESC pressed, closing modal');
             notificationsModal.style.display = 'none';
             document.body.style.overflow = '';
         }
     });
 
     function loadNotifications() {
-        fetch(BASE_URL + '/usuarios/getPendingNotifications')
+        // Agregar timestamp para evitar caché
+        const url = BASE_URL + '/usuarios/getPendingNotifications?t=' + Date.now();
+        
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
+            }
+        })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     updateNotificationBadge(data.count);
                     updateNotificationsList(data.users);
+                    
+                    // AUTO-CERRAR MODAL si no hay notificaciones
+                    if (data.count === 0 && notificationsModal.style.display === 'flex') {
+                        notificationsModal.style.display = 'none';
+                        document.body.style.overflow = '';
+                    }
                 }
             })
             .catch(error => {

@@ -51,6 +51,9 @@
 
     <!-- CSS Modales y Notificaciones -->
     <link rel="stylesheet" href="/proyecto_sena/public/css/modales.css">
+    
+    <!-- CSS Fix Modal Mobile - DEBE IR DESPUÉS DE MODALES.CSS -->
+    <link rel="stylesheet" href="/proyecto_sena/public/css/modal-fix-mobile.css">
 
     <!-- CSS Utilidades y Componentes -->
     <link rel="stylesheet" href="/proyecto_sena/public/css/utilidades.css">

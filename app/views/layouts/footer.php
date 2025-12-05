@@ -31,6 +31,9 @@
         <?php
     endif; ?>
 
+    <!-- Modal Helper para mobile -->
+    <script src="/proyecto_sena/public/js/modal-helper.js?v=<?= $v ?>"></script>
+
     <!-- Sidebar -->
     <script src="/proyecto_sena/public/js/sidebar.js?v=<?= $v ?>"></script>
 

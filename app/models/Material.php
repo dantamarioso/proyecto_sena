@@ -218,19 +218,73 @@ class Material extends Model
         $userId = $_SESSION['user']['id'] ?? $data['usuario_id'] ?? 1;
         $this->db->prepare('SET @usuario_id = :usuario_id')->execute([':usuario_id' => $userId]);
 
-        $stmt = $this->db->prepare('
-            INSERT INTO movimientos_inventario 
-            (material_id, usuario_id, tipo_movimiento, cantidad, descripcion, fecha_movimiento) 
-            VALUES (:material_id, :usuario_id, :tipo_movimiento, :cantidad, :descripcion, NOW())
-        ');
+        // Validar que si es SALIDA, no se saque más de lo que hay
+        if ($data['tipo_movimiento'] === 'salida') {
+            $stmt = $this->db->prepare('SELECT cantidad FROM materiales WHERE id = :material_id');
+            $stmt->execute([':material_id' => $data['material_id']]);
+            $material = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $stmt->execute([
-            ':material_id' => $data['material_id'],
-            ':usuario_id' => $data['usuario_id'],
-            ':tipo_movimiento' => $data['tipo_movimiento'], // 'entrada' o 'salida'
-            ':cantidad' => $data['cantidad'],
-            ':descripcion' => $data['descripcion'],
-        ]);
+            if (!$material) {
+                throw new Exception('Material no encontrado');
+            }
+
+            if ($data['cantidad'] > $material['cantidad']) {
+                throw new Exception('No puedes sacar ' . $data['cantidad'] . ' unidades. Solo hay ' . $material['cantidad'] . ' disponibles.');
+            }
+        }
+
+        // Iniciar transacción
+        $this->db->beginTransaction();
+
+        try {
+            // 1. Insertar el movimiento en la tabla de historial
+            $stmt = $this->db->prepare('
+                INSERT INTO movimientos_inventario 
+                (material_id, usuario_id, tipo_movimiento, cantidad, descripcion, fecha_movimiento) 
+                VALUES (:material_id, :usuario_id, :tipo_movimiento, :cantidad, :descripcion, NOW())
+            ');
+
+            $stmt->execute([
+                ':material_id' => $data['material_id'],
+                ':usuario_id' => $data['usuario_id'],
+                ':tipo_movimiento' => $data['tipo_movimiento'], // 'entrada' o 'salida'
+                ':cantidad' => $data['cantidad'],
+                ':descripcion' => $data['motivo'] ?? $data['descripcion'] ?? null,
+            ]);
+
+            // 2. Actualizar la cantidad en la tabla de materiales
+            if ($data['tipo_movimiento'] === 'entrada') {
+                // ENTRADA: sumar cantidad
+                $updateStmt = $this->db->prepare('
+                    UPDATE materiales 
+                    SET cantidad = cantidad + :cantidad,
+                        fecha_actualizacion = NOW()
+                    WHERE id = :material_id
+                ');
+            } else {
+                // SALIDA: restar cantidad
+                $updateStmt = $this->db->prepare('
+                    UPDATE materiales 
+                    SET cantidad = cantidad - :cantidad,
+                        fecha_actualizacion = NOW()
+                    WHERE id = :material_id
+                ');
+            }
+
+            $updateStmt->execute([
+                ':material_id' => $data['material_id'],
+                ':cantidad' => $data['cantidad']
+            ]);
+
+            // Confirmar transacción
+            $this->db->commit();
+
+            return true;
+        } catch (Exception $e) {
+            // Revertir cambios si hay error
+            $this->db->rollBack();
+            throw $e;
+        }
     }
 
     /**

@@ -28,33 +28,6 @@ $avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . '/img/defaul
                 </div>
             <?php endif; ?>
         </div>
-        
-        <?php if ($rol === 'admin') : ?>
-            <!-- Modal de notificaciones -->
-            <div id="notificationsModal" class="notifications-modal" style="display: none;">
-                <div class="notifications-modal-overlay"></div>
-                <div class="notifications-modal-content">
-                    <div class="notifications-modal-header">
-                        <div>
-                            <h5><i class="bi bi-bell-fill me-2"></i>Usuarios Pendientes</h5>
-                            <p class="mb-0" id="notificationCount">0 pendientes</p>
-                        </div>
-                        <button class="notifications-close-btn" id="closeNotificationsModal">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                    </div>
-                    <div id="notificationsList" class="notifications-modal-body">
-                        <div class="notification-empty">
-                            <i class="bi bi-check-circle"></i>
-                            <p class="mb-0">No hay notificaciones</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
-    </div>
-
-
 
     <ul class="sidebar-nav">
 
@@ -115,3 +88,27 @@ $avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . '/img/defaul
     </ul>
 
 </nav>
+
+<?php if (($_SESSION['user']['rol'] ?? 'usuario') === 'admin') : ?>
+<!-- Modal de notificaciones - FUERA del sidebar -->
+<div id="notificationsModal" class="notifications-modal" style="display: none;">
+    <div class="notifications-modal-overlay"></div>
+    <div class="notifications-modal-content">
+        <div class="notifications-modal-header">
+            <div>
+                <h5><i class="bi bi-bell-fill me-2"></i>Usuarios Pendientes</h5>
+                <p class="mb-0" id="notificationCount">0 pendientes</p>
+            </div>
+            <button type="button" class="notifications-close-btn" id="closeNotificationsModal">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div id="notificationsList" class="notifications-modal-body">
+            <div class="notification-empty">
+                <i class="bi bi-check-circle"></i>
+                <p class="mb-0">No hay notificaciones</p>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>

@@ -211,17 +211,30 @@ function abrirModalMovimiento(materialId, tipo) {
     if (!row) return;
 
     const nombreMaterial = row.querySelector('td:nth-child(3)').textContent.trim();
-    const cantidadActual = row.querySelector('td:nth-child(6)').textContent.trim();
+    const cantidadActualText = row.querySelector('td:nth-child(6)').textContent.trim();
+    const cantidadActualNum = parseInt(cantidadActualText);
 
     // Llenar datos del modal
     document.getElementById('movimiento-titulo').textContent = `Registrar ${tipo === 'entrada' ? 'Entrada' : 'Salida'} de Inventario`;
-    document.getElementById('mov-material').value = `${nombreMaterial} (Actual: ${cantidadActual})`;
+    document.getElementById('mov-material').value = `${nombreMaterial} (Actual: ${cantidadActualText})`;
     document.getElementById('mov-cantidad').value = '';
+    document.getElementById('mov-cantidad').max = tipo === 'salida' ? cantidadActualNum : '';
+    
+    // Actualizar texto de ayuda
+    const ayudaText = document.getElementById('mov-cantidad-help');
+    if (tipo === 'salida') {
+        ayudaText.textContent = `Solo se aceptan números enteros. Máximo: ${cantidadActualNum} unidades disponibles.`;
+        ayudaText.classList.add('text-warning');
+    } else {
+        ayudaText.textContent = 'Solo se aceptan números enteros';
+        ayudaText.classList.remove('text-warning');
+    }
+    
     document.getElementById('mov-descripcion').value = '';
     document.getElementById('movimiento-errors').style.display = 'none';
 
-    // Guardar datos del movimiento
-    movimientoActual = { id: materialId, tipo: tipo, nombre: nombreMaterial };
+    // Guardar datos del movimiento (incluyendo cantidad actual)
+    movimientoActual = { id: materialId, tipo: tipo, nombre: nombreMaterial, cantidadActual: cantidadActualNum };
 
     // Mostrar modal
     const modal = new bootstrap.Modal(document.getElementById('modalMovimiento'));
@@ -236,18 +249,25 @@ async function guardarMovimiento() {
     const descripcion = document.getElementById('mov-descripcion').value;
     const erroresDiv = document.getElementById('movimiento-errors');
 
-    // Validar
+    // Validar cantidad
     if (isNaN(cantidad) || cantidad <= 0) {
         erroresDiv.innerHTML = 'La cantidad debe ser un número entero positivo.';
         erroresDiv.style.display = 'block';
         return;
     }
 
+    // Validar SALIDA: no puede ser más que la cantidad disponible
+    if (movimientoActual.tipo === 'salida' && cantidad > movimientoActual.cantidadActual) {
+        erroresDiv.innerHTML = `<strong>Error:</strong> No puedes sacar ${cantidad} unidades. Solo hay ${movimientoActual.cantidadActual} disponibles.`;
+        erroresDiv.style.display = 'block';
+        return;
+    }
+
     const formData = new FormData();
-    formData.append('id', movimientoActual.id);
-    formData.append('tipo', movimientoActual.tipo);
+    formData.append('material_id', movimientoActual.id);
+    formData.append('tipo_movimiento', movimientoActual.tipo);
     formData.append('cantidad', cantidad);
-    formData.append('descripcion', descripcion);
+    formData.append('motivo', descripcion);
 
     try {
         const response = await fetch(`${window.BASE_URL}/?url=materialeshistorial/registrarMovimiento`, {

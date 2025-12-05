@@ -374,7 +374,7 @@ if (!isset($_SESSION['user'])) {
                 <div class="mb-3">
                     <label class="form-label">Cantidad a registrar</label>
                     <input type="number" id="mov-cantidad" class="form-control" placeholder="0" min="1" step="1">
-                    <small class="form-text text-muted">Solo se aceptan números enteros</small>
+                    <small class="form-text text-muted" id="mov-cantidad-help">Solo se aceptan números enteros</small>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Descripción (opcional)</label>

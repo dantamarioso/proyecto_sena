@@ -691,8 +691,11 @@ class User extends Model
         $stmt = $this->db->prepare("
             SELECT id, nombre, correo, nombre_usuario, rol, fecha_creacion
             FROM usuarios 
-            WHERE (nodo_id IS NULL OR linea_id IS NULL)
-            AND rol != 'admin'
+            WHERE (
+                (rol = 'usuario' AND (nodo_id IS NULL OR linea_id IS NULL))
+                OR
+                (rol = 'dinamizador' AND nodo_id IS NULL)
+            )
             AND estado = 1
             ORDER BY fecha_creacion DESC
         ");
@@ -709,8 +712,11 @@ class User extends Model
         $stmt = $this->db->prepare("
             SELECT COUNT(*) as total
             FROM usuarios 
-            WHERE (nodo_id IS NULL OR linea_id IS NULL)
-            AND rol != 'admin'
+            WHERE (
+                (rol = 'usuario' AND (nodo_id IS NULL OR linea_id IS NULL))
+                OR
+                (rol = 'dinamizador' AND nodo_id IS NULL)
+            )
             AND estado = 1
         ");
         $stmt->execute();

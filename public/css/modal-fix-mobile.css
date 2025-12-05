@@ -1,0 +1,180 @@
+/**
+ * Fix Modal en Mobile - Solución definitiva
+ * Este archivo corrige el problema del backdrop bloqueando el modal en dispositivos móviles
+ */
+
+/* IMPORTANTE: Hacer el backdrop invisible para que no bloquee el modal */
+body .modal-backdrop,
+body .modal-backdrop.show,
+body .modal-backdrop.fade,
+body .modal-backdrop.fade.show {
+    z-index: 1040 !important;
+    pointer-events: none !important;
+    background-color: transparent !important;
+    opacity: 0 !important;
+    display: block !important; /* Mantener en DOM pero invisible */
+}
+
+body .modal,
+body .modal.show,
+body .modal.fade,
+body .modal.fade.show {
+    z-index: 1055 !important;
+    pointer-events: auto !important;
+}
+
+body .modal .modal-dialog {
+    z-index: 1056 !important;
+    pointer-events: auto !important;
+}
+
+body .modal .modal-content {
+    z-index: 1057 !important;
+    pointer-events: auto !important;
+    position: relative !important;
+}
+
+/* Asegurar que todos los elementos dentro del modal sean clicables */
+.modal-content * {
+    pointer-events: auto !important;
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content textarea,
+.modal-content button,
+.modal-content a,
+.modal-content label,
+.modal-content .btn,
+.modal-content .form-control,
+.modal-content .form-select {
+    pointer-events: auto !important;
+    touch-action: auto !important;
+    cursor: pointer !important;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="email"],
+.modal-content input[type="password"],
+.modal-content input[type="number"],
+.modal-content textarea {
+    cursor: text !important;
+}
+
+/* REGLAS ESPECÍFICAS PARA MOBILE */
+@media (max-width: 768px) {
+    /* Backdrop siempre detrás */
+    .modal-backdrop {
+        z-index: 1040 !important;
+        pointer-events: none !important;
+    }
+    
+    /* Modal por encima */
+    .modal {
+        z-index: 1060 !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Dialog por encima del modal */
+    .modal-dialog {
+        z-index: 1070 !important;
+        pointer-events: auto !important;
+        position: relative !important;
+    }
+    
+    /* Content por encima de todo */
+    .modal-content {
+        z-index: 1075 !important;
+        pointer-events: auto !important;
+        position: relative !important;
+    }
+    
+    /* Asegurar que el modal sea scrolleable */
+    .modal-body {
+        max-height: calc(100vh - 200px) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    /* Prevenir scroll del body cuando modal está abierto */
+    body.modal-open {
+        overflow: hidden !important;
+        /* NO usar position:fixed para que sidebar siga funcionando */
+    }
+    
+    /* Asegurar que el modal tenga ancho correcto */
+    .modal-dialog {
+        margin: 0.5rem auto !important;
+        max-width: calc(100% - 1rem) !important;
+    }
+    
+    /* Headers, footers y body deben ser interactuables */
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        pointer-events: auto !important;
+        position: relative !important;
+        z-index: 1076 !important;
+    }
+    
+    /* Botón de cerrar */
+    .modal-header .btn-close {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        z-index: 1080 !important;
+        position: relative !important;
+    }
+    
+    /* Forms dentro del modal */
+    .modal form,
+    .modal .form-group,
+    .modal .mb-3 {
+        pointer-events: auto !important;
+        z-index: 1076 !important;
+        position: relative !important;
+    }
+}
+
+/* RESPONSIVE ADICIONAL PARA PANTALLAS MUY PEQUEÑAS */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 0.25rem auto !important;
+        max-width: calc(100% - 0.5rem) !important;
+    }
+    
+    .modal-body {
+        max-height: calc(100vh - 150px) !important;
+    }
+    
+    .modal-content {
+        border-radius: 0.5rem !important;
+    }
+}
+
+/* Fix para modales de Bootstrap que usan fade */
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out !important;
+}
+
+.modal.show .modal-dialog {
+    transform: none !important;
+}
+
+/* Asegurar que el overlay del sidebar no interfiera */
+@media (max-width: 768px) {
+    .sidebar.mobile-open::before {
+        z-index: 999 !important;
+    }
+    
+    .sidebar {
+        z-index: 1000 !important;
+    }
+    
+    /* NO cerrar el sidebar cuando hay modal abierto - permite interacción */
+    /* Comentado: body.modal-open .sidebar.mobile-open { transform: translateX(-100%) !important; } */
+}
+
+/* ========== FIX MODAL DE NOTIFICACIONES ========== */
+/* Removido - usar solo las reglas de sidebar.css */
+/* El modal ahora se mueve al body via JavaScript */
+/* No agregar reglas aquí que conflictúen */

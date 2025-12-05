@@ -915,7 +915,11 @@ class UsuariosController extends Controller
     ========================================================== */
     public function getPendingNotifications()
     {
-        header('Content-Type: application/json');
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        
         $this->requireAdmin();
 
         $userModel = new User();

@@ -6,6 +6,19 @@
    MODALES
 ===================================================== */
 
+/* Backdrop global - siempre debe estar detrás del modal */
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+.modal {
+    z-index: 1050 !important;
+}
+
+.modal-dialog {
+    z-index: 1060 !important;
+}
+
 .modal {
     --bs-modal-padding: 2rem;
     --bs-modal-margin: 1rem;
@@ -96,19 +109,19 @@
     }
     
     .modal-backdrop {
-        z-index: 1055 !important;
+        z-index: 1050 !important;
     }
     
     /* Asegurar que el contenido del modal sea interactuable */
     .modal-dialog {
         position: relative;
-        z-index: 1061;
+        z-index: 1070;
         pointer-events: auto;
     }
     
     .modal-content {
         position: relative;
-        z-index: 1062;
+        z-index: 1070;
         pointer-events: auto;
     }
     

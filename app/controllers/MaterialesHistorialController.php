@@ -131,14 +131,6 @@ class MaterialesHistorialController extends Controller
         header('Content-Type: application/json');
         $this->requireAuth();
 
-        $rol = $_SESSION['user']['rol'] ?? 'usuario';
-
-        if ($rol !== 'admin') {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Solo administradores pueden registrar movimientos']);
-            exit;
-        }
-
         try {
             $material_id = $_POST['material_id'] ?? null;
             $tipo_movimiento = $_POST['tipo_movimiento'] ?? null;
