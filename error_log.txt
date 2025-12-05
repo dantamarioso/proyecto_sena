@@ -6,3 +6,35 @@
 [05-Dec-2025 20:11:59 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\views\materiales\historial_inventario.php on line 148
 [05-Dec-2025 20:42:04 Europe/Berlin] PHP Parse error:  Unclosed '{' on line 4 in C:\xampp\htdocs\proyecto_sena\app\models\Material.php on line 747
 [05-Dec-2025 20:43:04 Europe/Berlin] PHP Parse error:  Unclosed '{' on line 4 in C:\xampp\htdocs\proyecto_sena\app\models\Material.php on line 747
+[05-Dec-2025 20:52:03 Europe/Berlin] PHP Warning:  Undefined array key "usuario" in C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php on line 200
+[05-Dec-2025 20:53:11 Europe/Berlin] PHP Warning:  Undefined array key "usuario" in C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php on line 200
+[05-Dec-2025 20:53:49 Europe/Berlin] PHP Warning:  Undefined array key "usuario" in C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php on line 200
+[05-Dec-2025 20:54:13 Europe/Berlin] PHP Warning:  Undefined array key "usuario" in C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php on line 200
+[05-Dec-2025 20:57:05 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 10
+[05-Dec-2025 20:57:05 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 11
+[05-Dec-2025 20:57:05 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 12
+[05-Dec-2025 20:57:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 10
+[05-Dec-2025 20:57:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 11
+[05-Dec-2025 20:57:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 12
+[05-Dec-2025 20:57:17 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 10
+[05-Dec-2025 20:57:17 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 11
+[05-Dec-2025 20:57:17 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 12
+[05-Dec-2025 20:57:50 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 10
+[05-Dec-2025 20:57:50 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 11
+[05-Dec-2025 20:57:50 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 12
+[05-Dec-2025 20:58:09 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 10
+[05-Dec-2025 20:58:09 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 11
+[05-Dec-2025 20:58:09 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 12
+[05-Dec-2025 20:58:12 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 10
+[05-Dec-2025 20:58:12 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 11
+[05-Dec-2025 20:58:12 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 12
+[05-Dec-2025 21:00:24 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 10
+[05-Dec-2025 21:00:24 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 11
+[05-Dec-2025 21:00:24 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 12
+[05-Dec-2025 21:02:21 Europe/Berlin] PHP Warning:  Undefined array key "usuario" in C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php on line 200
+[05-Dec-2025 21:02:33 Europe/Berlin] PHP Warning:  Undefined array key "usuario" in C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php on line 200
+[05-Dec-2025 21:06:41 Europe/Berlin] PHP Warning:  Undefined array key "usuario" in C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php on line 200
+[05-Dec-2025 21:07:25 Europe/Berlin] PHP Warning:  Undefined array key "usuario" in C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php on line 200
+[05-Dec-2025 21:07:27 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\views\materiales\historial_inventario.php on line 148
+[05-Dec-2025 21:07:27 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\views\materiales\historial_inventario.php on line 148
+[05-Dec-2025 21:07:27 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\views\materiales\historial_inventario.php on line 148

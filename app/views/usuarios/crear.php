@@ -6,11 +6,11 @@
                 <h3 class="mb-3">Crear nuevo usuario</h3>
 
                 <?php if (!empty($errores)) :
-                    ?>
+                ?>
                     <div class="alert alert-danger">
                         <ul class="mb-0">
                             <?php foreach ($errores as $e) :
-                                ?>
+                            ?>
                                 <li><?= htmlspecialchars($e) ?></li>
                             <?php endforeach; ?>
                         </ul>
@@ -63,16 +63,13 @@
 
                     <!-- Foto -->
                     <div class="mb-3">
-                        <label class="form-label">Foto de perfil (opcional)</label>
+                        <label class="form-label">Foto</label>
                         <input type="file" name="foto" id="foto_crear" class="form-control" accept="image/*">
-                        <small class="text-muted">Formatos permitidos: JPG, PNG — Máximo 2MB.</small>
+                        <input type="hidden" name="foto_data" id="foto_data">
 
                         <!-- PREVIEW -->
-                        <div class="mt-3 d-none" id="previewContainerCrear">
-                            <label class="form-label">Vista previa</label>
-                            <img id="preview_crear" src="" 
-                                 width="80" height="80"
-                                 style="object-fit:cover;border-radius:50%;border:3px solid #00304D;display:block;">
+                        <div class="image-preview-container" id="previewContainerCrear" style="display:none;">
+                            <img id="preview_crear" src="" class="image-preview" alt="Vista previa">
                         </div>
                     </div>
 
@@ -125,7 +122,7 @@
                         <select name="nodo_id" id="select-nodo" class="form-select" required>
                             <option value="">-- Selecciona un nodo --</option>
                             <?php foreach ($nodos as $nodo) :
-                                ?>
+                            ?>
                                 <option value="<?= $nodo['id'] ?>"><?= htmlspecialchars($nodo['nombre']) ?> (<?= htmlspecialchars($nodo['ciudad']) ?>)</option>
                             <?php endforeach; ?>
                         </select>
@@ -185,14 +182,14 @@
          */
         function actualizarCamposPorRol() {
             const rol = rolSelect.value;
-            
+
             // Por defecto, ocultar todo
             divNodo.style.display = 'none';
             divLinea.style.display = 'none';
-            
+
             nodoSelect.removeAttribute('required');
             lineaSelect.removeAttribute('required');
-            
+
             // Mostrar campos según el rol
             if (rol === 'usuario') {
                 // Usuario: nodo y línea
@@ -206,7 +203,7 @@
                 nodoSelect.setAttribute('required', 'required');
             }
             // Admin: no muestra nada (por defecto oculto)
-            
+
             // Limpiar campos
             nodoSelect.value = '';
             lineaSelect.value = '';
@@ -220,7 +217,7 @@
         nodoSelect.addEventListener('change', function() {
             const nodoId = this.value;
             lineaSelect.innerHTML = '<option value="">-- Selecciona una línea --</option>';
-            
+
             if (nodoId && Array.isArray(nodosData) && nodosData.length > 0) {
                 // Buscar el nodo en el array
                 let nodoEncontrado = null;
@@ -230,7 +227,7 @@
                         break;
                     }
                 }
-                
+
                 if (nodoEncontrado && nodoEncontrado.lineas && Array.isArray(nodoEncontrado.lineas) && nodoEncontrado.lineas.length > 0) {
                     nodoEncontrado.lineas.forEach(function(linea) {
                         const option = document.createElement('option');
@@ -257,19 +254,19 @@
 
         function validarContraseña() {
             const password = passwordInput.value;
-            
+
             // Validar longitud
             const hasLength = password.length >= 8;
             actualizarCheck(chkLength, hasLength);
-            
+
             // Validar mayúscula
             const hasUppercase = /[A-Z]/.test(password);
             actualizarCheck(chkUppercase, hasUppercase);
-            
+
             // Validar carácter especial
             const hasSpecial = /[!@#$%^&*(),.?":{}|<>_\-]/.test(password);
             actualizarCheck(chkSpecial, hasSpecial);
-            
+
             // Validar coincidencia de contraseñas
             validarCoincidencia();
         }
@@ -277,7 +274,7 @@
         function validarCoincidencia() {
             const password = passwordInput.value;
             const password2 = password2Input.value;
-            
+
             if (password2 !== '') {
                 if (password === password2) {
                     matchMessage.classList.add('d-none');

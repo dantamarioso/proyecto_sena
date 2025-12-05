@@ -32,33 +32,33 @@ if (!isset($_SESSION['user'])) {
                         <div class="mb-3">
                             <label class="form-label">Nombre completo</label>
                             <input type="text" name="nombre" class="form-control"
-                                   value="<?= htmlspecialchars($usuario['nombre']) ?>" required>
+                                value="<?= htmlspecialchars($usuario['nombre']) ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Correo</label>
                             <input type="email" name="correo" class="form-control"
-                                   value="<?= htmlspecialchars($usuario['correo']) ?>" required>
+                                value="<?= htmlspecialchars($usuario['correo']) ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Nombre de usuario</label>
                             <input type="text" name="nombre_usuario" class="form-control"
-                                   value="<?= htmlspecialchars($usuario['nombre_usuario']) ?>" required>
+                                value="<?= htmlspecialchars($usuario['nombre_usuario']) ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Celular</label>
                             <input type="text" name="celular" class="form-control"
-                                   value="<?= htmlspecialchars($usuario['celular'] ?? '') ?>"
-                                   placeholder="Ej: +57 123 456 7890">
+                                value="<?= htmlspecialchars($usuario['celular'] ?? '') ?>"
+                                placeholder="Ej: +57 123 456 7890">
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Cargo</label>
                             <input type="text" name="cargo" class="form-control"
-                                   value="<?= htmlspecialchars($usuario['cargo'] ?? '') ?>"
-                                   placeholder="Ej: Gerente">
+                                value="<?= htmlspecialchars($usuario['cargo'] ?? '') ?>"
+                                placeholder="Ej: Gerente">
                         </div>
                     </fieldset>
 
@@ -69,15 +69,15 @@ if (!isset($_SESSION['user'])) {
                         <legend class="mb-3" style="font-size: 1.1rem; font-weight: 600;">Foto de perfil</legend>
 
                         <div class="mb-3">
-                            <label class="form-label">Cambiar foto</label>
+                            <label class="form-label">Foto</label>
                             <input type="file" name="foto" id="foto_editar" class="form-control" accept="image/*">
-                            <small class="text-muted">Formatos permitidos: JPG, PNG — Máximo 2MB.</small>
+                            <input type="hidden" name="foto_data" id="foto_data">
 
                             <div class="image-preview-container" id="previewContainerEditar" style="<?= !empty($usuario['foto']) ? '' : 'display:none;' ?>">
                                 <img id="preview_editar"
-                                     src="<?= !empty($usuario['foto']) ? BASE_URL . '/' . htmlspecialchars($usuario['foto']) : BASE_URL . '/img/default_user.png' ?>"
-                                     class="image-preview"
-                                     alt="Vista previa de foto">
+                                    src="<?= !empty($usuario['foto']) ? BASE_URL . '/' . htmlspecialchars($usuario['foto']) : BASE_URL . '/img/default_user.png' ?>"
+                                    class="image-preview"
+                                    alt="Foto de perfil">
                             </div>
                         </div>
                     </fieldset>
@@ -92,7 +92,7 @@ if (!isset($_SESSION['user'])) {
                             <label class="form-label">Nueva contraseña (opcional)</label>
                             <div class="input-group">
                                 <input type="password" id="password_edit" name="password" class="form-control"
-                                       placeholder="Dejar vacío para mantener la actual">
+                                    placeholder="Dejar vacío para mantener la actual">
                                 <span class="input-group-text" id="togglePasswordEdit" style="cursor:pointer;">
                                     <i class="bi bi-eye-fill"></i>
                                 </span>

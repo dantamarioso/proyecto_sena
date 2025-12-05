@@ -143,12 +143,8 @@ function setupNotifications() {
     let notificationsModal = document.getElementById('notificationsModal');
     
     if (!notificationsBtn || !notificationsModal) {
-        console.warn('Notifications setup: missing button or modal');
         return; // No es admin
     }
-
-    console.log('✓ Notifications setup initialized');
-    console.log('Modal parent:', notificationsModal.parentElement.nodeName, '- ID:', notificationsModal.parentElement.id);
 
     const closeModalBtn = document.getElementById('closeNotificationsModal');
     const notificationBadge = document.getElementById('notificationBadge');
@@ -176,43 +172,30 @@ function setupNotifications() {
     });
 
     // Agregar listeners directamente al botón y overlay
-    // Sin setTimeout porque el modal ya está en el DOM
     const closeBtn = document.getElementById('closeNotificationsModal');
     const overlay = document.querySelector('#notificationsModal .notifications-modal-overlay');
     
     if (closeBtn) {
-        console.log('✓ Close button found, adding listener');
         closeBtn.addEventListener('click', function(e) {
-            console.log('Close button clicked!');
             e.preventDefault();
             e.stopPropagation();
-            console.log('Setting display to none');
             notificationsModal.style.display = 'none';
             document.body.style.overflow = '';
-            console.log('Modal display:', notificationsModal.style.display);
         });
-    } else {
-        console.warn('✗ Close button not found');
     }
     
     if (overlay) {
-        console.log('✓ Overlay found, adding listener');
         overlay.addEventListener('click', function(e) {
-            console.log('Overlay clicked!');
             e.preventDefault();
             e.stopPropagation();
-            console.log('Setting display to none from overlay');
             notificationsModal.style.display = 'none';
             document.body.style.overflow = '';
         });
-    } else {
-        console.warn('✗ Overlay not found');
     }
 
     // Cerrar con tecla ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && notificationsModal.style.display === 'flex') {
-            console.log('ESC pressed, closing modal');
             notificationsModal.style.display = 'none';
             document.body.style.overflow = '';
         }
@@ -241,9 +224,6 @@ function setupNotifications() {
                         document.body.style.overflow = '';
                     }
                 }
-            })
-            .catch(error => {
-                console.error('Error cargando notificaciones:', error);
             });
     }
 

@@ -7,10 +7,6 @@ require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Audit.php';
 require_once __DIR__ . '/../helpers/PermissionHelper.php';
 
-use User;
-use Audit;
-use PermissionHelper;
-
 class PerfilController extends Controller
 {
     /* =========================================================
@@ -93,7 +89,40 @@ class PerfilController extends Controller
             // Subir foto (opcional)
             $fotoRuta = null;
 
-            if (!empty($_FILES['foto']['name'])) {
+            // Opción 1: Foto desde editor (base64 en foto_data)
+            if (!empty($_POST['foto_data'])) {
+                try {
+                    // Decodificar base64
+                    $fotoData = $_POST['foto_data'];
+
+                    // Validar que sea un data URL válido
+                    if (strpos($fotoData, 'data:image/png;base64,') === 0) {
+                        // Remover el prefijo
+                        $fotoData = str_replace('data:image/png;base64,', '', $fotoData);
+                        $fotoData = base64_decode($fotoData);
+
+                        if ($fotoData !== false) {
+                            // Crear directorio si no existe
+                            if (!is_dir(__DIR__ . '/../../public/uploads/fotos')) {
+                                mkdir(__DIR__ . '/../../public/uploads/fotos', 0755, true);
+                            }
+
+                            // Generar nombre único
+                            $nombreFoto = 'uploads/fotos/' . uniqid('foto_') . '.png';
+                            $fotoRutaSistema = __DIR__ . '/../../public/' . $nombreFoto;
+
+                            // Guardar archivo
+                            if (file_put_contents($fotoRutaSistema, $fotoData)) {
+                                $fotoRuta = $nombreFoto;
+                            }
+                        }
+                    }
+                } catch (Exception $e) {
+                    $errores[] = 'Error al procesar la foto: ' . $e->getMessage();
+                }
+            }
+            // Opción 2: Foto desde input file tradicional
+            elseif (!empty($_FILES['foto']['name'])) {
                 $ext = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
                 $permitidas = ['jpg', 'jpeg', 'png'];
 
@@ -445,7 +474,7 @@ class PerfilController extends Controller
         // GET: Reenviar código
         if (isset($_GET['reenviar'])) {
             $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-                      $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+                $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
 
             if (!$userModel->canResendVerificationCode($userId)) {
                 if ($isAjax) {

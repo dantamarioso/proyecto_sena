@@ -134,18 +134,18 @@ if (!isset($_SESSION['user'])) {
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
                                             <?php if ($mov['usuario_foto']) : ?>
-                                                <img src="<?= BASE_URL . '/' . htmlspecialchars($mov['usuario_foto']) ?>" 
-                                                     width="28" height="28" class="rounded-circle" style="object-fit: cover;">
+                                                <img src="<?= BASE_URL . '/' . htmlspecialchars($mov['usuario_foto']) ?>"
+                                                    width="28" height="28" class="rounded-circle" style="object-fit: cover;">
                                             <?php else : ?>
-                                                <img src="<?= BASE_URL ?>/img/default_user.png" 
-                                                     width="28" height="28" class="rounded-circle">
+                                                <img src="<?= BASE_URL ?>/img/default_user.png"
+                                                    width="28" height="28" class="rounded-circle">
                                             <?php endif; ?>
                                             <small><?= htmlspecialchars($mov['usuario_nombre'] ?? 'N/A') ?></small>
                                         </div>
                                     </td>
                                     <td>
                                         <?php if ($mov['tipo_registro'] === 'movimiento') : ?>
-                                            <small class="text-muted"><?= htmlspecialchars($mov['descripcion']) ?></small>
+                                            <small class="text-muted"><?= htmlspecialchars($mov['descripcion'] ?? '') ?></small>
                                         <?php elseif ($mov['tipo_registro'] === 'cambio') : ?>
                                             <small class="text-muted">Propiedades modificadas</small>
                                         <?php else : ?>
@@ -204,19 +204,19 @@ if (!isset($_SESSION['user'])) {
                     <div class="col-12 col-md-2">
                         <small class="text-muted">
                             <i class="bi bi-plus-lg text-success"></i>
-                            Entradas: <strong><?= count(array_filter($historial, fn ($m) => ($m['tipo_registro'] ?? null) === 'movimiento' && ($m['tipo_movimiento'] ?? null) === 'entrada')) ?></strong>
+                            Entradas: <strong><?= count(array_filter($historial, fn($m) => ($m['tipo_registro'] ?? null) === 'movimiento' && ($m['tipo_movimiento'] ?? null) === 'entrada')) ?></strong>
                         </small>
                     </div>
                     <div class="col-12 col-md-2">
                         <small class="text-muted">
                             <i class="bi bi-dash-lg text-danger"></i>
-                            Salidas: <strong><?= count(array_filter($historial, fn ($m) => ($m['tipo_registro'] ?? null) === 'movimiento' && ($m['tipo_movimiento'] ?? null) === 'salida')) ?></strong>
+                            Salidas: <strong><?= count(array_filter($historial, fn($m) => ($m['tipo_registro'] ?? null) === 'movimiento' && ($m['tipo_movimiento'] ?? null) === 'salida')) ?></strong>
                         </small>
                     </div>
                     <div class="col-12 col-md-2">
                         <small class="text-muted">
                             <i class="bi bi-pencil text-warning"></i>
-                            Cambios: <strong><?= count(array_filter($historial, fn ($m) => ($m['tipo_registro'] ?? null) === 'cambio')) ?></strong>
+                            Cambios: <strong><?= count(array_filter($historial, fn($m) => ($m['tipo_registro'] ?? null) === 'cambio')) ?></strong>
                         </small>
                     </div>
                 </div>
@@ -261,9 +261,9 @@ if (!isset($_SESSION['user'])) {
     function verDetallesCambio(detalles) {
         console.log('=== DETALLES DE CAMBIOS ===');
         console.log('Detalles:', detalles);
-        
+
         const detallesDiv = document.getElementById('detalles-movimiento-content');
-        
+
         if (!detallesDiv) {
             console.error('❌ No se encontró elemento modal');
             return;
@@ -298,7 +298,7 @@ if (!isset($_SESSION['user'])) {
                     const nombreCampo = nombresAmigables[campo] || campo;
                     const valorAntes = escapeHtml(String(cambio.antes || 'N/A'));
                     const valorDespues = escapeHtml(String(cambio.despues || 'N/A'));
-                    
+
                     cambiosHTML += `
                         <div class="card mb-3 border-left-3" style="border-left: 3px solid #ffc107;">
                             <div class="card-body">
@@ -344,7 +344,7 @@ if (!isset($_SESSION['user'])) {
                     Estos cambios fueron registrados en el sistema para auditoría.
                 </div>
             `;
-            
+
             // Mostrar modal
             const modalElement = document.getElementById('modalDetallesMovimiento');
             if (modalElement) {
@@ -364,9 +364,9 @@ if (!isset($_SESSION['user'])) {
     function verDetallesEliminacion(detalles) {
         console.log('=== DETALLES DE ELIMINACIÓN ===');
         console.log('Detalles:', detalles);
-        
+
         const detallesDiv = document.getElementById('detalles-movimiento-content');
-        
+
         if (!detallesDiv) {
             console.error('❌ No se encontró elemento modal');
             return;
@@ -375,7 +375,7 @@ if (!isset($_SESSION['user'])) {
         try {
             const lineaNombre = detalles.linea_nombre || 'Sin línea';
             const usuarioNombre = detalles.usuario_nombre || 'Sistema';
-            
+
             detallesDiv.innerHTML = `
                 <div class="alert alert-danger mb-3">
                     <i class="bi bi-exclamation-triangle"></i>
@@ -468,7 +468,7 @@ if (!isset($_SESSION['user'])) {
                     Este material ha sido eliminado del inventario y sus registros se conservan para auditoría.
                 </div>
             `;
-            
+
             // Mostrar modal
             const modalElement = document.getElementById('modalDetallesMovimiento');
             if (modalElement) {
@@ -485,9 +485,9 @@ if (!isset($_SESSION['user'])) {
     async function verDetallesMovimiento(movimientoId) {
         console.log('=== INICIANDO verDetallesMovimiento ===');
         console.log('Movimiento ID:', movimientoId);
-        
+
         const detallesDiv = document.getElementById('detalles-movimiento-content');
-        
+
         if (!detallesDiv) {
             console.error('❌ No se encontró elemento detalles-movimiento-content');
             return;
@@ -499,14 +499,14 @@ if (!isset($_SESSION['user'])) {
         try {
             const url = `${window.BASE_URL}/materialeshistorial/detallesMovimiento?id=${movimientoId}`;
             console.log('URL de fetch:', url);
-            
+
             const response = await fetch(url);
             console.log('Response status:', response.status);
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const data = await response.json();
             console.log('Datos recibidos:', data);
 
@@ -516,18 +516,18 @@ if (!isset($_SESSION['user'])) {
             } else {
                 const mov = data.movimiento;
                 console.log('Datos del movimiento:', mov);
-                
+
                 const tipoMovimiento = mov.tipo_movimiento === 'entrada' ? 'ENTRADA' : 'SALIDA';
                 const badgeClass = mov.tipo_movimiento === 'entrada' ? 'bg-success' : 'bg-danger';
-                
+
                 // Obtener línea
                 let lineaNombre = mov.linea_nombre || 'Sin línea asignada';
                 console.log('Línea encontrada:', lineaNombre);
-                
+
                 // Calcular cantidad anterior
-                const cantidadAnterior = mov.tipo_movimiento === 'entrada' 
-                    ? mov.cantidad_actual - mov.cantidad 
-                    : mov.cantidad_actual + mov.cantidad;
+                const cantidadAnterior = mov.tipo_movimiento === 'entrada' ?
+                    mov.cantidad_actual - mov.cantidad :
+                    mov.cantidad_actual + mov.cantidad;
 
                 detallesDiv.innerHTML = `
                     <div class="row mb-4">
@@ -631,11 +631,11 @@ if (!isset($_SESSION['user'])) {
     // Cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', () => {
         console.log('🔵 DOMContentLoaded disparado');
-        
+
         // Event listeners para botones de detalles
         const botones = document.querySelectorAll('.btn-detalles');
         console.log(`Encontrados ${botones.length} botones .btn-detalles`);
-        
+
         botones.forEach((btn, index) => {
             console.log(`Botón ${index}:`, btn);
             btn.addEventListener('click', function(e) {
@@ -650,7 +650,7 @@ if (!isset($_SESSION['user'])) {
         // Event listeners para botones de detalles de eliminaciones
         const botonesEliminacion = document.querySelectorAll('.btn-detalles-eliminacion');
         console.log(`Encontrados ${botonesEliminacion.length} botones .btn-detalles-eliminacion`);
-        
+
         botonesEliminacion.forEach((btn) => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -664,7 +664,7 @@ if (!isset($_SESSION['user'])) {
         // Event listeners para botones de detalles de cambios
         const botonesCambios = document.querySelectorAll('.btn-detalles-cambio');
         console.log(`Encontrados ${botonesCambios.length} botones .btn-detalles-cambio`);
-        
+
         botonesCambios.forEach((btn) => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -684,7 +684,7 @@ if (!isset($_SESSION['user'])) {
 
         function aplicarFiltros() {
             const params = new URLSearchParams();
-            
+
             const material = filtroMaterial.value;
             const tipo = filtroTipo.value;
             const fechaInicio = filtroFechaInicio.value;
@@ -717,13 +717,13 @@ if (!isset($_SESSION['user'])) {
             btnLimpiar.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 // Limpiar los valores de los filtros en la UI
                 filtroMaterial.value = '';
                 filtroTipo.value = '';
                 filtroFechaInicio.value = '';
                 filtroFechaFin.value = '';
-                
+
                 const urlDestino = `${window.BASE_URL}/materialeshistorial/index`;
                 window.location.href = urlDestino;
             });
@@ -751,7 +751,7 @@ if (!isset($_SESSION['user'])) {
                 if (countSpan) {
                     countSpan.textContent = data.count || 0;
                 }
-                
+
                 // Cambiar color del badge según cantidad
                 if (data.count === 0) {
                     badgeElement.classList.remove('bg-secondary');
@@ -780,5 +780,4 @@ if (!isset($_SESSION['user'])) {
             }
         }
     });
-
 </script>

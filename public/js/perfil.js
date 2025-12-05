@@ -144,6 +144,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!file) return;
 
+            // Si se está usando el editor de imágenes, no hacer nada
+            // El editor maneja todo automáticamente
+            if (this.hasAttribute('data-editor')) {
+                return;
+            }
+
             // Validar tipo
             const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (!validTypes.includes(file.type)) {

@@ -183,7 +183,4 @@
             }
         }
     };
-
-    // Log para debug (remover en producción)
-    console.log('Modal Helper inicializado');
 })();

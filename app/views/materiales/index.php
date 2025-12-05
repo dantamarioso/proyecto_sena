@@ -80,28 +80,41 @@ if (!isset($_SESSION['user'])) {
                         <label class="form-label">Buscar</label>
                         <input type="text" id="busqueda" class="form-control" placeholder="Nombre, código o descripción" value="<?= htmlspecialchars($busqueda) ?>">
                     </div>
-                    <div class="col-12 col-sm-6 col-md-2">
-                        <label class="form-label">Nodo</label>
-                        <select id="filtro-nodo" class="form-select">
-                            <option value="">Todos</option>
-                            <?php foreach ($nodos as $nodo) : ?>
-                                <option value="<?= $nodo['id'] ?>" <?= ($nodo_id ?? null) == $nodo['id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($nodo['nombre']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-12 col-sm-6 col-md-2">
-                        <label class="form-label">Línea</label>
-                        <select id="filtro-linea" class="form-select">
-                            <option value="">Todas</option>
-                            <?php foreach ($lineas as $linea) : ?>
-                                <option value="<?= $linea['id'] ?>" <?= $linea_id == $linea['id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($linea['nombre']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+
+                    <!-- Filtro Nodo: Solo Admin -->
+                    <?php if (($_SESSION['user']['rol'] ?? 'usuario') === 'admin') : ?>
+                        <div class="col-12 col-sm-6 col-md-2">
+                            <label class="form-label">Nodo</label>
+                            <select id="filtro-nodo" class="form-select">
+                                <option value="">Todos</option>
+                                <?php foreach ($nodos as $nodo) : ?>
+                                    <option value="<?= $nodo['id'] ?>" <?= ($nodo_id ?? null) == $nodo['id'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($nodo['nombre']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Filtro Línea: Admin y Dinamizador -->
+                    <?php if (in_array($_SESSION['user']['rol'] ?? 'usuario', ['admin', 'dinamizador'])) : ?>
+                        <div class="col-12 col-sm-6 col-md-2">
+                            <label class="form-label">Línea</label>
+                            <select id="filtro-linea" class="form-select">
+                                <option value="">Todas</option>
+                                <?php foreach ($lineas as $linea) : ?>
+                                    <option value="<?= $linea['id'] ?>" <?= $linea_id == $linea['id'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($linea['nombre']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    <?php else : ?>
+                        <!-- Usuario: línea oculta -->
+                        <input type="hidden" id="filtro-linea" value="">
+                    <?php endif; ?>
+
+                    <!-- Filtro Categoría: Todos -->
                     <div class="col-12 col-sm-6 col-md-2">
                         <label class="form-label">Categoría</label>
                         <select id="filtro-categoria" class="form-select">
@@ -113,6 +126,8 @@ if (!isset($_SESSION['user'])) {
                             <?php endforeach; ?>
                         </select>
                     </div>
+
+                    <!-- Filtro Proveedor: Todos -->
                     <div class="col-12 col-sm-6 col-md-2">
                         <label class="form-label">Proveedor</label>
                         <select id="filtro-proveedor" class="form-select">
@@ -124,6 +139,8 @@ if (!isset($_SESSION['user'])) {
                             <?php endforeach; ?>
                         </select>
                     </div>
+
+                    <!-- Filtro Estado: Todos -->
                     <div class="col-12 col-sm-6 col-md-2">
                         <label class="form-label">Estado</label>
                         <select id="filtro-estado" class="form-select">

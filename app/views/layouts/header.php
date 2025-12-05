@@ -5,20 +5,20 @@
     <meta charset="UTF-8">
     <title>Sistema Inventario</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
+
     <!-- BASE_URL Global - Forzar HTTPS en ngrok -->
     <script>
         // Construir BASE_URL SIEMPRE usando el protocolo actual del navegador
         let currentProtocol = window.location.protocol; // https: o http:
         const currentHost = window.location.host; // incluyendo puerto si aplica
-        
+
         // Para ngrok: asegurar que sea siempre https
         if (currentHost.includes('ngrok') && currentProtocol === 'http:') {
             console.warn('ADVERTENCIA: ngrok debería usar HTTPS. Redirigiendo...');
             currentProtocol = 'https:';
             window.location.replace('https://' + currentHost + window.location.pathname + window.location.search);
         }
-        
+
         // Construir URL base
         window.BASE_URL = currentProtocol + '//' + currentHost + '/proyecto_sena/public';
     </script>
@@ -30,7 +30,7 @@
 
     <!-- Sidebar CSS -->
     <link rel="stylesheet" href="/proyecto_sena/public/css/sidebar.css">
-    
+
     <!-- Sidebar Toggle Button CSS -->
     <link rel="stylesheet" href="/proyecto_sena/public/css/sidebar-toggle.css">
 
@@ -51,7 +51,7 @@
 
     <!-- CSS Modales y Notificaciones -->
     <link rel="stylesheet" href="/proyecto_sena/public/css/modales.css">
-    
+
     <!-- CSS Fix Modal Mobile - DEBE IR DESPUÉS DE MODALES.CSS -->
     <link rel="stylesheet" href="/proyecto_sena/public/css/modal-fix-mobile.css">
 
@@ -67,6 +67,9 @@
     <!-- CSS Perfil de Usuario -->
     <link rel="stylesheet" href="/proyecto_sena/public/css/perfil_mejorado.css">
 
+    <!-- CSS Image Editor Modal -->
+    <link rel="stylesheet" href="/proyecto_sena/public/css/image-editor.css">
+
     <!-- CSS Auditoría -->
     <link rel="stylesheet" href="/proyecto_sena/public/css/audit_mejorado.css">
 
@@ -75,19 +78,19 @@
 
     <!-- CSS específico para login -->
     <?php if (isset($isLoginPage) && $isLoginPage === true) :
-        ?>
+    ?>
         <link rel="stylesheet" href="/proyecto_sena/public/css/login.css">
     <?php endif; ?>
 
     <!-- CSS específico para register -->
     <?php if (isset($isRegisterPage) && $isRegisterPage === true) :
-        ?>
+    ?>
         <link rel="stylesheet" href="/proyecto_sena/public/css/register.css">
     <?php endif; ?>
 
     <!-- CSS específico para recuperación de contraseña -->
     <?php if (isset($isRecoveryPage) && $isRecoveryPage === true) :
-        ?>
+    ?>
         <link rel="stylesheet" href="/proyecto_sena/public/css/recovery.css">
     <?php endif; ?>
 
@@ -119,6 +122,7 @@
                 opacity: 0;
                 transform: translateX(100px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -164,31 +168,31 @@
 
     <!-- CSS por vista -->
     <?php if (!empty($pageStyles) && is_array($pageStyles)) :
-        ?>
+    ?>
         <?php foreach ($pageStyles as $css) :
-            ?>
+        ?>
             <link rel="stylesheet" href="<?= BASE_URL ?>/css/<?= htmlspecialchars($css) ?>.css">
         <?php endforeach; ?>
-        <?php
+    <?php
     endif; ?>
 </head>
 
 <body>
 
-<?php
-$isLogin = isset($isLoginPage) && $isLoginPage === true;
+    <?php
+    $isLogin = isset($isLoginPage) && $isLoginPage === true;
     $isRegister = isset($isRegisterPage) && $isRegisterPage === true;
-?>
-
-<?php if (!$isLogin && !$isRegister) : ?>
-    <!-- SIDEBAR -->
-    <?php include __DIR__ . '/sidebar.php'; ?>
-
-    <!-- CONTENIDO PRINCIPAL -->
-    <div class="main-wrapper">
-        <div class="main-content">
-<?php else :
     ?>
-    <!-- LOGIN O REGISTER -->
-    <div class="container py-4">
-<?php endif; ?>
+
+    <?php if (!$isLogin && !$isRegister) : ?>
+        <!-- SIDEBAR -->
+        <?php include __DIR__ . '/sidebar.php'; ?>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="main-wrapper">
+            <div class="main-content">
+            <?php else :
+            ?>
+                <!-- LOGIN O REGISTER -->
+                <div class="container py-4">
+                <?php endif; ?>

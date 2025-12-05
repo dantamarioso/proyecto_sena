@@ -197,11 +197,13 @@ class AuthenticationService
         $_SESSION['user'] = [
             'id' => $user['id'],
             'nombre' => $user['nombre'],
-            'usuario' => $user['usuario'],
+            'usuario' => $user['nombre_usuario'] ?? $user['usuario'] ?? $user['correo'],
             'correo' => $user['correo'],
             'cargo' => $user['cargo'],
             'foto' => $user['foto'],
             'rol' => $user['rol'],
+            'nodo_id' => $user['nodo_id'] ?? null,
+            'linea_id' => $user['linea_id'] ?? null,
         ];
     }
 

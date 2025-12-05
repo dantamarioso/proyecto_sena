@@ -151,7 +151,40 @@ class UsuariosController extends Controller
             ========================== */
             $fotoRuta = null;
 
-            if (!empty($_FILES['foto']['name'])) {
+            // Opción 1: Foto desde editor (base64 en foto_data)
+            if (!empty($_POST['foto_data'])) {
+                try {
+                    // Decodificar base64
+                    $fotoData = $_POST['foto_data'];
+
+                    // Validar que sea un data URL válido
+                    if (strpos($fotoData, 'data:image/png;base64,') === 0) {
+                        // Remover el prefijo
+                        $fotoData = str_replace('data:image/png;base64,', '', $fotoData);
+                        $fotoData = base64_decode($fotoData);
+
+                        if ($fotoData !== false) {
+                            // Crear directorio si no existe
+                            if (!is_dir(__DIR__ . '/../../public/uploads/fotos')) {
+                                mkdir(__DIR__ . '/../../public/uploads/fotos', 0755, true);
+                            }
+
+                            // Generar nombre único
+                            $nombreFoto = 'uploads/fotos/' . uniqid('foto_') . '.png';
+                            $rutaSistema = __DIR__ . '/../../public/' . $nombreFoto;
+
+                            // Guardar archivo
+                            if (file_put_contents($rutaSistema, $fotoData)) {
+                                $fotoRuta = $nombreFoto;
+                            }
+                        }
+                    }
+                } catch (Exception $e) {
+                    $errores[] = 'Error al procesar la foto: ' . $e->getMessage();
+                }
+            }
+            // Opción 2: Foto desde input file tradicional
+            elseif (!empty($_FILES['foto']['name'])) {
                 $ext = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
                 $permitidas = ['jpg', 'jpeg', 'png'];
 
@@ -288,7 +321,40 @@ class UsuariosController extends Controller
             =========================== */
             $fotoRuta = null;
 
-            if (!empty($_FILES['foto']['name'])) {
+            // Opción 1: Foto desde editor (base64 en foto_data)
+            if (!empty($_POST['foto_data'])) {
+                try {
+                    // Decodificar base64
+                    $fotoData = $_POST['foto_data'];
+
+                    // Validar que sea un data URL válido
+                    if (strpos($fotoData, 'data:image/png;base64,') === 0) {
+                        // Remover el prefijo
+                        $fotoData = str_replace('data:image/png;base64,', '', $fotoData);
+                        $fotoData = base64_decode($fotoData);
+
+                        if ($fotoData !== false) {
+                            // Crear directorio si no existe
+                            if (!is_dir(__DIR__ . '/../../public/uploads/fotos')) {
+                                mkdir(__DIR__ . '/../../public/uploads/fotos', 0755, true);
+                            }
+
+                            // Generar nombre único
+                            $nombreFoto = 'uploads/fotos/' . uniqid('foto_') . '.png';
+                            $fotoRutaSistema = __DIR__ . '/../../public/' . $nombreFoto;
+
+                            // Guardar archivo
+                            if (file_put_contents($fotoRutaSistema, $fotoData)) {
+                                $fotoRuta = $nombreFoto;
+                            }
+                        }
+                    }
+                } catch (Exception $e) {
+                    $errores[] = 'Error al procesar la foto: ' . $e->getMessage();
+                }
+            }
+            // Opción 2: Foto desde input file tradicional
+            elseif (!empty($_FILES['foto']['name'])) {
                 $ext = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
                 $permitidas = ['jpg', 'jpeg', 'png'];
 
@@ -586,6 +652,22 @@ class UsuariosController extends Controller
                 $cambios,
                 $_SESSION['user']['id']
             );
+
+            // Si es el usuario actual logueado, actualizar su sesión
+            if ($_SESSION['user']['id'] == $usuario_id) {
+                $usuarioActualizado = $userModel->findById($usuario_id);
+                $_SESSION['user'] = [
+                    'id' => $usuarioActualizado['id'],
+                    'nombre' => $usuarioActualizado['nombre'],
+                    'usuario' => $usuarioActualizado['nombre_usuario'],
+                    'correo' => $usuarioActualizado['correo'],
+                    'cargo' => $usuarioActualizado['cargo'],
+                    'foto' => $usuarioActualizado['foto'],
+                    'rol' => $usuarioActualizado['rol'],
+                    'nodo_id' => $usuarioActualizado['nodo_id'] ?? null,
+                    'linea_id' => $usuarioActualizado['linea_id'] ?? null,
+                ];
+            }
 
             echo json_encode(['success' => true, 'message' => 'Rol, nodo y línea asignados correctamente']);
         } else {

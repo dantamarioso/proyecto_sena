@@ -13,20 +13,21 @@ if (!isset($_SESSION['user'])) {
                 <!-- Foto de perfil grande -->
                 <div style="position: relative; width: 150px; height: 150px; margin: 0 auto 20px;">
                     <img id="fotoPerfil"
-                         src="<?= !empty($usuario['foto']) ? BASE_URL . '/' . htmlspecialchars($usuario['foto']) : BASE_URL . '/img/default_user.png' ?>"
-                         width="150" height="150"
-                         style="object-fit:cover; border-radius:50%; border:4px solid #00304D; cursor:pointer; display: block; box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);"
-                         title="Haz clic para cambiar la foto o ver a tamaño completo">
+                        src="<?= !empty($usuario['foto']) ? BASE_URL . '/' . htmlspecialchars($usuario['foto']) : BASE_URL . '/img/default_user.png' ?>"
+                        width="150" height="150"
+                        style="object-fit:cover; border-radius:50%; border:4px solid #00304D; cursor:pointer; display: block; box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);"
+                        title="Haz clic para cambiar la foto o ver a tamaño completo">
 
                     <!-- Overlay para cambiar foto -->
                     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; cursor: pointer;"
-                         id="fotoOverlay">
+                        id="fotoOverlay">
                         <i class="bi bi-pencil-fill" style="color: white; font-size: 1.5rem; margin-right: 5px;"></i>
                         <span style="color: white; font-size: 0.85rem; font-weight: 600;">Cambiar</span>
                     </div>
 
                     <!-- Input oculto para archivo -->
-                    <input type="file" id="inputFoto" accept="image/*" style="display: none;">
+                    <input type="file" id="inputFoto" data-editor="true" accept="image/*" style="display: none;">
+                    <input type="hidden" name="foto_data" id="foto_data">
                 </div>
 
                 <!-- Información del usuario -->
@@ -88,7 +89,7 @@ if (!isset($_SESSION['user'])) {
             </div>
             <div class="modal-body text-center">
                 <img id="previewFoto" src="" class="image-preview"
-                     style="display:none; cursor:zoom-in;" alt="Vista previa">
+                    style="display:none; cursor:zoom-in;" alt="Vista previa">
                 <p id="textoEspera" class="text-muted">Seleccionando archivo...</p>
             </div>
             <div class="modal-footer">

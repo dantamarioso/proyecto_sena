@@ -5,11 +5,11 @@
                 <h3 class="mb-3">Editar usuario</h3>
 
                 <?php if (!empty($errores)) :
-                    ?>
+                ?>
                     <div class="alert alert-danger">
                         <ul class="mb-0">
                             <?php foreach ($errores as $e) :
-                                ?>
+                            ?>
                                 <li><?= htmlspecialchars($e) ?></li>
                             <?php endforeach; ?>
                         </ul>
@@ -23,7 +23,7 @@
                     <div class="mb-3">
                         <label class="form-label">Nombre completo</label>
                         <input type="text" name="nombre" class="form-control"
-                               value="<?= htmlspecialchars($usuario['nombre']) ?>" required>
+                            value="<?= htmlspecialchars($usuario['nombre']) ?>" required>
                     </div>
 
                     <!-- Correo -->
@@ -31,7 +31,7 @@
                         <label class="form-label">Correo</label>
                         <div class="input-group">
                             <input type="email" name="correo" class="form-control"
-                                   value="<?= htmlspecialchars($usuario['correo']) ?>" required>
+                                value="<?= htmlspecialchars($usuario['correo']) ?>" required>
                             <span class="input-group-text" id="iconoCorreoCrear" style="cursor:default;">
                                 <i class="bi bi-question-circle"></i>
                             </span>
@@ -43,8 +43,8 @@
                     <div class="mb-3">
                         <label class="form-label">Nombre de usuario</label>
                         <div class="input-group">
-                            <input type="text" name="nombre_usuario" id="nombre_usuario_edit" class="form-control" 
-                                   value="<?= htmlspecialchars($usuario['nombre_usuario']) ?>" required>
+                            <input type="text" name="nombre_usuario" id="nombre_usuario_edit" class="form-control"
+                                value="<?= htmlspecialchars($usuario['nombre_usuario']) ?>" required>
                             <span class="input-group-text" id="iconoUsuarioEdit" style="cursor:default;">
                                 <i class="bi bi-question-circle"></i>
                             </span>
@@ -56,25 +56,25 @@
                     <div class="mb-3">
                         <label class="form-label">Celular</label>
                         <input type="text" name="celular" class="form-control"
-                               value="<?= htmlspecialchars($usuario['celular'] ?? '') ?>"
-                               placeholder="Ej: +57 123 456 7890">
+                            value="<?= htmlspecialchars($usuario['celular'] ?? '') ?>"
+                            placeholder="Ej: +57 123 456 7890">
                     </div>
 
                     <!-- Cargo -->
                     <div class="mb-3">
                         <label class="form-label">Cargo</label>
                         <input type="text" name="cargo" class="form-control"
-                               value="<?= htmlspecialchars($usuario['cargo'] ?? '') ?>"
-                               placeholder="Ej: Gerente">
+                            value="<?= htmlspecialchars($usuario['cargo'] ?? '') ?>"
+                            placeholder="Ej: Gerente">
                     </div>
 
                     <!-- Rol -->
                     <div class="mb-3">
                         <label class="form-label">Rol</label>
                         <select name="rol" id="select-rol-edit" class="form-select">
-                            <option value="admin"       <?= ($usuario['rol'] ?? '') === 'admin' ? 'selected' : '' ?>>Admin</option>
+                            <option value="admin" <?= ($usuario['rol'] ?? '') === 'admin' ? 'selected' : '' ?>>Admin</option>
                             <option value="dinamizador" <?= ($usuario['rol'] ?? '') === 'dinamizador' ? 'selected' : '' ?>>Dinamizador</option>
-                            <option value="usuario"     <?= ($usuario['rol'] ?? '') === 'usuario' ? 'selected' : '' ?>>Usuario</option>                        
+                            <option value="usuario" <?= ($usuario['rol'] ?? '') === 'usuario' ? 'selected' : '' ?>>Usuario</option>
                         </select>
                     </div>
 
@@ -84,7 +84,7 @@
                         <select name="nodo_id" id="select-nodo-edit" class="form-select">
                             <option value="">-- Selecciona un nodo --</option>
                             <?php foreach ($nodos as $nodo) :
-                                ?>
+                            ?>
                                 <option value="<?= $nodo['id'] ?>" <?= ($usuario['nodo_id'] ?? '') == $nodo['id'] ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($nodo['nombre']) ?> (<?= htmlspecialchars($nodo['ciudad']) ?>)
                                 </option>
@@ -103,17 +103,16 @@
 
                     <!-- Foto -->
                     <div class="mb-3">
-                        <label class="form-label">Foto de perfil</label>
+                        <label class="form-label">Foto</label>
                         <input type="file" name="foto" id="foto_editar" class="form-control" accept="image/*">
-                        <small class="text-muted">Formatos permitidos: JPG, PNG — Máximo 2MB.</small>
+                        <input type="hidden" name="foto_data" id="foto_data">
 
-                        <!-- PREVIEW ACTUAL O NUEVA -->
-                        <div class="mt-3" id="previewContainerEditar" style="<?= !empty($usuario['foto']) ? '' : 'display:none;' ?>">
-                            <label class="form-label">Foto actual/nueva</label>
+                        <!-- PREVIEW -->
+                        <div class="image-preview-container" id="previewContainerEditar" style="<?= !empty($usuario['foto']) ? '' : 'display:none;' ?>">
                             <img id="preview_editar"
-                                 src="<?= !empty($usuario['foto']) ? BASE_URL . '/' . htmlspecialchars($usuario['foto']) : BASE_URL . '/img/default_user.png' ?>"
-                                 width="80" height="80"
-                                 style="object-fit:cover;border-radius:50%;border:3px solid #00304D;display:block;">
+                                src="<?= !empty($usuario['foto']) ? BASE_URL . '/' . htmlspecialchars($usuario['foto']) : BASE_URL . '/img/default_user.png' ?>"
+                                class="image-preview"
+                                alt="Foto de perfil">
                         </div>
                     </div>
 
@@ -122,7 +121,7 @@
                         <label class="form-label">Nueva contraseña (opcional)</label>
                         <div class="input-group">
                             <input type="password" id="password_edit" name="password" class="form-control"
-                                   placeholder="Dejar vacío para mantener la actual">
+                                placeholder="Dejar vacío para mantener la actual">
                             <span class="input-group-text" id="togglePasswordEdit" style="cursor:pointer;">
                                 <i class="bi bi-eye-fill"></i>
                             </span>
@@ -180,7 +179,7 @@
         nodoSelect.addEventListener('change', function() {
             const nodoId = this.value;
             lineaSelect.innerHTML = '<option value="">-- Selecciona una línea --</option>';
-            
+
             if (nodoId) {
                 const nodo = nodosData.find(n => n.id == nodoId);
                 if (nodo && nodo.lineas) {
@@ -197,7 +196,7 @@
         // Mostrar/ocultar campos según el rol
         function actualizarCamposSegunRol() {
             const rol = rolSelect.value;
-            
+
             if (rol === 'admin') {
                 // Admin no necesita nodo
                 divNodo.style.display = 'none';
@@ -232,11 +231,10 @@
 
         // Inicializar en carga
         actualizarCamposSegunRol();
-        
+
         // Si hay nodo seleccionado, cargar sus líneas
         if (nodoSelect.value) {
             nodoSelect.dispatchEvent(new Event('change'));
         }
     });
 </script>
-

@@ -9,11 +9,14 @@ if (!isset($_SESSION['user'])) {
     tbody tr:only-child td {
         display: table-cell !important;
     }
-    
+
     @keyframes pulse {
-        0%, 100% {
+
+        0%,
+        100% {
             box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
         }
+
         50% {
             box-shadow: 0 0 0 8px rgba(255, 193, 7, 0);
         }
@@ -70,154 +73,164 @@ if (!isset($_SESSION['user'])) {
             <div class="table-responsive">
                 <table class="table table-striped align-middle mb-0">
                     <thead>
-                    <tr>
-                        <th style="width: 40px;">#</th>
-                        <th style="width: 50px;">Foto</th>
-                        <th>Nombre</th>
-                        <th style="min-width: 180px;">Correo</th>
-                        <th style="min-width: 120px;">Usuario</th>
-                        <th style="min-width: 100px;">Rol</th>
-                        <th style="min-width: 100px;">Nodo</th>
-                        <th style="min-width: 100px;">Línea</th>
-                        <th style="width: 80px;">Estado</th>
-                        <th style="width: 120px;" class="text-center">Acciones</th>
-                    </tr>
+                        <tr>
+                            <th style="width: 40px;">#</th>
+                            <th style="width: 50px;">Foto</th>
+                            <th>Nombre</th>
+                            <th style="min-width: 180px;">Correo</th>
+                            <th style="min-width: 120px;">Usuario</th>
+                            <th style="min-width: 100px;">Rol</th>
+                            <th style="min-width: 100px;">Nodo</th>
+                            <th style="min-width: 100px;">Línea</th>
+                            <th style="width: 80px;">Estado</th>
+                            <th style="width: 120px;" class="text-center">Acciones</th>
+                        </tr>
                     </thead>
                     <tbody id="usuarios-body">
-                    <?php foreach ($usuarios as $u) : ?>
-                        <tr data-user-id="<?= $u['id'] ?>">
-                            <td><?= $u['id'] ?></td>
-                            <td>
-                                <?php if ($u['foto']) : ?>
-                                    <img src="<?= BASE_URL . '/' . htmlspecialchars($u['foto']) ?>"
-                                         width="40" height="40" class="rounded-circle" style="object-fit:cover;">
-                                <?php else : ?>
-                                    <img src="<?= BASE_URL ?>/img/default_user.png"
-                                         width="40" height="40" class="rounded-circle" style="object-fit:cover;" alt="Usuario sin foto">
-                                <?php endif; ?>
-                            </td>
-                            <td><strong><?= htmlspecialchars($u['nombre']) ?></strong></td>
-                            <td><small><?= htmlspecialchars($u['correo']) ?></small></td>
-                            <td><small><?= htmlspecialchars($u['nombre_usuario']) ?></small></td>
-                            <td><span class="badge bg-info"><?= htmlspecialchars($u['rol'] ?? 'usuario') ?></span></td>
-                            <td>
-                                <?php if ($u['rol'] !== 'admin') : ?>
-                                    <?php
-                                    if ($u['nodo_id']) :
-                                        $nodo_nombre = '';
-                                        foreach ($nodos as $n) {
-                                            if ($n['id'] == $u['nodo_id']) {
-                                                $nodo_nombre = $n['nombre'];
-                                                break;
+                        <?php foreach ($usuarios as $u) : ?>
+                            <tr data-user-id="<?= $u['id'] ?>">
+                                <td><?= $u['id'] ?></td>
+                                <td>
+                                    <?php if ($u['foto']) : ?>
+                                        <img src="<?= BASE_URL . '/' . htmlspecialchars($u['foto']) ?>"
+                                            width="40" height="40" class="rounded-circle" style="object-fit:cover;">
+                                    <?php else : ?>
+                                        <img src="<?= BASE_URL ?>/img/default_user.png"
+                                            width="40" height="40" class="rounded-circle" style="object-fit:cover;" alt="Usuario sin foto">
+                                    <?php endif; ?>
+                                </td>
+                                <td><strong><?= htmlspecialchars($u['nombre']) ?></strong></td>
+                                <td><small><?= htmlspecialchars($u['correo']) ?></small></td>
+                                <td><small><?= htmlspecialchars($u['nombre_usuario']) ?></small></td>
+                                <td><span class="badge bg-info"><?= htmlspecialchars($u['rol'] ?? 'usuario') ?></span></td>
+                                <td>
+                                    <?php if ($u['rol'] !== 'admin') : ?>
+                                        <?php
+                                        if ($u['nodo_id']) :
+                                            $nodo_nombre = '';
+                                            foreach ($nodos as $n) {
+                                                if ($n['id'] == $u['nodo_id']) {
+                                                    $nodo_nombre = $n['nombre'];
+                                                    break;
+                                                }
                                             }
-                                        }
-                                        echo $nodo_nombre ? '<span class="badge bg-secondary">' . htmlspecialchars($nodo_nombre) . '</span>' : '<span class="text-muted small">—</span>';
-                                    else :
-                                        echo '<span class="text-muted small">—</span>';
-                                    endif;
-                                    ?>
-                                <?php else : ?>
-                                    <span class="text-muted small">—</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ($u['rol'] === 'usuario') : ?>
-                                    <?php
-                                    if ($u['linea_id']) :
-                                        $linea_nombre = '';
-                                        foreach ($nodos as $n) {
-                                            if (isset($n['lineas']) && is_array($n['lineas'])) {
-                                                foreach ($n['lineas'] as $l) {
-                                                    if ($l['id'] == $u['linea_id']) {
-                                                        $linea_nombre = $l['nombre'];
-                                                        break 2;
+                                            echo $nodo_nombre ? '<span class="badge bg-secondary">' . htmlspecialchars($nodo_nombre) . '</span>' : '<span class="text-muted small">—</span>';
+                                        else :
+                                            echo '<span class="text-muted small">—</span>';
+                                        endif;
+                                        ?>
+                                    <?php else : ?>
+                                        <span class="text-muted small">—</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($u['rol'] === 'usuario') : ?>
+                                        <?php
+                                        if ($u['linea_id']) :
+                                            $linea_nombre = '';
+                                            foreach ($nodos as $n) {
+                                                if (isset($n['lineas']) && is_array($n['lineas'])) {
+                                                    foreach ($n['lineas'] as $l) {
+                                                        if ($l['id'] == $u['linea_id']) {
+                                                            $linea_nombre = $l['nombre'];
+                                                            break 2;
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                        echo $linea_nombre ? '<span class="badge bg-warning">' . htmlspecialchars($linea_nombre) . '</span>' : '<span class="text-muted small">—</span>';
-                                    else :
-                                        echo '<span class="text-muted small">—</span>';
-                                    endif;
+                                            echo $linea_nombre ? '<span class="badge bg-warning">' . htmlspecialchars($linea_nombre) . '</span>' : '<span class="text-muted small">—</span>';
+                                        else :
+                                            echo '<span class="text-muted small">—</span>';
+                                        endif;
+                                        ?>
+                                    <?php else : ?>
+                                        <span class="text-muted small">—</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($u['estado'] == 1) : ?>
+                                        <span class="badge bg-success">Activo</span>
+                                    <?php else : ?>
+                                        <span class="badge bg-danger">Bloqueado</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-center">
+                                    <?php
+                                    // Detectar si el usuario está pendiente (sin asignación completa según su rol)
+                                    $isPending = false;
+                                    if ($u['rol'] === 'admin' || $u['rol'] === 'invitado') {
+                                        // Admin e invitado no necesitan nodo ni línea
+                                        $isPending = false;
+                                    } elseif ($u['rol'] === 'dinamizador') {
+                                        // Dinamizador solo necesita nodo
+                                        $isPending = empty($u['nodo_id']);
+                                    } elseif ($u['rol'] === 'usuario') {
+                                        // Usuario necesita nodo y línea
+                                        $isPending = empty($u['nodo_id']) || empty($u['linea_id']);
+                                    }
                                     ?>
-                                <?php else : ?>
-                                    <span class="text-muted small">—</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ($u['estado'] == 1) : ?>
-                                    <span class="badge bg-success">Activo</span>
-                                <?php else : ?>
-                                    <span class="badge bg-danger">Bloqueado</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="text-center">
-                                <?php
-                                // Detectar si el usuario está pendiente (sin nodo o línea asignada)
-                                $isPending = (empty($u['nodo_id']) || empty($u['linea_id'])) && $u['rol'] !== 'admin';
-                                ?>
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <a href="<?= BASE_URL ?>/usuarios/detalles?id=<?= $u['id'] ?>" 
-                                       class="btn btn-info" title="Ver detalles">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a href="<?= BASE_URL ?>/usuarios/editar?id=<?= $u['id'] ?>" 
-                                       class="btn btn-primary" title="Editar">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <?php if ($isPending) : ?>
-                                        <button class="btn btn-asignar-nodo" 
-                                                data-id="<?= $u['id'] ?>" 
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="<?= BASE_URL ?>/usuarios/detalles?id=<?= $u['id'] ?>"
+                                            class="btn btn-info" title="Ver detalles">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="<?= BASE_URL ?>/usuarios/editar?id=<?= $u['id'] ?>"
+                                            class="btn btn-primary" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <?php if ($isPending) : ?>
+                                            <button class="btn btn-asignar-nodo"
+                                                data-id="<?= $u['id'] ?>"
                                                 data-nombre="<?= htmlspecialchars($u['nombre']) ?>"
                                                 data-rol="<?= $u['rol'] ?>"
                                                 data-nodo="<?= $u['nodo_id'] ?? '' ?>"
                                                 data-linea="<?= $u['linea_id'] ?? '' ?>"
                                                 title="Asignar rol, nodo y línea"
                                                 style="background-color: #ff9800; border-color: #ff9800; color: white; animation: pulse 2s infinite;">
-                                            <i class="bi bi-exclamation-triangle-fill"></i>
-                                        </button>
-                                    <?php else : ?>
-                                        <button class="btn btn-secondary btn-asignar-nodo" 
-                                                data-id="<?= $u['id'] ?>" 
+                                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                            </button>
+                                        <?php else : ?>
+                                            <button class="btn btn-secondary btn-asignar-nodo"
+                                                data-id="<?= $u['id'] ?>"
                                                 data-nombre="<?= htmlspecialchars($u['nombre']) ?>"
                                                 data-rol="<?= $u['rol'] ?>"
                                                 data-nodo="<?= $u['nodo_id'] ?? '' ?>"
                                                 data-linea="<?= $u['linea_id'] ?? '' ?>"
                                                 title="Reasignar nodo/línea">
-                                            <i class="bi bi-map"></i>
-                                        </button>
-                                    <?php endif; ?>
-                                    
-                                    <?php if ($u['estado'] == 1) : ?>
-                                        <form class="d-inline" method="post"
-                                              action="<?= BASE_URL ?>/usuarios/bloquear">
-                                            <input type="hidden" name="id" value="<?= $u['id'] ?>">
-                                            <button class="btn btn-warning" type="submit" title="Bloquear">
-                                                <i class="bi bi-ban"></i>
+                                                <i class="bi bi-map"></i>
                                             </button>
-                                        </form>
-                                    <?php else : ?>
-                                        <form class="d-inline" method="post"
-                                              action="<?= BASE_URL ?>/usuarios/desbloquear">
-                                            <input type="hidden" name="id" value="<?= $u['id'] ?>">
-                                            <button class="btn btn-success" type="submit" title="Desbloquear">
-                                                <i class="bi bi-unlock"></i>
-                                            </button>
-                                        </form>
-                                    <?php endif; ?>
-                                    <button class="btn btn-danger btn-eliminar" data-id="<?= $u['id'] ?>" data-nombre="<?= htmlspecialchars($u['nombre']) ?>" title="Eliminar">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
+                                        <?php endif; ?>
 
-                    <?php if (empty($usuarios)) : ?>
-                        <tr>
-                            <td colspan="10" class="text-center text-muted py-3">No hay usuarios registrados.</td>
-                        </tr>
-                    <?php endif; ?>
+                                        <?php if ($u['estado'] == 1) : ?>
+                                            <form class="d-inline" method="post"
+                                                action="<?= BASE_URL ?>/usuarios/bloquear">
+                                                <input type="hidden" name="id" value="<?= $u['id'] ?>">
+                                                <button class="btn btn-warning" type="submit" title="Bloquear">
+                                                    <i class="bi bi-ban"></i>
+                                                </button>
+                                            </form>
+                                        <?php else : ?>
+                                            <form class="d-inline" method="post"
+                                                action="<?= BASE_URL ?>/usuarios/desbloquear">
+                                                <input type="hidden" name="id" value="<?= $u['id'] ?>">
+                                                <button class="btn btn-success" type="submit" title="Desbloquear">
+                                                    <i class="bi bi-unlock"></i>
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
+                                        <button class="btn btn-danger btn-eliminar" data-id="<?= $u['id'] ?>" data-nombre="<?= htmlspecialchars($u['nombre']) ?>" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+
+                        <?php if (empty($usuarios)) : ?>
+                            <tr>
+                                <td colspan="10" class="text-center text-muted py-3">No hay usuarios registrados.</td>
+                            </tr>
+                        <?php endif; ?>
 
                     </tbody>
                 </table>
@@ -249,7 +262,7 @@ if (!isset($_SESSION['user'])) {
             <form id="formAsignarNodo">
                 <div class="modal-body">
                     <input type="hidden" id="usuario-id">
-                    
+
                     <div class="mb-3">
                         <label class="form-label"><strong id="usuario-nombre"></strong></label>
                     </div>
@@ -301,7 +314,7 @@ if (!isset($_SESSION['user'])) {
         const divLinea = document.getElementById('div-linea');
         const divNodo = document.getElementById('div-nodo-modal');
         const formAsignar = document.getElementById('formAsignarNodo');
-        
+
         // Datos de nodos y líneas
         const nodosData = <?= json_encode($nodos) ?>;
 
@@ -309,7 +322,7 @@ if (!isset($_SESSION['user'])) {
         nodoSelect.addEventListener('change', function() {
             const nodoId = this.value;
             lineaSelect.innerHTML = '<option value="">-- Selecciona una línea --</option>';
-            
+
             if (nodoId) {
                 const nodo = nodosData.find(n => n.id == nodoId);
                 if (nodo && nodo.lineas) {
@@ -372,10 +385,10 @@ if (!isset($_SESSION['user'])) {
 
                     document.getElementById('usuario-id').value = usuarioId;
                     document.getElementById('usuario-nombre').textContent = usuarioNombre;
-                    
+
                     // Cargar rol actual
                     rolSelect.value = usuarioRol || 'usuario';
-                    
+
                     // Actualizar campos visibles según rol
                     actualizarCamposSegunRol(usuarioRol || 'usuario');
 
@@ -397,14 +410,14 @@ if (!isset($_SESSION['user'])) {
                 }
             });
         }
-        
+
         // Configurar eventos de asignación
         configurarEventosAsignacion();
 
         // Manejar submit del formulario
         formAsignar.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const usuarioId = document.getElementById('usuario-id').value;
             const rol = rolSelect.value;
             const nodoId = nodoSelect.value || null;
@@ -428,80 +441,86 @@ if (!isset($_SESSION['user'])) {
 
             // Enviar datos al servidor
             fetch('<?= BASE_URL ?>/usuarios/asignarNodo', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'usuario_id=' + usuarioId + '&rol=' + rol + '&nodo_id=' + (nodoId || '') + '&linea_id=' + (lineaId || '')
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Nodo/Línea asignado correctamente');
-                    modal.hide();
-                    location.reload();
-                } else {
-                    alert('Error: ' + (data.message || 'Error desconocido'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al asignar nodo/línea');
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'usuario_id=' + usuarioId + '&rol=' + rol + '&nodo_id=' + (nodoId || '') + '&linea_id=' + (lineaId || '')
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Nodo/Línea asignado correctamente');
+                        modal.hide();
+                        location.reload();
+                    } else {
+                        alert('Error: ' + (data.message || 'Error desconocido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al asignar nodo/línea');
+                });
         });
     });
 </script>
 
 <!-- Script separado para manejar parámetros URL (fuera de DOMContentLoaded) -->
 <script>
-// Ejecutar después de que TODO esté cargado
-window.addEventListener('load', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const assignUserId = urlParams.get('assign_user_id');
-    const userId = urlParams.get('user_id');
-    
-    // Asignación rápida desde notificaciones
-    if (assignUserId) {
-        setTimeout(() => {
-            const assignButtons = document.querySelectorAll('.btn-asignar-nodo');
-            
-            let assignButton = null;
-            assignButtons.forEach(btn => {
-                const btnId = btn.getAttribute('data-id');
-                if (btnId == assignUserId) {
-                    assignButton = btn;
-                }
-            });
-            
-            if (assignButton) {
-                const row = assignButton.closest('tr');
-                if (row) {
-                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    row.style.backgroundColor = '#fff3cd';
-                    setTimeout(() => row.style.backgroundColor = '', 3000);
-                }
-                
-                setTimeout(() => {
-                    assignButton.click();
+    // Ejecutar después de que TODO esté cargado
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const assignUserId = urlParams.get('assign_user_id');
+        const userId = urlParams.get('user_id');
+
+        // Asignación rápida desde notificaciones
+        if (assignUserId) {
+            setTimeout(() => {
+                const assignButtons = document.querySelectorAll('.btn-asignar-nodo');
+
+                let assignButton = null;
+                assignButtons.forEach(btn => {
+                    const btnId = btn.getAttribute('data-id');
+                    if (btnId == assignUserId) {
+                        assignButton = btn;
+                    }
+                });
+
+                if (assignButton) {
+                    const row = assignButton.closest('tr');
+                    if (row) {
+                        row.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                        row.style.backgroundColor = '#fff3cd';
+                        setTimeout(() => row.style.backgroundColor = '', 3000);
+                    }
+
                     setTimeout(() => {
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                    }, 1000);
-                }, 500);
-            }
-        }, 800);
-    }
-    
-    // Edición de usuario existente
-    if (userId) {
-        setTimeout(() => {
-            const userRow = document.querySelector(`tr[data-user-id="${userId}"]`);
-            if (userRow) {
-                userRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                userRow.style.backgroundColor = '#fff3cd';
-                setTimeout(() => userRow.style.backgroundColor = '', 2000);
-            }
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }, 500);
-    }
-});
+                        assignButton.click();
+                        setTimeout(() => {
+                            window.history.replaceState({}, document.title, window.location.pathname);
+                        }, 1000);
+                    }, 500);
+                }
+            }, 800);
+        }
+
+        // Edición de usuario existente
+        if (userId) {
+            setTimeout(() => {
+                const userRow = document.querySelector(`tr[data-user-id="${userId}"]`);
+                if (userRow) {
+                    userRow.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    userRow.style.backgroundColor = '#fff3cd';
+                    setTimeout(() => userRow.style.backgroundColor = '', 2000);
+                }
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }, 500);
+        }
+    });
 </script>
