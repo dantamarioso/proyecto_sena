@@ -46,7 +46,13 @@ if (!isset($_SESSION['user'])) {
                                         <?= formatearBytes($archivo['tamaño']) ?> • <?= date('d/m/Y H:i', strtotime($archivo['fecha_creacion'])) ?>
                                     </small>
                                 </div>
-                                <a href="/<?= $archivo['nombre_archivo'] ?>" class="btn btn-sm btn-outline-primary" target="_blank" title="Descargar">
+                                <?php
+                                $rutaArchivo = $archivo['ruta'] ?? null;
+                                if (!$rutaArchivo) {
+                                    $rutaArchivo = 'uploads/materiales/' . ($archivo['nombre_archivo'] ?? '');
+                                }
+                                ?>
+                                <a href="/<?= htmlspecialchars($rutaArchivo) ?>" class="btn btn-sm btn-outline-primary" target="_blank" title="Descargar">
                                     <i class="bi bi-download"></i>
                                 </a>
                             </div>
@@ -56,8 +62,8 @@ if (!isset($_SESSION['user'])) {
             </div>
 
 
-        <a href="<?= BASE_URL ?>/usuarios/gestionDeUsuarios" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Volver al panel
-        </a>
+            <a href="<?= BASE_URL ?>/usuarios/gestionDeUsuarios" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver al panel
+            </a>
+        </div>
     </div>
-</div>

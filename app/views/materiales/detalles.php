@@ -159,13 +159,19 @@ $archivos = $archivoModel->getByMaterial($materialId);
                                         <?= htmlspecialchars($archivo['nombre_original']) ?>
                                     </div>
                                     <small class="text-muted">
-                                        <?= formatearBytes($archivo['tamano'] ?? $archivo['tamaño'] ?? 0) ?> • 
+                                        <?= formatearBytes($archivo['tamano'] ?? $archivo['tamaño'] ?? 0) ?> •
                                         <?= date('d/m/Y H:i', strtotime($archivo['fecha_creacion'])) ?> •
                                         Por: <strong><?= htmlspecialchars($archivo['usuario_nombre'] ?? $archivo['usuario_correo'] ?? 'N/A') ?></strong>
                                     </small>
                                 </div>
                                 <div class="btn-group" role="group">
-                                    <a href="<?= BASE_URL ?>/<?= $archivo['nombre_archivo'] ?>" class="btn btn-sm btn-outline-primary" target="_blank" title="Descargar">
+                                    <?php
+                                    $rutaArchivo = $archivo['ruta'] ?? null;
+                                    if (!$rutaArchivo) {
+                                        $rutaArchivo = 'uploads/materiales/' . ($archivo['nombre_archivo'] ?? '');
+                                    }
+                                    ?>
+                                    <a href="<?= BASE_URL ?>/<?= htmlspecialchars($rutaArchivo) ?>" class="btn btn-sm btn-outline-primary" target="_blank" title="Descargar">
                                         <i class="bi bi-download"></i> Descargar
                                     </a>
                                 </div>

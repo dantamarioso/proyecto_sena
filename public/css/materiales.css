@@ -348,13 +348,39 @@ code {
 
 /* --- RESPONSIVE --- */
 @media (max-width: 768px) {
+    /* Hacer tabla más compacta en mobile */
+    .table-responsive {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        border-radius: 8px;
+    }
+    
+    .table {
+        min-width: 700px; /* Evitar que se comprima demasiado */
+        margin-bottom: 0;
+    }
+    
     .table thead th {
-        padding: 12px;
-        font-size: 11px;
+        padding: 10px 8px;
+        font-size: 10px;
+        white-space: nowrap;
     }
 
     .table td {
-        padding: 12px;
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+    
+    /* Reducir badges en mobile */
+    .badge {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+    
+    /* Reducir código en mobile */
+    code {
+        font-size: 0.8em;
+        padding: 2px 4px;
     }
 
     .btn {
@@ -373,22 +399,40 @@ code {
 }
 
 @media (max-width: 576px) {
+    /* Tabla aún más compacta en pantallas muy pequeñas */
+    .table {
+        min-width: 650px; /* Reducir un poco más pero mantener legible */
+    }
+    
     .table thead th {
-        padding: 10px 8px;
-        font-size: 10px;
+        padding: 8px 6px;
+        font-size: 9px;
     }
 
     .table td {
-        padding: 10px 8px;
+        padding: 8px 6px;
+        font-size: 12px;
+    }
+    
+    /* Badges más pequeños */
+    .badge {
+        padding: 3px 6px;
+        font-size: 9px;
+    }
+    
+    /* Código más pequeño */
+    code {
+        font-size: 0.75em;
+        padding: 1px 3px;
     }
 
     .btn {
-        padding: 5px 8px;
+        padding: 4px 8px;
         font-size: 11px;
     }
 
     .btn-group {
-        gap: 2px;
+        gap: 1px;
     }
 
     .btn-group .btn {
@@ -398,6 +442,7 @@ code {
 
     .btn i {
         margin: 0;
+        font-size: 12px;
     }
 
     .card-body {
@@ -408,5 +453,10 @@ code {
     .form-select {
         padding: 8px 10px;
         font-size: 14px;
+    }
+    
+    /* Mejorar card header */
+    .d-flex.gap-2 {
+        gap: 0.5rem !important;
     }
 }

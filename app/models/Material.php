@@ -121,20 +121,20 @@ class Material extends Model
 
         if (
             $stmt->execute([
-            ':codigo' => $data['codigo'],
-            ':nodo_id' => !empty($data['nodo_id']) ? intval($data['nodo_id']) : null,
-            ':linea_id' => !empty($data['linea_id']) ? intval($data['linea_id']) : null,
-            ':nombre' => $data['nombre'],
-            ':fecha_adquisicion' => !empty($data['fecha_adquisicion']) ? $data['fecha_adquisicion'] : null,
-            ':categoria' => $data['categoria'] ?? null,
-            ':presentacion' => $data['presentacion'] ?? null,
-            ':medida' => $data['medida'] ?? null,
-            ':cantidad' => intval($data['cantidad'] ?? 0),
-            ':valor_compra' => !empty($data['valor_compra']) ? floatval($data['valor_compra']) : null,
-            ':proveedor' => $data['proveedor'] ?? null,
-            ':marca' => $data['marca'] ?? null,
-            ':descripcion' => $data['descripcion'] ?? null,
-            ':estado' => $data['estado'] ?? 1,
+                ':codigo' => $data['codigo'],
+                ':nodo_id' => !empty($data['nodo_id']) ? intval($data['nodo_id']) : null,
+                ':linea_id' => !empty($data['linea_id']) ? intval($data['linea_id']) : null,
+                ':nombre' => $data['nombre'],
+                ':fecha_adquisicion' => !empty($data['fecha_adquisicion']) ? $data['fecha_adquisicion'] : null,
+                ':categoria' => $data['categoria'] ?? null,
+                ':presentacion' => $data['presentacion'] ?? null,
+                ':medida' => $data['medida'] ?? null,
+                ':cantidad' => intval($data['cantidad'] ?? 0),
+                ':valor_compra' => !empty($data['valor_compra']) ? floatval($data['valor_compra']) : null,
+                ':proveedor' => $data['proveedor'] ?? null,
+                ':marca' => $data['marca'] ?? null,
+                ':descripcion' => $data['descripcion'] ?? null,
+                ':estado' => $data['estado'] ?? 1,
             ])
         ) {
             return $this->db->lastInsertId();
@@ -399,7 +399,7 @@ class Material extends Model
     }
 
     /**
-     * Buscar material por código SAP.
+     * Buscar material por código.
      */
     public function findByCodigoSAP($codigoSAP)
     {
@@ -414,6 +414,28 @@ class Material extends Model
             LIMIT 1
         ');
         $stmt->execute([':codigo' => $codigoSAP]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /** Buscar material por código + nodo + línea (para permitir mismo código en distintos nodos/líneas). */
+    public function findByCodigoNodoLinea($codigo, $nodoId, $lineaId)
+    {
+        $stmt = $this->db->prepare('
+            SELECT m.*, 
+                   l.nombre as linea_nombre,
+                   n.nombre as nodo_nombre
+            FROM materiales m 
+            LEFT JOIN lineas l ON m.linea_id = l.id 
+            LEFT JOIN nodos n ON m.nodo_id = n.id
+            WHERE m.codigo = :codigo AND m.nodo_id = :nodo_id AND m.linea_id = :linea_id
+            LIMIT 1
+        ');
+        $stmt->execute([
+            ':codigo' => $codigo,
+            ':nodo_id' => $nodoId,
+            ':linea_id' => $lineaId,
+        ]);
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

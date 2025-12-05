@@ -36,17 +36,60 @@ class MaterialesArchivosController extends Controller
         $this->requireAuth();
 
         try {
-            if (!isset($_FILES['archivo']) || !isset($_POST['material_id'])) {
+            $materialId = null;
+            $file = null;
+            $userId = $_SESSION['user']['id'];
+
+            // Intentar obtener datos de JSON (base64)
+            $jsonInput = json_decode(file_get_contents('php://input'), true);
+
+            if ($jsonInput && isset($jsonInput['material_id']) && isset($jsonInput['archivo_data'])) {
+                // Procesar JSON con base64
+                $materialId = (int)$jsonInput['material_id'];
+                $base64Data = $jsonInput['archivo_data'];
+                $fileName = $jsonInput['archivo_nombre'] ?? 'documento';
+                $fileSize = (int)($jsonInput['archivo_tamaño'] ?? 0);
+
+                // Decodificar base64
+                $fileContent = base64_decode($base64Data);
+                if ($fileContent === false) {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'message' => 'Datos base64 inválidos']);
+                    return;
+                }
+
+                // Crear archivo temporal
+                $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
+                if (file_put_contents($tempFile, $fileContent) === false) {
+                    http_response_code(500);
+                    echo json_encode(['success' => false, 'message' => 'Error al crear archivo temporal']);
+                    return;
+                }
+
+                // Estructura compatible con $_FILES
+                $file = [
+                    'name' => $fileName,
+                    'type' => $jsonInput['archivo_tipo'] ?? 'application/octet-stream',
+                    'tmp_name' => $tempFile,
+                    'error' => 0,
+                    'size' => $fileSize
+                ];
+            } elseif (isset($_FILES['archivo']) && isset($_POST['material_id'])) {
+                // Procesar multipart form
+                $materialId = (int)$_POST['material_id'];
+                $file = $_FILES['archivo'];
+            } else {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'message' => 'Datos incompletos']);
                 return;
             }
 
-            $materialId = (int)$_POST['material_id'];
-            $file = $_FILES['archivo'];
-            $userId = $_SESSION['user']['id'];
-
             $result = $this->fileService->uploadFile($materialId, $file, $userId);
+
+            // Limpiar archivo temporal si se creó
+            if (isset($tempFile) && file_exists($tempFile)) {
+                @unlink($tempFile);
+            }
 
             $statusCode = $result['success'] ? 200 : 400;
             http_response_code($statusCode);
@@ -136,7 +179,7 @@ class MaterialesArchivosController extends Controller
 
             echo json_encode([
                 'success' => true,
-                'cantidad' => $cantidad
+                'count' => $cantidad
             ]);
         } catch (Exception $e) {
             http_response_code(500);

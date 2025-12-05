@@ -9,13 +9,6 @@ require_once __DIR__ . '/../models/Material.php';
 require_once __DIR__ . '/../models/Audit.php';
 require_once __DIR__ . '/../helpers/PermissionHelper.php';
 
-use User;
-use Nodo;
-use Material;
-use Audit;
-use MaterialArchivo;
-use PermissionHelper;
-
 class UsuariosController extends Controller
 {
     /* =========================================================
@@ -919,7 +912,7 @@ class UsuariosController extends Controller
         header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
         header('Pragma: no-cache');
         header('Expires: 0');
-        
+
         $this->requireAdmin();
 
         $userModel = new User();

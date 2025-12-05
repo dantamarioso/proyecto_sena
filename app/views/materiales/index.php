@@ -9,6 +9,32 @@ if (!isset($_SESSION['user'])) {
     tbody tr:only-child td {
         display: table-cell !important;
     }
+
+    /* Responsive table adjustments */
+    @media (max-width: 576px) {
+        .table td {
+            padding: 0.5rem 0.25rem !important;
+            font-size: 0.875rem;
+        }
+
+        .table .btn-group {
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+
+        .table .btn-group .btn {
+            padding: 0.25rem 0.5rem;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+        }
+    }
+
+    /* Documentos siempre visible */
+    .table tbody td:nth-child(8) {
+        min-width: 60px;
+    }
 </style>
 
 <div class="row justify-content-center">
@@ -18,27 +44,27 @@ if (!isset($_SESSION['user'])) {
             <h3 class="mb-0">Gestión de Inventario</h3>
             <div class="d-flex gap-2 flex-wrap">
                 <?php
-                    $rol = $_SESSION['user']['rol'] ?? 'usuario';
-// Admin y dinamizador pueden crear
+                $rol = $_SESSION['user']['rol'] ?? 'usuario';
+                // Admin y dinamizador pueden crear
                 if (in_array($rol, ['admin', 'dinamizador'])) :
-                    ?>
+                ?>
                     <a href="<?= BASE_URL ?>/materiales/crear" class="btn btn-success btn-sm w-100 w-sm-auto">
                         <i class="bi bi-plus-lg"></i> Nuevo Material
                     </a>
                 <?php endif; ?>
-                
+
                 <!-- Importar CSV: Solo admin y dinamizador -->
                 <?php if (in_array($rol, ['admin', 'dinamizador'])) : ?>
                     <button type="button" class="btn btn-primary btn-sm w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#modalImportar">
                         <i class="bi bi-upload"></i> Importar CSV
                     </button>
                 <?php endif; ?>
-                
+
                 <!-- Exportar: Todos pueden -->
                 <button type="button" class="btn btn-success btn-sm w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#modalExportar">
                     <i class="bi bi-download"></i> Descargar
                 </button>
-                
+
                 <!-- Todos pueden ver historial -->
                 <a href="<?= BASE_URL ?>/materialeshistorial/index" class="btn btn-info btn-sm w-100 w-sm-auto">
                     <i class="bi bi-clock-history"></i> Historial
@@ -93,12 +119,12 @@ if (!isset($_SESSION['user'])) {
                             <th>Nombre</th>
                             <th class="d-none d-md-table-cell">Descripción</th>
                             <?php if (in_array($_SESSION['user']['rol'] ?? 'usuario', ['admin', 'dinamizador'])) : ?>
-                                <th>Nodo</th>
+                                <th class="d-none d-lg-table-cell">Nodo</th>
                             <?php endif; ?>
-                            <th>Línea</th>
+                            <th class="d-none d-md-table-cell">Línea</th>
                             <th class="text-center">Cantidad</th>
-                            <th class="d-none d-lg-table-cell">Documentos</th>
-                            <th>Estado</th>
+                            <th class="text-center">Documentos</th>
+                            <th class="d-none d-sm-table-cell">Estado</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
@@ -112,24 +138,24 @@ if (!isset($_SESSION['user'])) {
                                     <small><?= htmlspecialchars(substr($m['descripcion'], 0, 50)) ?><?= strlen($m['descripcion']) > 50 ? '...' : '' ?></small>
                                 </td>
                                 <?php if (in_array($_SESSION['user']['rol'] ?? 'usuario', ['admin', 'dinamizador'])) : ?>
-                                    <td>
+                                    <td class="d-none d-lg-table-cell">
                                         <span class="badge bg-secondary"><?= htmlspecialchars($m['nodo_nombre'] ?? 'N/A') ?></span>
                                     </td>
                                 <?php endif; ?>
-                                <td>
+                                <td class="d-none d-md-table-cell">
                                     <span class="badge bg-primary"><?= htmlspecialchars($m['linea_nombre'] ?? 'N/A') ?></span>
                                 </td>
                                 <td class="text-center">
                                     <strong><?= intval($m['cantidad']) ?></strong>
                                 </td>
-                                <td class="d-none d-lg-table-cell">
+                                <td class="text-center">
                                     <a href="<?= BASE_URL ?>/materiales/detalles?id=<?= $m['id'] ?>" class="text-decoration-none" title="Ver detalles y archivos">
                                         <span class="badge bg-secondary" id="docs-<?= $m['id'] ?>" style="cursor: pointer;">
-                                            <i class="bi bi-hourglass-split"></i>
+                                            <i class="bi bi-hourglass-split"></i> Cargando...
                                         </span>
                                     </a>
                                 </td>
-                                <td>
+                                <td class="d-none d-sm-table-cell">
                                     <?php if ($m['estado'] == 1) : ?>
                                         <span class="badge bg-success">Activo</span>
                                     <?php else : ?>
@@ -142,7 +168,7 @@ if (!isset($_SESSION['user'])) {
                                         <button class="btn btn-info btn-sm btn-ver" title="Ver detalles" data-id="<?= $m['id'] ?>">
                                             <i class="bi bi-eye"></i>
                                         </button>
-                                        
+
                                         <?php
                                         $rol = $_SESSION['user']['rol'] ?? 'usuario';
                                         $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
@@ -151,13 +177,13 @@ if (!isset($_SESSION['user'])) {
                                         $esDelUsuario = ($m['nodo_id'] == $nodo_user);
                                         $esDelUsuarioYLinea = $esDelUsuario && ($m['linea_id'] == $linea_user);
 
-                            // Entrada/Salida: Admin y Dinamizador su nodo, Usuario su nodo+linea
+                                        // Entrada/Salida: Admin y Dinamizador su nodo, Usuario su nodo+linea
                                         if (
                                             ($rol === 'admin') ||
                                             ($rol === 'dinamizador' && $esDelUsuario) ||
                                             ($rol === 'usuario' && $esDelUsuarioYLinea)
                                         ) :
-                                            ?>
+                                        ?>
                                             <button class="btn btn-warning btn-sm btn-entrada" title="Entrada" data-id="<?= $m['id'] ?>">
                                                 <i class="bi bi-plus-square"></i>
                                             </button>
@@ -165,21 +191,21 @@ if (!isset($_SESSION['user'])) {
                                                 <i class="bi bi-dash-square"></i>
                                             </button>
                                         <?php endif; ?>
-                                        
+
                                         <?php
-                                    // Editar: Admin y Dinamizador su nodo
+                                        // Editar: Admin y Dinamizador su nodo
                                         if (($rol === 'admin') || ($rol === 'dinamizador' && $esDelUsuario)) :
-                                            ?>
+                                        ?>
                                             <a href="<?= BASE_URL ?>/materiales/editar?id=<?= $m['id'] ?>"
-                                               class="btn btn-primary btn-sm" title="Editar">
+                                                class="btn btn-primary btn-sm" title="Editar">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                         <?php endif; ?>
-                                        
+
                                         <?php
-                                            // Eliminar: Admin y Dinamizador su nodo
+                                        // Eliminar: Admin y Dinamizador su nodo
                                         if (($rol === 'admin') || ($rol === 'dinamizador' && $esDelUsuario)) :
-                                            ?>
+                                        ?>
                                             <button class="btn btn-danger btn-sm btn-eliminar" title="Eliminar" data-id="<?= $m['id'] ?>">
                                                 <i class="bi bi-trash"></i>
                                             </button>
@@ -191,7 +217,7 @@ if (!isset($_SESSION['user'])) {
 
                         <?php if (empty($materiales)) : ?>
                             <tr>
-                                <td colspan="9" class="text-center text-muted py-3">
+                                <td colspan="10" class="text-center text-muted py-3">
                                     <i class="bi bi-inbox"></i> No hay materiales registrados.
                                 </td>
                             </tr>
@@ -239,13 +265,13 @@ if (!isset($_SESSION['user'])) {
                 <div class="alert alert-info mb-3">
                     <strong><i class="bi bi-info-circle"></i> Instrucciones:</strong>
                     <ul class="mb-0 mt-2">
-                    <ul>
-                        <li>El archivo debe ser <strong>CSV, TXT o XLSX</strong> con máximo <strong>5 MB</strong></li>
-                        <li>Campos requeridos: <strong>Código</strong>, <strong>Nombre</strong>, <strong>Línea o Linea_ID</strong></li>
-                        <li>Campos opcionales: Descripción, Cantidad, Estado, Nodo_ID</li>
-                        <li>Los datos se limpiarán automáticamente (espacios, mayúsculas, etc.)</li>
-                        <li>Para CSV/TXT: Se detectará automáticamente el delimitador (coma, punto y coma, tabulación)</li>
-                    </ul>
+                        <ul>
+                            <li>El archivo debe ser <strong>CSV, TXT o XLSX</strong> con máximo <strong>5 MB</strong></li>
+                            <li>Campos requeridos: <strong>Código</strong>, <strong>Nombre</strong>, <strong>Línea o Linea_ID</strong></li>
+                            <li>Campos opcionales: Descripción, Cantidad, Estado, Nodo_ID</li>
+                            <li>Los datos se limpiarán automáticamente (espacios, mayúsculas, etc.)</li>
+                            <li>Para CSV/TXT: Se detectará automáticamente el delimitador (coma, punto y coma, tabulación)</li>
+                        </ul>
                 </div>
 
                 <form id="formularioImportar" enctype="multipart/form-data">
@@ -318,24 +344,22 @@ if (!isset($_SESSION['user'])) {
     </div>
 </div>
 
-<!-- Modal: Opciones de descarga CSV -->
-<div class="modal fade" id="modalOpcionesCSV" tabindex="-1">
+<!-- Modal: Seleccionar descarga CSV (solo o ZIP con 3 CSVs) -->
+<div class="modal fade" id="modalDescargarCSV" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Descargar CSV</h5>
+                <h5 class="modal-title">Descargar como CSV</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted mb-4">Selecciona qué deseas descargar:</p>
+                <p class="text-muted mb-4">¿Cómo deseas descargar los datos?</p>
                 <div class="d-grid gap-2">
-                    <button type="button" class="btn btn-outline-primary btn-lg" id="btn-csv-simple">
-                        <i class="bi bi-file-earmark-text"></i> Solo Materiales (CSV)
-                        <small class="d-block text-muted mt-1">Archivo único para importar</small>
+                    <button type="button" class="btn btn-outline-primary btn-lg" id="btn-csv-solo">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Solo Materiales (CSV)
                     </button>
-                    <button type="button" class="btn btn-outline-info btn-lg" id="btn-csv-completo">
-                        <i class="bi bi-file-earmark-zip"></i> Materiales + Líneas + Nodos (ZIP)
-                        <small class="d-block text-muted mt-1">3 archivos CSV en formato comprimido</small>
+                    <button type="button" class="btn btn-outline-info btn-lg" id="btn-csv-zip">
+                        <i class="bi bi-file-earmark-zip"></i> ZIP con 3 Archivos (Materiales, Líneas, Nodos)
                     </button>
                 </div>
             </div>
@@ -391,92 +415,223 @@ if (!isset($_SESSION['user'])) {
 </div>
 
 <script>
-// Cargar conteo de documentos para cada material
-document.addEventListener('DOMContentLoaded', () => {
-    const materials = document.querySelectorAll('[id^="docs-"]');
-    materials.forEach(badge => {
-        const match = badge.id.match(/docs-(\d+)/);
-        if (match) {
-            const materialId = match[1];
-            cargarDocumentos(materialId);
-        }
-    });
-
-    // Botones de descarga
-    document.getElementById('btn-descargar-xlsx').addEventListener('click', () => {
-        window.location.href = `${window.BASE_URL}/materialesexport/exportar`;
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
-        modal.hide();
-    });
-
-    document.getElementById('btn-descargar-csv').addEventListener('click', () => {
-        // Cerrar modal de formato y abrir modal de opciones CSV
-        const modalExportar = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
-        modalExportar.hide();
-        
-        const modalOpcionesCSV = new bootstrap.Modal(document.getElementById('modalOpcionesCSV'));
-        modalOpcionesCSV.show();
-    });
-
-    // Opción: CSV Simple (solo materiales)
-    document.getElementById('btn-csv-simple').addEventListener('click', () => {
-        window.location.href = `${window.BASE_URL}/materialesexport/csv`;
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalOpcionesCSV'));
-        modal.hide();
-    });
-
-    // Opción: CSV Completo (ZIP con 3 archivos)
-    document.getElementById('btn-csv-completo').addEventListener('click', () => {
-        window.location.href = `${window.BASE_URL}/materialesexport/csvZip`;
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalOpcionesCSV'));
-        modal.hide();
-    });
-
-    document.getElementById('btn-descargar-txt').addEventListener('click', () => {
-        window.location.href = `${window.BASE_URL}/materialesexport/txt`;
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
-        modal.hide();
-    });
-    document.getElementById('btn-descargar-pdf').addEventListener('click', () => {
-        const pdfUrl = `${window.BASE_URL}/materialesexport/pdf`;
-        // Abrir en nueva ventana
-        const newWindow = window.open(pdfUrl, 'pdf_preview', 'width=900,height=700');
-        
-        // Después de 1 segundo, descargar directamente
-        setTimeout(() => {
-            const downloadLink = document.createElement('a');
-            downloadLink.href = pdfUrl;
-            downloadLink.download = 'materiales_' + new Date().toISOString().split('T')[0] + '.pdf';
-            downloadLink.style.display = 'none';
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-        }, 1000);
-
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
-        modal.hide();
-    });
-});
-
-function cargarDocumentos(materialId) {
-    const badgeElement = document.getElementById(`docs-${materialId}`);
-    if (!badgeElement) return;
-
-    fetch(`${window.BASE_URL}/materialesarchivos/contar?material_id=${materialId}`)
-        .then(response => response.json())
-        .then(data => {
-            let badge = '';
-            if (data.count === 0) {
-                badge = '<span class="badge bg-secondary">Sin docs</span>';
-            } else {
-                badge = `<span class="badge bg-primary">${data.count} doc${data.count !== 1 ? 's' : ''}</span>`;
+    // Cargar conteo de documentos para cada material
+    document.addEventListener('DOMContentLoaded', () => {
+        const materials = document.querySelectorAll('[id^="docs-"]');
+        materials.forEach(badge => {
+            const match = badge.id.match(/docs-(\d+)/);
+            if (match) {
+                const materialId = match[1];
+                cargarDocumentos(materialId);
             }
-            badgeElement.innerHTML = badge;
-        })
-        .catch(err => {
-            console.error("Error cargando documentos:", err);
-            badgeElement.innerHTML = '<span class="badge bg-danger">Error</span>';
         });
-}
-</script>
 
+        // Botones de descarga
+        document.getElementById('btn-descargar-xlsx').addEventListener('click', () => {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
+
+            fetch(`${window.BASE_URL}/?url=materialesexport/exportar&formato=excel`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Error descargando');
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `materiales_${new Date().toISOString().slice(0, 10)}.xlsx`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
+                    if (modal) modal.hide();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error descargando archivo');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+        });
+
+        document.getElementById('btn-descargar-csv').addEventListener('click', () => {
+            // Mostrar modal para elegir entre CSV solo o ZIP
+            const modalDescargarCSV = new bootstrap.Modal(document.getElementById('modalDescargarCSV'));
+
+            // Cerrar modal de exportar
+            const modalExportar = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
+            if (modalExportar) modalExportar.hide();
+
+            modalDescargarCSV.show();
+        });
+
+        document.getElementById('btn-descargar-txt').addEventListener('click', () => {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
+
+            fetch(`${window.BASE_URL}/?url=materialesexport/exportar&formato=txt`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Error descargando');
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `materiales_${new Date().toISOString().slice(0, 10)}.txt`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
+                    if (modal) modal.hide();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error descargando archivo');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+        });
+        document.getElementById('btn-descargar-pdf').addEventListener('click', () => {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
+
+            fetch(`${window.BASE_URL}/?url=materialesexport/exportar&formato=pdf`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Error descargando');
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `materiales_${new Date().toISOString().slice(0, 10)}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
+                    if (modal) modal.hide();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error descargando archivo');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+        });
+
+        // Botones del modal de descargar CSV
+        document.getElementById('btn-csv-solo').addEventListener('click', () => {
+            const btn = document.getElementById('btn-descargar-csv');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
+
+            fetch(`${window.BASE_URL}/?url=materialesexport/exportar&formato=csv`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Error descargando');
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `materiales_${new Date().toISOString().slice(0, 10)}.csv`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalDescargarCSV'));
+                    if (modal) modal.hide();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error descargando archivo');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+        });
+
+        document.getElementById('btn-csv-zip').addEventListener('click', () => {
+            const btn = document.getElementById('btn-descargar-csv');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
+
+            fetch(`${window.BASE_URL}/?url=materialesexport/exportar&formato=zip`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Error descargando');
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `materiales_${new Date().toISOString().slice(0, 10)}.zip`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalDescargarCSV'));
+                    if (modal) modal.hide();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error descargando archivo');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+        });
+    });
+
+    function cargarDocumentos(materialId) {
+        const badgeElement = document.getElementById(`docs-${materialId}`);
+        if (!badgeElement) return;
+
+        fetch(`${window.BASE_URL}/materialesarchivos/contar?material_id=${materialId}`)
+            .then(response => response.json())
+            .then(data => {
+                let badge = '';
+                if (data.count === 0) {
+                    badge = '<span class="badge bg-secondary">Sin docs</span>';
+                } else {
+                    badge = `<span class="badge bg-primary">${data.count} doc${data.count !== 1 ? 's' : ''}</span>`;
+                }
+                badgeElement.innerHTML = badge;
+            })
+            .catch(err => {
+                console.error("Error cargando documentos:", err);
+                badgeElement.innerHTML = '<span class="badge bg-danger">Error</span>';
+            });
+    }
+</script>

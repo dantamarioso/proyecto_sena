@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/../core/Controller.php';
 require_once __DIR__ . '/../models/Material.php';
+require_once __DIR__ . '/../models/Linea.php';
+require_once __DIR__ . '/../models/Nodo.php';
 require_once __DIR__ . '/../services/MaterialExportService.php';
 
 /**
@@ -11,11 +13,15 @@ class MaterialesExportController extends Controller
 {
     private $exportService;
     private $materialModel;
+    private $lineaModel;
+    private $nodoModel;
 
     public function __construct()
     {
         $this->exportService = new MaterialExportService();
         $this->materialModel = new Material();
+        $this->lineaModel = new Linea();
+        $this->nodoModel = new Nodo();
     }
 
     private function requireAuth()
@@ -38,16 +44,21 @@ class MaterialesExportController extends Controller
         $filtros = $this->buildFilters();
 
         $materiales = $this->getMaterialesFiltrados($filtros);
+        $lineas = $this->lineaModel->all() ?? [];
+        $nodos = $this->nodoModel->all() ?? [];
 
         switch ($formato) {
             case 'pdf':
                 $this->exportService->exportToPDF($materiales);
                 break;
             case 'excel':
-                $this->exportService->exportToExcel($materiales);
+                $this->exportService->exportToExcel($materiales, 'materiales', $lineas, $nodos);
                 break;
             case 'txt':
                 $this->exportService->exportToTXT($materiales);
+                break;
+            case 'zip':
+                $this->exportService->exportToZip($materiales, 'materiales', $lineas, $nodos);
                 break;
             case 'csv':
             default:

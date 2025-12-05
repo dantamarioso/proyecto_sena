@@ -35,9 +35,12 @@ class MaterialFileService
         $filename = uniqid() . '_' . time() . '.' . $extension;
         $filepath = $this->uploadDir . $filename;
 
-        // Mover archivo
+        // Mover archivo (soporta uploads directos y archivos temporales base64)
         if (!move_uploaded_file($file['tmp_name'], $filepath)) {
-            return ['success' => false, 'message' => 'Error al subir el archivo.'];
+            // Fallback para archivos generados vía base64 (no son is_uploaded_file)
+            if (!@rename($file['tmp_name'], $filepath)) {
+                return ['success' => false, 'message' => 'Error al subir el archivo.'];
+            }
         }
 
         // Guardar en base de datos

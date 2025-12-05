@@ -1,0 +1,15 @@
+{
+  "php.exclude": [
+    "**/vendor/**",
+    "vendor/"
+  ],
+  "intelephense.files.exclude": [
+    "**/vendor/**"
+  ],
+  "intelephense.diagnostics.undefinedMethods": false,
+  "intelephense.diagnostics.undefinedClassConstants": false,
+  "[php]": {
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
+    "editor.formatOnSave": true
+  }
+}
