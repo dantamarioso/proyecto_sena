@@ -12,8 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners para búsqueda y filtros
     // Solo aplicar si estamos en la página de índice de materiales (NO en historial)
     const busquedaInput = document.getElementById('busqueda');
+    const filtroNodo = document.getElementById('filtro-nodo');
     const filtroLinea = document.getElementById('filtro-linea');
+    const filtroCategoria = document.getElementById('filtro-categoria');
+    const filtroProveedor = document.getElementById('filtro-proveedor');
     const filtroEstado = document.getElementById('filtro-estado');
+    const filtroCantidad = document.getElementById('filtro-cantidad');
     
     // Solo procesar el botón Limpiar de la página de índice
     const btnLimpiarIndice = busquedaInput ? document.getElementById('btn-limpiar') : null;
@@ -21,11 +25,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (busquedaInput) {
         busquedaInput.addEventListener('keyup', () => aplicarFiltros());
     }
+    if (filtroNodo) {
+        filtroNodo.addEventListener('change', () => aplicarFiltros());
+    }
     if (filtroLinea) {
         filtroLinea.addEventListener('change', () => aplicarFiltros());
     }
+    if (filtroCategoria) {
+        filtroCategoria.addEventListener('change', () => aplicarFiltros());
+    }
+    if (filtroProveedor) {
+        filtroProveedor.addEventListener('change', () => aplicarFiltros());
+    }
     if (filtroEstado) {
         filtroEstado.addEventListener('change', () => aplicarFiltros());
+    }
+    if (filtroCantidad) {
+        filtroCantidad.addEventListener('change', () => aplicarFiltros());
     }
     if (btnLimpiarIndice) {
         btnLimpiarIndice.addEventListener('click', () => limpiarFiltros());
@@ -60,13 +76,21 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 function aplicarFiltros() {
     const busqueda = (document.getElementById('busqueda')?.value || '').toLowerCase();
+    const nodo = document.getElementById('filtro-nodo')?.value || '';
     const linea = document.getElementById('filtro-linea')?.value || '';
+    const categoria = document.getElementById('filtro-categoria')?.value || '';
+    const proveedor = document.getElementById('filtro-proveedor')?.value || '';
     const estado = document.getElementById('filtro-estado')?.value || '';
+    const cantidad = document.getElementById('filtro-cantidad')?.value || '';
 
     const params = new URLSearchParams();
     if (busqueda) params.append('busqueda', busqueda);
+    if (nodo) params.append('nodo_id', nodo);
     if (linea) params.append('linea_id', linea);
+    if (categoria) params.append('categoria', categoria);
+    if (proveedor) params.append('proveedor', proveedor);
     if (estado !== '') params.append('estado', estado);
+    if (cantidad) params.append('cantidad', cantidad);
 
     window.location.href = `${window.BASE_URL}/?url=materiales/index&${params.toString()}`;
 }

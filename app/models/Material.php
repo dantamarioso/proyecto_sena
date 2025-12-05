@@ -580,4 +580,168 @@ class Material extends Model
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Obtener todas las categorías únicas (no vacías).
+     */
+    public function obtenerCategoriasUnicas()
+    {
+        $stmt = $this->db->prepare('
+            SELECT DISTINCT categoria
+            FROM materiales
+            WHERE categoria IS NOT NULL AND categoria != ""
+            ORDER BY categoria ASC
+        ');
+        $stmt->execute();
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(fn($row) => $row['categoria'], $resultados);
+    }
+
+    /**
+     * Obtener todos los proveedores únicos (no vacíos).
+     */
+    public function obtenerProveedoresUnicos()
+    {
+        $stmt = $this->db->prepare('
+            SELECT DISTINCT proveedor
+            FROM materiales
+            WHERE proveedor IS NOT NULL AND proveedor != ""
+            ORDER BY proveedor ASC
+        ');
+        $stmt->execute();
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(fn($row) => $row['proveedor'], $resultados);
+    }
+
+    /**
+     * Obtener todas las marcas únicas (no vacías).
+     */
+    public function obtenerMarcasUnicas()
+    {
+        $stmt = $this->db->prepare('
+            SELECT DISTINCT marca
+            FROM materiales
+            WHERE marca IS NOT NULL AND marca != ""
+            ORDER BY marca ASC
+        ');
+        $stmt->execute();
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(fn($row) => $row['marca'], $resultados);
+    }
+
+    /**
+     * Obtener todos los nodos que tienen materiales asignados.
+     */
+    public function obtenerNodosConMateriales()
+    {
+        $stmt = $this->db->prepare('
+            SELECT DISTINCT n.id, n.nombre, COUNT(m.id) as total_materiales
+            FROM nodos n
+            LEFT JOIN materiales m ON n.id = m.nodo_id
+            WHERE n.estado = 1
+            GROUP BY n.id, n.nombre
+            ORDER BY n.nombre ASC
+        ');
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Buscar materiales con filtros avanzados (Nodo, Categoría, Proveedor, Cantidad, Fechas, etc).
+     */
+    public function searchAvanzado($filtros = [])
+    {
+        $sql = '
+            SELECT m.*,
+                   l.nombre as linea_nombre,
+                   n.nombre as nodo_nombre
+            FROM materiales m
+            LEFT JOIN lineas l ON m.linea_id = l.id
+            LEFT JOIN nodos n ON m.nodo_id = n.id
+            WHERE 1=1
+        ';
+        $params = [];
+
+        // Búsqueda textual
+        if (!empty($filtros['busqueda'])) {
+            $sql .= ' AND (m.nombre LIKE :busqueda 
+                      OR m.codigo LIKE :busqueda 
+                      OR m.descripcion LIKE :busqueda)';
+            $params[':busqueda'] = '%' . $filtros['busqueda'] . '%';
+        }
+
+        // Filtro por línea
+        if (!empty($filtros['linea_id'])) {
+            $sql .= ' AND m.linea_id = :linea_id';
+            $params[':linea_id'] = (int)$filtros['linea_id'];
+        }
+
+        // Filtro por nodo
+        if (!empty($filtros['nodo_id'])) {
+            $sql .= ' AND m.nodo_id = :nodo_id';
+            $params[':nodo_id'] = (int)$filtros['nodo_id'];
+        }
+
+        // Filtro por estado
+        if (isset($filtros['estado']) && $filtros['estado'] !== '') {
+            $sql .= ' AND m.estado = :estado';
+            $params[':estado'] = (int)$filtros['estado'];
+        }
+
+        // Filtro por categoría
+        if (!empty($filtros['categoria'])) {
+            $sql .= ' AND m.categoria = :categoria';
+            $params[':categoria'] = $filtros['categoria'];
+        }
+
+        // Filtro por proveedor
+        if (!empty($filtros['proveedor'])) {
+            $sql .= ' AND m.proveedor = :proveedor';
+            $params[':proveedor'] = $filtros['proveedor'];
+        }
+
+        // Filtro por marca
+        if (!empty($filtros['marca'])) {
+            $sql .= ' AND m.marca = :marca';
+            $params[':marca'] = $filtros['marca'];
+        }
+
+        // Filtro por cantidad (bajo stock, sin stock, normal)
+        if (!empty($filtros['cantidad'])) {
+            if ($filtros['cantidad'] === '0') {
+                $sql .= ' AND m.cantidad = 0';
+            } elseif ($filtros['cantidad'] === 'bajo') {
+                $sql .= ' AND m.cantidad > 0 AND m.cantidad < 10';
+            } elseif ($filtros['cantidad'] === 'normal') {
+                $sql .= ' AND m.cantidad >= 10';
+            }
+        }
+
+        // Filtro por rango de fecha de adquisición
+        if (!empty($filtros['fecha_inicio'])) {
+            $sql .= ' AND m.fecha_adquisicion >= :fecha_inicio';
+            $params[':fecha_inicio'] = $filtros['fecha_inicio'];
+        }
+
+        if (!empty($filtros['fecha_fin'])) {
+            $sql .= ' AND m.fecha_adquisicion <= :fecha_fin';
+            $params[':fecha_fin'] = $filtros['fecha_fin'];
+        }
+
+        // Búsqueda exacta por código SAP
+        if (!empty($filtros['codigo_exacto'])) {
+            $sql .= ' AND m.codigo = :codigo_exacto';
+            $params[':codigo_exacto'] = $filtros['codigo_exacto'];
+        }
+
+        $sql .= ' ORDER BY m.nombre ASC';
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

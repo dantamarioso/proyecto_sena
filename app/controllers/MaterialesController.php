@@ -172,9 +172,24 @@ class MaterialesController extends Controller
         $busqueda = $_GET['busqueda'] ?? '';
         $linea_id = !empty($_GET['linea_id']) ? intval($_GET['linea_id']) : null;
         $estado = isset($_GET['estado']) && $_GET['estado'] !== '' ? intval($_GET['estado']) : null;
+        $nodo_id = !empty($_GET['nodo_id']) ? intval($_GET['nodo_id']) : null;
+        $categoria = $_GET['categoria'] ?? '';
+        $proveedor = $_GET['proveedor'] ?? '';
+        $cantidad = $_GET['cantidad'] ?? '';
 
-        if ($busqueda || $linea_id || $estado !== null) {
-            $materiales = $materialModel->search($busqueda, $linea_id, $estado);
+        // Construir filtros para búsqueda avanzada
+        $filtros = [];
+        if ($busqueda) $filtros['busqueda'] = $busqueda;
+        if ($linea_id) $filtros['linea_id'] = $linea_id;
+        if ($estado !== null && $estado !== '') $filtros['estado'] = $estado;
+        if ($nodo_id) $filtros['nodo_id'] = $nodo_id;
+        if ($categoria) $filtros['categoria'] = $categoria;
+        if ($proveedor) $filtros['proveedor'] = $proveedor;
+        if ($cantidad) $filtros['cantidad'] = $cantidad;
+
+        // Usar búsqueda avanzada si hay filtros, si no usar la básica
+        if (!empty($filtros)) {
+            $materiales = $materialModel->searchAvanzado($filtros);
         } else {
             $materiales = $materialModel->all();
         }
@@ -203,6 +218,9 @@ class MaterialesController extends Controller
         }
 
         $lineas = $permissions->getAccesibleLineas();
+        $categorias = $materialModel->obtenerCategoriasUnicas();
+        $proveedores = $materialModel->obtenerProveedoresUnicos();
+        $nodos = $materialModel->obtenerNodosConMateriales();
 
         $estadoLineas = [];
         if ($permissions->isAdmin()) {
@@ -222,10 +240,17 @@ class MaterialesController extends Controller
         $this->view('materiales/index', [
             'materiales' => $materiales,
             'lineas' => $lineas,
+            'nodos' => $nodos,
+            'categorias' => $categorias,
+            'proveedores' => $proveedores,
             'estadoLineas' => $estadoLineas,
             'busqueda' => $busqueda,
             'linea_id' => $linea_id,
+            'nodo_id' => $nodo_id,
             'estado' => $estado,
+            'categoria' => $categoria,
+            'proveedor' => $proveedor,
+            'cantidad' => $cantidad,
             'permisos' => $permissions,
             'pageStyles' => ['materiales', 'usuarios'],
             'pageScripts' => ['materiales'],

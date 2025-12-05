@@ -76,11 +76,22 @@ if (!isset($_SESSION['user'])) {
         <div class="card mb-3">
             <div class="card-body">
                 <div class="row g-2 align-items-end">
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-3">
                         <label class="form-label">Buscar</label>
                         <input type="text" id="busqueda" class="form-control" placeholder="Nombre, código o descripción" value="<?= htmlspecialchars($busqueda) ?>">
                     </div>
-                    <div class="col-12 col-sm-6 col-md-3">
+                    <div class="col-12 col-sm-6 col-md-2">
+                        <label class="form-label">Nodo</label>
+                        <select id="filtro-nodo" class="form-select">
+                            <option value="">Todos</option>
+                            <?php foreach ($nodos as $nodo) : ?>
+                                <option value="<?= $nodo['id'] ?>" <?= ($nodo_id ?? null) == $nodo['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($nodo['nombre']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-2">
                         <label class="form-label">Línea</label>
                         <select id="filtro-linea" class="form-select">
                             <option value="">Todas</option>
@@ -91,7 +102,29 @@ if (!isset($_SESSION['user'])) {
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="col-12 col-sm-6 col-md-3">
+                    <div class="col-12 col-sm-6 col-md-2">
+                        <label class="form-label">Categoría</label>
+                        <select id="filtro-categoria" class="form-select">
+                            <option value="">Todas</option>
+                            <?php foreach ($categorias as $cat) : ?>
+                                <option value="<?= htmlspecialchars($cat) ?>" <?= $categoria == $cat ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($cat) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-2">
+                        <label class="form-label">Proveedor</label>
+                        <select id="filtro-proveedor" class="form-select">
+                            <option value="">Todos</option>
+                            <?php foreach ($proveedores as $prov) : ?>
+                                <option value="<?= htmlspecialchars($prov) ?>" <?= $proveedor == $prov ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($prov) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-2">
                         <label class="form-label">Estado</label>
                         <select id="filtro-estado" class="form-select">
                             <option value="">Todos</option>
@@ -99,9 +132,18 @@ if (!isset($_SESSION['user'])) {
                             <option value="0" <?= $estado === 0 ? 'selected' : '' ?>>Inactivos</option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-2">
+                    <div class="col-12 col-sm-6 col-md-2">
+                        <label class="form-label">Stock</label>
+                        <select id="filtro-cantidad" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="0" <?= $cantidad === '0' ? 'selected' : '' ?>>Sin stock</option>
+                            <option value="bajo" <?= $cantidad === 'bajo' ? 'selected' : '' ?>>Bajo (&lt;10)</option>
+                            <option value="normal" <?= $cantidad === 'normal' ? 'selected' : '' ?>>Normal (&gt;=10)</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-1">
                         <button class="btn btn-outline-secondary w-100" id="btn-limpiar">
-                            Limpiar
+                            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
                         </button>
                     </div>
                 </div>

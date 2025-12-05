@@ -15,12 +15,14 @@ class MaterialImportService
 
     private $cacheLineas = null;
     private $cacheNodos = null;
+    private $inicio_tiempo;
 
     public function __construct()
     {
         $this->materialModel = new Material();
         $this->lineaModel = new Linea();
         $this->nodoModel = new Nodo();
+        $this->inicio_tiempo = microtime(true);
     }
 
     /**
@@ -334,6 +336,7 @@ class MaterialImportService
         $insertados = 0;
         $actualizados = 0;
         $errores = [];
+        $advertencias = [];
 
         foreach ($lineas as $numeroLinea => $linea) {
             $campos = str_getcsv($linea, $delimitador);
@@ -341,12 +344,29 @@ class MaterialImportService
             $material = $this->extraerDatosFila($campos, $indices);
 
             if (!$material['codigo']) {
-                continue; // Saltar filas sin código
+                $advertencias[] = "Fila " . ($numeroLinea + 2) . ": código vacío, ignorada";
+                continue;
+            }
+
+            // Validar material
+            $validacion = $this->validarMaterial($material, $numeroLinea + 2);
+            if (!$validacion['valido']) {
+                $advertencias = array_merge($advertencias, $validacion['advertencias']);
+                continue;
+            }
+
+            // Verificar referencias
+            if (!$this->validarReferencias($material, $numeroLinea + 2, $advertencias)) {
+                continue;
             }
 
             // Insertar o actualizar
             try {
-                $existente = $this->materialModel->findByCodigoNodoLinea($material['codigo'], $material['nodo_id'], $material['linea_id']);
+                $existente = $this->materialModel->findByCodigoNodoLinea(
+                    $material['codigo'],
+                    $material['nodo_id'],
+                    $material['linea_id']
+                );
 
                 if ($existente) {
                     $this->materialModel->update($existente['id'], $material);
@@ -356,7 +376,7 @@ class MaterialImportService
                     $insertados++;
                 }
             } catch (Exception $e) {
-                $errores[] = "Línea {$numeroLinea}: " . $e->getMessage();
+                $errores[] = "Fila " . ($numeroLinea + 2) . ": " . $e->getMessage();
             }
         }
 
@@ -365,6 +385,7 @@ class MaterialImportService
             'insertados' => $insertados,
             'actualizados' => $actualizados,
             'errores' => $errores,
+            'advertencias' => $advertencias,
         ];
     }
 
@@ -376,16 +397,34 @@ class MaterialImportService
         $insertados = 0;
         $actualizados = 0;
         $errores = [];
+        $advertencias = [];
 
         foreach ($filas as $numeroLinea => $campos) {
             $material = $this->extraerDatosFila($campos, $indices);
 
             if (!$material['codigo']) {
+                $advertencias[] = "Fila " . ($numeroLinea + 2) . ": código vacío, ignorada";
+                continue;
+            }
+
+            // Validar material
+            $validacion = $this->validarMaterial($material, $numeroLinea + 2);
+            if (!$validacion['valido']) {
+                $advertencias = array_merge($advertencias, $validacion['advertencias']);
+                continue;
+            }
+
+            // Verificar referencias
+            if (!$this->validarReferencias($material, $numeroLinea + 2, $advertencias)) {
                 continue;
             }
 
             try {
-                $existente = $this->materialModel->findByCodigoNodoLinea($material['codigo'], $material['nodo_id'], $material['linea_id']);
+                $existente = $this->materialModel->findByCodigoNodoLinea(
+                    $material['codigo'],
+                    $material['nodo_id'],
+                    $material['linea_id']
+                );
 
                 if ($existente) {
                     $this->materialModel->update($existente['id'], $material);
@@ -395,7 +434,7 @@ class MaterialImportService
                     $insertados++;
                 }
             } catch (Exception $e) {
-                $errores[] = "Fila {$numeroLinea}: " . $e->getMessage();
+                $errores[] = "Fila " . ($numeroLinea + 2) . ": " . $e->getMessage();
             }
         }
 
@@ -404,6 +443,7 @@ class MaterialImportService
             'insertados' => $insertados,
             'actualizados' => $actualizados,
             'errores' => $errores,
+            'advertencias' => $advertencias,
         ];
     }
 
@@ -417,14 +457,79 @@ class MaterialImportService
         }
 
         $totalProcesados = ($result['insertados'] ?? 0) + ($result['actualizados'] ?? 0);
+        $duracion = round(microtime(true) - $this->inicio_tiempo, 2);
 
         return array_merge($result, [
-            'message' => 'Importación completada',
+            'message' => 'Importación completada: ' . $result['insertados'] . ' creados, ' . $result['actualizados'] . ' actualizados',
             'materiales_creados' => $result['insertados'] ?? 0,
+            'materiales_actualizados' => $result['actualizados'] ?? 0,
             'total_procesados' => $totalProcesados,
-            'advertencias' => !empty($result['errores']),
-            'errores_por_linea' => $result['errores'] ?? []
+            'advertencias' => $result['advertencias'] ?? [],
+            'errores_por_linea' => $result['errores'] ?? [],
+            'duracion_segundos' => $duracion,
+            'total_warnings' => count($result['advertencias'] ?? []),
+            'total_errors' => count($result['errores'] ?? [])
         ]);
+    }
+
+    /**
+     * Valida un material antes de insertarlo/actualizarlo.
+     */
+    private function validarMaterial($material, $numeroLinea)
+    {
+        $advertencias = [];
+        $valido = true;
+
+        if (empty($material['nombre'])) {
+            $advertencias[] = "Fila $numeroLinea: nombre no especificado (se ignorará esta fila)";
+            $valido = false;
+        }
+
+        if (strlen($material['nombre'] ?? '') > 100) {
+            $advertencias[] = "Fila $numeroLinea: nombre muy largo (>100 caracteres), se truncará";
+        }
+
+        if (strlen($material['codigo'] ?? '') > 50) {
+            $advertencias[] = "Fila $numeroLinea: código muy largo (>50 caracteres), se truncará";
+            $material['codigo'] = substr($material['codigo'], 0, 50);
+        }
+
+        return [
+            'valido' => $valido,
+            'advertencias' => $advertencias
+        ];
+    }
+
+    /**
+     * Valida que nodo_id y linea_id existan en BD.
+     */
+    private function validarReferencias($material, $numeroLinea, &$advertencias)
+    {
+        if (!$material['nodo_id']) {
+            $advertencias[] = "Fila $numeroLinea: nodo no encontrado o inválido";
+            return false;
+        }
+
+        if (!$material['linea_id']) {
+            $advertencias[] = "Fila $numeroLinea: línea no encontrada o inválida";
+            return false;
+        }
+
+        // Verificar que existan en BD
+        $nodoValido = $this->nodoModel->getById($material['nodo_id']);
+        $lineaValida = $this->lineaModel->getById($material['linea_id']);
+
+        if (!$nodoValido) {
+            $advertencias[] = "Fila $numeroLinea: nodo ID {$material['nodo_id']} no existe en la base de datos";
+            return false;
+        }
+
+        if (!$lineaValida) {
+            $advertencias[] = "Fila $numeroLinea: línea ID {$material['linea_id']} no existe en la base de datos";
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -496,14 +601,20 @@ class MaterialImportService
         $material['linea_id'] = $this->resolveLineaId($lineaVal);
 
         if (isset($indices['estado'])) {
-            $estado = $this->cleanCell($campos[$indices['estado']] ?? '');
-            if (strtolower($estado) === 'inactivo' || $estado === '0') {
-                $material['estado'] = 0;
-            } else {
-                $material['estado'] = 1;
-            }
+            $material['estado'] = $this->parseEstado($this->cleanCell($campos[$indices['estado']] ?? ''));
         }
 
         return $material;
+    }
+
+    /**
+     * Parsea el campo estado: solo "activo" es 1, todo lo demás es 0 (inactivo).
+     */
+    private function parseEstado($valor)
+    {
+        $valor = trim(strtolower($valor));
+        // Solo es activo si es exactamente uno de estos valores
+        $activos = ['activo', 'active', '1', 'true', 'si', 'yes', 's', 'sí'];
+        return in_array($valor, $activos, true) ? 1 : 0;
     }
 }

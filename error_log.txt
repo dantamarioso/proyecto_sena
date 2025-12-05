@@ -4,3 +4,5 @@
 [05-Dec-2025 20:11:59 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\views\materiales\historial_inventario.php on line 148
 [05-Dec-2025 20:11:59 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\views\materiales\historial_inventario.php on line 148
 [05-Dec-2025 20:11:59 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\proyecto_sena\app\views\materiales\historial_inventario.php on line 148
+[05-Dec-2025 20:42:04 Europe/Berlin] PHP Parse error:  Unclosed '{' on line 4 in C:\xampp\htdocs\proyecto_sena\app\models\Material.php on line 747
+[05-Dec-2025 20:43:04 Europe/Berlin] PHP Parse error:  Unclosed '{' on line 4 in C:\xampp\htdocs\proyecto_sena\app\models\Material.php on line 747
