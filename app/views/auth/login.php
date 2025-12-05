@@ -10,29 +10,35 @@
                     <h3 class="text-center mb-4">Iniciar sesión</h3>
 
                     <!-- Flash messages se manejan con toast -->
-                    <?php if (!empty($_SESSION['flash_success'])): ?>
+                    <?php if (!empty($_SESSION['flash_success'])) :
+                        ?>
                         <script>
                             document.addEventListener('DOMContentLoaded', function() {
                                 mostrarNotificacion('<?= addslashes($_SESSION['flash_success']) ?>', 'success', 5000);
                             });
                         </script>
                         <?php unset($_SESSION['flash_success']); ?>
-                    <?php endif; ?>
+                        <?php
+                    endif; ?>
                     
-                    <?php if (!empty($_SESSION['flash_error'])): ?>
+                    <?php if (!empty($_SESSION['flash_error'])) :
+                        ?>
                         <script>
                             document.addEventListener('DOMContentLoaded', function() {
                                 mostrarNotificacion('<?= addslashes($_SESSION['flash_error']) ?>', 'error', 5000);
                             });
                         </script>
                         <?php unset($_SESSION['flash_error']); ?>
-                    <?php endif; ?>
+                        <?php
+                    endif; ?>
 
                     <!-- Errores de login -->
-                    <?php if (!empty($errores)): ?>
+                    <?php if (!empty($errores)) :
+                        ?>
                         <div class="alert alert-danger">
                             <ul class="mb-0">
-                                <?php foreach ($errores as $e): ?>
+                                <?php foreach ($errores as $e) :
+                                    ?>
                                     <li><?= htmlspecialchars($e) ?></li>
                                 <?php endforeach; ?>
                             </ul>
@@ -42,8 +48,9 @@
                     <!-- Formulario de login -->
                     <form method="post">
                         <div class="mb-3">
-                            <label class="form-label">Correo</label>
-                            <input type="text" name="login" class="form-control" required>
+                            <label class="form-label">Correo Electrónico</label>
+                            <input type="email" name="login" class="form-control" 
+                                   placeholder="ejemplo@correo.com" required>
                         </div>
 
                         <div class="mb-3">

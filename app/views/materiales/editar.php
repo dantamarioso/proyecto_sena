@@ -1,13 +1,13 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/auth/login");
+    header('Location: ' . BASE_URL . '/auth/login');
     exit;
 }
 
 $rol = $_SESSION['user']['rol'] ?? 'usuario';
 if (!in_array($rol, ['admin', 'dinamizador'])) {
     http_response_code(403);
-    echo "Acceso denegado. Solo administradores y dinamizadores pueden editar materiales.";
+    echo 'Acceso denegado. Solo administradores y dinamizadores pueden editar materiales.';
     exit;
 }
 ?>
@@ -32,22 +32,22 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
                         <small class="form-text text-muted">Código único del material</small>
                     </div>
 
-                    <?php 
+                    <?php
                         $rol = $_SESSION['user']['rol'] ?? 'usuario';
                     ?>
 
                     <!-- Nodo (solo Admin puede cambiar) -->
-                    <?php if ($rol === 'admin'): ?>
+                    <?php if ($rol === 'admin') : ?>
                         <div class="mb-3">
                             <label class="form-label">Nodo *</label>
                             <select name="nodo_id" id="nodo-select" class="form-select" required>
                                 <option value="">-- Seleccionar nodo --</option>
-                                <?php 
-                                    require_once __DIR__ . '/../../models/Nodo.php';
-                                    $nodoModel = new Nodo();
-                                    $nodos = $nodoModel->getActivosConLineas();
-                                    foreach ($nodos as $nodo): 
-                                ?>
+                                <?php
+                                require_once __DIR__ . '/../../models/Nodo.php';
+                                $nodoModel = new Nodo();
+                                $nodos = $nodoModel->getActivosConLineas();
+                                foreach ($nodos as $nodo) :
+                                    ?>
                                     <option value="<?= $nodo['id'] ?>" <?= $nodo['id'] == $material['nodo_id'] ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($nodo['nombre']) ?>
                                     </option>
@@ -55,22 +55,22 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
                             </select>
                             <small class="form-text text-muted">Selecciona el nodo para este material</small>
                         </div>
-                    <?php else: ?>
+                    <?php else : ?>
                         <!-- Para usuario/dinamizador: mostrar su nodo actual (no editable) -->
                         <div class="mb-3">
                             <label class="form-label">Nodo Actual</label>
                             <div class="alert alert-info mb-0">
                                 <strong>Tu Nodo:</strong> 
-                                <?php 
-                                    $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
-                                    if ($nodo_user) {
-                                        require_once __DIR__ . '/../../models/Nodo.php';
-                                        $nodoModel = new Nodo();
-                                        $nodo = $nodoModel->getById($nodo_user);
-                                        echo $nodo ? htmlspecialchars($nodo['nombre']) : 'No asignado';
-                                    } else {
-                                        echo 'No asignado';
-                                    }
+                                <?php
+                                $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
+                                if ($nodo_user) {
+                                    require_once __DIR__ . '/../../models/Nodo.php';
+                                    $nodoModel = new Nodo();
+                                    $nodo = $nodoModel->getById($nodo_user);
+                                    echo $nodo ? htmlspecialchars($nodo['nombre']) : 'No asignado';
+                                } else {
+                                    echo 'No asignado';
+                                }
                                 ?>
                             </div>
                         </div>
@@ -81,7 +81,7 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
                         <label class="form-label">Línea *</label>
                         <select name="linea_id" class="form-select" required>
                             <option value="">-- Seleccionar línea --</option>
-                            <?php foreach ($lineas as $linea): ?>
+                            <?php foreach ($lineas as $linea) : ?>
                                 <option value="<?= $linea['id'] ?>" <?= $linea['id'] == $material['linea_id'] ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($linea['nombre']) ?>
                                 </option>

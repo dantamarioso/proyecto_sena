@@ -89,6 +89,62 @@
     }
 }
 
+/* Asegurar que modales de Bootstrap estén por encima del sidebar en mobile */
+@media (max-width: 768px) {
+    .modal {
+        z-index: 1060 !important;
+    }
+    
+    .modal-backdrop {
+        z-index: 1055 !important;
+    }
+    
+    /* Asegurar que el contenido del modal sea interactuable */
+    .modal-dialog {
+        position: relative;
+        z-index: 1061;
+        pointer-events: auto;
+    }
+    
+    .modal-content {
+        position: relative;
+        z-index: 1062;
+        pointer-events: auto;
+    }
+    
+    /* Asegurar que inputs y elementos dentro del modal sean interactuables */
+    .modal-content input,
+    .modal-content select,
+    .modal-content textarea,
+    .modal-content button,
+    .modal-content a,
+    .modal-content label,
+    .modal-content .btn {
+        pointer-events: auto;
+        touch-action: auto;
+    }
+    
+    /* Prevenir que el body tenga scroll cuando el modal está abierto */
+    body.modal-open {
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+    }
+    
+    /* Mejorar la visualización en pantallas pequeñas */
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+    
+    /* Asegurar que el modal sea scrolleable si el contenido es largo */
+    .modal-body {
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
 /* =====================================================
    ALERTAS Y NOTIFICACIONES
 ===================================================== */

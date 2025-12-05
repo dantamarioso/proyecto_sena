@@ -2,34 +2,59 @@
 
 /**
  * Helper simple para generar PDFs sin dependencias externas
- * Genera un PDF básico con tabla de materiales
+ * Genera un PDF básico con tabla de materiales.
  */
 class PdfHelper
 {
     private $headers = [];
+
     private $data = [];
+
     private $title = '';
-    private $pageWidth = 210; // mm (A4)
-    private $pageHeight = 297; // mm (A4)
-    private $marginLeft = 10;
-    private $marginRight = 10;
-    private $marginTop = 15;
-    private $marginBottom = 15;
 
     public function __construct($title = 'Reporte')
     {
         $this->title = $title;
     }
 
+    public function setTitle($title)
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function addPage()
+    {
+        // Método placeholder para compatibilidad
+        // En esta implementación HTML no se necesita
+        return $this;
+    }
+
+    public function addTable($headers, $data)
+    {
+        $this->setHeaders($headers);
+        $this->setData($data);
+
+        return $this;
+    }
+
+    public function download($filename = 'reporte.pdf')
+    {
+        return $this->output($filename);
+    }
+
     public function setHeaders($headers)
     {
         $this->headers = $headers;
+
         return $this;
     }
 
     public function setData($data)
     {
         $this->data = $data;
+
         return $this;
     }
 
@@ -42,7 +67,7 @@ class PdfHelper
 
     /**
      * Generar HTML que se puede enviar como PDF usando navegadores o convertir
-     * Por ahora retornamos HTML con estilos de impresión
+     * Por ahora retornamos HTML con estilos de impresión.
      */
     private function generateHtmlToPdf()
     {
@@ -151,33 +176,33 @@ class PdfHelper
 
     /**
      * Convertir a PDF usando wkhtmltopdf si está disponible
-     * Si no, retorna HTML para que el navegador lo imprima a PDF
+     * Si no, retorna HTML para que el navegador lo imprima a PDF.
      */
     public function output($filename = 'reporte.pdf')
     {
         $html = $this->generateHtmlToPdf();
-        
+
         // Intentar usar wkhtmltopdf si está disponible
         if (shell_exec('which wkhtmltopdf 2>/dev/null') || file_exists('C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')) {
             $tmpHtml = tempnam(sys_get_temp_dir(), 'pdf_');
             file_put_contents($tmpHtml, $html);
-            
+
             $tmpPdf = tempnam(sys_get_temp_dir(), 'pdf_');
-            
+
             // Intentar ejecutar wkhtmltopdf
             if (PHP_OS_FAMILY === 'Windows') {
                 $cmd = "\"C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe\" \"$tmpHtml\" \"$tmpPdf\" 2>nul";
             } else {
                 $cmd = "wkhtmltopdf \"$tmpHtml\" \"$tmpPdf\" 2>/dev/null";
             }
-            
+
             @shell_exec($cmd);
-            
+
             if (file_exists($tmpPdf) && filesize($tmpPdf) > 100) {
                 $content = file_get_contents($tmpPdf);
                 unlink($tmpHtml);
                 unlink($tmpPdf);
-                
+
                 header('Content-Type: application/pdf');
                 header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
                 header('Content-Length: ' . strlen($content));
@@ -185,13 +210,16 @@ class PdfHelper
                 header('Pragma: no-cache');
                 header('Expires: 0');
                 echo $content;
+
                 return;
             }
-            
+
             unlink($tmpHtml);
-            if (file_exists($tmpPdf)) unlink($tmpPdf);
+            if (file_exists($tmpPdf)) {
+                unlink($tmpPdf);
+            }
         }
-        
+
         // Fallback: enviar como HTML para imprimir/ver
         header('Content-Type: text/html; charset=UTF-8');
         header('Content-Disposition: inline; filename="' . basename($filename) . '.html"');

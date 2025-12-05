@@ -1,5 +1,16 @@
 <?php
 
+require_once __DIR__ . '/../core/Database.php';
+require_once __DIR__ . '/../core/Model.php';
+require_once __DIR__ . '/../core/Controller.php';
+require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Audit.php';
+require_once __DIR__ . '/../helpers/PermissionHelper.php';
+
+use User;
+use Audit;
+use PermissionHelper;
+
 class PerfilController extends Controller
 {
     /* =========================================================
@@ -9,6 +20,7 @@ class PerfilController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             $this->redirect('auth/login');
+
             return;
         }
 
@@ -18,8 +30,8 @@ class PerfilController extends Controller
 
         $this->view('perfil/ver', [
             'usuario' => $usuario,
-            'pageStyles'  => ['perfil'],
-            'pageScripts' => ['perfil']
+            'pageStyles' => ['perfil'],
+            'pageScripts' => ['perfil'],
         ]);
     }
 
@@ -30,6 +42,7 @@ class PerfilController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             $this->redirect('auth/login');
+
             return;
         }
 
@@ -39,14 +52,13 @@ class PerfilController extends Controller
         $errores = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
             $id = intval($_POST['id'] ?? 0);
 
             // Validar que el usuario solo pueda editar su propio perfil
             // A menos que sea admin
             if ($id !== $currentId && $currentRol !== 'admin') {
                 http_response_code(403);
-                echo "Acceso denegado. Solo puedes editar tu propio perfil.";
+                echo 'Acceso denegado. Solo puedes editar tu propio perfil.';
                 exit;
             }
 
@@ -66,34 +78,33 @@ class PerfilController extends Controller
 
             // Validaciones básicas
             if ($nombre === '' || $correo === '') {
-                $errores[] = "Nombre y correo son obligatorios.";
+                $errores[] = 'Nombre y correo son obligatorios.';
             }
 
             if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-                $errores[] = "El correo no es válido.";
+                $errores[] = 'El correo no es válido.';
             }
 
             // Verificar si el correo ya existe (solo si es diferente al actual)
             if ($correo !== $usuarioAnterior['correo'] && $userModel->existsByCorreo($correo)) {
-                $errores[] = "Este correo ya está registrado en otra cuenta.";
+                $errores[] = 'Este correo ya está registrado en otra cuenta.';
             }
 
             // Subir foto (opcional)
             $fotoRuta = null;
 
             if (!empty($_FILES['foto']['name'])) {
-
                 $ext = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
                 $permitidas = ['jpg', 'jpeg', 'png'];
 
                 if (!in_array($ext, $permitidas)) {
-                    $errores[] = "Formato de imagen no permitido. Solo JPG o PNG.";
+                    $errores[] = 'Formato de imagen no permitido. Solo JPG o PNG.';
                 } else {
-                    $nombreFoto = "uploads/fotos/" . uniqid("foto_") . "." . $ext;
-                    $fotoRutaSistema = __DIR__ . "/../../public/" . $nombreFoto;
+                    $nombreFoto = 'uploads/fotos/' . uniqid('foto_') . '.' . $ext;
+                    $fotoRutaSistema = __DIR__ . '/../../public/' . $nombreFoto;
 
-                    if (!is_dir(__DIR__ . "/../../public/uploads/fotos")) {
-                        mkdir(__DIR__ . "/../../public/uploads/fotos", 0755, true);
+                    if (!is_dir(__DIR__ . '/../../public/uploads/fotos')) {
+                        mkdir(__DIR__ . '/../../public/uploads/fotos', 0755, true);
                     }
 
                     move_uploaded_file($_FILES['foto']['tmp_name'], $fotoRutaSistema);
@@ -102,7 +113,6 @@ class PerfilController extends Controller
             }
 
             if (empty($errores)) {
-
                 // Detectar si el correo cambió
                 $correoAhora = $usuarioAnterior['correo'];
                 $correoCambio = ($correo !== $correoAhora);
@@ -114,7 +124,7 @@ class PerfilController extends Controller
                     'celular' => $celular,
                     'cargo' => $cargo,
                     'password' => $password,
-                    'foto' => $fotoRuta
+                    'foto' => $fotoRuta,
                 ];
 
                 // Solo actualizar correo si no cambió
@@ -137,7 +147,7 @@ class PerfilController extends Controller
 
                     MailHelper::sendCode(
                         $correo,
-                        "Código de verificación de nuevo email - Sistema Inventario",
+                        'Código de verificación de nuevo email - Sistema Inventario',
                         $verificationCode,
                         'verificacion'
                     );
@@ -145,11 +155,12 @@ class PerfilController extends Controller
                     $_SESSION['pending_email_change'] = [
                         'user_id' => $id,
                         'new_email' => $correo,
-                        'old_email' => $correoAhora
+                        'old_email' => $correoAhora,
                     ];
 
-                    $_SESSION['flash_success'] = "Se ha enviado un código de verificación al nuevo correo. Verifica tu bandeja de entrada.";
-                    $this->redirect("perfil/verificarCambioCorreo");
+                    $_SESSION['flash_success'] = 'Se ha enviado un código de verificación al nuevo correo. Verifica tu bandeja de entrada.';
+                    $this->redirect('perfil/verificarCambioCorreo');
+
                     return;
                 }
 
@@ -160,43 +171,43 @@ class PerfilController extends Controller
                 if ($usuarioAnterior['nombre'] !== $nombre) {
                     $cambios['nombre'] = [
                         'anterior' => $usuarioAnterior['nombre'],
-                        'nuevo' => $nombre
+                        'nuevo' => $nombre,
                     ];
                 }
                 if ($usuarioAnterior['correo'] !== $correo) {
                     $cambios['correo'] = [
                         'anterior' => $usuarioAnterior['correo'],
-                        'nuevo' => $correo
+                        'nuevo' => $correo,
                     ];
                 }
                 if ($usuarioAnterior['nombre_usuario'] !== $nombreUsuario) {
                     $cambios['nombre_usuario'] = [
                         'anterior' => $usuarioAnterior['nombre_usuario'],
-                        'nuevo' => $nombreUsuario
+                        'nuevo' => $nombreUsuario,
                     ];
                 }
                 if ($usuarioAnterior['celular'] !== $celular) {
                     $cambios['celular'] = [
                         'anterior' => $usuarioAnterior['celular'] ?? '(vacío)',
-                        'nuevo' => $celular ?: '(vacío)'
+                        'nuevo' => $celular ?: '(vacío)',
                     ];
                 }
                 if ($usuarioAnterior['cargo'] !== $cargo) {
                     $cambios['cargo'] = [
                         'anterior' => $usuarioAnterior['cargo'] ?? '(vacío)',
-                        'nuevo' => $cargo ?: '(vacío)'
+                        'nuevo' => $cargo ?: '(vacío)',
                     ];
                 }
                 if (!empty($password)) {
                     $cambios['contraseña'] = [
                         'anterior' => '***',
-                        'nuevo' => '***'
+                        'nuevo' => '***',
                     ];
                 }
                 if (!empty($fotoRuta)) {
                     $cambios['foto'] = [
                         'anterior' => $usuarioAnterior['foto'] ?? '(ninguna)',
-                        'nuevo' => $fotoRuta
+                        'nuevo' => $fotoRuta,
                     ];
                 }
 
@@ -205,13 +216,13 @@ class PerfilController extends Controller
                     if ($usuarioAnterior['estado'] != $estado) {
                         $cambios['estado'] = [
                             'anterior' => $usuarioAnterior['estado'] == 1 ? 'Activo' : 'Bloqueado',
-                            'nuevo' => $estado == 1 ? 'Activo' : 'Bloqueado'
+                            'nuevo' => $estado == 1 ? 'Activo' : 'Bloqueado',
                         ];
                     }
                     if ($usuarioAnterior['rol'] !== $rol) {
                         $cambios['rol'] = [
                             'anterior' => $usuarioAnterior['rol'],
-                            'nuevo' => $rol
+                            'nuevo' => $rol,
                         ];
                     }
                 }
@@ -243,14 +254,14 @@ class PerfilController extends Controller
                     }
                 }
 
-                $_SESSION['flash_success'] = "Perfil actualizado exitosamente.";
-                $this->redirect("perfil/ver");
+                $_SESSION['flash_success'] = 'Perfil actualizado exitosamente.';
+                $this->redirect('perfil/ver');
+
                 return;
             }
 
             $usuario = $userModel->findById($id);
         } else {
-
             $id = intval($_GET['id'] ?? $currentId);
 
             $usuario = $userModel->findById($id);
@@ -258,7 +269,7 @@ class PerfilController extends Controller
             // Validar acceso
             if ($id !== $currentId && $currentRol !== 'admin') {
                 http_response_code(403);
-                echo "Acceso denegado.";
+                echo 'Acceso denegado.';
                 exit;
             }
         }
@@ -268,8 +279,8 @@ class PerfilController extends Controller
             'errores' => $errores,
             'isOwnProfile' => ($id === $currentId),
             'currentRol' => $currentRol,
-            'pageStyles'  => ['perfil'],
-            'pageScripts' => ['perfil']
+            'pageStyles' => ['perfil'],
+            'pageScripts' => ['perfil'],
         ]);
     }
 
@@ -303,18 +314,17 @@ class PerfilController extends Controller
             exit;
         }
 
-        $nombreFoto = "uploads/fotos/" . uniqid("foto_") . "." . $ext;
-        $rutaSistema = __DIR__ . "/../../public/" . $nombreFoto;
+        $nombreFoto = 'uploads/fotos/' . uniqid('foto_') . '.' . $ext;
+        $rutaSistema = __DIR__ . '/../../public/' . $nombreFoto;
 
-        if (!is_dir(__DIR__ . "/../../public/uploads/fotos")) {
-            mkdir(__DIR__ . "/../../public/uploads/fotos", 0777, true);
+        if (!is_dir(__DIR__ . '/../../public/uploads/fotos')) {
+            mkdir(__DIR__ . '/../../public/uploads/fotos', 0777, true);
         }
 
         if (move_uploaded_file($_FILES['foto']['tmp_name'], $rutaSistema)) {
-
             // Eliminar foto anterior si existe
             if (!empty($usuario['foto'])) {
-                $fotoAnterior = __DIR__ . "/../../public/" . $usuario['foto'];
+                $fotoAnterior = __DIR__ . '/../../public/' . $usuario['foto'];
                 if (file_exists($fotoAnterior)) {
                     unlink($fotoAnterior);
                 }
@@ -322,7 +332,7 @@ class PerfilController extends Controller
 
             // Actualizar foto en BD
             $userModel->updateFull($userId, [
-                'foto' => $nombreFoto
+                'foto' => $nombreFoto,
             ]);
 
             // Actualizar sesión con timestamp para evitar caché
@@ -338,8 +348,8 @@ class PerfilController extends Controller
                 [
                     'foto' => [
                         'anterior' => $usuario['foto'] ?? '(ninguna)',
-                        'nuevo' => $nombreFoto
-                    ]
+                        'nuevo' => $nombreFoto,
+                    ],
                 ],
                 $userId
             );
@@ -347,7 +357,7 @@ class PerfilController extends Controller
             echo json_encode([
                 'success' => true,
                 'message' => 'Foto actualizada exitosamente',
-                'foto' => BASE_URL . '/' . $nombreFoto
+                'foto' => BASE_URL . '/' . $nombreFoto,
             ]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Error al subir la foto']);
@@ -362,11 +372,13 @@ class PerfilController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             $this->redirect('auth/login');
+
             return;
         }
 
         if (!isset($_SESSION['pending_email_change'])) {
             $this->redirect('perfil/ver');
+
             return;
         }
 
@@ -385,8 +397,9 @@ class PerfilController extends Controller
             $codigo = trim($_POST['codigo'] ?? '');
 
             if ($codigo === '') {
-                $_SESSION['flash_error'] = "Ingresa el código de verificación.";
+                $_SESSION['flash_error'] = 'Ingresa el código de verificación.';
                 $this->redirect('perfil/verificarCambioCorreo');
+
                 return;
             }
 
@@ -394,7 +407,7 @@ class PerfilController extends Controller
             if ($userModel->verifyEmailCodeById($userId, $codigo)) {
                 // Actualizar correo en la BD
                 $userModel->updateFull($userId, [
-                    'correo' => $newEmail
+                    'correo' => $newEmail,
                 ]);
 
                 // Limpiar los campos de verificación
@@ -413,24 +426,25 @@ class PerfilController extends Controller
                     [
                         'correo' => [
                             'anterior' => $_SESSION['pending_email_change']['old_email'],
-                            'nuevo' => $newEmail
-                        ]
+                            'nuevo' => $newEmail,
+                        ],
                     ],
                     $_SESSION['user']['id']
                 );
 
                 unset($_SESSION['pending_email_change']);
-                $_SESSION['flash_success'] = "Correo verificado y actualizado exitosamente.";
+                $_SESSION['flash_success'] = 'Correo verificado y actualizado exitosamente.';
                 $this->redirect('perfil/ver');
+
                 return;
             } else {
-                $_SESSION['flash_error'] = "Código inválido o expirado.";
+                $_SESSION['flash_error'] = 'Código inválido o expirado.';
             }
         }
 
         // GET: Reenviar código
         if (isset($_GET['reenviar'])) {
-            $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+            $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
                       $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
 
             if (!$userModel->canResendVerificationCode($userId)) {
@@ -440,14 +454,14 @@ class PerfilController extends Controller
                     echo json_encode(['success' => false, 'message' => 'Debes esperar 60 segundos antes de reenviar el código.']);
                     exit;
                 }
-                $_SESSION['flash_error'] = "Debes esperar 60 segundos antes de reenviar el código.";
+                $_SESSION['flash_error'] = 'Debes esperar 60 segundos antes de reenviar el código.';
             } else {
                 $verificationCode = rand(100000, 999999);
                 $userModel->saveVerificationCode($userId, $verificationCode);
 
                 MailHelper::sendCode(
                     $newEmail,
-                    "Código de verificación de nuevo email - Sistema Inventario",
+                    'Código de verificación de nuevo email - Sistema Inventario',
                     $verificationCode,
                     'verificacion'
                 );
@@ -459,20 +473,19 @@ class PerfilController extends Controller
                     exit;
                 }
 
-                $_SESSION['flash_success'] = "Código reenviado al correo.";
+                $_SESSION['flash_success'] = 'Código reenviado al correo.';
             }
-            
-            if (!$isAjax) {
-                $this->redirect('perfil/verificarCambioCorreo');
-            }
+
+            $this->redirect('perfil/verificarCambioCorreo');
+
             return;
         }
 
         $this->view('perfil/verificarCambioCorreo', [
             'newEmail' => $newEmail,
             'remainingCooldown' => $remainingCooldown,
-            'pageStyles'  => ['login', 'recovery'],
-            'pageScripts' => []
+            'pageStyles' => ['login', 'recovery'],
+            'pageScripts' => [],
         ]);
     }
 }

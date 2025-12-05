@@ -1,8 +1,20 @@
 <?php
-require_once __DIR__ . "/../models/User.php";
-require_once __DIR__ . "/../models/Nodo.php";
-require_once __DIR__ . "/../models/Material.php";
-require_once __DIR__ . "/../helpers/PermissionHelper.php";
+
+require_once __DIR__ . '/../core/Database.php';
+require_once __DIR__ . '/../core/Model.php';
+require_once __DIR__ . '/../core/Controller.php';
+require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Nodo.php';
+require_once __DIR__ . '/../models/Material.php';
+require_once __DIR__ . '/../models/Audit.php';
+require_once __DIR__ . '/../helpers/PermissionHelper.php';
+
+use User;
+use Nodo;
+use Material;
+use Audit;
+use MaterialArchivo;
+use PermissionHelper;
 
 class UsuariosController extends Controller
 {
@@ -14,7 +26,7 @@ class UsuariosController extends Controller
     {
         if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'admin') {
             http_response_code(403);
-            echo "Acceso denegado.";
+            echo 'Acceso denegado.';
             exit;
         }
     }
@@ -35,13 +47,14 @@ class UsuariosController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             $this->redirect('auth/login');
+
             return;
         }
 
         // Verificar que sea admin
         if (($_SESSION['user']['rol'] ?? 'usuario') !== 'admin') {
             http_response_code(403);
-            echo "Acceso denegado. Solo administradores pueden acceder a la gestión de usuarios.";
+            echo 'Acceso denegado. Solo administradores pueden acceder a la gestión de usuarios.';
             exit;
         }
 
@@ -60,9 +73,9 @@ class UsuariosController extends Controller
         $nodos = $nodoModel->getActivosConLineas();
 
         $this->view('usuarios/gestion_de_usuarios', [
-            'usuarios'    => $usuarios,
-            'nodos'       => $nodos,
-            'pageStyles'  => ['usuarios'],
+            'usuarios' => $usuarios,
+            'nodos' => $nodos,
+            'pageStyles' => ['usuarios'],
             'pageScripts' => ['usuarios'],
         ]);
     }
@@ -74,7 +87,7 @@ class UsuariosController extends Controller
     {
         $this->requireAdmin(); // solo admin crea usuarios
 
-        $errores   = [];
+        $errores = [];
         $userModel = new User();
         $nodoModel = new Nodo();
 
@@ -82,18 +95,17 @@ class UsuariosController extends Controller
         $nodos = $nodoModel->getActivosConLineas();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
             $nombre_completo = trim($_POST['nombre_completo'] ?? '');
-            $correo          = trim($_POST['correo'] ?? '');
-            $nombreUsuario   = trim($_POST['nombre_usuario'] ?? '');
-            $celular         = trim($_POST['celular'] ?? '');
-            $cargo           = trim($_POST['cargo'] ?? '');
-            $password        = $_POST['password']  ?? '';
-            $password2       = $_POST['password2'] ?? '';
-            $estado          = intval($_POST['estado'] ?? 1);
-            $rol             = $_POST['rol'] ?? 'usuario';
-            $nodo_id         = !empty($_POST['nodo_id']) ? intval($_POST['nodo_id']) : null;
-            $linea_id        = !empty($_POST['linea_id']) ? intval($_POST['linea_id']) : null;
+            $correo = trim($_POST['correo'] ?? '');
+            $nombreUsuario = trim($_POST['nombre_usuario'] ?? '');
+            $celular = trim($_POST['celular'] ?? '');
+            $cargo = trim($_POST['cargo'] ?? '');
+            $password = $_POST['password'] ?? '';
+            $password2 = $_POST['password2'] ?? '';
+            $estado = intval($_POST['estado'] ?? 1);
+            $rol = $_POST['rol'] ?? 'usuario';
+            $nodo_id = !empty($_POST['nodo_id']) ? intval($_POST['nodo_id']) : null;
+            $linea_id = !empty($_POST['linea_id']) ? intval($_POST['linea_id']) : null;
 
             /* =========================
                VALIDACIONES
@@ -102,43 +114,43 @@ class UsuariosController extends Controller
                 $nombre_completo === '' || $correo === '' || $nombreUsuario === '' ||
                 $password === '' || $password2 === ''
             ) {
-                $errores[] = "Todos los campos obligatorios deben estar completos.";
+                $errores[] = 'Todos los campos obligatorios deben estar completos.';
             }
 
             if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-                $errores[] = "El correo no es válido.";
+                $errores[] = 'El correo no es válido.';
             }
 
             if ($password !== $password2) {
-                $errores[] = "Las contraseñas no coinciden.";
+                $errores[] = 'Las contraseñas no coinciden.';
             }
 
             // Reglas de contraseña
-            $hasLength  = strlen($password) >= 8;
-            $hasUpper   = preg_match('/[A-Z]/', $password);
+            $hasLength = strlen($password) >= 8;
+            $hasUpper = preg_match('/[A-Z]/', $password);
             $hasSpecial = preg_match('/[!@#$%^&*(),.?\":{}|<>_\-]/', $password);
 
             if (!$hasLength || !$hasUpper || !$hasSpecial) {
-                $errores[] = "La contraseña no cumple con los requisitos mínimos.";
+                $errores[] = 'La contraseña no cumple con los requisitos mínimos.';
             }
 
             // Duplicados
             if ($userModel->existsByCorreo($correo)) {
-                $errores[] = "Ese correo ya está registrado.";
+                $errores[] = 'Ese correo ya está registrado.';
             }
 
             if ($userModel->existsByNombreUsuario($nombreUsuario)) {
-                $errores[] = "Ese nombre de usuario ya existe.";
+                $errores[] = 'Ese nombre de usuario ya existe.';
             }
 
             // Validar nodo si no es admin
             if ($rol !== 'admin' && $nodo_id === null) {
-                $errores[] = "Debe asignar un nodo al usuario.";
+                $errores[] = 'Debe asignar un nodo al usuario.';
             }
 
             // Validar línea si es usuario
             if ($rol === 'usuario' && $linea_id === null) {
-                $errores[] = "Debe asignar una línea a los usuarios.";
+                $errores[] = 'Debe asignar una línea a los usuarios.';
             }
 
             /* =========================
@@ -147,18 +159,17 @@ class UsuariosController extends Controller
             $fotoRuta = null;
 
             if (!empty($_FILES['foto']['name'])) {
-
                 $ext = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
                 $permitidas = ['jpg', 'jpeg', 'png'];
 
                 if (!in_array($ext, $permitidas)) {
-                    $errores[] = "Formato de imagen no permitido (solo JPG y PNG).";
+                    $errores[] = 'Formato de imagen no permitido (solo JPG y PNG).';
                 } else {
-                    $nombreFoto  = "uploads/fotos/" . uniqid("foto_") . "." . $ext;
-                    $rutaSistema = __DIR__ . "/../../public/" . $nombreFoto;
+                    $nombreFoto = 'uploads/fotos/' . uniqid('foto_') . '.' . $ext;
+                    $rutaSistema = __DIR__ . '/../../public/' . $nombreFoto;
 
-                    if (!is_dir(__DIR__ . "/../../public/uploads/fotos")) {
-                        mkdir(__DIR__ . "/../../public/uploads/fotos", 0755, true);
+                    if (!is_dir(__DIR__ . '/../../public/uploads/fotos')) {
+                        mkdir(__DIR__ . '/../../public/uploads/fotos', 0755, true);
                     }
 
                     move_uploaded_file($_FILES['foto']['tmp_name'], $rutaSistema);
@@ -170,20 +181,19 @@ class UsuariosController extends Controller
                SI TODO OK → CREAR USUARIO
             ========================== */
             if (empty($errores)) {
-
                 $nuevoUsuarioId = $userModel->create([
-                    'nombre'         => $nombre_completo,
-                    'correo'         => $correo,
+                    'nombre' => $nombre_completo,
+                    'correo' => $correo,
                     'nombre_usuario' => $nombreUsuario,
-                    'celular'        => $celular,
-                    'cargo'          => $cargo,
-                    'foto'           => $fotoRuta,
-                    'password'       => password_hash($password, PASSWORD_DEFAULT),
-                    'estado'         => $estado,
-                    'rol'            => $rol,
-                    'nodo_id'        => $nodo_id,
-                    'linea_id'       => $linea_id,
-                    'email_verified' => 1
+                    'celular' => $celular,
+                    'cargo' => $cargo,
+                    'foto' => $fotoRuta,
+                    'password' => password_hash($password, PASSWORD_DEFAULT),
+                    'estado' => $estado,
+                    'rol' => $rol,
+                    'nodo_id' => $nodo_id,
+                    'linea_id' => $linea_id,
+                    'email_verified' => 1,
                 ]);
 
                 // Registrar en auditoría (no llamar asignarNodo aquí)
@@ -196,37 +206,38 @@ class UsuariosController extends Controller
                     [
                         'nombre' => [
                             'anterior' => 'N/A',
-                            'nuevo' => $nombre_completo
+                            'nuevo' => $nombre_completo,
                         ],
                         'correo' => [
                             'anterior' => 'N/A',
-                            'nuevo' => $correo
+                            'nuevo' => $correo,
                         ],
                         'nombre_usuario' => [
                             'anterior' => 'N/A',
-                            'nuevo' => $nombreUsuario
+                            'nuevo' => $nombreUsuario,
                         ],
                         'rol' => [
                             'anterior' => 'N/A',
-                            'nuevo' => $rol
+                            'nuevo' => $rol,
                         ],
                         'estado' => [
                             'anterior' => 'N/A',
-                            'nuevo' => $estado == 1 ? 'Activo' : 'Bloqueado'
-                        ]
+                            'nuevo' => $estado == 1 ? 'Activo' : 'Bloqueado',
+                        ],
                     ],
                     $_SESSION['user']['id'] ?? null
                 );
 
                 $this->redirect('usuarios/gestionDeUsuarios');
+
                 return;
             }
         }
 
         $this->view('usuarios/crear', [
-            'errores'     => $errores,
-            'nodos'       => $nodos,
-            'pageStyles'  => ['usuarios'],
+            'errores' => $errores,
+            'nodos' => $nodos,
+            'pageStyles' => ['usuarios'],
             'pageScripts' => ['usuarios'],
         ]);
     }
@@ -239,32 +250,31 @@ class UsuariosController extends Controller
         $this->requireAdmin();
 
         $userModel = new User();
-        $errores   = [];
+        $errores = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-            $id            = intval($_POST['id'] ?? 0);
-            $nombre        = trim($_POST['nombre'] ?? '');
-            $correo        = trim($_POST['correo'] ?? '');
+            $id = intval($_POST['id'] ?? 0);
+            $nombre = trim($_POST['nombre'] ?? '');
+            $correo = trim($_POST['correo'] ?? '');
             $nombreUsuario = trim($_POST['nombre_usuario'] ?? '');
-            $celular       = trim($_POST['celular'] ?? '');
-            $cargo         = trim($_POST['cargo'] ?? '');
-            $estado        = intval($_POST['estado'] ?? 1);
-            $password      = trim($_POST['password'] ?? '');
-            $rol           = $_POST['rol'] ?? 'usuario';
-            $nodo_id       = !empty($_POST['nodo_id']) ? intval($_POST['nodo_id']) : null;
-            $linea_id      = !empty($_POST['linea_id']) ? intval($_POST['linea_id']) : null;
+            $celular = trim($_POST['celular'] ?? '');
+            $cargo = trim($_POST['cargo'] ?? '');
+            $estado = intval($_POST['estado'] ?? 1);
+            $password = trim($_POST['password'] ?? '');
+            $rol = $_POST['rol'] ?? 'usuario';
+            $nodo_id = !empty($_POST['nodo_id']) ? intval($_POST['nodo_id']) : null;
+            $linea_id = !empty($_POST['linea_id']) ? intval($_POST['linea_id']) : null;
 
             if ($id <= 0) {
-                $errores[] = "Usuario inválido.";
+                $errores[] = 'Usuario inválido.';
             }
 
             if ($nombre === '' || $correo === '' || $nombreUsuario === '') {
-                $errores[] = "Nombre, correo y usuario son obligatorios.";
+                $errores[] = 'Nombre, correo y usuario son obligatorios.';
             }
 
             if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-                $errores[] = "Correo inválido.";
+                $errores[] = 'Correo inválido.';
             }
 
             // Validar nodo y línea según rol
@@ -272,11 +282,11 @@ class UsuariosController extends Controller
                 // admin no necesita nodo/línea
             } elseif ($rol === 'dinamizador') {
                 if (empty($nodo_id)) {
-                    $errores[] = "Dinamizador debe tener un nodo asignado.";
+                    $errores[] = 'Dinamizador debe tener un nodo asignado.';
                 }
             } elseif ($rol === 'usuario') {
                 if (empty($nodo_id) || empty($linea_id)) {
-                    $errores[] = "Usuario debe tener nodo y línea asignados.";
+                    $errores[] = 'Usuario debe tener nodo y línea asignados.';
                 }
             }
 
@@ -286,18 +296,17 @@ class UsuariosController extends Controller
             $fotoRuta = null;
 
             if (!empty($_FILES['foto']['name'])) {
-
                 $ext = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
                 $permitidas = ['jpg', 'jpeg', 'png'];
 
                 if (!in_array($ext, $permitidas)) {
-                    $errores[] = "Formato de imagen no permitido. Solo JPG o PNG.";
+                    $errores[] = 'Formato de imagen no permitido. Solo JPG o PNG.';
                 } else {
-                    $nombreFoto      = "uploads/fotos/" . uniqid("foto_") . "." . $ext;
-                    $fotoRutaSistema = __DIR__ . "/../../public/" . $nombreFoto;
+                    $nombreFoto = 'uploads/fotos/' . uniqid('foto_') . '.' . $ext;
+                    $fotoRutaSistema = __DIR__ . '/../../public/' . $nombreFoto;
 
-                    if (!is_dir(__DIR__ . "/../../public/uploads/fotos")) {
-                        mkdir(__DIR__ . "/../../public/uploads/fotos", 0755, true);
+                    if (!is_dir(__DIR__ . '/../../public/uploads/fotos')) {
+                        mkdir(__DIR__ . '/../../public/uploads/fotos', 0755, true);
                     }
 
                     move_uploaded_file($_FILES['foto']['tmp_name'], $fotoRutaSistema);
@@ -306,22 +315,21 @@ class UsuariosController extends Controller
             }
 
             if (empty($errores)) {
-
                 // Obtener datos anteriores antes de actualizar
                 $usuarioAnterior = $userModel->findById($id);
 
                 $userModel->updateFull($id, [
-                    'nombre'         => $nombre,
-                    'correo'         => $correo,
+                    'nombre' => $nombre,
+                    'correo' => $correo,
                     'nombre_usuario' => $nombreUsuario,
-                    'celular'        => $celular,
-                    'cargo'          => $cargo,
-                    'estado'         => $estado,
-                    'password'       => $password,  // si viene vacío NO se cambia
-                    'foto'           => $fotoRuta,  // si es null NO se cambia
-                    'rol'            => $rol,
-                    'nodo_id'        => $nodo_id,
-                    'linea_id'       => $linea_id,
+                    'celular' => $celular,
+                    'cargo' => $cargo,
+                    'estado' => $estado,
+                    'password' => $password,  // si viene vacío NO se cambia
+                    'foto' => $fotoRuta,  // si es null NO se cambia
+                    'rol' => $rol,
+                    'nodo_id' => $nodo_id,
+                    'linea_id' => $linea_id,
                 ]);
 
                 // Registrar en auditoría con antes y después
@@ -332,55 +340,55 @@ class UsuariosController extends Controller
                 if ($usuarioAnterior['nombre'] !== $nombre) {
                     $cambios['nombre'] = [
                         'anterior' => $usuarioAnterior['nombre'],
-                        'nuevo' => $nombre
+                        'nuevo' => $nombre,
                     ];
                 }
                 if ($usuarioAnterior['correo'] !== $correo) {
                     $cambios['correo'] = [
                         'anterior' => $usuarioAnterior['correo'],
-                        'nuevo' => $correo
+                        'nuevo' => $correo,
                     ];
                 }
                 if ($usuarioAnterior['nombre_usuario'] !== $nombreUsuario) {
                     $cambios['nombre_usuario'] = [
                         'anterior' => $usuarioAnterior['nombre_usuario'],
-                        'nuevo' => $nombreUsuario
+                        'nuevo' => $nombreUsuario,
                     ];
                 }
                 if ($usuarioAnterior['celular'] !== $celular) {
                     $cambios['celular'] = [
                         'anterior' => $usuarioAnterior['celular'] ?? '(vacío)',
-                        'nuevo' => $celular ?: '(vacío)'
+                        'nuevo' => $celular ?: '(vacío)',
                     ];
                 }
                 if ($usuarioAnterior['cargo'] !== $cargo) {
                     $cambios['cargo'] = [
                         'anterior' => $usuarioAnterior['cargo'] ?? '(vacío)',
-                        'nuevo' => $cargo ?: '(vacío)'
+                        'nuevo' => $cargo ?: '(vacío)',
                     ];
                 }
                 if ($usuarioAnterior['rol'] !== $rol) {
                     $cambios['rol'] = [
                         'anterior' => $usuarioAnterior['rol'],
-                        'nuevo' => $rol
+                        'nuevo' => $rol,
                     ];
                 }
                 if ($usuarioAnterior['estado'] != $estado) {
                     $cambios['estado'] = [
                         'anterior' => $usuarioAnterior['estado'] == 1 ? 'Activo' : 'Bloqueado',
-                        'nuevo' => $estado == 1 ? 'Activo' : 'Bloqueado'
+                        'nuevo' => $estado == 1 ? 'Activo' : 'Bloqueado',
                     ];
                 }
                 if (!empty($password)) {
                     $cambios['contraseña'] = [
                         'anterior' => '***',
-                        'nuevo' => '***'
+                        'nuevo' => '***',
                     ];
                 }
                 if (!empty($fotoRuta)) {
                     $cambios['foto'] = [
                         'anterior' => $usuarioAnterior['foto'] ?? '(ninguna)',
-                        'nuevo' => $fotoRuta
+                        'nuevo' => $fotoRuta,
                     ];
                 }
 
@@ -388,13 +396,13 @@ class UsuariosController extends Controller
                 if ($nodo_id !== null && $usuarioAnterior['nodo_id'] != $nodo_id) {
                     $cambios['nodo_id'] = [
                         'anterior' => $usuarioAnterior['nodo_id'] ?? 'Sin asignar',
-                        'nuevo' => $nodo_id
+                        'nuevo' => $nodo_id,
                     ];
                 }
                 if ($linea_id !== null && $usuarioAnterior['linea_id'] != $linea_id) {
                     $cambios['linea_id'] = [
                         'anterior' => $usuarioAnterior['linea_id'] ?? 'Sin asignar',
-                        'nuevo' => $linea_id
+                        'nuevo' => $linea_id,
                     ];
                 }
 
@@ -410,12 +418,12 @@ class UsuariosController extends Controller
                 }
 
                 $this->redirect('usuarios/gestionDeUsuarios');
+
                 return;
             }
 
             $usuario = $userModel->findById($id);
         } else {
-
             $id = intval($_GET['id'] ?? 0);
 
             if ($id <= 0) {
@@ -430,10 +438,10 @@ class UsuariosController extends Controller
         $nodos = $nodoModel->getActivosConLineas();
 
         $this->view('usuarios/editar', [
-            'usuario'     => $usuario,
-            'nodos'       => $nodos,
-            'errores'     => $errores,
-            'pageStyles'  => ['usuarios'],
+            'usuario' => $usuario,
+            'nodos' => $nodos,
+            'errores' => $errores,
+            'pageStyles' => ['usuarios'],
             'pageScripts' => ['usuarios'],
         ]);
     }
@@ -451,9 +459,9 @@ class UsuariosController extends Controller
             if ($id > 0) {
                 $userModel = new User();
                 $usuarioActual = $userModel->findById($id);
-                
+
                 $userModel->updateEstado($id, 0);
-                
+
                 // Registrar en auditoría
                 $auditModel = new Audit();
                 $auditModel->registrarCambio(
@@ -464,8 +472,8 @@ class UsuariosController extends Controller
                     [
                         'estado' => [
                             'anterior' => 'Activo',
-                            'nuevo' => 'Inactivo'
-                        ]
+                            'nuevo' => 'Inactivo',
+                        ],
                     ],
                     $_SESSION['user']['id']
                 );
@@ -488,9 +496,9 @@ class UsuariosController extends Controller
             if ($id > 0) {
                 $userModel = new User();
                 $usuarioActual = $userModel->findById($id);
-                
+
                 $userModel->updateEstado($id, 1);
-                
+
                 // Registrar en auditoría
                 $auditModel = new Audit();
                 $auditModel->registrarCambio(
@@ -501,8 +509,8 @@ class UsuariosController extends Controller
                     [
                         'estado' => [
                             'anterior' => 'Inactivo',
-                            'nuevo' => 'Activo'
-                        ]
+                            'nuevo' => 'Activo',
+                        ],
                     ],
                     $_SESSION['user']['id']
                 );
@@ -518,7 +526,7 @@ class UsuariosController extends Controller
     public function asignarNodo()
     {
         header('Content-Type: application/json; charset=utf-8');
-        
+
         $this->requireAdmin();
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -540,7 +548,7 @@ class UsuariosController extends Controller
         }
 
         $userModel = new User();
-        
+
         // Verificar que el usuario existe
         $usuario = $userModel->findById($usuario_id);
         if (!$usuario) {
@@ -574,9 +582,9 @@ class UsuariosController extends Controller
             $cambios = [
                 'rol' => ['anterior' => $usuario['rol'] ?? 'Sin asignar', 'nuevo' => $rol],
                 'nodo_id' => ['anterior' => $usuario['nodo_id'] ?? 'Sin asignar', 'nuevo' => $nodo_id ?? 'Sin asignar'],
-                'linea_id' => ['anterior' => $usuario['linea_id'] ?? 'Sin asignar', 'nuevo' => $linea_id ?? 'Sin asignar']
+                'linea_id' => ['anterior' => $usuario['linea_id'] ?? 'Sin asignar', 'nuevo' => $linea_id ?? 'Sin asignar'],
             ];
-            
+
             $auditModel->registrarCambio(
                 $usuario_id,
                 'usuarios',
@@ -599,7 +607,7 @@ class UsuariosController extends Controller
     public function eliminar()
     {
         header('Content-Type: application/json; charset=utf-8');
-        
+
         $this->requireAdmin();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -612,12 +620,12 @@ class UsuariosController extends Controller
 
             $userModel = new User();
             $usuario = $userModel->findById($id);
-            
+
             if (!$usuario) {
                 echo json_encode(['success' => false, 'message' => 'Usuario no encontrado']);
                 exit;
             }
-            
+
             // Registrar en auditoría ANTES de eliminar el usuario
             require_once __DIR__ . '/../models/Audit.php';
             $auditModel = new Audit();
@@ -632,14 +640,14 @@ class UsuariosController extends Controller
                     'correo' => $usuario['correo'] ?? '',
                     'nombre_usuario' => $usuario['nombre_usuario'] ?? '',
                     'rol' => $usuario['rol'] ?? 'usuario',
-                    'estado' => ($usuario['estado'] ?? 1) == 1 ? 'Activo' : 'Bloqueado'
+                    'estado' => ($usuario['estado'] ?? 1) == 1 ? 'Activo' : 'Bloqueado',
                 ],
                 $_SESSION['user']['id']
             );
-            
+
             // DESPUÉS eliminar el usuario
             $userModel->deleteById($id);
-            
+
             echo json_encode(['success' => true, 'message' => 'Usuario eliminado exitosamente']);
             exit;
         }
@@ -654,27 +662,27 @@ class UsuariosController extends Controller
     public function buscar()
     {
         header('Content-Type: application/json; charset=utf-8');
-        
+
         $this->requireAdmin();
 
-        $q      = trim($_GET['q']      ?? '');
-        $estado = $_GET['estado']      ?? '';
-        $rol    = $_GET['rol']         ?? '';
-        $page   = max(1, (int)($_GET['page'] ?? 1));
+        $q = trim($_GET['q'] ?? '');
+        $estado = $_GET['estado'] ?? '';
+        $rol = $_GET['rol'] ?? '';
+        $page = max(1, (int) ($_GET['page'] ?? 1));
         $perPage = 10;
 
         $offset = ($page - 1) * $perPage;
 
         $userModel = new User();
 
-        $data  = $userModel->searchUsers($q, $estado, $rol, $perPage, $offset);
+        $data = $userModel->searchUsers($q, $estado, $rol, $perPage, $offset);
         $total = $userModel->countUsersFiltered($q, $estado, $rol);
 
         echo json_encode([
-            'data'       => $data,
-            'total'      => $total,
-            'page'       => $page,
-            'perPage'    => $perPage,
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
+            'perPage' => $perPage,
             'totalPages' => max(1, ceil($total / $perPage)),
         ]);
         exit;
@@ -686,7 +694,7 @@ class UsuariosController extends Controller
     public function verificarEmail()
     {
         header('Content-Type: application/json; charset=utf-8');
-        
+
         $this->requireAdmin();
 
         $email = trim($_GET['email'] ?? '');
@@ -713,7 +721,7 @@ class UsuariosController extends Controller
 
         echo json_encode([
             'existe' => (bool) $existe,
-            'mensaje' => $existe ? 'Este correo ya está registrado' : 'Email disponible'
+            'mensaje' => $existe ? 'Este correo ya está registrado' : 'Email disponible',
         ]);
         exit;
     }
@@ -724,7 +732,7 @@ class UsuariosController extends Controller
     public function verificarNombreUsuario()
     {
         header('Content-Type: application/json; charset=utf-8');
-        
+
         $this->requireAdmin();
 
         $nombreUsuario = trim($_GET['nombre_usuario'] ?? '');
@@ -751,7 +759,7 @@ class UsuariosController extends Controller
 
         echo json_encode([
             'existe' => (bool) $existe,
-            'mensaje' => $existe ? 'Este nombre de usuario ya existe' : 'Nombre disponible'
+            'mensaje' => $existe ? 'Este nombre de usuario ya existe' : 'Nombre disponible',
         ]);
         exit;
     }
@@ -763,21 +771,22 @@ class UsuariosController extends Controller
     {
         if (!isset($_SESSION['user'])) {
             $this->redirect('auth/login');
+
             return;
         }
 
         $userId = intval($_GET['id'] ?? 0);
-        
+
         // Validar que sea admin o que vea su propio perfil
         if (($_SESSION['user']['rol'] ?? 'usuario') !== 'admin' && $_SESSION['user']['id'] !== $userId) {
             http_response_code(403);
-            echo "Acceso denegado.";
+            echo 'Acceso denegado.';
             exit;
         }
 
         if ($userId <= 0) {
             http_response_code(404);
-            echo "Usuario no encontrado.";
+            echo 'Usuario no encontrado.';
             exit;
         }
 
@@ -786,14 +795,14 @@ class UsuariosController extends Controller
 
         if (!$usuario) {
             http_response_code(404);
-            echo "Usuario no encontrado.";
+            echo 'Usuario no encontrado.';
             exit;
         }
 
         // Obtener información de nodo y línea
         $nodo_nombre = '';
         $linea_nombre = '';
-        
+
         if ($usuario['nodo_id']) {
             $nodoModel = new Nodo();
             $nodo = $nodoModel->getById($usuario['nodo_id']);
@@ -815,16 +824,16 @@ class UsuariosController extends Controller
         $auditModel = new Audit();
         $historialCambios = $auditModel->obtenerHistorialCompleto(500, 0, [
             'usuario_id' => $userId,
-            'tabla' => 'usuarios'
+            'tabla' => 'usuarios',
         ]);
 
         $this->view('usuarios/detalles', [
-            'usuario'     => $usuario,
-            'archivos'    => $archivos,
+            'usuario' => $usuario,
+            'archivos' => $archivos,
             'nodo_nombre' => $nodo_nombre,
             'linea_nombre' => $linea_nombre,
             'historialCambios' => $historialCambios,
-            'pageStyles'  => ['perfil'],
+            'pageStyles' => ['perfil'],
             'pageScripts' => [],
         ]);
     }
@@ -835,7 +844,7 @@ class UsuariosController extends Controller
     public function contarDocumentos()
     {
         header('Content-Type: application/json; charset=utf-8');
-        
+
         $this->requireAdmin();
 
         $usuarioId = intval($_GET['usuario_id'] ?? 0);
@@ -859,27 +868,27 @@ class UsuariosController extends Controller
     public function diagnostico()
     {
         header('Content-Type: application/json; charset=utf-8');
-        
+
         $this->requireAdmin();
 
         try {
             $nodoModel = new Nodo();
-            
+
             // Obtener todos los nodos con líneas
             $nodos = $nodoModel->getActivosConLineas();
-            
+
             // Información de diagnóstico
             $diagnostico = [
                 'total_nodos' => count($nodos),
                 'nodos_data' => $nodos,
-                'problemas' => []
+                'problemas' => [],
             ];
-            
+
             // Verificar problemas comunes
             if (empty($nodos)) {
                 $diagnostico['problemas'][] = 'No hay nodos activos en la base de datos';
             }
-            
+
             foreach ($nodos as $idx => $nodo) {
                 if (!isset($nodo['lineas'])) {
                     $diagnostico['problemas'][] = "Nodo {$nodo['nombre']} (ID: {$nodo['id']}) no tiene la propiedad 'lineas'";
@@ -888,14 +897,14 @@ class UsuariosController extends Controller
                     $diagnostico['problemas'][] = "Nodo {$nodo['nombre']} (ID: {$nodo['id']}) no tiene líneas asociadas";
                 }
             }
-            
+
             echo json_encode($diagnostico);
         } catch (Exception $e) {
             echo json_encode([
                 'error' => $e->getMessage(),
                 'total_nodos' => 0,
                 'nodos_data' => [],
-                'problemas' => [$e->getMessage()]
+                'problemas' => [$e->getMessage()],
             ]);
         }
         exit;
@@ -916,7 +925,7 @@ class UsuariosController extends Controller
         echo json_encode([
             'success' => true,
             'count' => $count,
-            'users' => $pendingUsers
+            'users' => $pendingUsers,
         ]);
         exit;
     }

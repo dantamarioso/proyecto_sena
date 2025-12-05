@@ -5,17 +5,21 @@
             <h3 class="text-center">Verificar Código</h3>
             <h4 class="text-center">Ingresa el código que recibiste en tu correo</h4>
 
-            <?php if (!empty($_SESSION['flash_error'])): ?>
+            <?php if (!empty($_SESSION['flash_error'])) :
+                ?>
                 <div class="alert alert-danger">
                     <i class="bi bi-exclamation-circle me-2"></i>
-                    <?= htmlspecialchars($_SESSION['flash_error']); unset($_SESSION['flash_error']); ?>
+                    <?= htmlspecialchars($_SESSION['flash_error']);
+                    unset($_SESSION['flash_error']); ?>
                 </div>
             <?php endif; ?>
 
-            <?php if (!empty($_SESSION['flash_success'])): ?>
+            <?php if (!empty($_SESSION['flash_success'])) :
+                ?>
                 <div class="alert alert-success">
                     <i class="bi bi-check-circle me-2"></i>
-                    <?= htmlspecialchars($_SESSION['flash_success']); unset($_SESSION['flash_success']); ?>
+                    <?= htmlspecialchars($_SESSION['flash_success']);
+                    unset($_SESSION['flash_success']); ?>
                 </div>
             <?php endif; ?>
 
@@ -65,16 +69,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const contadorText = document.getElementById("contadorText");
     const storageKey = 'verifyCode_cooldown_end';
 
-    // Obtener cooldown guardado o el valor por defecto
-    let cooldownEnd = localStorage.getItem(storageKey);
-    let cooldown = 60; // Duración estándar del cooldown (60 segundos)
+    // Obtener cooldown del servidor (PHP)
+    let cooldown = <?= $remainingCooldown ?? 0 ?>;
 
-    if (cooldownEnd) {
-        const remainingSeconds = Math.ceil((parseInt(cooldownEnd) - Date.now()) / 1000);
-        if (remainingSeconds > 0) {
-            cooldown = remainingSeconds;
-        } else {
-            localStorage.removeItem(storageKey);
+    // Si no hay cooldown del servidor, verificar localStorage
+    if (cooldown === 0) {
+        let cooldownEnd = localStorage.getItem(storageKey);
+        if (cooldownEnd) {
+            const remainingSeconds = Math.ceil((parseInt(cooldownEnd) - Date.now()) / 1000);
+            if (remainingSeconds > 0) {
+                cooldown = remainingSeconds;
+            } else {
+                localStorage.removeItem(storageKey);
+            }
         }
     }
 
@@ -90,9 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (cooldown > 0) {
                 contadorText.textContent = `⏱️ Puedes reenviar en ${cooldown} segundos...`;
                 cooldown--;
-            }
-
-            if (cooldown < 0) {
+            } else {
                 clearInterval(timer);
                 btnReenviar.disabled = false;
                 contadorText.textContent = "";

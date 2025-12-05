@@ -1,6 +1,29 @@
 <?php
+
+require_once __DIR__ . '/../core/Database.php';
+require_once __DIR__ . '/../core/Controller.php';
+require_once __DIR__ . '/../services/AuthenticationService.php';
+require_once __DIR__ . '/../services/PasswordRecoveryService.php';
+require_once __DIR__ . '/../services/EmailVerificationService.php';
+
+/**
+ * Controlador de autenticación refactorizado.
+ * Usa servicios para reducir complejidad ciclomática.
+ */
 class AuthController extends Controller
 {
+    private $authService;
+
+    private $recoveryService;
+
+    private $verificationService;
+
+    public function __construct()
+    {
+        $this->authService = new AuthenticationService();
+        $this->recoveryService = new PasswordRecoveryService();
+        $this->verificationService = new EmailVerificationService();
+    }
 
     /* ============================================================
        RECOVERY - OLVIDAR CONTRASEÑA
@@ -8,141 +31,86 @@ class AuthController extends Controller
 
     public function forgot()
     {
-        $this->view("auth/forgot", [
+        $this->view('auth/forgot', [
             'isLoginPage' => true,
             'isRecoveryPage' => true,
-            'pageStyles'  => ['login', 'recovery'],
-            'pageScripts' => []
+            'pageStyles' => ['login', 'recovery'],
+            'pageScripts' => [],
         ]);
     }
 
     public function sendCode()
     {
         $correo = trim($_POST['correo'] ?? '');
-        $userModel = new User();
-        $user = $userModel->findByCorreo($correo);
+        $result = $this->recoveryService->initiateRecovery($correo);
 
-        if (!$user) {
-            $_SESSION['flash_error'] = "No existe un usuario con ese correo.";
-            $this->redirect("auth/forgot");
+        if (!$result['success']) {
+            $_SESSION['flash_error'] = $result['message'];
+            $this->redirect('auth/forgot');
         }
 
-        $code = rand(100000, 999999);
-        $userModel->saveRecoveryCode($user['id'], $code);
-
-        MailHelper::sendCode(
-            $correo,
-            "Código de recuperación - Sistema Inventario",
-            $code,
-            'recuperacion'
-        );
-
         $_SESSION['recovery_correo'] = $correo;
-        $this->redirect("auth/verifyCode");
+        $this->redirect('auth/verifyCode');
     }
 
     public function resendCode()
     {
-        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-                  $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
-
+        $isAjax = $this->isAjaxRequest();
         $correo = $_SESSION['recovery_correo'] ?? null;
-        
+
         if (!$correo) {
-            if ($isAjax) {
-                header('Content-Type: application/json; charset=utf-8');
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => 'Sesión expirada. Por favor, comienza de nuevo.']);
-                exit;
-            }
-            $this->redirect("auth/forgot");
+            return $this->handleResendError($isAjax, 'Sesión expirada. Por favor, comienza de nuevo.', 400, 'auth/forgot');
         }
 
-        $userModel = new User();
-        $user = $userModel->findByCorreo($correo);
+        $result = $this->recoveryService->resendRecoveryCode($correo);
 
-        if (!$user) {
-            if ($isAjax) {
-                header('Content-Type: application/json; charset=utf-8');
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => 'Usuario no encontrado.']);
-                exit;
-            }
-            $_SESSION['flash_error'] = "Usuario no encontrado.";
-            $this->redirect("auth/forgot");
+        if (!$result['success']) {
+            $statusCode = isset($result['cooldown']) && $result['cooldown'] ? 429 : 400;
+
+            return $this->handleResendError($isAjax, $result['message'], $statusCode, 'auth/verifyCode');
         }
-
-        // Verificar si puede reenviar (60 segundos de cooldown)
-        if (!$userModel->canResendVerificationCode($user['id'])) {
-            if ($isAjax) {
-                header('Content-Type: application/json; charset=utf-8');
-                http_response_code(429);
-                echo json_encode(['success' => false, 'message' => 'Debes esperar 60 segundos antes de reenviar el código.']);
-                exit;
-            }
-            $_SESSION['flash_error'] = "Debes esperar 60 segundos antes de reenviar el código.";
-            $this->redirect("auth/verifyCode");
-        }
-
-        $code = rand(100000, 999999);
-        $userModel->saveRecoveryCode($user['id'], $code);
-
-        MailHelper::sendCode(
-            $correo,
-            "Código de recuperación - Sistema Inventario",
-            $code,
-            'recuperacion'
-        );
 
         if ($isAjax) {
-            header('Content-Type: application/json; charset=utf-8');
-            http_response_code(200);
-            echo json_encode(['success' => true, 'message' => 'Código reenviado exitosamente al correo.']);
-            exit;
+            $this->jsonResponse(['success' => true, 'message' => $result['message']], 200);
         }
 
-        $_SESSION['flash_success'] = "Código reenviado correctamente.";
-        $this->redirect("auth/verifyCode");
+        $_SESSION['flash_success'] = 'Código reenviado correctamente.';
+        $this->redirect('auth/verifyCode');
     }
 
     public function verifyCode()
     {
         if (!isset($_SESSION['recovery_correo'])) {
-            $this->redirect("auth/forgot");
+            $this->redirect('auth/forgot');
         }
 
         $userModel = new User();
         $user = $userModel->findByCorreo($_SESSION['recovery_correo']);
-        $remainingCooldown = 0;
+        $remainingCooldown = $user ? $userModel->getRemainingRecoveryCooldownTime($user['id']) : 0;
 
-        if ($user) {
-            $remainingCooldown = $userModel->getRemainingCooldownTime($user['id']);
-        }
-
-        $this->view("auth/verifyCode", [
+        $this->view('auth/verifyCode', [
             'isLoginPage' => true,
             'isRecoveryPage' => true,
-            'pageStyles'  => ['login', 'recovery'],
+            'pageStyles' => ['login', 'recovery'],
             'pageScripts' => [],
-            'remainingCooldown' => $remainingCooldown
+            'remainingCooldown' => $remainingCooldown,
         ]);
     }
 
     public function verifyCodePost()
     {
         $correo = $_SESSION['recovery_correo'] ?? null;
-        $code   = trim($_POST['code'] ?? '');
+        $code = trim($_POST['code'] ?? '');
 
-        $userModel = new User();
-        $user = $userModel->verifyCode($correo, $code);
+        $result = $this->recoveryService->verifyRecoveryCode($correo, $code);
 
-        if ($user) {
-            $_SESSION['reset_user'] = $user['id'];
-            $this->redirect("auth/resetPassword");
-        } else {
-            $_SESSION['flash_error'] = "Código incorrecto o expirado.";
-            $this->redirect("auth/verifyCode");
+        if (!$result['success']) {
+            $_SESSION['flash_error'] = $result['message'];
+            $this->redirect('auth/verifyCode');
         }
+
+        $_SESSION['reset_user'] = $result['user']['id'];
+        $this->redirect('auth/resetPassword');
     }
 
     public function resetPassword()
@@ -154,43 +122,34 @@ class AuthController extends Controller
         $this->view('auth/reset', [
             'isLoginPage' => true,
             'isRecoveryPage' => true,
-            'pageStyles'  => ['login', 'recovery'],
-            'pageScripts' => []
+            'pageStyles' => ['login', 'recovery'],
+            'pageScripts' => [],
         ]);
     }
 
     public function resetPasswordPost()
     {
-        $id   = $_SESSION['reset_user'];
-        $pass = $_POST['password'];
-        $pass2 = $_POST['password2'];
+        $password = $_POST['password'] ?? '';
+        $password2 = $_POST['password2'] ?? '';
+        $correo = $_SESSION['recovery_correo'] ?? null;
 
-        if ($pass !== $pass2) {
-            $_SESSION['flash_error'] = "Las contraseñas no coinciden.";
-            $this->redirect("auth/resetPassword");
+        if ($password !== $password2) {
+            $_SESSION['flash_error'] = 'Las contraseñas no coinciden.';
+            $this->redirect('auth/resetPassword');
         }
 
-        // Validar requisitos de contraseña
-        $hasLength  = strlen($pass) >= 8;
-        $hasUpper   = preg_match('/[A-Z]/', $pass);
-        $hasSpecial = preg_match('/[!@#$%^&*(),.?":{}|<>_\-]/', $pass);
+        $result = $this->recoveryService->resetPassword($correo, $password);
 
-        if (!$hasLength || !$hasUpper || !$hasSpecial) {
-            $_SESSION['flash_error'] = "La contraseña no cumple con los requisitos mínimos (8+ caracteres, mayúscula y carácter especial).";
-            $this->redirect("auth/resetPassword");
+        if (!$result['success']) {
+            $_SESSION['flash_error'] = $result['message'];
+            $this->redirect('auth/resetPassword');
         }
 
-        $userModel = new User();
-        $userModel->setNewPassword($id, $pass);
-        $userModel->clearRecoveryCode($id);
+        unset($_SESSION['reset_user'], $_SESSION['recovery_correo']);
 
-        unset($_SESSION['reset_user']);
-        unset($_SESSION['recovery_correo']);
-
-        $_SESSION['flash_success'] = "Contraseña actualizada correctamente. ¡Ya puedes iniciar sesión!";
-        $this->redirect("auth/login");
+        $_SESSION['flash_success'] = 'Contraseña actualizada correctamente. ¡Ya puedes iniciar sesión!';
+        $this->redirect('auth/login');
     }
-
 
     /* ============================================================
        LOGIN
@@ -205,82 +164,44 @@ class AuthController extends Controller
         $errores = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-            $login    = trim($_POST['login'] ?? '');
+            $login = trim($_POST['login'] ?? '');
             $password = $_POST['password'] ?? '';
 
             if ($login === '' || $password === '') {
-                $errores[] = "Ingresa correo o nombre de usuario y la contraseña.";
+                $errores[] = 'Ingresa tu correo electrónico y contraseña.';
             } else {
+                $result = $this->authService->authenticate($login, $password);
 
-                $userModel = new User();
-                $user = $userModel->findByCorreoOrUsername($login);
-
-                if ($user && password_verify($password, $user['password'])) {
-
-                    // Verificar si el usuario está activo
-                    if ($user['estado'] == 0) {
-                        $errores[] = "Tu cuenta ha sido desactivada. Contacta al administrador.";
-                    } else if ($user['email_verified'] == 0) {
-                        // El usuario debe verificar su email antes de iniciar sesión
-                        $_SESSION['register_correo'] = $user['correo'];
-                        $_SESSION['flash_error'] = "Debes verificar tu email antes de iniciar sesión.";
+                if (!$result['success']) {
+                    if (isset($result['email_not_verified']) && $result['email_not_verified']) {
+                        $_SESSION['register_correo'] = $result['correo'];
+                        $_SESSION['flash_error'] = $result['message'];
                         $this->redirect('auth/verifyEmail');
                         exit;
-                    } else if (empty($user['nodo_id'])) {
-                        // Verificar que tenga nodo asignado (requerido para todos los roles excepto admin)
-                        if ($user['rol'] !== 'admin') {
-                            $errores[] = "Tu cuenta está pendiente de activación por un administrador. Se te asignará un nodo pronto.";
-                        } else {
-                            // Admin puede iniciar sesión sin nodo/línea
-                            session_regenerate_id(true);
+                    }
+                    $errores[] = $result['message'];
+                } else {
+                    $user = $result['user'];
 
-                            $_SESSION['user'] = [
-                                'id'       => $user['id'],
-                                'nombre'   => $user['nombre'],
-                                'cargo'    => $user['cargo'],
-                                'foto'     => $user['foto'],
-                                'rol'      => $user['rol'] ?? 'usuario',
-                                'nodo_id'  => $user['nodo_id'] ?? null,
-                                'linea_id' => $user['linea_id'] ?? null,
-                            ];
-
-                            $this->redirectReplace('home/index');
-                            exit;
-                        }
-                    } else if (empty($user['linea_id']) && $user['rol'] === 'usuario') {
-                        // Solo usuarios normales requieren línea asignada (dinamizadores no)
-                        $errores[] = "Tu cuenta está pendiente de activación por un administrador. Se te asignará una línea pronto.";
+                    // Verificar asignaciones según rol
+                    if (!$this->validateUserAssignments($user, $errores)) {
+                        // Errores ya agregados
                     } else {
-                        session_regenerate_id(true);
-
-                        $_SESSION['user'] = [
-                            'id'       => $user['id'],
-                            'nombre'   => $user['nombre'],
-                            'cargo'    => $user['cargo'],
-                            'foto'     => $user['foto'],
-                            'rol'      => $user['rol'] ?? 'usuario',
-                            'nodo_id'  => $user['nodo_id'] ?? null,
-                            'linea_id' => $user['linea_id'] ?? null,
-                        ];
-
+                        $this->authService->createSession($user);
                         $this->redirectReplace('home/index');
                         exit;
                     }
-                } else {
-                    $errores[] = "Credenciales inválidas.";
                 }
             }
         }
 
         $this->view('auth/login', [
-            'errores'     => $errores,
-            'pageStyles'  => ['login'],
+            'errores' => $errores,
+            'pageStyles' => ['login'],
             'pageScripts' => ['login'],
-            'isLoginPage' => true
+            'isLoginPage' => true,
         ]);
     }
-
 
     /* ============================================================
        REGISTER - CON VERIFICACIÓN DE EMAIL
@@ -290,239 +211,179 @@ class AuthController extends Controller
         $errores = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'nombre' => trim($_POST['nombre_completo'] ?? ''),
+                'correo' => trim($_POST['correo'] ?? ''),
+                'usuario' => trim($_POST['correo'] ?? ''),
+                'password' => $_POST['password'] ?? '',
+                'password_confirm' => $_POST['password2'] ?? '',
+                'terminos' => isset($_POST['terminos']),
+            ];
 
-            $nombre_completo = trim($_POST['nombre_completo'] ?? '');
-            $correo          = trim($_POST['correo'] ?? '');
-            $password        = $_POST['password'] ?? '';
-            $password2       = $_POST['password2'] ?? '';
-            $terminos        = isset($_POST['terminos']);
-
-            if ($nombre_completo === '' || $correo === '' || $password === '' || $password2 === '') {
-                $errores[] = "Todos los campos son obligatorios.";
-            }
-
-            if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-                $errores[] = "El correo no es válido.";
-            }
-
-            if ($password !== $password2) {
-                $errores[] = "Las contraseñas no coinciden.";
-            }
-
-            if (!$terminos) {
-                $errores[] = "Debes aceptar los términos y condiciones.";
-            }
-
-            $hasLength  = strlen($password) >= 8;
-            $hasUpper   = preg_match('/[A-Z]/', $password);
-            $hasSpecial = preg_match('/[!@#$%^&*(),.?":{}|<>_\-]/', $password);
-
-            if (!$hasLength || !$hasUpper || !$hasSpecial) {
-                $errores[] = "La contraseña no cumple los requisitos mínimos.";
-            }
-
-            $userModel = new User();
-
-            if ($userModel->existsByCorreo($correo)) {
-                $errores[] = "Ya existe un usuario registrado con ese correo.";
+            if (!$data['terminos']) {
+                $errores[] = 'Debes aceptar los términos y condiciones.';
             }
 
             if (empty($errores)) {
+                $result = $this->authService->register($data);
 
-                $hash = password_hash($password, PASSWORD_DEFAULT);
+                if (!$result['success']) {
+                    $errores = $result['errors'];
+                } else {
+                    // Registrar en auditoría
+                    $this->registerAudit($result['user_id'], $data);
 
-                // Crear usuario con email sin verificar y sin asignaciones (pendiente de admin)
-                $nuevoUsuarioId = $userModel->create([
-                    'nombre'         => $nombre_completo,
-                    'correo'         => $correo,
-                    'nombre_usuario' => $correo,
-                    'password'       => $hash,
-                    'estado'         => 1,
-                    'rol'            => 'usuario',
-                    'email_verified' => 0,
-                    'nodo_id'        => null,
-                    'linea_id'       => null,
-                ]);
-
-                // Registrar en auditoría
-                $auditModel = new Audit();
-                $auditModel->registrarCambio(
-                    $nuevoUsuarioId,
-                    'usuarios',
-                    $nuevoUsuarioId,
-                    'crear',
-                    [
-                        'nombre' => [
-                            'anterior' => 'N/A',
-                            'nuevo' => $nombre_completo
-                        ],
-                        'correo' => [
-                            'anterior' => 'N/A',
-                            'nuevo' => $correo
-                        ],
-                        'nombre_usuario' => [
-                            'anterior' => 'N/A',
-                            'nuevo' => $correo
-                        ],
-                        'rol' => [
-                            'anterior' => 'N/A',
-                            'nuevo' => 'usuario'
-                        ],
-                        'estado' => [
-                            'anterior' => 'N/A',
-                            'nuevo' => 'Activo'
-                        ],
-                        'email_verificado' => [
-                            'anterior' => 'N/A',
-                            'nuevo' => 'Pendiente'
-                        ]
-                    ],
-                    null
-                );
-
-                // Obtener el ID del usuario creado
-                $user = $userModel->findByCorreo($correo);
-                $verificationCode = rand(100000, 999999);
-                $userModel->saveVerificationCode($user['id'], $verificationCode);
-
-                // Enviar código de verificación
-                MailHelper::sendCode(
-                    $correo,
-                    "Código de verificación de email - Sistema Inventario",
-                    $verificationCode,
-                    'verificacion'
-                );
-
-                $_SESSION['register_correo'] = $correo;
-                $this->redirect('auth/verifyEmail');
-                exit;
+                    $_SESSION['register_correo'] = $result['correo'];
+                    $this->redirect('auth/verifyEmail');
+                    exit;
+                }
             }
         }
 
         $this->view('auth/register', [
-            'errores'        => $errores,
-            'pageStyles'     => ['register'],
-            'pageScripts'    => ['register'],
-            'isRegisterPage' => true
+            'errores' => $errores,
+            'pageStyles' => ['register'],
+            'pageScripts' => ['register'],
+            'isRegisterPage' => true,
         ]);
     }
 
     public function verifyEmail()
     {
         if (!isset($_SESSION['register_correo'])) {
-            $this->redirect("auth/register");
+            $this->redirect('auth/register');
         }
 
         $userModel = new User();
         $user = $userModel->findByCorreo($_SESSION['register_correo']);
-        $remainingCooldown = 0;
+        $remainingCooldown = $user ? $userModel->getRemainingCooldownTime($user['id']) : 0;
 
-        if ($user) {
-            $remainingCooldown = $userModel->getRemainingCooldownTime($user['id']);
-        }
-
-        $this->view("auth/verifyEmail", [
+        $this->view('auth/verifyEmail', [
             'isLoginPage' => true,
-            'pageStyles'  => ['login', 'recovery'],
+            'pageStyles' => ['login', 'recovery'],
             'pageScripts' => [],
-            'remainingCooldown' => $remainingCooldown
+            'remainingCooldown' => $remainingCooldown,
         ]);
     }
 
     public function verifyEmailPost()
     {
         $correo = $_SESSION['register_correo'] ?? null;
-        $code   = trim($_POST['code'] ?? '');
+        $code = trim($_POST['code'] ?? '');
 
-        $userModel = new User();
-        $user = $userModel->verifyEmailCode($correo, $code);
+        $result = $this->verificationService->verifyEmailCode($correo, $code);
 
-        if ($user) {
-            $userModel->markEmailAsVerified($user['id']);
-            
-            unset($_SESSION['register_correo']);
-
-            $_SESSION['flash_success'] = "Email verificado correctamente. Tu cuenta está pendiente de activación por un administrador que te asignará un nodo y línea.";
-            $this->redirect("auth/login");
-        } else {
-            $_SESSION['flash_error'] = "Código incorrecto o expirado.";
-            $this->redirect("auth/verifyEmail");
+        if (!$result['success']) {
+            $_SESSION['flash_error'] = $result['message'];
+            $this->redirect('auth/verifyEmail');
         }
+
+        unset($_SESSION['register_correo']);
+
+        $_SESSION['flash_success'] = 'Email verificado correctamente. Tu cuenta está pendiente de activación por un administrador.';
+        $this->redirect('auth/login');
     }
 
     public function resendVerificationEmail()
     {
-        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
-        
-        // Si es AJAX, responder solo en JSON
+        $isAjax = $this->isAjaxRequest();
+
         if ($isAjax) {
             header('Content-Type: application/json; charset=utf-8');
-            
+
             $correo = $_SESSION['register_correo'] ?? null;
-            
+
             if (!$correo) {
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => 'Correo no encontrado en sesión.']);
-                exit;
+                $this->jsonResponse(['success' => false, 'message' => 'Correo no encontrado en sesión.'], 400);
             }
 
-            $userModel = new User();
-            $user = $userModel->findByCorreo($correo);
+            $result = $this->verificationService->resendVerificationCode($correo);
 
-            if (!$user) {
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => 'Usuario no encontrado.']);
-                exit;
-            }
-
-            if (!$userModel->canResendVerificationCode($user['id'])) {
-                http_response_code(429);
-                echo json_encode(['success' => false, 'message' => 'Debes esperar 60 segundos antes de reenviar el código.']);
-                exit;
-            }
-
-            $verificationCode = rand(100000, 999999);
-            $userModel->saveVerificationCode($user['id'], $verificationCode);
-
-            MailHelper::sendCode(
-                $correo,
-                "Código de verificación de email - Sistema Inventario",
-                $verificationCode,
-                'verificacion'
-            );
-
-            http_response_code(200);
-            echo json_encode(['success' => true, 'message' => 'Código reenviado exitosamente al correo.']);
-            exit;
+            $statusCode = !$result['success'] && isset($result['cooldown']) ? 429 : ($result['success'] ? 200 : 400);
+            $this->jsonResponse($result, $statusCode);
         }
 
-        // Si NO es AJAX (GET normal), redirigir
-        $this->redirect("auth/verifyEmail");
+        $this->redirect('auth/verifyEmail');
     }
-
 
     /* ============================================================
        LOGOUT
     ============================================================ */
     public function logout()
     {
-        $_SESSION = [];
+        $this->authService->destroySession();
+        $this->redirect('auth/login');
+    }
 
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params['path'],
-                $params['domain'],
-                $params['secure'],
-                $params['httponly']
-            );
+    /* ============================================================
+       MÉTODOS AUXILIARES PRIVADOS
+    ============================================================ */
+
+    private function isAjaxRequest()
+    {
+        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+               $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+    }
+
+    private function jsonResponse($data, $statusCode = 200)
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code($statusCode);
+        echo json_encode($data);
+        exit;
+    }
+
+    private function handleResendError($isAjax, $message, $statusCode, $redirectUrl)
+    {
+        if ($isAjax) {
+            $this->jsonResponse(['success' => false, 'message' => $message], $statusCode);
         }
 
-        session_destroy();
+        $_SESSION['flash_error'] = $message;
+        $this->redirect($redirectUrl);
+    }
 
-        $this->redirect('auth/login');
+    private function validateUserAssignments($user, &$errores)
+    {
+        // Admin puede iniciar sesión sin nodo/línea
+        if ($user['rol'] === 'admin') {
+            return true;
+        }
+
+        // Verificar nodo
+        if (empty($user['nodo_id'])) {
+            $errores[] = 'Tu cuenta está pendiente de activación por un administrador. Se te asignará un nodo pronto.';
+
+            return false;
+        }
+
+        // Solo usuarios normales requieren línea (dinamizadores no)
+        if ($user['rol'] === 'usuario' && empty($user['linea_id'])) {
+            $errores[] = 'Tu cuenta está pendiente de activación por un administrador. Se te asignará una línea pronto.';
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private function registerAudit($userId, $data)
+    {
+        $auditModel = new Audit();
+        $auditModel->registrarCambio(
+            $userId,
+            'usuarios',
+            $userId,
+            'crear',
+            [
+                'nombre' => ['anterior' => 'N/A', 'nuevo' => $data['nombre']],
+                'correo' => ['anterior' => 'N/A', 'nuevo' => $data['correo']],
+                'nombre_usuario' => ['anterior' => 'N/A', 'nuevo' => $data['usuario']],
+                'rol' => ['anterior' => 'N/A', 'nuevo' => 'usuario'],
+                'estado' => ['anterior' => 'N/A', 'nuevo' => 'Activo'],
+                'email_verificado' => ['anterior' => 'N/A', 'nuevo' => 'Pendiente'],
+            ],
+            null
+        );
     }
 }

@@ -1,10 +1,10 @@
-<?php 
+<?php
 $rol = $_SESSION['user']['rol'] ?? 'usuario';
 $nombre = $_SESSION['user']['nombre'] ?? 'Usuario';
 
 // Imagen por defecto si no existe foto
 $avatar = $_SESSION['user']['foto'] ?? null;
-$avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . "/img/default_user.png";
+$avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . '/img/default_user.png';
 ?>
 
 <nav id="sidebar" class="sidebar">
@@ -20,7 +20,7 @@ $avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . "/img/defaul
                 </div>
             </a>
             
-            <?php if ($rol === 'admin'): ?>
+            <?php if ($rol === 'admin') : ?>
                 <!-- Icono de notificaciones a la derecha -->
                 <div id="notificationsBtn" class="notification-bell-icon" title="Notificaciones">
                     <i class="bi bi-bell-fill"></i>
@@ -29,7 +29,7 @@ $avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . "/img/defaul
             <?php endif; ?>
         </div>
         
-        <?php if ($rol === 'admin'): ?>
+        <?php if ($rol === 'admin') : ?>
             <!-- Modal de notificaciones -->
             <div id="notificationsModal" class="notifications-modal" style="display: none;">
                 <div class="notifications-modal-overlay"></div>
@@ -81,13 +81,13 @@ $avatar = (!empty($avatar)) ? BASE_URL . '/' . $avatar : BASE_URL . "/img/defaul
         </li>
 
         <li>
-            <a href="<?= BASE_URL ?>/materiales/historialInventario">
+            <a href="<?= BASE_URL ?>/materialeshistorial/index">
                 <i class="bi bi-clock-history"></i>
                 <span>Historial de Inventario</span>
             </a>
         </li>
 
-        <?php if ($rol === 'admin'): ?>
+        <?php if ($rol === 'admin') : ?>
         <li>
             <a href="<?= BASE_URL ?>/usuarios/gestionDeUsuarios">
                 <i class="bi bi-people"></i>

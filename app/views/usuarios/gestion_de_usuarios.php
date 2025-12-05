@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/auth/login");
+    header('Location: ' . BASE_URL . '/auth/login');
     exit;
 }
 ?>
@@ -84,14 +84,14 @@ if (!isset($_SESSION['user'])) {
                     </tr>
                     </thead>
                     <tbody id="usuarios-body">
-                    <?php foreach ($usuarios as $u): ?>
+                    <?php foreach ($usuarios as $u) : ?>
                         <tr data-user-id="<?= $u['id'] ?>">
                             <td><?= $u['id'] ?></td>
                             <td>
-                                <?php if ($u['foto']): ?>
+                                <?php if ($u['foto']) : ?>
                                     <img src="<?= BASE_URL . '/' . htmlspecialchars($u['foto']) ?>"
                                          width="40" height="40" class="rounded-circle" style="object-fit:cover;">
-                                <?php else: ?>
+                                <?php else : ?>
                                     <img src="<?= BASE_URL ?>/img/default_user.png"
                                          width="40" height="40" class="rounded-circle" style="object-fit:cover;" alt="Usuario sin foto">
                                 <?php endif; ?>
@@ -101,9 +101,9 @@ if (!isset($_SESSION['user'])) {
                             <td><small><?= htmlspecialchars($u['nombre_usuario']) ?></small></td>
                             <td><span class="badge bg-info"><?= htmlspecialchars($u['rol'] ?? 'usuario') ?></span></td>
                             <td>
-                                <?php if ($u['rol'] !== 'admin'): ?>
-                                    <?php 
-                                    if ($u['nodo_id']): 
+                                <?php if ($u['rol'] !== 'admin') : ?>
+                                    <?php
+                                    if ($u['nodo_id']) :
                                         $nodo_nombre = '';
                                         foreach ($nodos as $n) {
                                             if ($n['id'] == $u['nodo_id']) {
@@ -112,18 +112,18 @@ if (!isset($_SESSION['user'])) {
                                             }
                                         }
                                         echo $nodo_nombre ? '<span class="badge bg-secondary">' . htmlspecialchars($nodo_nombre) . '</span>' : '<span class="text-muted small">—</span>';
-                                    else:
+                                    else :
                                         echo '<span class="text-muted small">—</span>';
                                     endif;
                                     ?>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <span class="text-muted small">—</span>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?php if ($u['rol'] === 'usuario'): ?>
-                                    <?php 
-                                    if ($u['linea_id']): 
+                                <?php if ($u['rol'] === 'usuario') : ?>
+                                    <?php
+                                    if ($u['linea_id']) :
                                         $linea_nombre = '';
                                         foreach ($nodos as $n) {
                                             if (isset($n['lineas']) && is_array($n['lineas'])) {
@@ -136,23 +136,23 @@ if (!isset($_SESSION['user'])) {
                                             }
                                         }
                                         echo $linea_nombre ? '<span class="badge bg-warning">' . htmlspecialchars($linea_nombre) . '</span>' : '<span class="text-muted small">—</span>';
-                                    else:
+                                    else :
                                         echo '<span class="text-muted small">—</span>';
                                     endif;
                                     ?>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <span class="text-muted small">—</span>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?php if ($u['estado'] == 1): ?>
+                                <?php if ($u['estado'] == 1) : ?>
                                     <span class="badge bg-success">Activo</span>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <span class="badge bg-danger">Bloqueado</span>
                                 <?php endif; ?>
                             </td>
                             <td class="text-center">
-                                <?php 
+                                <?php
                                 // Detectar si el usuario está pendiente (sin nodo o línea asignada)
                                 $isPending = (empty($u['nodo_id']) || empty($u['linea_id'])) && $u['rol'] !== 'admin';
                                 ?>
@@ -165,7 +165,7 @@ if (!isset($_SESSION['user'])) {
                                        class="btn btn-primary" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <?php if ($isPending): ?>
+                                    <?php if ($isPending) : ?>
                                         <button class="btn btn-asignar-nodo" 
                                                 data-id="<?= $u['id'] ?>" 
                                                 data-nombre="<?= htmlspecialchars($u['nombre']) ?>"
@@ -176,7 +176,7 @@ if (!isset($_SESSION['user'])) {
                                                 style="background-color: #ff9800; border-color: #ff9800; color: white; animation: pulse 2s infinite;">
                                             <i class="bi bi-exclamation-triangle-fill"></i>
                                         </button>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <button class="btn btn-secondary btn-asignar-nodo" 
                                                 data-id="<?= $u['id'] ?>" 
                                                 data-nombre="<?= htmlspecialchars($u['nombre']) ?>"
@@ -188,7 +188,7 @@ if (!isset($_SESSION['user'])) {
                                         </button>
                                     <?php endif; ?>
                                     
-                                    <?php if ($u['estado'] == 1): ?>
+                                    <?php if ($u['estado'] == 1) : ?>
                                         <form class="d-inline" method="post"
                                               action="<?= BASE_URL ?>/usuarios/bloquear">
                                             <input type="hidden" name="id" value="<?= $u['id'] ?>">
@@ -196,7 +196,7 @@ if (!isset($_SESSION['user'])) {
                                                 <i class="bi bi-ban"></i>
                                             </button>
                                         </form>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <form class="d-inline" method="post"
                                               action="<?= BASE_URL ?>/usuarios/desbloquear">
                                             <input type="hidden" name="id" value="<?= $u['id'] ?>">
@@ -213,7 +213,7 @@ if (!isset($_SESSION['user'])) {
                         </tr>
                     <?php endforeach; ?>
 
-                    <?php if (empty($usuarios)): ?>
+                    <?php if (empty($usuarios)) : ?>
                         <tr>
                             <td colspan="10" class="text-center text-muted py-3">No hay usuarios registrados.</td>
                         </tr>
@@ -269,7 +269,7 @@ if (!isset($_SESSION['user'])) {
                         <label class="form-label">Nodo <span class="text-danger">*</span></label>
                         <select id="select-nodo" class="form-select" required>
                             <option value="">-- Selecciona un nodo --</option>
-                            <?php foreach ($nodos as $nodo): ?>
+                            <?php foreach ($nodos as $nodo) : ?>
                                 <option value="<?= $nodo['id'] ?>"><?= htmlspecialchars($nodo['nombre']) ?> (<?= htmlspecialchars($nodo['ciudad']) ?>)</option>
                             <?php endforeach; ?>
                         </select>

@@ -5,10 +5,12 @@
             <h3 class="text-center">Nueva Contraseña</h3>
             <h4 class="text-center">Establece una contraseña segura para tu cuenta</h4>
 
-            <?php if (!empty($_SESSION['flash_error'])): ?>
+            <?php if (!empty($_SESSION['flash_error'])) :
+                ?>
                 <div class="alert alert-danger">
                     <i class="bi bi-exclamation-circle me-2"></i>
-                    <?= htmlspecialchars($_SESSION['flash_error']); unset($_SESSION['flash_error']); ?>
+                    <?= htmlspecialchars($_SESSION['flash_error']);
+                    unset($_SESSION['flash_error']); ?>
                 </div>
             <?php endif; ?>
 

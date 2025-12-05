@@ -1,5 +1,8 @@
 <?php
 
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
+
 // Cargar autoload de Composer si no está cargado
 $autoloadPath = __DIR__ . '/../../vendor/autoload.php';
 if (file_exists($autoloadPath)) {
@@ -10,7 +13,7 @@ class MailHelper
 {
     public static function sendCode($correo, $asunto, $codigo, $tipo = 'recuperacion')
     {
-        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+        $mail = new PHPMailer(true);
 
         try {
             // Cargar variables de entorno
@@ -21,28 +24,28 @@ class MailHelper
             $mailFrom = EnvHelper::get('MAIL_FROM', '');
 
             $mail->isSMTP();
-            $mail->Host       = $mailHost;
-            $mail->SMTPAuth   = true;
-            $mail->Username   = $mailUsername;
-            $mail->Password   = $mailPassword;
-            $mail->SMTPSecure = "tls";
-            $mail->Port       = intval($mailPort);
+            $mail->Host = $mailHost;
+            $mail->SMTPAuth = true;
+            $mail->Username = $mailUsername;
+            $mail->Password = $mailPassword;
+            $mail->SMTPSecure = 'tls';
+            $mail->Port = intval($mailPort);
 
-            $mail->setFrom($mailFrom, "Sistema Inventario");
+            $mail->setFrom($mailFrom, 'Sistema Inventario');
             $mail->addAddress($correo);
-            
+
             // Configurar charset a UTF-8
             $mail->CharSet = 'UTF-8';
 
             $mail->isHTML(true);
             $mail->Subject = $asunto;
-            
+
             // Generar HTML profesional
             $htmlBody = self::generarPlantillaHTML($codigo, $tipo);
             $mail->Body = $htmlBody;
 
             return $mail->send();
-        } catch (\PHPMailer\PHPMailer\Exception $e) {
+        } catch (Exception $e) {
             return false;
         } catch (\Exception $e) {
             return false;
@@ -50,12 +53,12 @@ class MailHelper
     }
 
     /**
-     * Generar plantilla HTML profesional para el correo
+     * Generar plantilla HTML profesional para el correo.
      */
     private static function generarPlantillaHTML($codigo, $tipo = 'recuperacion')
     {
         $titulo = $tipo === 'recuperacion' ? 'Recuperación de Contraseña' : 'Verificación de Email';
-        $descripcion = $tipo === 'recuperacion' 
+        $descripcion = $tipo === 'recuperacion'
             ? 'Has solicitado recuperar tu contraseña. Usa el código a continuación para continuar con el proceso.'
             : 'Completa tu registro usando el código de verificación a continuación.';
 

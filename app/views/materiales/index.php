@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/auth/login");
+    header('Location: ' . BASE_URL . '/auth/login');
     exit;
 }
 ?>
@@ -17,18 +17,18 @@ if (!isset($_SESSION['user'])) {
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
             <h3 class="mb-0">Gestión de Inventario</h3>
             <div class="d-flex gap-2 flex-wrap">
-                <?php 
+                <?php
                     $rol = $_SESSION['user']['rol'] ?? 'usuario';
-                    // Admin y dinamizador pueden crear
-                    if (in_array($rol, ['admin', 'dinamizador'])): 
-                ?>
+// Admin y dinamizador pueden crear
+                if (in_array($rol, ['admin', 'dinamizador'])) :
+                    ?>
                     <a href="<?= BASE_URL ?>/materiales/crear" class="btn btn-success btn-sm w-100 w-sm-auto">
                         <i class="bi bi-plus-lg"></i> Nuevo Material
                     </a>
                 <?php endif; ?>
                 
                 <!-- Importar CSV: Solo admin y dinamizador -->
-                <?php if (in_array($rol, ['admin', 'dinamizador'])): ?>
+                <?php if (in_array($rol, ['admin', 'dinamizador'])) : ?>
                     <button type="button" class="btn btn-primary btn-sm w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#modalImportar">
                         <i class="bi bi-upload"></i> Importar CSV
                     </button>
@@ -40,7 +40,7 @@ if (!isset($_SESSION['user'])) {
                 </button>
                 
                 <!-- Todos pueden ver historial -->
-                <a href="<?= BASE_URL ?>/materiales/historialInventario" class="btn btn-info btn-sm w-100 w-sm-auto">
+                <a href="<?= BASE_URL ?>/materialeshistorial/index" class="btn btn-info btn-sm w-100 w-sm-auto">
                     <i class="bi bi-clock-history"></i> Historial
                 </a>
             </div>
@@ -58,7 +58,7 @@ if (!isset($_SESSION['user'])) {
                         <label class="form-label">Línea</label>
                         <select id="filtro-linea" class="form-select">
                             <option value="">Todas</option>
-                            <?php foreach ($lineas as $linea): ?>
+                            <?php foreach ($lineas as $linea) : ?>
                                 <option value="<?= $linea['id'] ?>" <?= $linea_id == $linea['id'] ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($linea['nombre']) ?>
                                 </option>
@@ -92,7 +92,7 @@ if (!isset($_SESSION['user'])) {
                             <th>Código</th>
                             <th>Nombre</th>
                             <th class="d-none d-md-table-cell">Descripción</th>
-                            <?php if (in_array($_SESSION['user']['rol'] ?? 'usuario', ['admin', 'dinamizador'])): ?>
+                            <?php if (in_array($_SESSION['user']['rol'] ?? 'usuario', ['admin', 'dinamizador'])) : ?>
                                 <th>Nodo</th>
                             <?php endif; ?>
                             <th>Línea</th>
@@ -103,7 +103,7 @@ if (!isset($_SESSION['user'])) {
                         </tr>
                     </thead>
                     <tbody id="materiales-body">
-                        <?php foreach ($materiales as $m): ?>
+                        <?php foreach ($materiales as $m) : ?>
                             <tr class="material-row" data-id="<?= $m['id'] ?>">
                                 <td><?= $m['id'] ?></td>
                                 <td><code><?= htmlspecialchars($m['codigo']) ?></code></td>
@@ -111,7 +111,7 @@ if (!isset($_SESSION['user'])) {
                                 <td class="d-none d-md-table-cell">
                                     <small><?= htmlspecialchars(substr($m['descripcion'], 0, 50)) ?><?= strlen($m['descripcion']) > 50 ? '...' : '' ?></small>
                                 </td>
-                                <?php if (in_array($_SESSION['user']['rol'] ?? 'usuario', ['admin', 'dinamizador'])): ?>
+                                <?php if (in_array($_SESSION['user']['rol'] ?? 'usuario', ['admin', 'dinamizador'])) : ?>
                                     <td>
                                         <span class="badge bg-secondary"><?= htmlspecialchars($m['nodo_nombre'] ?? 'N/A') ?></span>
                                     </td>
@@ -130,9 +130,9 @@ if (!isset($_SESSION['user'])) {
                                     </a>
                                 </td>
                                 <td>
-                                    <?php if ($m['estado'] == 1): ?>
+                                    <?php if ($m['estado'] == 1) : ?>
                                         <span class="badge bg-success">Activo</span>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <span class="badge bg-danger">Inactivo</span>
                                     <?php endif; ?>
                                 </td>
@@ -143,19 +143,21 @@ if (!isset($_SESSION['user'])) {
                                             <i class="bi bi-eye"></i>
                                         </button>
                                         
-                                        <?php 
-                                            $rol = $_SESSION['user']['rol'] ?? 'usuario';
-                                            $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
-                                            $linea_user = $_SESSION['user']['linea_id'] ?? null;
-                                            
-                                            $esDelUsuario = ($m['nodo_id'] == $nodo_user);
-                                            $esDelUsuarioYLinea = $esDelUsuario && ($m['linea_id'] == $linea_user);
-                                            
-                                            // Entrada/Salida: Admin y Dinamizador su nodo, Usuario su nodo+linea
-                                            if (($rol === 'admin') || 
-                                                ($rol === 'dinamizador' && $esDelUsuario) ||
-                                                ($rol === 'usuario' && $esDelUsuarioYLinea)):
-                                        ?>
+                                        <?php
+                                        $rol = $_SESSION['user']['rol'] ?? 'usuario';
+                                        $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
+                                        $linea_user = $_SESSION['user']['linea_id'] ?? null;
+
+                                        $esDelUsuario = ($m['nodo_id'] == $nodo_user);
+                                        $esDelUsuarioYLinea = $esDelUsuario && ($m['linea_id'] == $linea_user);
+
+                            // Entrada/Salida: Admin y Dinamizador su nodo, Usuario su nodo+linea
+                                        if (
+                                            ($rol === 'admin') ||
+                                            ($rol === 'dinamizador' && $esDelUsuario) ||
+                                            ($rol === 'usuario' && $esDelUsuarioYLinea)
+                                        ) :
+                                            ?>
                                             <button class="btn btn-warning btn-sm btn-entrada" title="Entrada" data-id="<?= $m['id'] ?>">
                                                 <i class="bi bi-plus-square"></i>
                                             </button>
@@ -164,20 +166,20 @@ if (!isset($_SESSION['user'])) {
                                             </button>
                                         <?php endif; ?>
                                         
-                                        <?php 
-                                            // Editar: Admin y Dinamizador su nodo
-                                            if (($rol === 'admin') || ($rol === 'dinamizador' && $esDelUsuario)):
-                                        ?>
+                                        <?php
+                                    // Editar: Admin y Dinamizador su nodo
+                                        if (($rol === 'admin') || ($rol === 'dinamizador' && $esDelUsuario)) :
+                                            ?>
                                             <a href="<?= BASE_URL ?>/materiales/editar?id=<?= $m['id'] ?>"
                                                class="btn btn-primary btn-sm" title="Editar">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                         <?php endif; ?>
                                         
-                                        <?php 
+                                        <?php
                                             // Eliminar: Admin y Dinamizador su nodo
-                                            if (($rol === 'admin') || ($rol === 'dinamizador' && $esDelUsuario)):
-                                        ?>
+                                        if (($rol === 'admin') || ($rol === 'dinamizador' && $esDelUsuario)) :
+                                            ?>
                                             <button class="btn btn-danger btn-sm btn-eliminar" title="Eliminar" data-id="<?= $m['id'] ?>">
                                                 <i class="bi bi-trash"></i>
                                             </button>
@@ -187,7 +189,7 @@ if (!isset($_SESSION['user'])) {
                             </tr>
                         <?php endforeach; ?>
 
-                        <?php if (empty($materiales)): ?>
+                        <?php if (empty($materiales)) : ?>
                             <tr>
                                 <td colspan="9" class="text-center text-muted py-3">
                                     <i class="bi bi-inbox"></i> No hay materiales registrados.
@@ -209,7 +211,7 @@ if (!isset($_SESSION['user'])) {
                     </div>
                     <div class="col-12 col-md-6">
                         <div class="row g-2 text-center">
-                            <?php foreach ($estadoLineas as $linea): ?>
+                            <?php foreach ($estadoLineas as $linea) : ?>
                                 <div class="col-6 col-md-3">
                                     <small class="text-muted d-block">
                                         <?= htmlspecialchars($linea['nombre']) ?>
@@ -402,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Botones de descarga
     document.getElementById('btn-descargar-xlsx').addEventListener('click', () => {
-        window.location.href = `${window.BASE_URL}/materiales/exportarMateriales`;
+        window.location.href = `${window.BASE_URL}/materialesexport/exportar`;
         const modal = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
         modal.hide();
     });
@@ -418,25 +420,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Opción: CSV Simple (solo materiales)
     document.getElementById('btn-csv-simple').addEventListener('click', () => {
-        window.location.href = `${window.BASE_URL}/materiales/exportarMaterialesCSV`;
+        window.location.href = `${window.BASE_URL}/materialesexport/csv`;
         const modal = bootstrap.Modal.getInstance(document.getElementById('modalOpcionesCSV'));
         modal.hide();
     });
 
     // Opción: CSV Completo (ZIP con 3 archivos)
     document.getElementById('btn-csv-completo').addEventListener('click', () => {
-        window.location.href = `${window.BASE_URL}/materiales/exportarMaterialesCSVZip`;
+        window.location.href = `${window.BASE_URL}/materialesexport/csvZip`;
         const modal = bootstrap.Modal.getInstance(document.getElementById('modalOpcionesCSV'));
         modal.hide();
     });
 
     document.getElementById('btn-descargar-txt').addEventListener('click', () => {
-        window.location.href = `${window.BASE_URL}/materiales/exportarMaterialesTXT`;
+        window.location.href = `${window.BASE_URL}/materialesexport/txt`;
         const modal = bootstrap.Modal.getInstance(document.getElementById('modalExportar'));
         modal.hide();
     });
     document.getElementById('btn-descargar-pdf').addEventListener('click', () => {
-        const pdfUrl = `${window.BASE_URL}/materiales/exportarMaterialesPDF`;
+        const pdfUrl = `${window.BASE_URL}/materialesexport/pdf`;
         // Abrir en nueva ventana
         const newWindow = window.open(pdfUrl, 'pdf_preview', 'width=900,height=700');
         
@@ -460,7 +462,7 @@ function cargarDocumentos(materialId) {
     const badgeElement = document.getElementById(`docs-${materialId}`);
     if (!badgeElement) return;
 
-    fetch(`${window.BASE_URL}/materiales/contarDocumentos?material_id=${materialId}`)
+    fetch(`${window.BASE_URL}/materialesarchivos/contar?material_id=${materialId}`)
         .then(response => response.json())
         .then(data => {
             let badge = '';

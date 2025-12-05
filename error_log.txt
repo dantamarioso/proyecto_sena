@@ -292,3 +292,718 @@ Stack trace:
 [04-Dec-2025 20:31:44 Europe/Berlin] Fecha limpia: '2025-04-12'
 [04-Dec-2025 20:31:44 Europe/Berlin] Valor raw extraído: '2'
 [04-Dec-2025 20:31:44 Europe/Berlin] Valor limpio: '2'
+[05-Dec-2025 16:33:24 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "AuthenticationService" not found in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php:17
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\public\index.php(93): AuthController->__construct()
+#1 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php on line 17
+[05-Dec-2025 16:36:35 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "AuthenticationService" not found in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php:17
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\public\index.php(93): AuthController->__construct()
+#1 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php on line 17
+[05-Dec-2025 16:36:36 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "AuthenticationService" not found in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php:17
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\public\index.php(93): AuthController->__construct()
+#1 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php on line 17
+[05-Dec-2025 16:36:37 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "AuthenticationService" not found in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php:17
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\public\index.php(93): AuthController->__construct()
+#1 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php on line 17
+[05-Dec-2025 16:37:24 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "AuthenticationService" not found in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php:17
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\public\index.php(93): AuthController->__construct()
+#1 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php on line 17
+[05-Dec-2025 16:37:26 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "AuthenticationService" not found in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php:17
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\public\index.php(93): AuthController->__construct()
+#1 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php on line 17
+[05-Dec-2025 16:37:30 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "AuthenticationService" not found in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php:17
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\public\index.php(93): AuthController->__construct()
+#1 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php on line 17
+[05-Dec-2025 16:39:22 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'usuario' in 'where clause' in C:\xampp\htdocs\proyecto_sena\app\models\User.php:175
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\app\models\User.php(175): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php(21): User->findByUsuario('dantamarioso@gm...')
+#2 C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php(171): AuthenticationService->authenticate('dantamarioso@gm...', 'Forlyfe135@')
+#3 C:\xampp\htdocs\proyecto_sena\public\index.php(100): AuthController->login()
+#4 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\models\User.php on line 175
+[05-Dec-2025 16:41:56 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'usuario' in 'where clause' in C:\xampp\htdocs\proyecto_sena\app\models\User.php:175
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\app\models\User.php(175): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php(24): User->findByUsuario('dantamarioso@gm...')
+#2 C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php(171): AuthenticationService->authenticate('dantamarioso@gm...', 'Forlyfe135@')
+#3 C:\xampp\htdocs\proyecto_sena\public\index.php(100): AuthController->login()
+#4 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\models\User.php on line 175
+[05-Dec-2025 16:42:10 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'usuario' in 'where clause' in C:\xampp\htdocs\proyecto_sena\app\models\User.php:175
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\app\models\User.php(175): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php(24): User->findByUsuario('dantamarioso@gm...')
+#2 C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php(171): AuthenticationService->authenticate('dantamarioso@gm...', 'Forlyfe135@')
+#3 C:\xampp\htdocs\proyecto_sena\public\index.php(100): AuthController->login()
+#4 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\models\User.php on line 175
+[05-Dec-2025 16:43:23 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'usuario' in 'where clause' in C:\xampp\htdocs\proyecto_sena\app\models\User.php:175
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\app\models\User.php(175): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php(24): User->findByUsuario('dantamarioso@gm...')
+#2 C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php(171): AuthenticationService->authenticate('dantamarioso@gm...', 'Forlyfe135@')
+#3 C:\xampp\htdocs\proyecto_sena\public\index.php(100): AuthController->login()
+#4 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\models\User.php on line 175
+[05-Dec-2025 16:43:30 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'usuario' in 'where clause' in C:\xampp\htdocs\proyecto_sena\app\models\User.php:175
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\app\models\User.php(175): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php(24): User->findByUsuario('dantamarioso@gm...')
+#2 C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php(171): AuthenticationService->authenticate('dantamarioso@gm...', 'Forlyfe135@')
+#3 C:\xampp\htdocs\proyecto_sena\public\index.php(100): AuthController->login()
+#4 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\models\User.php on line 175
+[05-Dec-2025 16:43:34 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'usuario' in 'where clause' in C:\xampp\htdocs\proyecto_sena\app\models\User.php:175
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\app\models\User.php(175): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php(24): User->findByUsuario('dantamarioso@gm...')
+#2 C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php(171): AuthenticationService->authenticate('dantamarioso@gm...', 'Forlyfe135@')
+#3 C:\xampp\htdocs\proyecto_sena\public\index.php(100): AuthController->login()
+#4 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\models\User.php on line 175
+[05-Dec-2025 16:46:02 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'usuario' in 'where clause' in C:\xampp\htdocs\proyecto_sena\app\models\User.php:175
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\app\models\User.php(175): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php(26): User->findByUsuario('dantamarioso@gm...')
+#2 C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php(173): AuthenticationService->authenticate('dantamarioso@gm...', 'Forlyfe135@')
+#3 C:\xampp\htdocs\proyecto_sena\public\index.php(100): AuthController->login()
+#4 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\models\User.php on line 175
+[05-Dec-2025 16:46:19 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'usuario' in 'where clause' in C:\xampp\htdocs\proyecto_sena\app\models\User.php:175
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\app\models\User.php(175): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php(26): User->findByUsuario('dantamarioso@gm...')
+#2 C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php(173): AuthenticationService->authenticate('dantamarioso@gm...', 'Forlyfe135@')
+#3 C:\xampp\htdocs\proyecto_sena\public\index.php(100): AuthController->login()
+#4 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\models\User.php on line 175
+[05-Dec-2025 16:48:11 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'usuario' in 'where clause' in C:\xampp\htdocs\proyecto_sena\app\models\User.php:175
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\app\models\User.php(175): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php(26): User->findByUsuario('dantamarioso@gm...')
+#2 C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php(173): AuthenticationService->authenticate('dantamarioso@gm...', 'Forlyfe135@')
+#3 C:\xampp\htdocs\proyecto_sena\public\index.php(100): AuthController->login()
+#4 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\models\User.php on line 175
+[05-Dec-2025 16:48:36 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'usuario' in 'where clause' in C:\xampp\htdocs\proyecto_sena\app\models\User.php:175
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\app\models\User.php(175): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php(26): User->findByUsuario('dantamarioso@gm...')
+#2 C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php(173): AuthenticationService->authenticate('dantamarioso@gm...', 'Forlyfe135@')
+#3 C:\xampp\htdocs\proyecto_sena\public\index.php(100): AuthController->login()
+#4 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\models\User.php on line 175
+[05-Dec-2025 16:49:46 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'usuario' in 'where clause' in C:\xampp\htdocs\proyecto_sena\app\models\User.php:175
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\app\models\User.php(175): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php(26): User->findByUsuario('dantamarioso@gm...')
+#2 C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php(173): AuthenticationService->authenticate('dantamarioso@gm...', 'Forlyfe135@')
+#3 C:\xampp\htdocs\proyecto_sena\public\index.php(100): AuthController->login()
+#4 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\models\User.php on line 175
+[05-Dec-2025 16:50:58 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'usuario' in 'where clause' in C:\xampp\htdocs\proyecto_sena\app\models\User.php:175
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\app\models\User.php(175): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php(26): User->findByUsuario('dantamarioso@gm...')
+#2 C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php(173): AuthenticationService->authenticate('dantamarioso@gm...', 'Forlyfe135@')
+#3 C:\xampp\htdocs\proyecto_sena\public\index.php(100): AuthController->login()
+#4 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\models\User.php on line 175
+[05-Dec-2025 17:02:49 Europe/Berlin] PHP Warning:  Undefined array key "usuario" in C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php on line 200
+[05-Dec-2025 17:04:31 Europe/Berlin] PHP Warning:  Undefined array key "usuario" in C:\xampp\htdocs\proyecto_sena\app\services\AuthenticationService.php on line 200
+[05-Dec-2025 17:05:45 Europe/Berlin] === IMPORTACIÓN LÍNEA 1 ===
+[05-Dec-2025 17:05:45 Europe/Berlin] Datos completos: ["1","Nodo Cali","BIOTECNOLOG\u00cdA Y NANOTECNOLOG\u00cdA","prueba","es un material de prueba","2025-12-05","prueba","prueba","unidad","23","3000000","prueba","prueba","Activo"]
+[05-Dec-2025 17:05:45 Europe/Berlin] Mapeo fecha index: NO MAPEADO
+[05-Dec-2025 17:05:45 Europe/Berlin] Mapeo valor index: NO MAPEADO
+[05-Dec-2025 17:05:45 Europe/Berlin] Fecha raw extraída: ''
+[05-Dec-2025 17:05:45 Europe/Berlin] Fecha limpia: 'NULL'
+[05-Dec-2025 17:05:45 Europe/Berlin] Valor raw extraído: ''
+[05-Dec-2025 17:05:45 Europe/Berlin] Valor limpio: 'NULL'
+[05-Dec-2025 17:05:45 Europe/Berlin] === IMPORTACIÓN LÍNEA 2 ===
+[05-Dec-2025 17:05:45 Europe/Berlin] Datos completos: ["2","2","2","2","2","2025-12-05","2","2","2","2","300000","2","2","2"]
+[05-Dec-2025 17:05:45 Europe/Berlin] Mapeo fecha index: NO MAPEADO
+[05-Dec-2025 17:05:45 Europe/Berlin] Mapeo valor index: NO MAPEADO
+[05-Dec-2025 17:05:45 Europe/Berlin] Fecha raw extraída: ''
+[05-Dec-2025 17:05:45 Europe/Berlin] Fecha limpia: 'NULL'
+[05-Dec-2025 17:05:45 Europe/Berlin] Valor raw extraído: ''
+[05-Dec-2025 17:05:45 Europe/Berlin] Valor limpio: 'NULL'
+[05-Dec-2025 17:10:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:10:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:10:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:10:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:10:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:10:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:11:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:11:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:11:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:11:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:11:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:11:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:11:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:11:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:11:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:11:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:11:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:11:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:12:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:12:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:12:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:12:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:12:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:12:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:13:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:13:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:13:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:13:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:13:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:13:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:14:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:14:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:14:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:14:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:14:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:14:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:15:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:15:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:15:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:15:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:15:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:15:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:15:46 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:15:46 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:15:46 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:15:46 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:15:46 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:15:46 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:15:50 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:15:51 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:15:51 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:15:51 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:15:51 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:15:51 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:15:51 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:15:51 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:15:51 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:15:51 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:15:51 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:15:51 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:15:52 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:15:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:15:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:15:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:15:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:15:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:15:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:15:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:15:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:15:56 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 10
+[05-Dec-2025 17:15:56 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 11
+[05-Dec-2025 17:15:56 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 12
+[05-Dec-2025 17:15:57 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:15:57 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:15:57 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:15:57 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:15:57 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:15:57 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:15:58 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 10
+[05-Dec-2025 17:15:58 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 11
+[05-Dec-2025 17:15:58 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 12
+[05-Dec-2025 17:15:59 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:15:59 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:15:59 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:15:59 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:15:59 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:15:59 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:16:09 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 10
+[05-Dec-2025 17:16:09 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 11
+[05-Dec-2025 17:16:09 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 12
+[05-Dec-2025 17:16:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 10
+[05-Dec-2025 17:16:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 11
+[05-Dec-2025 17:16:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 12
+[05-Dec-2025 17:16:14 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:16:14 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:16:14 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:16:14 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:16:14 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:16:14 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:16:25 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:16:26 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:16:26 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:16:26 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:16:26 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:16:26 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:16:26 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:16:26 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:16:26 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:16:26 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:16:27 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:16:27 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:16:27 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:16:27 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:16:27 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:16:27 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:16:27 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:16:27 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:16:27 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:16:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:16:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:16:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:16:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:16:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:16:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:16:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:16:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:16:29 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:16:29 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:16:29 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:16:29 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:16:29 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:16:29 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:16:29 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'DateTime' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\MaterialesController.php on line 12
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 10
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 11
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\PerfilController.php on line 12
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:16:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:17:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:17:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:17:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:17:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:17:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:17:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:17:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:17:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:17:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:17:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:17:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:17:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:18:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:18:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:18:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:18:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:18:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:18:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:18:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:18:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:18:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:18:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:18:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:18:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:19:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:19:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:19:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:19:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:19:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:19:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:19:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:19:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:19:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:19:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:19:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:19:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:20:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:20:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:20:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:20:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:20:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:20:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:21:02 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:21:02 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:21:02 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:21:02 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:21:02 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:21:02 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:22:03 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:22:03 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:22:03 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:22:03 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:22:03 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:22:03 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:23:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:23:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:23:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:23:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:23:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:23:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:24:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:24:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:24:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:24:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:24:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:24:04 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:24:43 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:24:43 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:24:43 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:24:43 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:24:43 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:24:43 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:25:00 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:25:00 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:25:00 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:25:00 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:25:00 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:25:00 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:25:08 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:25:08 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:25:08 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:25:08 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:25:08 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:25:08 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:25:10 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:25:10 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:25:10 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:25:10 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:25:10 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:25:10 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:25:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:25:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:25:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:25:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:25:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:25:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:26:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:26:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:26:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:26:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:26:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:26:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:26:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:26:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:26:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:26:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:26:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:26:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:27:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:27:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:27:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:27:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:27:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:27:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:27:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:27:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:27:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:27:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:27:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:27:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:28:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:28:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:28:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:28:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:28:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:28:11 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:28:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:28:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:28:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:28:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:28:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:28:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:29:42 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:29:42 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:29:42 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:29:42 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:29:42 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:29:42 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:30:14 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:30:14 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:30:14 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:30:14 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:30:14 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:30:14 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:30:16 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:30:16 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:30:16 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:30:16 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:30:16 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:30:16 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:30:17 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:30:17 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:30:17 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:30:17 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:30:17 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:30:17 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:30:19 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:30:19 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:30:19 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:30:19 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:30:19 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:30:19 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:30:35 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:30:35 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:30:35 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:30:35 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:30:35 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:30:35 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:31:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:31:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:31:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:31:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:31:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:31:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:31:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:31:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:31:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:31:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:31:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:31:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:32:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:32:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:32:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:32:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:32:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:32:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:33:12 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:33:12 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:33:12 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:33:12 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:33:12 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:33:12 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:33:25 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:33:25 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:33:25 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:33:25 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:33:25 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:33:25 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:33:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:33:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:33:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:33:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:33:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:33:28 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:33:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:33:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:33:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:33:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:33:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:33:30 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:33:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:33:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:33:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:33:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:33:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:33:31 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:33:32 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:33:32 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:33:32 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:33:32 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:33:32 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:33:32 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:33:33 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:33:33 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:33:33 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:33:33 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:33:33 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:33:33 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:33:35 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:33:35 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:33:35 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:33:35 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:33:35 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:33:35 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:33:38 Europe/Berlin] PHP Warning:  Undefined array key "codigo_sap" in C:\xampp\htdocs\proyecto_sena\app\services\MaterialExportService.php on line 80
+[05-Dec-2025 17:33:38 Europe/Berlin] PHP Warning:  Undefined array key "codigo_sap" in C:\xampp\htdocs\proyecto_sena\app\services\MaterialExportService.php on line 80
+[05-Dec-2025 17:34:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:34:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:34:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:34:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:34:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:34:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:34:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:34:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:34:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:34:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:34:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:34:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:35:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:35:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:35:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:35:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:35:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:35:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:35:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:35:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:35:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:35:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:35:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:35:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:36:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:36:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:36:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:36:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:36:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:36:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:36:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:36:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:36:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:36:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:36:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:36:36 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:37:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:37:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:37:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:37:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:37:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:37:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:37:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:37:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:37:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:37:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:37:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:37:41 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:37:43 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:37:43 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:37:43 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:37:43 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:37:43 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:37:43 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:37:45 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:37:45 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:37:45 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:37:45 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:37:45 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:37:45 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:37:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:37:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:37:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:37:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:37:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:37:53 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:37:54 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:37:54 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:37:54 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:37:54 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:37:54 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:37:54 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:37:56 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:37:56 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:37:56 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:37:56 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:37:56 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:37:56 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:38:05 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:38:05 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:38:05 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:38:05 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:38:05 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:38:05 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:38:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:38:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:38:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:38:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:38:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:38:06 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:38:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:38:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:38:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:38:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:38:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:38:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:39:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:39:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:39:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:39:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:39:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:39:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:39:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:39:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:39:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:39:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:39:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:39:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:40:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:40:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:40:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:40:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:40:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:40:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:40:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:40:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:40:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:40:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:40:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:40:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:41:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:41:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:41:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:41:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:41:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:41:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:41:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:41:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:41:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:41:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:41:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:41:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:42:38 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:42:38 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:42:38 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:42:38 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:42:38 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:42:38 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:43:39 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:43:39 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:43:39 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:43:39 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:43:39 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:43:39 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:44:40 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:44:40 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:44:40 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:44:40 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:44:40 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:44:40 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:45:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:45:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:45:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:45:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:45:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:45:07 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:45:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:45:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:45:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:45:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:45:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:45:37 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:46:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:46:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:46:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:46:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:46:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:46:01 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:46:03 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:46:03 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:46:03 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:46:03 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:46:03 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:46:03 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17
+[05-Dec-2025 17:46:34 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'User' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 12
+[05-Dec-2025 17:46:34 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Nodo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 13
+[05-Dec-2025 17:46:34 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Material' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 14
+[05-Dec-2025 17:46:34 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'Audit' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 15
+[05-Dec-2025 17:46:34 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'MaterialArchivo' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 16
+[05-Dec-2025 17:46:34 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'PermissionHelper' has no effect in C:\xampp\htdocs\proyecto_sena\app\controllers\UsuariosController.php on line 17

@@ -2,15 +2,16 @@
 
 /**
  * Helper para cargar variables de entorno desde archivo .env
- * Uso: EnvHelper::load()
+ * Uso: EnvHelper::load().
  */
 class EnvHelper
 {
     private static $vars = [];
+
     private static $loaded = false;
 
     /**
-     * Cargar variables del archivo .env
+     * Cargar variables del archivo .env.
      */
     public static function load()
     {
@@ -19,16 +20,17 @@ class EnvHelper
         }
 
         $envFile = __DIR__ . '/../../.env';
-        
+
         if (!file_exists($envFile)) {
             // Si no existe .env, usar valores por defecto
             self::setDefaults();
             self::$loaded = true;
+
             return;
         }
 
         $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        
+
         foreach ($lines as $line) {
             // Ignorar comentarios
             if (strpos(trim($line), '#') === 0) {
@@ -42,8 +44,10 @@ class EnvHelper
                 $value = trim($value);
 
                 // Remover comillas si existen
-                if ((strpos($value, '"') === 0 && strrpos($value, '"') === strlen($value) - 1) ||
-                    (strpos($value, "'") === 0 && strrpos($value, "'") === strlen($value) - 1)) {
+                if (
+                    (strpos($value, '"') === 0 && strrpos($value, '"') === strlen($value) - 1) ||
+                    (strpos($value, "'") === 0 && strrpos($value, "'") === strlen($value) - 1)
+                ) {
                     $value = substr($value, 1, -1);
                 }
 
@@ -56,7 +60,7 @@ class EnvHelper
     }
 
     /**
-     * Obtener variable de entorno
+     * Obtener variable de entorno.
      * @param string $key Nombre de la variable
      * @param mixed $default Valor por defecto si no existe
      * @return mixed
@@ -71,7 +75,7 @@ class EnvHelper
     }
 
     /**
-     * Verificar si existe una variable
+     * Verificar si existe una variable.
      */
     public static function has($key)
     {
@@ -83,7 +87,7 @@ class EnvHelper
     }
 
     /**
-     * Valores por defecto (fallback)
+     * Valores por defecto (fallback).
      */
     private static function setDefaults()
     {

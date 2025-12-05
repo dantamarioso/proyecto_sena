@@ -1,4 +1,5 @@
 <?php
+
 // ========== CARGAR VARIABLES DE ENTORNO ==========
 require_once __DIR__ . '/../app/helpers/EnvHelper.php';
 EnvHelper::load();
@@ -18,12 +19,12 @@ if (empty($_SERVER['HTTP_HOST'])) {
 } else {
     // Detectar protocolo (soporta proxies como ngrok y Cloudflare)
     $protocol = 'http';
-    
+
     // Prioridad de detección:
     // 1. ngrok usa X-Forwarded-Proto
     if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
         $protocol = strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']);
-    } 
+    }
     // 2. Cloudflare
     elseif (!empty($_SERVER['HTTP_CF_VISITOR'])) {
         $cf_visitor = json_decode($_SERVER['HTTP_CF_VISITOR']);
@@ -39,8 +40,7 @@ if (empty($_SERVER['HTTP_HOST'])) {
     elseif (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] === '443') {
         $protocol = 'https';
     }
-    
+
     $host = $_SERVER['HTTP_HOST'];
     define('BASE_URL', $protocol . '://' . $host . '/proyecto_sena/public');
 }
-

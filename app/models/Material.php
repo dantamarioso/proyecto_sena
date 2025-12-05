@@ -3,11 +3,11 @@
 class Material extends Model
 {
     /**
-     * Obtener todos los materiales con información de línea
+     * Obtener todos los materiales con información de línea.
      */
     public function all()
     {
-        $stmt = $this->db->prepare("
+        $stmt = $this->db->prepare('
             SELECT m.*, 
                    l.nombre as linea_nombre,
                    n.nombre as nodo_nombre
@@ -15,17 +15,18 @@ class Material extends Model
             LEFT JOIN lineas l ON m.linea_id = l.id 
             LEFT JOIN nodos n ON m.nodo_id = n.id
             ORDER BY m.fecha_actualizacion DESC
-        ");
+        ');
         $stmt->execute();
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Obtener material por ID
+     * Obtener material por ID.
      */
     public function getById($id)
     {
-        $stmt = $this->db->prepare("
+        $stmt = $this->db->prepare('
             SELECT m.*, 
                    l.nombre as linea_nombre,
                    n.nombre as nodo_nombre
@@ -33,17 +34,18 @@ class Material extends Model
             LEFT JOIN lineas l ON m.linea_id = l.id 
             LEFT JOIN nodos n ON m.nodo_id = n.id
             WHERE m.id = :id
-        ");
+        ');
         $stmt->execute([':id' => $id]);
+
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Obtener materiales por línea
+     * Obtener materiales por línea.
      */
     public function getByLinea($linea_id)
     {
-        $stmt = $this->db->prepare("
+        $stmt = $this->db->prepare('
             SELECT m.*, 
                    l.nombre as linea_nombre,
                    n.nombre as nodo_nombre
@@ -52,17 +54,18 @@ class Material extends Model
             LEFT JOIN nodos n ON m.nodo_id = n.id
             WHERE m.linea_id = :linea_id 
             ORDER BY m.nombre ASC
-        ");
+        ');
         $stmt->execute([':linea_id' => $linea_id]);
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Buscar materiales con múltiples filtros
+     * Buscar materiales con múltiples filtros.
      */
     public function search($busqueda = '', $linea_id = null, $estado = null)
     {
-        $sql = "
+        $sql = '
             SELECT m.*, 
                    l.nombre as linea_nombre,
                    n.nombre as nodo_nombre
@@ -70,82 +73,86 @@ class Material extends Model
             LEFT JOIN lineas l ON m.linea_id = l.id 
             LEFT JOIN nodos n ON m.nodo_id = n.id
             WHERE 1=1
-        ";
+        ';
         $params = [];
 
         if ($busqueda !== '') {
-            $sql .= " AND (m.nombre LIKE :busqueda 
+            $sql .= ' AND (m.nombre LIKE :busqueda 
                       OR m.codigo LIKE :busqueda 
-                      OR m.descripcion LIKE :busqueda)";
+                      OR m.descripcion LIKE :busqueda)';
             $params[':busqueda'] = "%$busqueda%";
         }
 
         if ($linea_id !== null) {
-            $sql .= " AND m.linea_id = :linea_id";
+            $sql .= ' AND m.linea_id = :linea_id';
             $params[':linea_id'] = $linea_id;
         }
 
         if ($estado !== null) {
-            $sql .= " AND m.estado = :estado";
+            $sql .= ' AND m.estado = :estado';
             $params[':estado'] = $estado;
         }
 
-        $sql .= " ORDER BY m.nombre ASC";
+        $sql .= ' ORDER BY m.nombre ASC';
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
      * Crear nuevo material
-     * Retorna el ID del material creado o false si hay error
+     * Retorna el ID del material creado o false si hay error.
      */
     public function create($data)
     {
         // Establecer variable de sesión para el trigger
         $userId = $_SESSION['user']['id'] ?? 1;
-        $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
-        
-        $stmt = $this->db->prepare("
+        $this->db->prepare('SET @usuario_id = :usuario_id')->execute([':usuario_id' => $userId]);
+
+        $stmt = $this->db->prepare('
             INSERT INTO materiales 
             (codigo, nodo_id, linea_id, nombre, fecha_adquisicion, categoria, presentacion, 
              medida, cantidad, valor_compra, proveedor, marca, descripcion, estado) 
             VALUES (:codigo, :nodo_id, :linea_id, :nombre, :fecha_adquisicion, :categoria, :presentacion,
                     :medida, :cantidad, :valor_compra, :proveedor, :marca, :descripcion, :estado)
-        ");
+        ');
 
-        if ($stmt->execute([
-            ':codigo'            => $data['codigo'],
-            ':nodo_id'           => !empty($data['nodo_id']) ? intval($data['nodo_id']) : null,
-            ':linea_id'          => !empty($data['linea_id']) ? intval($data['linea_id']) : null,
-            ':nombre'            => $data['nombre'],
+        if (
+            $stmt->execute([
+            ':codigo' => $data['codigo'],
+            ':nodo_id' => !empty($data['nodo_id']) ? intval($data['nodo_id']) : null,
+            ':linea_id' => !empty($data['linea_id']) ? intval($data['linea_id']) : null,
+            ':nombre' => $data['nombre'],
             ':fecha_adquisicion' => !empty($data['fecha_adquisicion']) ? $data['fecha_adquisicion'] : null,
-            ':categoria'         => $data['categoria'] ?? null,
-            ':presentacion'      => $data['presentacion'] ?? null,
-            ':medida'            => $data['medida'] ?? null,
-            ':cantidad'          => intval($data['cantidad'] ?? 0),
-            ':valor_compra'      => !empty($data['valor_compra']) ? floatval($data['valor_compra']) : null,
-            ':proveedor'         => $data['proveedor'] ?? null,
-            ':marca'             => $data['marca'] ?? null,
-            ':descripcion'       => $data['descripcion'] ?? null,
-            ':estado'            => $data['estado'] ?? 1,
-        ])) {
+            ':categoria' => $data['categoria'] ?? null,
+            ':presentacion' => $data['presentacion'] ?? null,
+            ':medida' => $data['medida'] ?? null,
+            ':cantidad' => intval($data['cantidad'] ?? 0),
+            ':valor_compra' => !empty($data['valor_compra']) ? floatval($data['valor_compra']) : null,
+            ':proveedor' => $data['proveedor'] ?? null,
+            ':marca' => $data['marca'] ?? null,
+            ':descripcion' => $data['descripcion'] ?? null,
+            ':estado' => $data['estado'] ?? 1,
+            ])
+        ) {
             return $this->db->lastInsertId();
         }
+
         return false;
     }
 
     /**
-     * Actualizar material
+     * Actualizar material.
      */
     public function update($id, $data)
     {
         // Establecer variable de sesión para el trigger
         $userId = $_SESSION['user']['id'] ?? 1;
-        $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
-        
-        $stmt = $this->db->prepare("
+        $this->db->prepare('SET @usuario_id = :usuario_id')->execute([':usuario_id' => $userId]);
+
+        $stmt = $this->db->prepare('
             UPDATE materiales SET
                 codigo = :codigo,
                 nodo_id = :nodo_id,
@@ -163,29 +170,29 @@ class Material extends Model
                 estado = :estado,
                 fecha_actualizacion = NOW()
             WHERE id = :id
-        ");
+        ');
 
         return $stmt->execute([
-            ':id'                => $id,
-            ':codigo'            => $data['codigo'],
-            ':nodo_id'           => !empty($data['nodo_id']) ? intval($data['nodo_id']) : null,
-            ':linea_id'          => !empty($data['linea_id']) ? intval($data['linea_id']) : null,
-            ':nombre'            => $data['nombre'],
+            ':id' => $id,
+            ':codigo' => $data['codigo'],
+            ':nodo_id' => !empty($data['nodo_id']) ? intval($data['nodo_id']) : null,
+            ':linea_id' => !empty($data['linea_id']) ? intval($data['linea_id']) : null,
+            ':nombre' => $data['nombre'],
             ':fecha_adquisicion' => !empty($data['fecha_adquisicion']) ? $data['fecha_adquisicion'] : null,
-            ':categoria'         => $data['categoria'] ?? null,
-            ':presentacion'      => $data['presentacion'] ?? null,
-            ':medida'            => $data['medida'] ?? null,
-            ':cantidad'          => intval($data['cantidad']),
-            ':valor_compra'      => !empty($data['valor_compra']) ? floatval($data['valor_compra']) : null,
-            ':proveedor'         => $data['proveedor'] ?? null,
-            ':marca'             => $data['marca'] ?? null,
-            ':descripcion'       => $data['descripcion'] ?? null,
-            ':estado'            => $data['estado'],
+            ':categoria' => $data['categoria'] ?? null,
+            ':presentacion' => $data['presentacion'] ?? null,
+            ':medida' => $data['medida'] ?? null,
+            ':cantidad' => intval($data['cantidad']),
+            ':valor_compra' => !empty($data['valor_compra']) ? floatval($data['valor_compra']) : null,
+            ':proveedor' => $data['proveedor'] ?? null,
+            ':marca' => $data['marca'] ?? null,
+            ':descripcion' => $data['descripcion'] ?? null,
+            ':estado' => $data['estado'],
         ]);
     }
 
     /**
-     * Eliminar material
+     * Eliminar material.
      */
     public function delete($id, $userId = null)
     {
@@ -193,44 +200,45 @@ class Material extends Model
         if ($userId === null) {
             $userId = $_SESSION['user']['id'] ?? 1;
         }
-        
+
         // Establecer variable de sesión para el trigger
-        $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
-        
-        $stmt = $this->db->prepare("DELETE FROM materiales WHERE id = :id");
+        $this->db->prepare('SET @usuario_id = :usuario_id')->execute([':usuario_id' => $userId]);
+
+        $stmt = $this->db->prepare('DELETE FROM materiales WHERE id = :id');
+
         return $stmt->execute([':id' => $id]);
     }
 
     /**
-     * Registrar movimiento de inventario (entrada/salida)
+     * Registrar movimiento de inventario (entrada/salida).
      */
     public function registrarMovimiento($data)
     {
         // Establecer variable de sesión para el trigger
         $userId = $_SESSION['user']['id'] ?? $data['usuario_id'] ?? 1;
-        $this->db->prepare("SET @usuario_id = :usuario_id")->execute([':usuario_id' => $userId]);
-        
-        $stmt = $this->db->prepare("
+        $this->db->prepare('SET @usuario_id = :usuario_id')->execute([':usuario_id' => $userId]);
+
+        $stmt = $this->db->prepare('
             INSERT INTO movimientos_inventario 
             (material_id, usuario_id, tipo_movimiento, cantidad, descripcion, fecha_movimiento) 
             VALUES (:material_id, :usuario_id, :tipo_movimiento, :cantidad, :descripcion, NOW())
-        ");
+        ');
 
         return $stmt->execute([
-            ':material_id'      => $data['material_id'],
-            ':usuario_id'       => $data['usuario_id'],
-            ':tipo_movimiento'  => $data['tipo_movimiento'], // 'entrada' o 'salida'
-            ':cantidad'         => $data['cantidad'],
-            ':descripcion'      => $data['descripcion'],
+            ':material_id' => $data['material_id'],
+            ':usuario_id' => $data['usuario_id'],
+            ':tipo_movimiento' => $data['tipo_movimiento'], // 'entrada' o 'salida'
+            ':cantidad' => $data['cantidad'],
+            ':descripcion' => $data['descripcion'],
         ]);
     }
 
     /**
-     * Obtener historial de movimientos
+     * Obtener historial de movimientos.
      */
     public function getHistorialMovimientos($material_id = null, $filtros = [])
     {
-        $sql = "
+        $sql = '
             SELECT m.*, mat.nombre as material_nombre, mat.linea_id, mat.nodo_id, l.nombre as linea_nombre, n.nombre as nodo_nombre, u.nombre as usuario_nombre, u.foto as usuario_foto
             FROM movimientos_inventario m
             LEFT JOIN materiales mat ON m.material_id = mat.id
@@ -238,42 +246,43 @@ class Material extends Model
             LEFT JOIN nodos n ON mat.nodo_id = n.id
             LEFT JOIN usuarios u ON m.usuario_id = u.id
             WHERE 1=1
-        ";
+        ';
         $params = [];
 
         if ($material_id !== null) {
-            $sql .= " AND m.material_id = :material_id";
+            $sql .= ' AND m.material_id = :material_id';
             $params[':material_id'] = $material_id;
         }
 
         if (!empty($filtros['tipo_movimiento'])) {
-            $sql .= " AND m.tipo_movimiento = :tipo";
+            $sql .= ' AND m.tipo_movimiento = :tipo';
             $params[':tipo'] = $filtros['tipo_movimiento'];
         }
 
         if (!empty($filtros['fecha_inicio'])) {
-            $sql .= " AND m.fecha_movimiento >= :fecha_inicio";
+            $sql .= ' AND m.fecha_movimiento >= :fecha_inicio';
             $params[':fecha_inicio'] = $filtros['fecha_inicio'] . ' 00:00:00';
         }
 
         if (!empty($filtros['fecha_fin'])) {
-            $sql .= " AND m.fecha_movimiento <= :fecha_fin";
+            $sql .= ' AND m.fecha_movimiento <= :fecha_fin';
             $params[':fecha_fin'] = $filtros['fecha_fin'] . ' 23:59:59';
         }
 
-        $sql .= " ORDER BY m.fecha_movimiento DESC";
+        $sql .= ' ORDER BY m.fecha_movimiento DESC';
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Obtener movimiento por ID con información completa
+     * Obtener movimiento por ID con información completa.
      */
     public function getMovimientoById($id)
     {
-        $stmt = $this->db->prepare("
+        $stmt = $this->db->prepare('
             SELECT 
                 m.*,
                 mat.nombre as material_nombre,
@@ -291,86 +300,111 @@ class Material extends Model
             LEFT JOIN nodos n ON mat.nodo_id = n.id
             LEFT JOIN usuarios u ON m.usuario_id = u.id
             WHERE m.id = :id
-        ");
+        ');
         $stmt->execute([':id' => $id]);
+
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Actualizar cantidad en material después de movimiento
+     * Actualizar cantidad en material después de movimiento.
      */
     public function actualizarCantidad($id, $cantidad)
     {
-        $stmt = $this->db->prepare("
+        $stmt = $this->db->prepare('
             UPDATE materiales 
             SET cantidad = :cantidad,
                 fecha_actualizacion = NOW()
             WHERE id = :id
-        ");
+        ');
 
         return $stmt->execute([
-            ':id'       => $id,
+            ':id' => $id,
             ':cantidad' => intval($cantidad),
         ]);
     }
 
     /**
-     * Verificar si código de producto ya existe
+     * Verificar si código de producto ya existe.
      */
     public function codigoExiste($codigo, $exceptoId = null)
     {
-        $sql = "SELECT COUNT(*) as total FROM materiales WHERE codigo = :codigo";
+        $sql = 'SELECT COUNT(*) as total FROM materiales WHERE codigo = :codigo';
         $params = [':codigo' => $codigo];
 
         if ($exceptoId !== null) {
-            $sql .= " AND id != :id";
+            $sql .= ' AND id != :id';
             $params[':id'] = $exceptoId;
         }
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
         return $result['total'] > 0;
     }
 
     /**
-     * Obtener todas las líneas
+     * Buscar material por código SAP.
      */
-    public function getLineas()
+    public function findByCodigoSAP($codigoSAP)
     {
-        $stmt = $this->db->prepare("SELECT * FROM lineas ORDER BY nombre ASC");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+        $stmt = $this->db->prepare('
+            SELECT m.*, 
+                   l.nombre as linea_nombre,
+                   n.nombre as nodo_nombre
+            FROM materiales m 
+            LEFT JOIN lineas l ON m.linea_id = l.id 
+            LEFT JOIN nodos n ON m.nodo_id = n.id
+            WHERE m.codigo = :codigo
+            LIMIT 1
+        ');
+        $stmt->execute([':codigo' => $codigoSAP]);
 
-    /**
-     * Obtener línea por ID
-     */
-    public function getLineaById($id)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM lineas WHERE id = :id");
-        $stmt->execute([':id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Contar materiales por línea
+     * Obtener todas las líneas.
+     */
+    public function getLineas()
+    {
+        $stmt = $this->db->prepare('SELECT * FROM lineas ORDER BY nombre ASC');
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Obtener línea por ID.
+     */
+    public function getLineaById($id)
+    {
+        $stmt = $this->db->prepare('SELECT * FROM lineas WHERE id = :id');
+        $stmt->execute([':id' => $id]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Contar materiales por línea.
      */
     public function contarPorLinea()
     {
-        $stmt = $this->db->prepare("
+        $stmt = $this->db->prepare('
             SELECT l.id, l.nombre, COUNT(m.id) as total
             FROM lineas l
             LEFT JOIN materiales m ON l.id = m.linea_id
             GROUP BY l.id, l.nombre
             ORDER BY l.nombre ASC
-        ");
+        ');
         $stmt->execute();
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Obtener eliminaciones de materiales desde la tabla de auditoría
+     * Obtener eliminaciones de materiales desde la tabla de auditoría.
      */
     public function getEliminacionesMateriales($filtros = [])
     {
@@ -397,29 +431,30 @@ class Material extends Model
         $params = [];
 
         if (!empty($filtros['material_id'])) {
-            $sql .= " AND a.material_id = :material_id";
-            $params[':material_id'] = (int)$filtros['material_id'];
+            $sql .= ' AND a.material_id = :material_id';
+            $params[':material_id'] = (int) $filtros['material_id'];
         }
 
         if (!empty($filtros['fecha_inicio'])) {
-            $sql .= " AND a.fecha_cambio >= :fecha_inicio";
+            $sql .= ' AND a.fecha_cambio >= :fecha_inicio';
             $params[':fecha_inicio'] = $filtros['fecha_inicio'] . ' 00:00:00';
         }
 
         if (!empty($filtros['fecha_fin'])) {
-            $sql .= " AND a.fecha_cambio <= :fecha_fin";
+            $sql .= ' AND a.fecha_cambio <= :fecha_fin';
             $params[':fecha_fin'] = $filtros['fecha_fin'] . ' 23:59:59';
         }
 
-        $sql .= " ORDER BY a.fecha_cambio DESC";
+        $sql .= ' ORDER BY a.fecha_cambio DESC';
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Obtener cambios (UPDATE) de propiedades del material desde auditoría
+     * Obtener cambios (UPDATE) de propiedades del material desde auditoría.
      */
     public function getHistorialCambios($material_id = null, $filtros = [])
     {
@@ -448,24 +483,25 @@ class Material extends Model
         $params = [];
 
         if ($material_id !== null) {
-            $sql .= " AND a.material_id = :material_id";
-            $params[':material_id'] = (int)$material_id;
+            $sql .= ' AND a.material_id = :material_id';
+            $params[':material_id'] = (int) $material_id;
         }
 
         if (!empty($filtros['fecha_inicio'])) {
-            $sql .= " AND a.fecha_cambio >= :fecha_inicio";
+            $sql .= ' AND a.fecha_cambio >= :fecha_inicio';
             $params[':fecha_inicio'] = $filtros['fecha_inicio'] . ' 00:00:00';
         }
 
         if (!empty($filtros['fecha_fin'])) {
-            $sql .= " AND a.fecha_cambio <= :fecha_fin";
+            $sql .= ' AND a.fecha_cambio <= :fecha_fin';
             $params[':fecha_fin'] = $filtros['fecha_fin'] . ' 23:59:59';
         }
 
-        $sql .= " ORDER BY a.fecha_cambio DESC";
+        $sql .= ' ORDER BY a.fecha_cambio DESC';
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

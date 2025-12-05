@@ -1,7 +1,9 @@
 
 
-
-
+# PHP Code Quality Tools cache
+.php-cs-fixer.cache
+.phpstan.cache
+.phpcs-cache
 
 # Uploads (optional - comentar si quieres versionarlos)
 /public/uploads/fotos/*

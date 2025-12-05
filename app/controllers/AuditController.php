@@ -1,18 +1,24 @@
 <?php
 
+require_once __DIR__ . '/../core/Database.php';
+require_once __DIR__ . '/../core/Model.php';
+require_once __DIR__ . '/../core/Controller.php';
+require_once __DIR__ . '/../models/Audit.php';
+require_once __DIR__ . '/../models/User.php';
+
 class AuditController extends Controller
 {
     private function requireAdmin()
     {
         if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'admin') {
             http_response_code(403);
-            echo "Acceso denegado. Solo administradores pueden acceder al historial.";
+            echo 'Acceso denegado. Solo administradores pueden acceder al historial.';
             exit;
         }
     }
 
     /**
-     * Ver historial de cambios
+     * Ver historial de cambios.
      */
     public function historial()
     {
@@ -20,8 +26,8 @@ class AuditController extends Controller
 
         $auditModel = new Audit();
         $userModel = new User();
-        
-        $page = max(1, (int)($_GET['page'] ?? 1));
+
+        $page = max(1, (int) ($_GET['page'] ?? 1));
         $perPage = 20;
         $offset = ($page - 1) * $perPage;
 
@@ -30,7 +36,7 @@ class AuditController extends Controller
             'usuario_id' => $_GET['usuario_id'] ?? '',
             'accion' => $_GET['accion'] ?? '',
             'fecha_inicio' => $_GET['fecha_inicio'] ?? '',
-            'fecha_fin' => $_GET['fecha_fin'] ?? ''
+            'fecha_fin' => $_GET['fecha_fin'] ?? '',
         ];
 
         try {
@@ -45,25 +51,25 @@ class AuditController extends Controller
 
         // Obtener lista de todos los usuarios para el filtro (incluyendo el propio)
         $usuarios = $userModel->all();
-        
+
         // Obtener también usuarios que aparecen en auditoría pero fueron eliminados
         $usuariosEliminados = $auditModel->obtenerUsuariosEliminados();
         $usuarios = array_merge($usuarios, $usuariosEliminados);
-        
+
         // Eliminar duplicados por ID y ordenar por nombre
         $usuariosUnicos = [];
         foreach ($usuarios as $u) {
             $usuariosUnicos[$u['id']] = $u;
         }
         $usuarios = array_values($usuariosUnicos);
-        usort($usuarios, function($a, $b) {
+        usort($usuarios, function ($a, $b) {
             return strcmp($a['nombre'], $b['nombre']);
         });
 
         // Obtener todas las acciones disponibles en la BD
         // Fallback a los valores definidos en ENUM del schema
         $accionesDisponibles = ['crear', 'actualizar', 'eliminar'];
-        
+
         // Intentar obtener de la BD para capturar valores reales
         try {
             $acciones_bd = $auditModel->obtenerAccionesDisponibles();
@@ -73,7 +79,7 @@ class AuditController extends Controller
         } catch (Exception $e) {
             // Usar fallback de ENUM
         }
-        
+
         sort($accionesDisponibles);
 
         $this->view('audit/historial', [
@@ -85,12 +91,12 @@ class AuditController extends Controller
             'filtro' => $filtro,
             'accionesDisponibles' => $accionesDisponibles,
             'pageStyles' => ['audit', 'audit_mejorado'],
-            'pageScripts' => ['audit', 'historial_mejorado']
+            'pageScripts' => ['audit', 'historial_mejorado'],
         ]);
     }
 
     /**
-     * API: Obtener historial en JSON
+     * API: Obtener historial en JSON.
      */
     public function buscar()
     {
@@ -100,7 +106,7 @@ class AuditController extends Controller
 
         $auditModel = new Audit();
 
-        $page = max(1, (int)($_GET['page'] ?? 1));
+        $page = max(1, (int) ($_GET['page'] ?? 1));
         $perPage = 20;
         $offset = ($page - 1) * $perPage;
 
@@ -108,7 +114,7 @@ class AuditController extends Controller
             'usuario_id' => $_GET['usuario_id'] ?? '',
             'accion' => $_GET['accion'] ?? '',
             'fecha_inicio' => $_GET['fecha_inicio'] ?? '',
-            'fecha_fin' => $_GET['fecha_fin'] ?? ''
+            'fecha_fin' => $_GET['fecha_fin'] ?? '',
         ];
 
         $cambios = $auditModel->obtenerHistorialCompleto($perPage, $offset, $filtro);
@@ -119,7 +125,7 @@ class AuditController extends Controller
             'total' => $total,
             'page' => $page,
             'perPage' => $perPage,
-            'totalPages' => max(1, ceil($total / $perPage))
+            'totalPages' => max(1, ceil($total / $perPage)),
         ]);
         exit;
     }

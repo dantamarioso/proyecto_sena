@@ -5,23 +5,27 @@
             <h3 class="text-center">Verificar Email</h3>
             <h4 class="text-center">Completa tu registro confirmando tu correo</h4>
 
-            <?php if (!empty($_SESSION['flash_error'])): ?>
+            <?php if (!empty($_SESSION['flash_error'])) :
+                ?>
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
                         mostrarNotificacion('<?= addslashes($_SESSION['flash_error']) ?>', 'error', 5000);
                     });
                 </script>
                 <?php unset($_SESSION['flash_error']); ?>
-            <?php endif; ?>
+                <?php
+            endif; ?>
 
-            <?php if (!empty($_SESSION['flash_success'])): ?>
+            <?php if (!empty($_SESSION['flash_success'])) :
+                ?>
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
                         mostrarNotificacion('<?= addslashes($_SESSION['flash_success']) ?>', 'success', 5000);
                     });
                 </script>
                 <?php unset($_SESSION['flash_success']); ?>
-            <?php endif; ?>
+                <?php
+            endif; ?>
 
             <div class="text-muted mb-4">
                 <i class="bi bi-info-circle me-2"></i>

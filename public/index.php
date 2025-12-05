@@ -1,4 +1,5 @@
 <?php
+
 // ========== ERROR LOGGING ==========
 error_reporting(E_ALL);
 ini_set('display_errors', '0'); // No mostrar en página
@@ -21,9 +22,9 @@ if (!empty($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'ngrok') !== 
     // Asegurar que SIEMPRE sea HTTPS para ngrok
     $_SERVER['HTTPS'] = 'on';
     $_SERVER['REQUEST_SCHEME'] = 'https';
-    
+
     // Si la solicitud vino por HTTP, redirigir a HTTPS
-    if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off') {
+    if ($_SERVER['REQUEST_SCHEME'] === 'http') {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $redirectUrl = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
             header('Location: ' . $redirectUrl, true, 301);

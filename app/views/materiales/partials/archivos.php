@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Partial: Gestión de archivos de material
- * Variables esperadas: $material, $archivos
+ * Variables esperadas: $material, $archivos.
  */
 
 $materialId = $material['id'] ?? 0;
@@ -31,13 +32,13 @@ $archivos = isset($archivos) ? $archivos : [];
 
         <!-- Lista de archivos -->
         <div id="lista-archivos-<?= $materialId ?>">
-            <?php if (empty($archivos)): ?>
+            <?php if (empty($archivos)) : ?>
                 <div class="alert alert-info">
                     <i class="bi bi-info-circle"></i> No hay archivos adjuntos aún.
                 </div>
-            <?php else: ?>
+            <?php else : ?>
                 <div class="list-group">
-                    <?php foreach ($archivos as $archivo): ?>
+                    <?php foreach ($archivos as $archivo) : ?>
                         <div class="list-group-item d-flex justify-content-between align-items-center" id="archivo-<?= $archivo['id'] ?>">
                             <div>
                                 <div class="fw-bold">
@@ -138,9 +139,9 @@ function subirArchivo(materialId) {
         };
 
         // USAR ENDPOINT DEL CONTROLADOR (MaterialesController->subirArchivo)
-        const urlSubida = window.BASE_URL + '/materiales/subirArchivo';
+        const urlSubida = window.BASE_URL + '/materialesarchivos/subir';
         
-        console.log('Iniciando carga base64 (materiales/subirArchivo):', {
+        console.log('Iniciando carga base64 (materialesarchivos/subir):', {
             url: urlSubida,
             materialId: materialId,
             archivo: archivo.name,
@@ -225,7 +226,7 @@ function eliminarArchivo(archivoId, materialId) {
         return;
     }
 
-    let urlEliminar = window.BASE_URL + '/materiales/eliminarArchivo';
+    let urlEliminar = window.BASE_URL + '/materialesarchivos/eliminar';
     if (urlEliminar.includes('ngrok')) {
         urlEliminar = urlEliminar.replace('http://', 'https://');
     }
@@ -254,7 +255,7 @@ function eliminarArchivo(archivoId, materialId) {
 }
 
 function recargarArchivos(materialId) {
-    let urlObtener = window.BASE_URL + '/materiales/obtenerArchivos?material_id=' + materialId;
+    let urlObtener = window.BASE_URL + '/materialesarchivos/listar?material_id=' + materialId;
     if (urlObtener.includes('ngrok')) {
         urlObtener = urlObtener.replace('http://', 'https://');
     }

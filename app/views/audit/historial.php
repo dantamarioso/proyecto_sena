@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'admin') {
-    header("Location: " . BASE_URL . "/auth/login");
+    header('Location: ' . BASE_URL . '/auth/login');
     exit;
 }
 ?>
@@ -19,7 +19,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                             <label class="form-label">Usuario</label>
                             <select name="usuario_id" class="form-select" id="filtro-usuario">
                                 <option value="">Todos los usuarios</option>
-                                <?php foreach ($usuarios as $u): ?>
+                                <?php foreach ($usuarios as $u) : ?>
                                     <option value="<?= $u['id'] ?>" <?= $filtro['usuario_id'] == $u['id'] ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($u['nombre']) ?>
                                     </option>
@@ -31,7 +31,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                             <label class="form-label">Acción</label>
                             <select name="accion" class="form-select" id="filtro-accion">
                                 <option value="">Todas</option>
-                                <?php foreach ($accionesDisponibles as $accionOpt): ?>
+                                <?php foreach ($accionesDisponibles as $accionOpt) : ?>
                                     <option value="<?= $accionOpt ?>" <?= $filtro['accion'] == $accionOpt ? 'selected' : '' ?>>
                                         <?= htmlspecialchars(ucfirst(str_replace('_', ' ', $accionOpt))) ?>
                                     </option>
@@ -76,10 +76,10 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                     </tr>
                     </thead>
                     <tbody id="historial-body">
-                    <?php foreach ($cambios as $cambio): ?>
-                        <?php 
+                    <?php foreach ($cambios as $cambio) : ?>
+                        <?php
                         $detallesRaw = json_decode($cambio['detalles'], true);
-                        
+
                         // Si el decode falla (array vacío), podría ser doble encoding
                         if (empty($detallesRaw) && !empty($cambio['detalles'])) {
                             // Intentar decodificar dos veces para casos con doble escape
@@ -88,10 +88,10 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                 $detallesRaw = json_decode($segundoIntento, true);
                             }
                         }
-                        
+
                         $detalles = is_array($detallesRaw) ? $detallesRaw : [];
                         $tieneDetalles = !empty($detalles);
-                        
+
                         // Mapa de acciones con colores - alineado con ENUM de la BD
                         $acciones = [
                             'crear' => ['bg-success', 'Creado', 'pencil-plus'],
@@ -105,9 +105,9 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                             'asignar_nodo' => ['bg-secondary', 'Nodo Asignado', 'link-45deg'],
                             'desactivar/activar' => ['bg-warning text-dark', 'Desactivar/Activar', 'toggle-off'],
                             'delete' => ['bg-danger', 'Eliminado', 'trash'],
-                            'ver' => ['bg-light text-dark', 'Visto', 'eye']
+                            'ver' => ['bg-light text-dark', 'Visto', 'eye'],
                         ];
-                        
+
                         $accion = $cambio['accion'] ?? '';
                         [$clase, $texto, $icono] = $acciones[$accion] ?? ['bg-secondary', htmlspecialchars($accion ?: 'Desconocido'), 'question-circle'];
                         ?>
@@ -121,11 +121,11 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                             </td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <?php if ($cambio['admin_foto']): ?>
+                                    <?php if ($cambio['admin_foto']) : ?>
                                         <img src="<?= BASE_URL . '/' . htmlspecialchars($cambio['admin_foto']) ?>" 
                                              width="24" height="24" class="rounded-circle" style="object-fit: cover;"
                                              title="<?= htmlspecialchars($cambio['admin_nombre'] ?? 'Admin') ?>">
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <img src="<?= BASE_URL ?>/img/default_user.png" 
                                              width="24" height="24" class="rounded-circle" 
                                              title="<?= htmlspecialchars($cambio['admin_nombre'] ?? 'Admin') ?>">
@@ -135,16 +135,16 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                             </td>
                             <td>
                                 <span class="badge <?= $clase ?>"><i class="bi bi-<?= $icono ?>"></i> <?= $texto ?></span>
-                                <?php if ($accion === 'desactivar/activar' && isset($detalles['Acción'])): ?>
-                                    <?php if (strpos($detalles['Acción'], 'Desactivado') !== false): ?>
+                                <?php if ($accion === 'desactivar/activar' && isset($detalles['Acción'])) : ?>
+                                    <?php if (strpos($detalles['Acción'], 'Desactivado') !== false) : ?>
                                         <span class="badge bg-danger ms-1"><i class="bi bi-lock"></i> Desactivado</span>
-                                    <?php elseif (strpos($detalles['Acción'], 'Activado') !== false): ?>
+                                    <?php elseif (strpos($detalles['Acción'], 'Activado') !== false) : ?>
                                         <span class="badge bg-success ms-1"><i class="bi bi-unlock"></i> Activado</span>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?php if ($tieneDetalles): ?>
+                                <?php if ($tieneDetalles) : ?>
                                     <button class="btn btn-sm btn-primary" onclick="abrirModalDetalles(<?= $cambio['id'] ?>)" type="button">
                                         <i class="bi bi-eye"></i> Ver cambios
                                     </button>
@@ -217,7 +217,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                             
                                             <!-- Sección de Cambios Detallados -->
                                             <div>
-                                                <?php if ($accion === 'eliminar'): ?>
+                                                <?php if ($accion === 'eliminar') : ?>
                                                     <h6 class="mb-3" style="color: #b30c1c;">
                                                         <i class="bi bi-trash"></i> Datos del Registro Eliminado
                                                     </h6>
@@ -227,7 +227,7 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                                     </div>
                                                     
                                                     <div class="cambios-detallados">
-                                                        <?php foreach ($detalles as $campo => $valor): ?>
+                                                        <?php foreach ($detalles as $campo => $valor) : ?>
                                                             <div class="cambio-item">
                                                                 <div class="cambio-header">
                                                                     <i class="bi bi-file-earmark-text"></i>
@@ -239,13 +239,15 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                                             </div>
                                                         <?php endforeach; ?>
                                                     </div>
-                                                <?php else: ?>
+                                                <?php else : ?>
                                                     <h6 class="mb-3" style="color: #667eea;">
                                                         <i class="bi bi-list-check"></i> Campos Modificados (<?= count($detalles) ?> cambio<?= count($detalles) !== 1 ? 's' : '' ?>)
                                                     </h6>
                                                     
                                                     <div class="cambios-detallados">
-                                                        <?php $contador = 0; foreach ($detalles as $campo => $valor): $contador++; ?>
+                                                        <?php $contador = 0;
+                                                        foreach ($detalles as $campo => $valor) :
+                                                            $contador++; ?>
                                                             <div class="cambio-item">
                                                                 <div class="cambio-header">
                                                                     <i class="bi bi-pencil-square"></i>
@@ -253,16 +255,16 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                                                     <span class="badge badge-pill" style="background-color: #667eea; font-size: 0.7rem;">Cambio <?= $contador ?></span>
                                                                 </div>
                                                                 
-                                                                <?php if (is_array($valor)): ?>
+                                                                        <?php if (is_array($valor)) : ?>
                                                                     <div class="cambio-valores">
                                                                         <div class="valor-anterior">
                                                                             <span class="valor-label">
                                                                                 <i class="bi bi-arrow-left"></i> Valor Anterior
                                                                             </span>
                                                                             <div class="valor-box <?= empty($valor['anterior']) ? 'vacio' : '' ?>">
-                                                                                <?php if (empty($valor['anterior'])): ?>
+                                                                                <?php if (empty($valor['anterior'])) : ?>
                                                                                     (sin valor previo)
-                                                                                <?php else: ?>
+                                                                                <?php else : ?>
                                                                                     <?= htmlspecialchars($valor['anterior']) ?>
                                                                                 <?php endif; ?>
                                                                             </div>
@@ -272,19 +274,19 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                                                                 <i class="bi bi-arrow-right"></i> Valor Nuevo
                                                                             </span>
                                                                             <div class="valor-box <?= empty($valor['nuevo']) ? 'vacio' : '' ?>">
-                                                                                <?php if (empty($valor['nuevo'])): ?>
+                                                                                <?php if (empty($valor['nuevo'])) : ?>
                                                                                     (sin valor)
-                                                                                <?php else: ?>
+                                                                                <?php else : ?>
                                                                                     <?= htmlspecialchars($valor['nuevo']) ?>
                                                                                 <?php endif; ?>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                <?php else: ?>
+                                                                        <?php else : ?>
                                                                     <div class="alert alert-info mb-0 mt-2" style="font-size: 0.9rem;">
                                                                         <i class="bi bi-info-circle"></i> <?= htmlspecialchars($valor) ?>
                                                                     </div>
-                                                                <?php endif; ?>
+                                                                        <?php endif; ?>
                                                             </div>
                                                         <?php endforeach; ?>
                                                     </div>
@@ -292,14 +294,14 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['rol'] ?? 'usuario') !== 'ad
                                             </div>
                                         </div>
                                     </div>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <span class="text-muted">Sin detalles</span>
                                 <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
 
-                    <?php if (empty($cambios)): ?>
+                    <?php if (empty($cambios)) : ?>
                         <tr>
                             <td colspan="5" class="text-center text-muted py-3">No hay cambios registrados.</td>
                         </tr>

@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/auth/login");
+    header('Location: ' . BASE_URL . '/auth/login');
     exit;
 }
 ?>
@@ -14,7 +14,7 @@ if (!isset($_SESSION['user'])) {
                 </div>
                 <div class="card-body p-4" style="color: #333;">
                     <!-- Mensajes de éxito/error -->
-                    <?php if (isset($_SESSION['flash_success'])): ?>
+                    <?php if (isset($_SESSION['flash_success'])) : ?>
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             <i class="bi bi-check-circle"></i> <?= htmlspecialchars($_SESSION['flash_success']) ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -22,7 +22,7 @@ if (!isset($_SESSION['user'])) {
                         <?php unset($_SESSION['flash_success']); ?>
                     <?php endif; ?>
 
-                    <?php if (isset($_SESSION['flash_error'])): ?>
+                    <?php if (isset($_SESSION['flash_error'])) : ?>
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($_SESSION['flash_error']) ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>

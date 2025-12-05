@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/auth/login");
+    header('Location: ' . BASE_URL . '/auth/login');
     exit;
 }
 ?>
@@ -44,13 +44,13 @@ if (!isset($_SESSION['user'])) {
                         <small class="text-muted">Usuario</small><br>
                         <strong><?= htmlspecialchars($usuario['nombre_usuario']) ?></strong>
                     </div>
-                    <?php if (!empty($usuario['celular'])): ?>
+                    <?php if (!empty($usuario['celular'])) : ?>
                         <div class="list-group-item">
                             <small class="text-muted">Celular</small><br>
                             <strong><?= htmlspecialchars($usuario['celular']) ?></strong>
                         </div>
                     <?php endif; ?>
-                    <?php if (!empty($usuario['cargo'])): ?>
+                    <?php if (!empty($usuario['cargo'])) : ?>
                         <div class="list-group-item">
                             <small class="text-muted">Cargo</small><br>
                             <strong><?= htmlspecialchars($usuario['cargo']) ?></strong>
@@ -58,9 +58,9 @@ if (!isset($_SESSION['user'])) {
                     <?php endif; ?>
                     <div class="list-group-item">
                         <small class="text-muted">Estado</small><br>
-                        <?php if ($usuario['estado'] == 1): ?>
+                        <?php if ($usuario['estado'] == 1) : ?>
                             <span class="badge bg-success">Activo</span>
-                        <?php else: ?>
+                        <?php else : ?>
                             <span class="badge bg-danger">Bloqueado</span>
                         <?php endif; ?>
                     </div>

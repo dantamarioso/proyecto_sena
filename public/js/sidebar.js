@@ -92,6 +92,40 @@ function initializeSidebar() {
 
     // ========== EVENT LISTENERS ==========
     window.addEventListener("resize", handleResize);
+    
+    // ========== CERRAR SIDEBAR AL ABRIR MODALES DE BOOTSTRAP ==========
+    setupModalHandlers();
+}
+
+// ========== CERRAR SIDEBAR CUANDO SE ABRE UN MODAL ==========
+function setupModalHandlers() {
+    // Escuchar eventos de apertura de modales de Bootstrap
+    document.addEventListener('show.bs.modal', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar && window.innerWidth <= 768) {
+            sidebar.classList.remove('mobile-open');
+        }
+    });
+    
+    // También manejar modales que no usan Bootstrap
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                const target = mutation.target;
+                if (target.classList.contains('modal') && target.style.display === 'block') {
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar && window.innerWidth <= 768) {
+                        sidebar.classList.remove('mobile-open');
+                    }
+                }
+            }
+        });
+    });
+    
+    // Observar todos los modales existentes
+    document.querySelectorAll('.modal').forEach(modal => {
+        observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+    });
 }
 
 // ========== SISTEMA DE NOTIFICACIONES ==========

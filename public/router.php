@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Router para desarrollo local
- * Sirve archivos estáticos y redirige peticiones al index.php
+ * Sirve archivos estáticos y redirige peticiones al index.php.
  */
 
 // Obtener la ruta solicitada

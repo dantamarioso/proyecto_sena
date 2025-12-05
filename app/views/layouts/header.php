@@ -71,17 +71,20 @@
     <link rel="stylesheet" href="/proyecto_sena/public/css/auth_mejorado.css">
 
     <!-- CSS específico para login -->
-    <?php if (isset($isLoginPage) && $isLoginPage === true): ?>
+    <?php if (isset($isLoginPage) && $isLoginPage === true) :
+        ?>
         <link rel="stylesheet" href="/proyecto_sena/public/css/login.css">
     <?php endif; ?>
 
     <!-- CSS específico para register -->
-    <?php if (isset($isRegisterPage) && $isRegisterPage === true): ?>
+    <?php if (isset($isRegisterPage) && $isRegisterPage === true) :
+        ?>
         <link rel="stylesheet" href="/proyecto_sena/public/css/register.css">
     <?php endif; ?>
 
     <!-- CSS específico para recuperación de contraseña -->
-    <?php if (isset($isRecoveryPage) && $isRecoveryPage === true): ?>
+    <?php if (isset($isRecoveryPage) && $isRecoveryPage === true) :
+        ?>
         <link rel="stylesheet" href="/proyecto_sena/public/css/recovery.css">
     <?php endif; ?>
 
@@ -157,29 +160,32 @@
     </style>
 
     <!-- CSS por vista -->
-    <?php if (!empty($pageStyles) && is_array($pageStyles)): ?>
-        <?php foreach ($pageStyles as $css): ?>
+    <?php if (!empty($pageStyles) && is_array($pageStyles)) :
+        ?>
+        <?php foreach ($pageStyles as $css) :
+            ?>
             <link rel="stylesheet" href="<?= BASE_URL ?>/css/<?= htmlspecialchars($css) ?>.css">
         <?php endforeach; ?>
-    <?php endif; ?>
+        <?php
+    endif; ?>
 </head>
 
 <body>
 
 <?php
-$isLogin     = isset($isLoginPage) && $isLoginPage === true;
-$isRegister  = isset($isRegisterPage) && $isRegisterPage === true;
+$isLogin = isset($isLoginPage) && $isLoginPage === true;
+    $isRegister = isset($isRegisterPage) && $isRegisterPage === true;
 ?>
 
-<?php if (!$isLogin && !$isRegister): ?>
-
+<?php if (!$isLogin && !$isRegister) : ?>
     <!-- SIDEBAR -->
-    <?php include __DIR__ . "/sidebar.php"; ?>
+    <?php include __DIR__ . '/sidebar.php'; ?>
 
     <!-- CONTENIDO PRINCIPAL -->
     <div class="main-wrapper">
         <div class="main-content">
-<?php else: ?>
+<?php else :
+    ?>
     <!-- LOGIN O REGISTER -->
     <div class="container py-4">
 <?php endif; ?>

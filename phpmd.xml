@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<ruleset name="Proyecto SENA PHPMD Rules"
+         xmlns="http://pmd.sf.net/ruleset/1.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd"
+         xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
+    
+    <description>Reglas de PHPMD personalizadas para el proyecto SENA</description>
+
+    <!-- Importar conjuntos de reglas estándar -->
+    <rule ref="rulesets/cleancode.xml">
+        <!-- Excluir reglas muy estrictas para código legacy -->
+        <exclude name="StaticAccess"/>
+        <exclude name="ElseExpression"/>
+    </rule>
+
+    <rule ref="rulesets/codesize.xml">
+        <!-- Personalizar límites de complejidad -->
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="NPathComplexity"/>
+        <exclude name="ExcessiveMethodLength"/>
+    </rule>
+
+    <!-- Complejidad ciclomática personalizada -->
+    <rule ref="rulesets/codesize.xml/CyclomaticComplexity">
+        <properties>
+            <property name="reportLevel" value="15"/>
+        </properties>
+    </rule>
+
+    <!-- NPath Complexity personalizada -->
+    <rule ref="rulesets/codesize.xml/NPathComplexity">
+        <properties>
+            <property name="minimum" value="300"/>
+        </properties>
+    </rule>
+
+    <!-- Longitud de método personalizada -->
+    <rule ref="rulesets/codesize.xml/ExcessiveMethodLength">
+        <properties>
+            <property name="minimum" value="150"/>
+        </properties>
+    </rule>
+
+    <!-- Reglas de diseño -->
+    <rule ref="rulesets/design.xml">
+        <exclude name="CouplingBetweenObjects"/>
+    </rule>
+
+    <!-- Reglas de nombrado -->
+    <rule ref="rulesets/naming.xml">
+        <exclude name="ShortVariable"/>
+        <exclude name="LongVariable"/>
+    </rule>
+
+    <!-- Variables cortas personalizadas -->
+    <rule ref="rulesets/naming.xml/ShortVariable">
+        <properties>
+            <property name="minimum" value="2"/>
+        </properties>
+    </rule>
+
+    <!-- Reglas de código no utilizado -->
+    <rule ref="rulesets/unusedcode.xml"/>
+
+    <!-- Directorios a excluir -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/database/*</exclude-pattern>
+    <exclude-pattern>*/public/css/*</exclude-pattern>
+    <exclude-pattern>*/public/js/*</exclude-pattern>
+    <exclude-pattern>*/public/img/*</exclude-pattern>
+    <exclude-pattern>*/app/views/*</exclude-pattern>
+</ruleset>

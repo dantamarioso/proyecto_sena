@@ -1,13 +1,13 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/auth/login");
+    header('Location: ' . BASE_URL . '/auth/login');
     exit;
 }
 
 $rol = $_SESSION['user']['rol'] ?? 'usuario';
 if (!in_array($rol, ['admin', 'dinamizador'])) {
     http_response_code(403);
-    echo "Acceso denegado. Solo administradores y dinamizadores pueden crear materiales.";
+    echo 'Acceso denegado. Solo administradores y dinamizadores pueden crear materiales.';
     exit;
 }
 
@@ -34,7 +34,7 @@ if ($editId > 0) {
             <h3 class="mb-0"><?= $material ? 'Agregar Archivos' : 'Crear Nuevo Material' ?></h3>
         </div>
 
-        <?php if (!$material): ?>
+        <?php if (!$material) : ?>
             <!-- Formulario de creación -->
             <div class="card">
                 <div class="card-body">
@@ -46,25 +46,25 @@ if ($editId > 0) {
                             <small class="form-text text-muted">Código único del material</small>
                         </div>
 
-                        <?php 
+                        <?php
                             $rol = $_SESSION['user']['rol'] ?? 'usuario';
-                            $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
-                            $linea_user = $_SESSION['user']['linea_id'] ?? null;
+                        $nodo_user = $_SESSION['user']['nodo_id'] ?? null;
+                        $linea_user = $_SESSION['user']['linea_id'] ?? null;
                         ?>
 
                         <!-- Nodo (solo Admin puede cambiar) -->
-                        <?php if ($rol === 'admin'): ?>
+                        <?php if ($rol === 'admin') : ?>
                             <div class="mb-3">
                                 <label class="form-label">Nodo *</label>
                                 <select name="nodo_id" id="nodo-select" class="form-select" required>
                                     <option value="">-- Seleccionar nodo --</option>
-                                    <?php 
-                                        // Para admin, obtener todos los nodos
-                                        require_once __DIR__ . '/../../models/Nodo.php';
-                                        $nodoModel = new Nodo();
-                                        $nodos = $nodoModel->getActivosConLineas();
-                                        foreach ($nodos as $nodo): 
-                                    ?>
+                                    <?php
+                // Para admin, obtener todos los nodos
+                                    require_once __DIR__ . '/../../models/Nodo.php';
+                                    $nodoModel = new Nodo();
+                                    $nodos = $nodoModel->getActivosConLineas();
+                                    foreach ($nodos as $nodo) :
+                                        ?>
                                         <option value="<?= $nodo['id'] ?>">
                                             <?= htmlspecialchars($nodo['nombre']) ?>
                                         </option>
@@ -72,21 +72,21 @@ if ($editId > 0) {
                                 </select>
                                 <small class="form-text text-muted">Selecciona el nodo para este material</small>
                             </div>
-                        <?php else: ?>
+                        <?php else : ?>
                             <!-- Para usuario/dinamizador: mostrar su nodo actual (no editable) -->
                             <div class="mb-3">
                                 <label class="form-label">Nodo Actual</label>
                                 <div class="alert alert-info mb-0">
                                     <strong>Tu Nodo:</strong> 
-                                    <?php 
-                                        if ($nodo_user) {
-                                            require_once __DIR__ . '/../../models/Nodo.php';
-                                            $nodoModel = new Nodo();
-                                            $nodo = $nodoModel->getById($nodo_user);
-                                            echo $nodo ? htmlspecialchars($nodo['nombre']) : 'No asignado';
-                                        } else {
-                                            echo 'No asignado';
-                                        }
+                                    <?php
+                                    if ($nodo_user) {
+                                        require_once __DIR__ . '/../../models/Nodo.php';
+                                        $nodoModel = new Nodo();
+                                        $nodo = $nodoModel->getById($nodo_user);
+                                        echo $nodo ? htmlspecialchars($nodo['nombre']) : 'No asignado';
+                                    } else {
+                                        echo 'No asignado';
+                                    }
                                     ?>
                                 </div>
                             </div>
@@ -97,7 +97,7 @@ if ($editId > 0) {
                             <label class="form-label">Línea *</label>
                             <select name="linea_id" id="linea-select" class="form-select" required>
                                 <option value="">-- Seleccionar línea --</option>
-                                <?php foreach ($lineas as $linea): ?>
+                                <?php foreach ($lineas as $linea) : ?>
                                     <option value="<?= $linea['id'] ?>">
                                         <?= htmlspecialchars($linea['nombre']) ?>
                                     </option>
@@ -189,7 +189,7 @@ if ($editId > 0) {
                     </form>
                 </div>
             </div>
-        <?php else: ?>
+        <?php else : ?>
             <!-- Formulario de archivos después de crear -->
             <div class="alert alert-success">
                 <i class="bi bi-check-circle"></i>

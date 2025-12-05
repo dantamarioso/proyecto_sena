@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/auth/login");
+    header('Location: ' . BASE_URL . '/auth/login');
     exit;
 }
 ?>
@@ -29,7 +29,7 @@ if (!isset($_SESSION['user'])) {
                         <label class="form-label">Material</label>
                         <select id="filtro-material" class="form-select">
                             <option value="">Todos</option>
-                            <?php foreach ($materiales as $mat): ?>
+                            <?php foreach ($materiales as $mat) : ?>
                                 <option value="<?= $mat['id'] ?>" <?= !empty($filtros['material_id']) && $filtros['material_id'] == $mat['id'] ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($mat['nombre']) ?>
                                 </option>
@@ -83,16 +83,16 @@ if (!isset($_SESSION['user'])) {
                         </tr>
                     </thead>
                     <tbody id="historial-body">
-                        <?php if (!empty($historial)): ?>
-                            <?php foreach ($historial as $mov): ?>
+                        <?php if (!empty($historial)) : ?>
+                            <?php foreach ($historial as $mov) : ?>
                                 <tr>
                                     <td><?= $mov['id'] ?></td>
                                     <td>
                                         <strong><?= htmlspecialchars($mov['material_nombre']) ?></strong><br>
                                         <small class="text-muted">
-                                            <?php if ($mov['tipo_registro'] === 'movimiento'): ?>
+                                            <?php if ($mov['tipo_registro'] === 'movimiento') : ?>
                                                 Código: <?= htmlspecialchars($mov['material_id']) ?>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 Código: <?= htmlspecialchars($mov['material_codigo'] ?? 'N/A') ?>
                                             <?php endif; ?>
                                         </small>
@@ -104,39 +104,39 @@ if (!isset($_SESSION['user'])) {
                                         <span class="badge bg-info"><?= htmlspecialchars($mov['linea_nombre'] ?? 'Sin línea') ?></span>
                                     </td>
                                     <td>
-                                        <?php if ($mov['tipo_registro'] === 'movimiento'): ?>
-                                            <?php if ($mov['tipo_movimiento'] === 'entrada'): ?>
+                                        <?php if ($mov['tipo_registro'] === 'movimiento') : ?>
+                                            <?php if ($mov['tipo_movimiento'] === 'entrada') : ?>
                                                 <span class="badge bg-success">
                                                     <i class="bi bi-plus-lg"></i> Entrada
                                                 </span>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <span class="badge bg-danger">
                                                     <i class="bi bi-dash-lg"></i> Salida
                                                 </span>
                                             <?php endif; ?>
-                                        <?php elseif ($mov['tipo_registro'] === 'cambio'): ?>
+                                        <?php elseif ($mov['tipo_registro'] === 'cambio') : ?>
                                             <span class="badge bg-warning text-dark">
                                                 <i class="bi bi-pencil"></i> Cambio
                                             </span>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <span class="badge bg-dark">
                                                 <i class="bi bi-trash"></i> Eliminado
                                             </span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-center">
-                                        <?php if ($mov['tipo_registro'] === 'movimiento'): ?>
+                                        <?php if ($mov['tipo_registro'] === 'movimiento') : ?>
                                             <strong><?= intval($mov['cantidad']) ?></strong>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <span class="text-muted">-</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
-                                            <?php if ($mov['usuario_foto']): ?>
+                                            <?php if ($mov['usuario_foto']) : ?>
                                                 <img src="<?= BASE_URL . '/' . htmlspecialchars($mov['usuario_foto']) ?>" 
                                                      width="28" height="28" class="rounded-circle" style="object-fit: cover;">
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <img src="<?= BASE_URL ?>/img/default_user.png" 
                                                      width="28" height="28" class="rounded-circle">
                                             <?php endif; ?>
@@ -144,11 +144,11 @@ if (!isset($_SESSION['user'])) {
                                         </div>
                                     </td>
                                     <td>
-                                        <?php if ($mov['tipo_registro'] === 'movimiento'): ?>
+                                        <?php if ($mov['tipo_registro'] === 'movimiento') : ?>
                                             <small class="text-muted"><?= htmlspecialchars($mov['descripcion']) ?></small>
-                                        <?php elseif ($mov['tipo_registro'] === 'cambio'): ?>
+                                        <?php elseif ($mov['tipo_registro'] === 'cambio') : ?>
                                             <small class="text-muted">Propiedades modificadas</small>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <small class="text-muted">Material eliminado del inventario</small>
                                         <?php endif; ?>
                                     </td>
@@ -165,15 +165,15 @@ if (!isset($_SESSION['user'])) {
                                         </small>
                                     </td>
                                     <td class="text-center">
-                                        <?php if ($mov['tipo_registro'] === 'movimiento'): ?>
+                                        <?php if ($mov['tipo_registro'] === 'movimiento') : ?>
                                             <button class="btn btn-info btn-sm btn-detalles" data-id="<?= $mov['id'] ?>" title="Ver detalles">
                                                 <i class="bi bi-eye"></i>
                                             </button>
-                                        <?php elseif ($mov['tipo_registro'] === 'cambio'): ?>
+                                        <?php elseif ($mov['tipo_registro'] === 'cambio') : ?>
                                             <button class="btn btn-warning btn-sm btn-detalles-cambio" data-detalles="<?= htmlspecialchars(json_encode(json_decode($mov['detalles'], true))) ?>" title="Ver cambios">
                                                 <i class="bi bi-eye"></i>
                                             </button>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <button class="btn btn-warning btn-sm btn-detalles-eliminacion" data-detalles="<?= htmlspecialchars(json_encode(json_decode($mov['detalles'], true))) ?>" title="Ver detalles">
                                                 <i class="bi bi-eye"></i>
                                             </button>
@@ -181,7 +181,7 @@ if (!isset($_SESSION['user'])) {
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
-                        <?php else: ?>
+                        <?php else : ?>
                             <tr>
                                 <td colspan="10" class="text-center text-muted py-3">
                                     <i class="bi bi-inbox"></i> No hay movimientos registrados.
@@ -204,19 +204,19 @@ if (!isset($_SESSION['user'])) {
                     <div class="col-12 col-md-2">
                         <small class="text-muted">
                             <i class="bi bi-plus-lg text-success"></i>
-                            Entradas: <strong><?= count(array_filter($historial, fn($m) => ($m['tipo_registro'] ?? null) === 'movimiento' && ($m['tipo_movimiento'] ?? null) === 'entrada')) ?></strong>
+                            Entradas: <strong><?= count(array_filter($historial, fn ($m) => ($m['tipo_registro'] ?? null) === 'movimiento' && ($m['tipo_movimiento'] ?? null) === 'entrada')) ?></strong>
                         </small>
                     </div>
                     <div class="col-12 col-md-2">
                         <small class="text-muted">
                             <i class="bi bi-dash-lg text-danger"></i>
-                            Salidas: <strong><?= count(array_filter($historial, fn($m) => ($m['tipo_registro'] ?? null) === 'movimiento' && ($m['tipo_movimiento'] ?? null) === 'salida')) ?></strong>
+                            Salidas: <strong><?= count(array_filter($historial, fn ($m) => ($m['tipo_registro'] ?? null) === 'movimiento' && ($m['tipo_movimiento'] ?? null) === 'salida')) ?></strong>
                         </small>
                     </div>
                     <div class="col-12 col-md-2">
                         <small class="text-muted">
                             <i class="bi bi-pencil text-warning"></i>
-                            Cambios: <strong><?= count(array_filter($historial, fn($m) => ($m['tipo_registro'] ?? null) === 'cambio')) ?></strong>
+                            Cambios: <strong><?= count(array_filter($historial, fn ($m) => ($m['tipo_registro'] ?? null) === 'cambio')) ?></strong>
                         </small>
                     </div>
                 </div>
@@ -497,7 +497,7 @@ if (!isset($_SESSION['user'])) {
         detallesDiv.innerHTML = '<div class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Cargando...</span></div> Cargando detalles...</div>';
 
         try {
-            const url = `${window.BASE_URL}/materiales/obtenerDetallesMovimiento?id=${movimientoId}`;
+            const url = `${window.BASE_URL}/materialeshistorial/detallesMovimiento?id=${movimientoId}`;
             console.log('URL de fetch:', url);
             
             const response = await fetch(url);
@@ -701,7 +701,7 @@ if (!isset($_SESSION['user'])) {
             if (fechaInicio) params.append('fecha_inicio', fechaInicio);
             if (fechaFin) params.append('fecha_fin', fechaFin);
 
-            const urlFinal = `${window.BASE_URL}/materiales/historialInventario${params.toString() ? '?' + params.toString() : ''}`;
+            const urlFinal = `${window.BASE_URL}/materialeshistorial/index${params.toString() ? '?' + params.toString() : ''}`;
             window.location.href = urlFinal;
         }
 
@@ -724,7 +724,7 @@ if (!isset($_SESSION['user'])) {
                 filtroFechaInicio.value = '';
                 filtroFechaFin.value = '';
                 
-                const urlDestino = `${window.BASE_URL}/materiales/historialInventario`;
+                const urlDestino = `${window.BASE_URL}/materialeshistorial/index`;
                 window.location.href = urlDestino;
             });
         }
@@ -744,7 +744,7 @@ if (!isset($_SESSION['user'])) {
         const badgeElement = document.getElementById(badgeId);
         if (!badgeElement) return;
 
-        fetch(`${window.BASE_URL}/materiales/contarDocumentos?material_id=${materialId}`)
+        fetch(`${window.BASE_URL}/materialesarchivos/contar?material_id=${materialId}`)
             .then(response => response.json())
             .then(data => {
                 const countSpan = badgeElement.querySelector('.count-value');

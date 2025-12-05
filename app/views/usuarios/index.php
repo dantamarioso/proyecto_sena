@@ -1,13 +1,13 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/auth/login");
+    header('Location: ' . BASE_URL . '/auth/login');
     exit;
 }
 
-require_once __DIR__ . "/../../models/User.php";
-$userModel  = new User();
-$currentId  = $_SESSION['user']['id'] ?? null;
-$rolActual  = $_SESSION['user']['rol'] ?? 'usuario';
+require_once __DIR__ . '/../../models/User.php';
+$userModel = new User();
+$currentId = $_SESSION['user']['id'] ?? null;
+$rolActual = $_SESSION['user']['rol'] ?? 'usuario';
 
 // Carga inicial solo por compatibilidad (AJAX se encargará después)
 if ($currentId) {
@@ -24,7 +24,7 @@ if ($currentId) {
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="mb-0">Panel de Usuarios</h3>
 
-            <?php if ($rolActual === 'admin'): ?>
+            <?php if ($rolActual === 'admin') : ?>
                 <a href="<?= BASE_URL ?>/usuarios/crear" class="btn btn-success">
                     <i class="bi bi-plus-lg"></i> Nuevo usuario
                 </a>
@@ -89,7 +89,7 @@ if ($currentId) {
 
                     <tbody id="usuarios-body">
                         <!-- Contenido generado por AJAX (usuarios.js) -->
-                        <?php if (empty($usuarios)): ?>
+                        <?php if (empty($usuarios)) : ?>
                             <tr>
                                 <td colspan="10" class="text-center text-muted">
                                     No hay usuarios registrados.

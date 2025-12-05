@@ -223,7 +223,7 @@
         height: 100vh;
         left: 0;
         top: 0;
-        z-index: 1030;
+        z-index: 1000;
         transform: translateX(-100%);
         transition: transform 0.3s ease;
         box-shadow: 4px 0 16px rgba(0, 0, 0, 0.3);
@@ -232,7 +232,7 @@
 
     .sidebar.mobile-open {
         transform: translateX(0);
-        z-index: 1031;
+        z-index: 1000;
     }
 
     body > .main-wrapper {

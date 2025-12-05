@@ -4,10 +4,12 @@
             <div class="card-body">
                 <h3 class="mb-3">Editar usuario</h3>
 
-                <?php if (!empty($errores)): ?>
+                <?php if (!empty($errores)) :
+                    ?>
                     <div class="alert alert-danger">
                         <ul class="mb-0">
-                            <?php foreach ($errores as $e): ?>
+                            <?php foreach ($errores as $e) :
+                                ?>
                                 <li><?= htmlspecialchars($e) ?></li>
                             <?php endforeach; ?>
                         </ul>
@@ -70,9 +72,9 @@
                     <div class="mb-3">
                         <label class="form-label">Rol</label>
                         <select name="rol" id="select-rol-edit" class="form-select">
-                            <option value="admin"       <?= ($usuario['rol'] ?? '') === 'admin'       ? 'selected' : '' ?>>Admin</option>
+                            <option value="admin"       <?= ($usuario['rol'] ?? '') === 'admin' ? 'selected' : '' ?>>Admin</option>
                             <option value="dinamizador" <?= ($usuario['rol'] ?? '') === 'dinamizador' ? 'selected' : '' ?>>Dinamizador</option>
-                            <option value="usuario"     <?= ($usuario['rol'] ?? '') === 'usuario'     ? 'selected' : '' ?>>Usuario</option>                        
+                            <option value="usuario"     <?= ($usuario['rol'] ?? '') === 'usuario' ? 'selected' : '' ?>>Usuario</option>                        
                         </select>
                     </div>
 
@@ -81,7 +83,8 @@
                         <label class="form-label">Nodo <span class="text-danger">*</span></label>
                         <select name="nodo_id" id="select-nodo-edit" class="form-select">
                             <option value="">-- Selecciona un nodo --</option>
-                            <?php foreach ($nodos as $nodo): ?>
+                            <?php foreach ($nodos as $nodo) :
+                                ?>
                                 <option value="<?= $nodo['id'] ?>" <?= ($usuario['nodo_id'] ?? '') == $nodo['id'] ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($nodo['nombre']) ?> (<?= htmlspecialchars($nodo['ciudad']) ?>)
                                 </option>

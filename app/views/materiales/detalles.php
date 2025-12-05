@@ -1,14 +1,14 @@
 <?php
 if (!isset($_SESSION['user'])) {
     http_response_code(403);
-    echo "Acceso denegado.";
+    echo 'Acceso denegado.';
     exit;
 }
 
 $materialId = intval($_GET['id'] ?? 0);
 if ($materialId <= 0) {
     http_response_code(404);
-    echo "Material no encontrado.";
+    echo 'Material no encontrado.';
     exit;
 }
 
@@ -17,7 +17,7 @@ $material = $materialModel->getById($materialId);
 
 if (!$material) {
     http_response_code(404);
-    echo "Material no encontrado.";
+    echo 'Material no encontrado.';
     exit;
 }
 
@@ -145,13 +145,13 @@ $archivos = $archivoModel->getByMaterial($materialId);
                 <h5 class="mb-0"><i class="bi bi-paperclip"></i> Archivos Adjuntos</h5>
             </div>
             <div class="card-body">
-                <?php if (empty($archivos)): ?>
+                <?php if (empty($archivos)) : ?>
                     <div class="alert alert-info mb-0">
                         <i class="bi bi-info-circle"></i> Este material no tiene archivos adjuntos.
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="list-group">
-                        <?php foreach ($archivos as $archivo): ?>
+                        <?php foreach ($archivos as $archivo) : ?>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <div class="flex-grow-1">
                                     <div class="fw-bold">

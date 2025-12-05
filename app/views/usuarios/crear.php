@@ -5,10 +5,12 @@
 
                 <h3 class="mb-3">Crear nuevo usuario</h3>
 
-                <?php if (!empty($errores)): ?>
+                <?php if (!empty($errores)) :
+                    ?>
                     <div class="alert alert-danger">
                         <ul class="mb-0">
-                            <?php foreach ($errores as $e): ?>
+                            <?php foreach ($errores as $e) :
+                                ?>
                                 <li><?= htmlspecialchars($e) ?></li>
                             <?php endforeach; ?>
                         </ul>
@@ -122,7 +124,8 @@
                         <label class="form-label">Nodo <span class="text-danger">*</span></label>
                         <select name="nodo_id" id="select-nodo" class="form-select" required>
                             <option value="">-- Selecciona un nodo --</option>
-                            <?php foreach ($nodos as $nodo): ?>
+                            <?php foreach ($nodos as $nodo) :
+                                ?>
                                 <option value="<?= $nodo['id'] ?>"><?= htmlspecialchars($nodo['nombre']) ?> (<?= htmlspecialchars($nodo['ciudad']) ?>)</option>
                             <?php endforeach; ?>
                         </select>

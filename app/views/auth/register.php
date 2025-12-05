@@ -6,10 +6,12 @@
 
                 <h3 class="text-center mb-4">Registro de usuario</h3>
 
-                <?php if (!empty($errores)): ?>
+                <?php if (!empty($errores)) :
+                    ?>
                     <div class="alert alert-danger">
                         <ul class="mb-0">
-                            <?php foreach ($errores as $e): ?>
+                            <?php foreach ($errores as $e) :
+                                ?>
                                 <li><?= htmlspecialchars($e) ?></li>
                             <?php endforeach; ?>
                         </ul>

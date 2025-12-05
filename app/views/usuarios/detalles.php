@@ -1,7 +1,7 @@
 <?php
 if (!isset($_SESSION['user'])) {
     http_response_code(403);
-    echo "Acceso denegado.";
+    echo 'Acceso denegado.';
     exit;
 }
 ?>
@@ -16,10 +16,10 @@ if (!isset($_SESSION['user'])) {
                     <div class="mb-1"><strong>Usuario:</strong> <?= htmlspecialchars($usuario['nombre_usuario']) ?></div>
                     <div class="mb-1"><strong>Rol:</strong> <span class="badge bg-info"><?= htmlspecialchars($usuario['rol']) ?></span></div>
                     <div class="mb-1"><strong>Estado:</strong> <?= $usuario['estado'] == 1 ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Bloqueado</span>' ?></div>
-                    <?php if ($usuario['nodo_id']): ?>
+                    <?php if ($usuario['nodo_id']) : ?>
                         <div class="mb-1"><strong>Nodo:</strong> <span class="badge bg-secondary"><?= htmlspecialchars($nodo_nombre ?? 'Nodo ' . $usuario['nodo_id']) ?></span></div>
                     <?php endif; ?>
-                    <?php if ($usuario['linea_id']): ?>
+                    <?php if ($usuario['linea_id']) : ?>
                         <div class="mb-1"><strong>Línea:</strong> <span class="badge bg-warning"><?= htmlspecialchars($linea_nombre ?? 'Línea ' . $usuario['linea_id']) ?></span></div>
                     <?php endif; ?>
                 </div>
@@ -31,11 +31,11 @@ if (!isset($_SESSION['user'])) {
                 <h5 class="mb-0"><i class="bi bi-paperclip"></i> Archivos subidos por el usuario</h5>
             </div>
             <div class="card-body">
-                <?php if (empty($archivos)): ?>
+                <?php if (empty($archivos)) : ?>
                     <div class="alert alert-info"><i class="bi bi-info-circle"></i> Este usuario no ha subido archivos.</div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="list-group">
-                        <?php foreach ($archivos as $archivo): ?>
+                        <?php foreach ($archivos as $archivo) : ?>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
                                     <div class="fw-bold">

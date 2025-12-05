@@ -250,7 +250,7 @@ async function guardarMovimiento() {
     formData.append('descripcion', descripcion);
 
     try {
-        const response = await fetch(`${window.BASE_URL}/?url=materiales/registrarMovimiento`, {
+        const response = await fetch(`${window.BASE_URL}/?url=materialeshistorial/registrarMovimiento`, {
             method: 'POST',
             body: formData
         });
@@ -402,7 +402,7 @@ function exportarMateriales() {
     btn.disabled = true;
     btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Descargando...';
 
-    fetch(`${window.BASE_URL}/?url=materiales/exportarMateriales`, {
+    fetch(`${window.BASE_URL}/?url=materialesexport/exportar`, {
         method: 'GET',
         headers: {
             'Accept': 'text/csv'
@@ -464,7 +464,7 @@ function importarMateriales() {
     const formData = new FormData();
     formData.append('archivo', archivo);
 
-    fetch(`${window.BASE_URL}/?url=materiales/importarMateriales`, {
+    fetch(`${window.BASE_URL}/?url=materialesimport/importar`, {
         method: 'POST',
         body: formData
     })

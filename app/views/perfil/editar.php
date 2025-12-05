@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['user'])) {
-    header("Location: " . BASE_URL . "/auth/login");
+    header('Location: ' . BASE_URL . '/auth/login');
     exit;
 }
 ?>
@@ -12,10 +12,10 @@ if (!isset($_SESSION['user'])) {
 
                 <h3 class="mb-3">Editar perfil</h3>
 
-                <?php if (!empty($errores)): ?>
+                <?php if (!empty($errores)) : ?>
                     <div class="alert alert-danger">
                         <ul class="mb-0">
-                            <?php foreach ($errores as $e): ?>
+                            <?php foreach ($errores as $e) : ?>
                                 <li><?= htmlspecialchars($e) ?></li>
                             <?php endforeach; ?>
                         </ul>
@@ -102,7 +102,7 @@ if (!isset($_SESSION['user'])) {
                     </fieldset>
 
                     <!-- Campos solo para admin -->
-                    <?php if ($currentRol === 'admin'): ?>
+                    <?php if ($currentRol === 'admin') : ?>
                         <hr class="my-4">
 
                         <fieldset>
@@ -129,7 +129,7 @@ if (!isset($_SESSION['user'])) {
                                 </div>
                             </div>
 
-                            <?php if (!$isOwnProfile): ?>
+                            <?php if (!$isOwnProfile) : ?>
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle"></i>
                                     Estás editando el perfil de otro usuario. Los cambios serán registrados en el historial de auditoría.

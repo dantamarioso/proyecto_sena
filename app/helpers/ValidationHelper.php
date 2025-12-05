@@ -2,12 +2,12 @@
 
 /**
  * ValidationHelper - Funciones de validación centralizadas
- * Evita duplicación de código en Controllers
+ * Evita duplicación de código en Controllers.
  */
 class ValidationHelper
 {
     /**
-     * Validar formato de email
+     * Validar formato de email.
      */
     public static function validarEmail($email)
     {
@@ -18,7 +18,7 @@ class ValidationHelper
      * Validar contraseña según requisitos
      * - Mínimo 8 caracteres
      * - Al menos 1 mayúscula
-     * - Al menos 1 carácter especial
+     * - Al menos 1 carácter especial.
      */
     public static function validarContraseña($password)
     {
@@ -30,34 +30,34 @@ class ValidationHelper
             'valida' => $hasLength && $hasUpper && $hasSpecial,
             'minLongitud' => $hasLength,
             'tieneMaxuscula' => $hasUpper,
-            'tieneEspecial' => $hasSpecial
+            'tieneEspecial' => $hasSpecial,
         ];
     }
 
     /**
-     * Obtener mensajes de validación de contraseña
+     * Obtener mensajes de validación de contraseña.
      */
     public static function obtenerErroresContraseña($validacion)
     {
         $errores = [];
 
         if (!$validacion['minLongitud']) {
-            $errores[] = "La contraseña debe tener mínimo 8 caracteres.";
+            $errores[] = 'La contraseña debe tener mínimo 8 caracteres.';
         }
 
         if (!$validacion['tieneMaxuscula']) {
-            $errores[] = "La contraseña debe contener al menos una letra mayúscula.";
+            $errores[] = 'La contraseña debe contener al menos una letra mayúscula.';
         }
 
         if (!$validacion['tieneEspecial']) {
-            $errores[] = "La contraseña debe contener al menos un carácter especial (!@#$%&*).";
+            $errores[] = 'La contraseña debe contener al menos un carácter especial (!@#$%&*).';
         }
 
         return $errores;
     }
 
     /**
-     * Validar celular (opcional, formato flexible)
+     * Validar celular (opcional, formato flexible).
      */
     public static function validarCelular($celular)
     {
@@ -70,7 +70,7 @@ class ValidationHelper
     }
 
     /**
-     * Validar nombre de usuario (alfanumérico, guiones, guiones bajos)
+     * Validar nombre de usuario (alfanumérico, guiones, guiones bajos).
      */
     public static function validarNombreUsuario($nombre)
     {
@@ -78,16 +78,17 @@ class ValidationHelper
     }
 
     /**
-     * Validar URL/archivo
+     * Validar URL/archivo.
      */
     public static function validarExtensionArchivo($filename, $extensionesPermitidas = ['jpg', 'jpeg', 'png'])
     {
         $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
         return in_array($ext, $extensionesPermitidas) ? true : false;
     }
 
     /**
-     * Sanitizar entrada de texto
+     * Sanitizar entrada de texto.
      */
     public static function sanitizar($texto)
     {
@@ -95,10 +96,10 @@ class ValidationHelper
     }
 
     /**
-     * Generar código aleatorio de verificación
+     * Generar código aleatorio de verificación.
      */
     public static function generarCodigo($longitud = 6)
     {
-        return str_pad(random_int(0, 999999), $longitud, '0', STR_PAD_LEFT);
+        return str_pad((string) random_int(0, 999999), $longitud, '0', STR_PAD_LEFT);
     }
 }

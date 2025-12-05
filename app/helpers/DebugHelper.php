@@ -3,12 +3,12 @@
 /**
  * Helper para logging condicional en modo DEBUG
  * Uso: DebugHelper::log('Tu mensaje')
- * Solo registra en error_log si DEBUG está activado en config.php
+ * Solo registra en error_log si DEBUG está activado en config.php.
  */
 class DebugHelper
 {
     /**
-     * Log condicional
+     * Log condicional.
      * @param string $message Mensaje a registrar
      * @param string $level Nivel: 'info', 'warning', 'error' (solo para legibilidad)
      */
@@ -23,7 +23,7 @@ class DebugHelper
     }
 
     /**
-     * Log de información
+     * Log de información.
      */
     public static function info($message)
     {
@@ -31,7 +31,7 @@ class DebugHelper
     }
 
     /**
-     * Log de advertencia
+     * Log de advertencia.
      */
     public static function warning($message)
     {
@@ -39,7 +39,7 @@ class DebugHelper
     }
 
     /**
-     * Log de error
+     * Log de error.
      */
     public static function error($message)
     {
@@ -47,7 +47,7 @@ class DebugHelper
     }
 
     /**
-     * Log de inicio de método/función
+     * Log de inicio de método/función.
      */
     public static function start($methodName)
     {
@@ -55,7 +55,7 @@ class DebugHelper
     }
 
     /**
-     * Log de fin de método/función
+     * Log de fin de método/función.
      */
     public static function end($methodName)
     {
@@ -63,7 +63,7 @@ class DebugHelper
     }
 
     /**
-     * Log de array para debugging
+     * Log de array para debugging.
      */
     public static function dump($data, $name = 'Data')
     {
