@@ -1,8 +1,12 @@
 <?php
 
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/tecnickcom/tcpdf/tcpdf.php';
 
-use TCPDF;
+// Define constantes de TCPDF si no existen
+if (!defined('PDF_FONT_MONOSPACED')) {
+    define('PDF_FONT_MONOSPACED', 'courier');
+}
 
 /**
  * Helper para generar PDFs usando TCPDF
@@ -72,7 +76,8 @@ class PdfHelper
     private function generateTCPDF()
     {
         // Crear instancia TCPDF
-        $pdf = new TCPDF();
+        /** @noinspection PhpUndefinedClassInspection */
+        $pdf = new \TCPDF();
         $pdf->SetCreator('Sistema de Inventario');
         $pdf->SetAuthor('SENA');
         $pdf->SetTitle($this->title);
