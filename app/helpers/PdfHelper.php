@@ -1,8 +1,12 @@
 <?php
 
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use TCPDF;
+
 /**
- * Helper simple para generar PDFs sin dependencias externas
- * Genera un PDF básico con tabla de materiales.
+ * Helper para generar PDFs usando TCPDF
+ * Genera un PDF profesional con tabla de materiales.
  */
 class PdfHelper
 {
@@ -27,7 +31,6 @@ class PdfHelper
     public function addPage()
     {
         // Método placeholder para compatibilidad
-        // En esta implementación HTML no se necesita
         return $this;
     }
 
@@ -60,172 +63,89 @@ class PdfHelper
 
     public function generate()
     {
-        // Crear instancia FPDF simplificada usando generador HTML2PDF via PHP
-        // Como no tenemos librerías, usamos una solución alternativa
-        return $this->generateHtmlToPdf();
+        return $this->generateTCPDF();
     }
 
     /**
-     * Generar HTML que se puede enviar como PDF usando navegadores o convertir
-     * Por ahora retornamos HTML con estilos de impresión.
+     * Generar PDF usando TCPDF
      */
-    private function generateHtmlToPdf()
+    private function generateTCPDF()
     {
-        $html = '<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>' . htmlspecialchars($this->title) . '</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: Arial, sans-serif; 
-            font-size: 10pt; 
-            line-height: 1.4;
-            padding: 10mm;
-            background: white;
-        }
-        .header { 
-            text-align: center; 
-            margin-bottom: 20px; 
-            border-bottom: 2px solid #333;
-            padding-bottom: 10px;
-        }
-        .header h1 { 
-            font-size: 18pt; 
-            margin-bottom: 5px;
-            color: #333;
-        }
-        .header p { 
-            font-size: 9pt; 
-            color: #666;
-        }
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 10px;
-        }
-        thead { 
-            background-color: #4472C4; 
-            color: white; 
-        }
-        th, td { 
-            border: 1px solid #999; 
-            padding: 6px; 
-            text-align: left; 
-            font-size: 9pt;
-        }
-        th { 
-            font-weight: bold; 
-            text-align: center;
-        }
-        tbody tr:nth-child(even) { 
-            background-color: #f9f9f9; 
-        }
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 8pt;
-            color: #999;
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
-        }
-        @media print {
-            body { padding: 0; }
-            .no-print { display: none; }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>' . htmlspecialchars($this->title) . '</h1>
-        <p>Generado el ' . date('d/m/Y H:i:s') . '</p>
-    </div>
-    
-    <table>
-        <thead>
-            <tr>';
+        // Crear instancia TCPDF
+        $pdf = new TCPDF();
+        $pdf->SetCreator('Sistema de Inventario');
+        $pdf->SetAuthor('SENA');
+        $pdf->SetTitle($this->title);
+        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+        $pdf->SetMargins(10, 10, 10);
+        $pdf->SetAutoPageBreak(TRUE, 10);
 
+        // Agregar página
+        $pdf->AddPage('L', 'A4'); // Landscape para mejor visualización de tablas
+
+        // Configurar fuente
+        $pdf->SetFont('helvetica', 'B', 14);
+        $pdf->Cell(0, 10, $this->title, 0, TRUE, 'C');
+
+        $pdf->SetFont('helvetica', '', 8);
+        $pdf->Cell(0, 5, 'Generado: ' . date('d/m/Y H:i:s'), 0, TRUE, 'C');
+        $pdf->Ln(3);
+
+        // Tabla
+        $pdf->SetFont('helvetica', 'B', 7);
+
+        // Ancho de columnas automático
+        $col_width = (280) / count($this->headers); // 280mm para landscape
+
+        // Encabezados
+        $pdf->SetFillColor(68, 114, 196); // Azul
+        $pdf->SetTextColor(255, 255, 255); // Blanco
         foreach ($this->headers as $header) {
-            $html .= '<th>' . htmlspecialchars($header) . '</th>';
+            $pdf->Cell($col_width, 6, substr($header, 0, 20), 1, 0, 'C', TRUE);
         }
+        $pdf->Ln();
 
-        $html .= '            </tr>
-        </thead>
-        <tbody>';
+        // Datos
+        $pdf->SetFillColor(249, 249, 249);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('helvetica', '', 6);
 
+        $fill = FALSE;
         foreach ($this->data as $row) {
-            $html .= '            <tr>';
             foreach ($row as $cell) {
-                $html .= '<td>' . htmlspecialchars($cell) . '</td>';
+                $pdf->Cell($col_width, 5, substr($cell, 0, 20), 1, 0, 'L', $fill);
             }
-            $html .= '</tr>' . "\n";
+            $pdf->Ln();
+            $fill = !$fill; // Alternancia de colores
         }
 
-        $html .= '        </tbody>
-    </table>
-    
-    <div class="footer">
-        <p>Este documento fue generado automáticamente por el sistema de inventario.</p>
-    </div>
-</body>
-</html>';
+        // Footer
+        $pdf->SetFont('helvetica', '', 7);
+        $pdf->Ln(5);
+        $pdf->Cell(0, 5, 'Este documento fue generado automáticamente por el sistema de inventario.', 0, TRUE, 'C');
 
-        return $html;
+        return $pdf->Output('', 'S'); // Retornar como string
     }
 
     /**
-     * Convertir a PDF usando wkhtmltopdf si está disponible
-     * Si no, retorna HTML para que el navegador lo imprima a PDF.
+     * Enviar PDF como descarga
      */
     public function output($filename = 'reporte.pdf')
     {
-        $html = $this->generateHtmlToPdf();
+        try {
+            $content = $this->generateTCPDF();
 
-        // Intentar usar wkhtmltopdf si está disponible
-        if (shell_exec('which wkhtmltopdf 2>/dev/null') || file_exists('C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')) {
-            $tmpHtml = tempnam(sys_get_temp_dir(), 'pdf_');
-            file_put_contents($tmpHtml, $html);
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
+            header('Content-Length: ' . strlen($content));
+            header('Cache-Control: no-cache, no-store, must-revalidate');
+            header('Pragma: no-cache');
+            header('Expires: 0');
 
-            $tmpPdf = tempnam(sys_get_temp_dir(), 'pdf_');
-
-            // Intentar ejecutar wkhtmltopdf
-            if (PHP_OS_FAMILY === 'Windows') {
-                $cmd = "\"C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe\" \"$tmpHtml\" \"$tmpPdf\" 2>nul";
-            } else {
-                $cmd = "wkhtmltopdf \"$tmpHtml\" \"$tmpPdf\" 2>/dev/null";
-            }
-
-            @shell_exec($cmd);
-
-            if (file_exists($tmpPdf) && filesize($tmpPdf) > 100) {
-                $content = file_get_contents($tmpPdf);
-                unlink($tmpHtml);
-                unlink($tmpPdf);
-
-                header('Content-Type: application/pdf');
-                header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
-                header('Content-Length: ' . strlen($content));
-                header('Cache-Control: no-cache, no-store, must-revalidate');
-                header('Pragma: no-cache');
-                header('Expires: 0');
-                echo $content;
-
-                return;
-            }
-
-            unlink($tmpHtml);
-            if (file_exists($tmpPdf)) {
-                unlink($tmpPdf);
-            }
+            echo $content;
+        } catch (Exception $e) {
+            header('Content-Type: text/plain');
+            echo 'Error al generar PDF: ' . $e->getMessage();
         }
-
-        // Fallback: enviar como HTML para imprimir/ver
-        header('Content-Type: text/html; charset=UTF-8');
-        header('Content-Disposition: inline; filename="' . basename($filename) . '.html"');
-        header('Cache-Control: no-cache, no-store, must-revalidate');
-        header('Pragma: no-cache');
-        header('Expires: 0');
-        echo $html;
     }
 }
