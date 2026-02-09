@@ -8,79 +8,96 @@ class MaterialExportService
 {
     public function __construct() {}
 
+    private function buildNodoDisplayName($nodoNombre)
+    {
+        $nodoNombre = trim((string)$nodoNombre);
+        if ($nodoNombre === '') {
+            return 'Todos';
+        }
+
+        // Evitar "Nodo Nodo X" en el titulo
+        return preg_replace('/^nodo\s+/i', '', $nodoNombre);
+    }
+
     /**
-     * Exporta materiales a Excel con 3 sheets: Materiales, Líneas y Nodos.
-     * Orden exacto: Código de material, Nodo, Línea, Nombre, Fecha de adquisición, Categoría, Presentación, Medida, Cantidad, Valor de compra, Proveedor, Marca, Estado
-     */
-    public function exportToExcel($materiales, $filename = 'materiales', $lineas = [], $nodos = [])
+      * Exporta materiales a Excel (Lista Maestra) con el formato solicitado.
+      * Columnas: No consecutivo, Codigo, Nombre, Descripcion, Fecha compra, Valor compra,
+      * Fecha fabricacion, Fecha vencimiento, Fabricante, Unidad medida, Presentacion,
+      * Categoria, Cantidad requerida, Cantidad en stock, Cantidad faltante, Ubicacion, Observacion
+      */
+    public function exportToExcel($materiales, $filename = 'materiales', $context = [])
     {
         require_once __DIR__ . '/../helpers/ExcelHelper.php';
 
         $excel = new ExcelHelper();
 
-        // ===== SHEET 1: MATERIALES (sin ID ni fecha creación) =====
-        $excel->createSheet('Materiales');
-        $excel->setHeaders([
-            'Código de material',
+        $nodoNombre = $context['nodo_nombre'] ?? '';
+        $nodoDisplay = $this->buildNodoDisplayName($nodoNombre);
+        $titulo = 'Lista maestra de materiales - Tecnoparque Nodo ' . $nodoDisplay;
+
+        $excel->createSheet('Lista Maestra');
+        $excel->setTitle($titulo);
+
+        $headers = [
+            'No de consecutivo',
+            'Código',
             'Nodo',
             'Línea',
-            'Nombre',
-            'Fecha de adquisición',
-            'Categoría',
-            'Presentación',
-            'Medida',
-            'Cantidad',
-            'Descripción',
+            'Nombre del material',
+            'Descripción material',
+            'Fecha de compra',
             'Valor de compra',
-            'Proveedor',
-            'Marca',
-            'Estado'
+            'Fecha de fabricación',
+            'Fecha de vencimiento',
+            'Fabricante',
+            'Unidad de medida',
+            'Presentación',
+            'Categoría',
+            'Cantidad requerida',
+            'Cantidad en Stock',
+            'Cantidad faltante',
+            'Ubicación',
+            'Observación'
+        ];
+        $excel->setHeaders($headers);
+
+        $excel->setColumnFormats([
+            7 => 'date',
+            8 => 'currency',
+            9 => 'date',
+            10 => 'date',
         ]);
 
         foreach ($materiales as $material) {
+            $req = (int)($material['cantidad_requerida'] ?? 0);
+            $stock = (int)($material['cantidad'] ?? 0);
+            $faltante = $req - $stock;
+
+            $fabricante = $material['fabricante'] ?? '';
+            if ($fabricante === '' || $fabricante === null) {
+                $fabricante = $material['marca'] ?? ($material['proveedor'] ?? '');
+            }
+
             $excel->addRow([
+                $material['id'] ?? '',
                 $material['codigo'] ?? '',
-                $material['nodo_nombre'] ?? 'Sin asignar',
-                $material['linea_nombre'] ?? 'Sin asignar',
+                $material['nodo_nombre'] ?? '',
+                $material['linea_nombre'] ?? '',
                 $material['nombre'] ?? '',
-                isset($material['fecha_adquisicion']) ? date('d/m/Y', strtotime($material['fecha_adquisicion'])) : '',
-                $material['categoria'] ?? '',
-                $material['presentacion'] ?? '',
-                $material['medida'] ?? '',
-                $material['cantidad'] ?? 0,
                 $material['descripcion'] ?? '',
-                isset($material['valor_compra']) ? number_format($material['valor_compra'], 2, ',', '.') : '',
-                $material['proveedor'] ?? '',
-                $material['marca'] ?? '',
-                ($material['estado'] == 1) ? 'Activo' : 'Inactivo'
-            ]);
-        }
-
-        // ===== SHEET 2: LÍNEAS =====
-        $excel->createSheet('Líneas');
-        $excel->setHeaders([
-            'ID',
-            'Nombre'
-        ]);
-
-        foreach ($lineas as $linea) {
-            $excel->addRow([
-                $linea['id'] ?? '',
-                $linea['nombre'] ?? ''
-            ]);
-        }
-
-        // ===== SHEET 3: NODOS =====
-        $excel->createSheet('Nodos');
-        $excel->setHeaders([
-            'ID',
-            'Nombre'
-        ]);
-
-        foreach ($nodos as $nodo) {
-            $excel->addRow([
-                $nodo['id'] ?? '',
-                $nodo['nombre'] ?? ''
+                $material['fecha_adquisicion'] ?? '',
+                $material['valor_compra'] ?? '',
+                $material['fecha_fabricacion'] ?? '',
+                $material['fecha_vencimiento'] ?? '',
+                $fabricante,
+                $material['medida'] ?? '',
+                $material['presentacion'] ?? '',
+                $material['categoria'] ?? '',
+                $req,
+                $stock,
+                $faltante > 0 ? $faltante : 0,
+                $material['ubicacion'] ?? '',
+                $material['observacion'] ?? ''
             ]);
         }
 
@@ -88,10 +105,9 @@ class MaterialExportService
     }
 
     /**
-     * Exporta materiales a CSV con formato correcto y UTF-8 (sin ID ni fecha creación).
-     * Orden exacto: Código de material, Nodo, Línea, Nombre, Fecha de adquisición, Categoría, Presentación, Medida, Cantidad, Valor de compra, Proveedor, Marca, Estado
-     */
-    public function exportToCSV($materiales, $filename = 'materiales')
+      * Exporta materiales a CSV con el formato de la Lista Maestra.
+      */
+    public function exportToCSV($materiales, $filename = 'materiales', $context = [])
     {
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="' . $filename . '_' . date('Y-m-d') . '.csv"');
@@ -101,41 +117,74 @@ class MaterialExportService
         // BOM para UTF-8 (Excel lo reconoce correctamente)
         fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
-        // Encabezados en orden exacto
-        fputcsv($output, [
-            'Código de material',
+        $nodoNombre = $context['nodo_nombre'] ?? '';
+        $nodoDisplay = $this->buildNodoDisplayName($nodoNombre);
+        $titulo = 'Lista maestra de materiales - Tecnoparque Nodo ' . $nodoDisplay;
+
+        $headers = [
+            'No de consecutivo',
+            'Código',
             'Nodo',
             'Línea',
-            'Nombre',
-            'Fecha de adquisición',
-            'Categoría',
-            'Presentación',
-            'Medida',
-            'Cantidad',
-            'Descripción',
+            'Nombre del material',
+            'Descripción material',
+            'Fecha de compra',
             'Valor de compra',
-            'Proveedor',
-            'Marca',
-            'Estado'
-        ], ';');
+            'Fecha de fabricación',
+            'Fecha de vencimiento',
+            'Fabricante',
+            'Unidad de medida',
+            'Presentación',
+            'Categoría',
+            'Cantidad requerida',
+            'Cantidad en Stock',
+            'Cantidad faltante',
+            'Ubicación',
+            'Observación'
+        ];
+
+        // Titulo (primera fila) para que el CSV mantenga el mismo encabezado visual en Excel
+        fputcsv($output, array_merge([$titulo], array_fill(0, max(count($headers) - 1, 0), '')), ';');
+
+        // Encabezados
+        fputcsv($output, $headers, ';');
 
         // Datos
         foreach ($materiales as $material) {
+            $req = (int)($material['cantidad_requerida'] ?? 0);
+            $stock = (int)($material['cantidad'] ?? 0);
+            $faltante = $req - $stock;
+
+            $fabricante = $material['fabricante'] ?? '';
+            if ($fabricante === '' || $fabricante === null) {
+                $fabricante = $material['marca'] ?? ($material['proveedor'] ?? '');
+            }
+
+            $valorCompra = '';
+            if (isset($material['valor_compra']) && $material['valor_compra'] !== null && $material['valor_compra'] !== '') {
+                $valorCompra = '$ ' . number_format((float)$material['valor_compra'], 0, ',', '.');
+            }
+
             fputcsv($output, [
+                $material['id'] ?? '',
                 $material['codigo'] ?? '',
-                $material['nodo_nombre'] ?? 'Sin asignar',
-                $material['linea_nombre'] ?? 'Sin asignar',
+                $material['nodo_nombre'] ?? '',
+                $material['linea_nombre'] ?? '',
                 $material['nombre'] ?? '',
-                isset($material['fecha_adquisicion']) ? date('d/m/Y', strtotime($material['fecha_adquisicion'])) : '',
-                $material['categoria'] ?? '',
-                $material['presentacion'] ?? '',
-                $material['medida'] ?? '',
-                $material['cantidad'] ?? 0,
                 $material['descripcion'] ?? '',
-                isset($material['valor_compra']) ? number_format($material['valor_compra'], 2, ',', '.') : '',
-                $material['proveedor'] ?? '',
-                $material['marca'] ?? '',
-                ($material['estado'] == 1) ? 'Activo' : 'Inactivo'
+                isset($material['fecha_adquisicion']) && $material['fecha_adquisicion'] ? date('d/m/Y', strtotime($material['fecha_adquisicion'])) : '',
+                $valorCompra,
+                isset($material['fecha_fabricacion']) && $material['fecha_fabricacion'] ? date('d/m/Y', strtotime($material['fecha_fabricacion'])) : '',
+                isset($material['fecha_vencimiento']) && $material['fecha_vencimiento'] ? date('d/m/Y', strtotime($material['fecha_vencimiento'])) : '',
+                $fabricante,
+                $material['medida'] ?? '',
+                $material['presentacion'] ?? '',
+                $material['categoria'] ?? '',
+                $req,
+                $stock,
+                $faltante > 0 ? $faltante : 0,
+                $material['ubicacion'] ?? '',
+                $material['observacion'] ?? ''
             ], ';');
         }
 
@@ -235,9 +284,9 @@ class MaterialExportService
     }
 
     /**
-     * Exporta materiales a ZIP con 3 CSVs (Materiales, Líneas, Nodos).
-     */
-    public function exportToZip($materiales, $filename = 'materiales', $lineas = [], $nodos = [])
+      * Exporta materiales a ZIP con 3 CSVs (Lista Maestra, Líneas, Nodos).
+      */
+    public function exportToZip($materiales, $filename = 'materiales', $lineas = [], $nodos = [], $context = [])
     {
         // Crear archivos temporales
         $tempDir = sys_get_temp_dir() . '/' . uniqid('materiales_');
@@ -248,39 +297,69 @@ class MaterialExportService
         $handle = fopen($materialesFile, 'w');
         fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF)); // UTF-8 BOM
 
-        fputcsv($handle, [
-            'Código de material',
+        // Titulo + encabezados (Lista Maestra)
+        $headers = [
+            'No de consecutivo',
+            'Código',
             'Nodo',
             'Línea',
-            'Nombre',
-            'Fecha de adquisición',
-            'Categoría',
-            'Presentación',
-            'Medida',
-            'Cantidad',
-            'Descripción',
+            'Nombre del material',
+            'Descripción material',
+            'Fecha de compra',
             'Valor de compra',
-            'Proveedor',
-            'Marca',
-            'Estado'
-        ], ';');
+            'Fecha de fabricación',
+            'Fecha de vencimiento',
+            'Fabricante',
+            'Unidad de medida',
+            'Presentación',
+            'Categoría',
+            'Cantidad requerida',
+            'Cantidad en Stock',
+            'Cantidad faltante',
+            'Ubicación',
+            'Observación'
+        ];
+
+        $nodoNombre = $context['nodo_nombre'] ?? '';
+        $nodoDisplay = $this->buildNodoDisplayName($nodoNombre);
+        fputcsv($handle, array_merge(['Lista maestra de materiales - Tecnoparque Nodo ' . $nodoDisplay], array_fill(0, max(count($headers) - 1, 0), '')), ';');
+        fputcsv($handle, $headers, ';');
 
         foreach ($materiales as $material) {
+            $req = (int)($material['cantidad_requerida'] ?? 0);
+            $stock = (int)($material['cantidad'] ?? 0);
+            $faltante = $req - $stock;
+
+            $fabricante = $material['fabricante'] ?? '';
+            if ($fabricante === '' || $fabricante === null) {
+                $fabricante = $material['marca'] ?? ($material['proveedor'] ?? '');
+            }
+
+            $valorCompra = '';
+            if (isset($material['valor_compra']) && $material['valor_compra'] !== null && $material['valor_compra'] !== '') {
+                $valorCompra = '$ ' . number_format((float)$material['valor_compra'], 0, ',', '.');
+            }
+
             fputcsv($handle, [
+                $material['id'] ?? '',
                 $material['codigo'] ?? '',
-                $material['nodo_nombre'] ?? 'Sin asignar',
-                $material['linea_nombre'] ?? 'Sin asignar',
+                $material['nodo_nombre'] ?? '',
+                $material['linea_nombre'] ?? '',
                 $material['nombre'] ?? '',
-                isset($material['fecha_adquisicion']) ? date('d/m/Y', strtotime($material['fecha_adquisicion'])) : '',
-                $material['categoria'] ?? '',
-                $material['presentacion'] ?? '',
-                $material['medida'] ?? '',
-                $material['cantidad'] ?? 0,
                 $material['descripcion'] ?? '',
-                isset($material['valor_compra']) ? number_format($material['valor_compra'], 2, ',', '.') : '',
-                $material['proveedor'] ?? '',
-                $material['marca'] ?? '',
-                ($material['estado'] == 1) ? 'Activo' : 'Inactivo'
+                isset($material['fecha_adquisicion']) && $material['fecha_adquisicion'] ? date('d/m/Y', strtotime($material['fecha_adquisicion'])) : '',
+                $valorCompra,
+                isset($material['fecha_fabricacion']) && $material['fecha_fabricacion'] ? date('d/m/Y', strtotime($material['fecha_fabricacion'])) : '',
+                isset($material['fecha_vencimiento']) && $material['fecha_vencimiento'] ? date('d/m/Y', strtotime($material['fecha_vencimiento'])) : '',
+                $fabricante,
+                $material['medida'] ?? '',
+                $material['presentacion'] ?? '',
+                $material['categoria'] ?? '',
+                $req,
+                $stock,
+                $faltante > 0 ? $faltante : 0,
+                $material['ubicacion'] ?? '',
+                $material['observacion'] ?? ''
             ], ';');
         }
         fclose($handle);

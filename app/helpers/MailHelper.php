@@ -13,6 +13,11 @@ class MailHelper
 {
     public static function sendCode($correo, $asunto, $codigo, $tipo = 'recuperacion')
     {
+        if (!class_exists(PHPMailer::class)) {
+            error_log('MailHelper error: PHPMailer no esta disponible. Ejecute "composer install".');
+            return false;
+        }
+
         $mail = new PHPMailer(true);
 
         try {
@@ -46,8 +51,10 @@ class MailHelper
 
             return $mail->send();
         } catch (Exception $e) {
+            error_log('MailHelper PHPMailer Exception: ' . $e->getMessage());
             return false;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            error_log('MailHelper Throwable: ' . $e->getMessage());
             return false;
         }
     }

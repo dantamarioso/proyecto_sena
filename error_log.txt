@@ -1,1 +1,11 @@
 [12-Dec-2025 14:17:15 Europe/Berlin] PHP Warning:  The use statement with non-compound name 'TCPDF' has no effect in C:\xampp\htdocs\proyecto_sena\app\helpers\PdfHelper.php on line 5
+[09-Feb-2026 18:38:34 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "PHPMailer\PHPMailer\PHPMailer" not found in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php:16
+Stack trace:
+#0 C:\xampp\htdocs\proyecto_sena\app\services\PasswordRecoveryService.php(34): MailHelper::sendCode('danamarios.o@gm...', 'C\xC3\xB3digo de recu...', 379520, 'recuperacion')
+#1 C:\xampp\htdocs\proyecto_sena\app\controllers\AuthController.php(45): PasswordRecoveryService->initiateRecovery('danamarios.o@gm...')
+#2 C:\xampp\htdocs\proyecto_sena\public\index.php(100): AuthController->sendCode()
+#3 {main}
+  thrown in C:\xampp\htdocs\proyecto_sena\app\helpers\MailHelper.php on line 16
+[09-Feb-2026 19:22:59 Europe/Berlin] PHP Warning:  preg_match(): Unknown modifier '\' in C:\xampp\htdocs\proyecto_sena\app\services\MaterialImportService.php on line 633
+[09-Feb-2026 19:22:59 Europe/Berlin] PHP Warning:  preg_match(): Unknown modifier '\' in C:\xampp\htdocs\proyecto_sena\app\services\MaterialImportService.php on line 633
+[09-Feb-2026 19:22:59 Europe/Berlin] PHP Warning:  preg_match(): Unknown modifier '\' in C:\xampp\htdocs\proyecto_sena\app\services\MaterialImportService.php on line 633

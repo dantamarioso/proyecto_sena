@@ -47,6 +47,7 @@ class ExcelHelper
         $this->currentSheet = $name;
         if (!isset($this->sheets[$name])) {
             $this->sheets[$name] = [
+                'title' => null,
                 'headers' => [],
                 'data' => [],
                 'validations' => [],
@@ -57,6 +58,19 @@ class ExcelHelper
             $worksheet = $this->spreadsheet->createSheet();
             $worksheet->setTitle($name);
         }
+
+        return $this;
+    }
+
+    /**
+     * Establecer un titulo en la parte superior (fila 1) para la sheet actual.
+     */
+    public function setTitle($title)
+    {
+        if ($this->currentSheet === null) {
+            $this->createSheet('Sheet1');
+        }
+        $this->sheets[$this->currentSheet]['title'] = (string)$title;
 
         return $this;
     }
@@ -166,11 +180,41 @@ class ExcelHelper
         foreach ($this->sheets as $sheetName => $sheetData) {
             $worksheet = $this->spreadsheet->getSheet($sheetIndex);
 
+            $hasTitle = !empty($sheetData['title']);
+            $headerRowIndex = $hasTitle ? 2 : 1;
+            $dataStartRowIndex = $headerRowIndex + 1;
+
+            // Escribir titulo (fila 1) si existe
+            if ($hasTitle) {
+                $totalCols = max(1, count($sheetData['headers']));
+                $lastColumnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($totalCols);
+                $titleCell = 'A1';
+
+                $worksheet->setCellValue($titleCell, $sheetData['title']);
+                $worksheet->mergeCells("A1:{$lastColumnLetter}1");
+
+                $worksheet->getStyle($titleCell)->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['rgb' => '000000'],
+                        'size' => 14,
+                        'name' => 'Calibri',
+                    ],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                        'wrapText' => true,
+                    ],
+                ]);
+
+                $worksheet->getRowDimension(1)->setRowHeight(28);
+            }
+
             // Escribir encabezados
             $colIndex = 1;
             foreach ($sheetData['headers'] as $header) {
                 $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
-                $cellCoordinate = $columnLetter . '1';
+                $cellCoordinate = $columnLetter . $headerRowIndex;
 
                 $worksheet->setCellValue($cellCoordinate, $header);
 
@@ -178,13 +222,13 @@ class ExcelHelper
                 $worksheet->getStyle($cellCoordinate)->applyFromArray([
                     'font' => [
                         'bold' => true,
-                        'color' => ['rgb' => 'FFFFFF'],
-                        'size' => 12,
+                        'color' => ['rgb' => '000000'],
+                        'size' => 11,
                         'name' => 'Calibri',
                     ],
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => '4472C4'],
+                        'startColor' => ['rgb' => 'F2F2F2'],
                     ],
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -194,7 +238,7 @@ class ExcelHelper
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
-                            'color' => ['rgb' => '2E5C8A'],
+                            'color' => ['rgb' => '000000'],
                         ],
                     ],
                 ]);
@@ -203,10 +247,10 @@ class ExcelHelper
             }
 
             // Ajustar altura de fila de encabezado
-            $worksheet->getRowDimension(1)->setRowHeight(30);
+            $worksheet->getRowDimension($headerRowIndex)->setRowHeight(30);
 
             // Escribir datos
-            $rowIndex = 2;
+            $rowIndex = $dataStartRowIndex;
             foreach ($sheetData['data'] as $rowData) {
                 $colIndex = 1;
                 foreach ($rowData as $value) {
@@ -258,7 +302,7 @@ class ExcelHelper
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color' => ['rgb' => 'D0D0D0'],
+                                'color' => ['rgb' => '000000'],
                             ],
                         ],
                     ]);
@@ -281,7 +325,7 @@ class ExcelHelper
             if (!empty($sheetData['validations'])) {
                 foreach ($sheetData['validations'] as $column => $validationData) {
                     $columnLetter = $column;
-                    $startRow = $validationData['startRow'];
+                    $startRow = max((int)$validationData['startRow'], $dataStartRowIndex);
                     $endRow = $rowIndex - 1;
 
                     $validation = $worksheet->getCell("{$columnLetter}{$startRow}")->getDataValidation();

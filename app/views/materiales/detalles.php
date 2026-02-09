@@ -61,7 +61,7 @@ $archivos = $archivoModel->getByMaterial($materialId);
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <h6 class="text-muted">Fecha de Adquisición</h6>
+                            <h6 class="text-muted">Fecha de Compra</h6>
                             <p class="mb-0"><?= $material['fecha_adquisicion'] ? date('d/m/Y', strtotime($material['fecha_adquisicion'])) : 'No especificada' ?></p>
                         </div>
                     </div>
@@ -69,6 +69,21 @@ $archivos = $archivoModel->getByMaterial($materialId);
                         <div class="mb-3">
                             <h6 class="text-muted">Categoría</h6>
                             <p class="mb-0"><?= htmlspecialchars($material['categoria'] ?? 'No especificada') ?></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Fecha de Fabricación</h6>
+                            <p class="mb-0"><?= !empty($material['fecha_fabricacion']) ? date('d/m/Y', strtotime($material['fecha_fabricacion'])) : 'No especificada' ?></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Fecha de Vencimiento</h6>
+                            <p class="mb-0"><?= !empty($material['fecha_vencimiento']) ? date('d/m/Y', strtotime($material['fecha_vencimiento'])) : 'No especificada' ?></p>
                         </div>
                     </div>
                 </div>
@@ -83,13 +98,45 @@ $archivos = $archivoModel->getByMaterial($materialId);
                     <div class="col-md-4">
                         <div class="mb-3">
                             <h6 class="text-muted">Medida</h6>
-                            <p class="mb-0"><?= htmlspecialchars($material['MEDIDA'] ?? 'N/A') ?></p>
+                            <p class="mb-0"><?= htmlspecialchars($material['medida'] ?? 'N/A') ?></p>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <h6 class="text-muted">Cantidad</h6>
+                            <h6 class="text-muted">Cantidad en Stock</h6>
                             <p class="mb-0"><span class="badge bg-info"><?= intval($material['cantidad']) ?></span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <?php
+                $req = intval($material['cantidad_requerida'] ?? 0);
+                $stock = intval($material['cantidad'] ?? 0);
+                $faltante = $req - $stock;
+                ?>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Cantidad Requerida</h6>
+                            <p class="mb-0"><span class="badge bg-secondary"><?= $req ?></span></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Cantidad Faltante</h6>
+                            <p class="mb-0">
+                                <?php if ($faltante > 0) : ?>
+                                    <span class="badge bg-danger"><?= $faltante ?></span>
+                                <?php else : ?>
+                                    <span class="badge bg-success">0</span>
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Ubicación</h6>
+                            <p class="mb-0"><?= htmlspecialchars($material['ubicacion'] ?? 'No especificada') ?></p>
                         </div>
                     </div>
                 </div>
@@ -103,14 +150,23 @@ $archivos = $archivoModel->getByMaterial($materialId);
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <h6 class="text-muted">Proveedor</h6>
-                            <p class="mb-0"><?= htmlspecialchars($material['proveedor'] ?? 'No especificado') ?></p>
+                            <h6 class="text-muted">Fabricante</h6>
+                            <p class="mb-0"><?= htmlspecialchars($material['fabricante'] ?? $material['marca'] ?? $material['proveedor'] ?? 'No especificado') ?></p>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <h6 class="text-muted">Marca</h6>
-                            <p class="mb-0"><?= htmlspecialchars($material['marca'] ?? 'No especificada') ?></p>
+                            <h6 class="text-muted">Proveedor</h6>
+                            <p class="mb-0"><?= htmlspecialchars($material['proveedor'] ?? 'No especificado') ?></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <h6 class="text-muted">Observación</h6>
+                            <p class="mb-0"><?= nl2br(htmlspecialchars($material['observacion'] ?? '')) ?: 'No especificada' ?></p>
                         </div>
                     </div>
                 </div>

@@ -29,7 +29,7 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
                     <div class="mb-3">
                         <label class="form-label">Código de Material *</label>
                         <input type="text" name="codigo" class="form-control" value="<?= htmlspecialchars($material['codigo']) ?>" placeholder="Ej: MAT-001" required maxlength="50">
-                        <small class="form-text text-muted">Código único del material</small>
+                        <small class="form-text text-muted">Código de referencia del material</small>
                     </div>
 
                     <?php
@@ -97,8 +97,20 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
 
                     <!-- Fecha de Adquisición -->
                     <div class="mb-3">
-                        <label class="form-label">Fecha de Adquisición</label>
+                        <label class="form-label">Fecha de Compra</label>
                         <input type="date" name="fecha_adquisicion" class="form-control" value="<?= htmlspecialchars($material['fecha_adquisicion'] ?? '') ?>">
+                    </div>
+
+                    <!-- Fechas de fabricación y vencimiento -->
+                    <div class="row">
+                        <div class="col-12 col-md-6 mb-3">
+                            <label class="form-label">Fecha de Fabricación</label>
+                            <input type="date" name="fecha_fabricacion" class="form-control" value="<?= htmlspecialchars($material['fecha_fabricacion'] ?? '') ?>">
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            <label class="form-label">Fecha de Vencimiento</label>
+                            <input type="date" name="fecha_vencimiento" class="form-control" value="<?= htmlspecialchars($material['fecha_vencimiento'] ?? '') ?>">
+                        </div>
                     </div>
 
                     <!-- Categoría, Presentación, Medida -->
@@ -117,11 +129,17 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
                         </div>
                     </div>
 
-                    <!-- Cantidad -->
-                    <div class="mb-3">
-                        <label class="form-label">Cantidad *</label>
-                        <input type="number" name="cantidad" class="form-control" placeholder="0" value="<?= intval($material['cantidad']) ?>" min="0" step="1" required>
-                        <small class="form-text text-muted">Solo se aceptan números enteros. Use entrada/salida para registrar cambios</small>
+                    <!-- Cantidades -->
+                    <div class="row">
+                        <div class="col-12 col-md-6 mb-3">
+                            <label class="form-label">Cantidad en Stock *</label>
+                            <input type="number" name="cantidad" class="form-control" placeholder="0" value="<?= intval($material['cantidad']) ?>" min="0" step="1" required>
+                            <small class="form-text text-muted">Solo se aceptan números enteros. Use entrada/salida para registrar cambios</small>
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            <label class="form-label">Cantidad Requerida</label>
+                            <input type="number" name="cantidad_requerida" class="form-control" placeholder="0" value="<?= intval($material['cantidad_requerida'] ?? 0) ?>" min="0" step="1">
+                        </div>
                     </div>
 
                     <!-- Valor de Compra -->
@@ -131,22 +149,38 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
                         <small class="form-text text-muted">Valor unitario en pesos colombianos</small>
                     </div>
 
-                    <!-- Proveedor y Marca -->
+                    <!-- Fabricante / Proveedor / Marca -->
                     <div class="row">
-                        <div class="col-12 col-md-6 mb-3">
+                        <div class="col-12 col-md-4 mb-3">
+                            <label class="form-label">Fabricante</label>
+                            <input type="text" name="fabricante" class="form-control" value="<?= htmlspecialchars($material['fabricante'] ?? '') ?>" placeholder="Ej: BASF" maxlength="200">
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
                             <label class="form-label">Proveedor</label>
                             <input type="text" name="proveedor" class="form-control" value="<?= htmlspecialchars($material['proveedor'] ?? '') ?>" placeholder="Nombre del proveedor" maxlength="200">
                         </div>
-                        <div class="col-12 col-md-6 mb-3">
+                        <div class="col-12 col-md-4 mb-3">
                             <label class="form-label">Marca</label>
                             <input type="text" name="marca" class="form-control" value="<?= htmlspecialchars($material['marca'] ?? '') ?>" placeholder="Marca del producto" maxlength="100">
                         </div>
+                    </div>
+
+                    <!-- Ubicación -->
+                    <div class="mb-3">
+                        <label class="form-label">Ubicación</label>
+                        <input type="text" name="ubicacion" class="form-control" value="<?= htmlspecialchars($material['ubicacion'] ?? '') ?>" placeholder="Ej: Diseño de productos" maxlength="200">
                     </div>
 
                     <!-- Descripción -->
                     <div class="mb-3">
                         <label class="form-label">Descripción</label>
                         <textarea name="descripcion" class="form-control" rows="3" placeholder="Detalles adicionales del material..."><?= htmlspecialchars($material['descripcion'] ?? '') ?></textarea>
+                    </div>
+
+                    <!-- Observación -->
+                    <div class="mb-3">
+                        <label class="form-label">Observación</label>
+                        <textarea name="observacion" class="form-control" rows="3" placeholder="Observaciones, estado del material, notas..."><?= htmlspecialchars($material['observacion'] ?? '') ?></textarea>
                     </div>
 
                     <!-- Estado -->

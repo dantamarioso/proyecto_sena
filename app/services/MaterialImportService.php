@@ -13,6 +13,11 @@ class MaterialImportService
     private $lineaModel;
     private $nodoModel;
 
+    private $contextNodoId = null;
+    private $contextLineaId = null;
+
+    private $importRol = 'usuario';
+
     private $cacheLineas = null;
     private $cacheNodos = null;
     private $inicio_tiempo;
@@ -30,6 +35,8 @@ class MaterialImportService
      */
     public function importFromFile($file, $data)
     {
+        $this->setContextFromRequest($data);
+
         // Detectar formato de manera segura según la extensión del archivo; el formulario puede no enviar "formato"
         $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
         $extEsExcel = in_array($ext, ['xlsx', 'xls', 'xlsm', 'ods'], true);
@@ -52,6 +59,38 @@ class MaterialImportService
     }
 
     /**
+     * Contexto de importacion:
+     * - Si el archivo no incluye Nodo/Línea, se toma de POST o de la sesión.
+     */
+    private function setContextFromRequest($data)
+    {
+        $this->importRol = $_SESSION['user']['rol'] ?? 'usuario';
+
+        $nodoId = $data['nodo_id'] ?? ($data['nodo'] ?? null);
+        $lineaId = $data['linea_id'] ?? ($data['linea'] ?? null);
+
+        $sessionNodoId = isset($_SESSION['user']['nodo_id']) ? (int)$_SESSION['user']['nodo_id'] : null;
+        $sessionLineaId = isset($_SESSION['user']['linea_id']) ? (int)$_SESSION['user']['linea_id'] : null;
+
+        // Dinamizador: siempre restringido a su nodo
+        if ($this->importRol === 'dinamizador') {
+            $this->contextNodoId = $sessionNodoId;
+        } else {
+            if (!empty($nodoId) && is_numeric($nodoId)) {
+                $this->contextNodoId = (int)$nodoId;
+            } else {
+                $this->contextNodoId = $sessionNodoId;
+            }
+        }
+
+        if (!empty($lineaId) && is_numeric($lineaId)) {
+            $this->contextLineaId = (int)$lineaId;
+        } else {
+            $this->contextLineaId = $sessionLineaId;
+        }
+    }
+
+    /**
      * Importa desde CSV.
      */
     private function importFromCSV($file)
@@ -62,27 +101,73 @@ class MaterialImportService
             return ['success' => false, 'message' => 'El archivo está vacío.'];
         }
 
-        // Detectar delimitador
-        $delimitador = $this->detectarDelimitador($lineas[0]);
+        // Detectar delimitador usando varias lineas (soporta que la primera sea el titulo)
+        $delimitador = $this->detectarDelimitadorEnLineas($lineas);
 
-        // Procesar encabezados
-        $encabezados = str_getcsv($lineas[0], $delimitador);
+        // Encontrar encabezados (saltando titulo/filas vacias)
+        $headerIndex = null;
+        $mapeo = null;
+        foreach ($lineas as $idx => $linea) {
+            $campos = str_getcsv($linea, $delimitador);
+            if ($this->isEmptyRow($campos)) {
+                continue;
+            }
+            if ($this->isTitleRow($campos)) {
+                continue;
+            }
 
-        if (count($encabezados) <= 1) {
-            return ['success' => false, 'message' => 'Error al procesar encabezados del archivo.'];
+            $mapeoTry = $this->mapearEncabezados($campos);
+            if ($mapeoTry['success']) {
+                $headerIndex = $idx;
+                $mapeo = $mapeoTry;
+                break;
+            }
         }
 
-        // Mapear encabezados
-        $mapeo = $this->mapearEncabezados($encabezados);
-
-        if (!$mapeo['success']) {
-            return $mapeo;
+        if ($headerIndex === null || !$mapeo) {
+            return ['success' => false, 'message' => 'No se encontraron encabezados validos en el archivo.'];
         }
 
-        // Procesar filas
-        $resultado = $this->procesarFilas(array_slice($lineas, 1), $delimitador, $mapeo['indices']);
+        if (!isset($mapeo['indices']['nodo']) && empty($this->contextNodoId)) {
+            return [
+                'success' => false,
+                'message' => 'No se pudo determinar el nodo para la importación. Seleccione un nodo en los filtros o incluya una columna "Nodo" en el archivo.',
+            ];
+        }
 
-        return $resultado;
+        if (!isset($mapeo['indices']['linea']) && empty($this->contextLineaId)) {
+            return [
+                'success' => false,
+                'message' => 'No se pudo determinar la línea para la importación. Seleccione una línea en los filtros o incluya una columna "Línea" en el archivo.',
+            ];
+        }
+
+        // Procesar filas (linea real = indice + 1)
+        $dataLines = array_slice($lineas, $headerIndex + 1);
+        $primerNumeroLinea = ($headerIndex + 2);
+
+        return $this->procesarFilas($dataLines, $delimitador, $mapeo['indices'], $primerNumeroLinea);
+    }
+
+    /** Detecta el delimitador del CSV usando varias lineas. */
+    private function detectarDelimitadorEnLineas($lineas)
+    {
+        $delimitadores = [',', ';', "\t", '|'];
+        $maxCampos = 0;
+        $mejorDelimitador = ';';
+
+        $muestra = array_slice($lineas, 0, 10);
+        foreach ($delimitadores as $delim) {
+            foreach ($muestra as $linea) {
+                $campos = str_getcsv($linea, $delim);
+                if (count($campos) > $maxCampos) {
+                    $maxCampos = count($campos);
+                    $mejorDelimitador = $delim;
+                }
+            }
+        }
+
+        return $mejorDelimitador;
     }
 
     /**
@@ -97,24 +182,53 @@ class MaterialImportService
 
             $spreadsheet = call_user_func(['\\PhpOffice\\PhpSpreadsheet\\IOFactory', 'load'], $file['tmp_name']);
             $sheet = $spreadsheet->getActiveSheet();
-            $data = $sheet->toArray();
+            $rows = $sheet->toArray();
 
-            if (count($data) < 2) {
+            if (count($rows) < 1) {
                 return ['success' => false, 'message' => 'El archivo no contiene datos.'];
             }
 
-            // Primera fila = encabezados
-            $encabezados = $data[0];
-            $mapeo = $this->mapearEncabezados($encabezados);
+            // Encontrar encabezados (saltando titulo/filas vacias)
+            $headerIndex = null;
+            $mapeo = null;
+            foreach ($rows as $idx => $row) {
+                if ($this->isEmptyRow($row)) {
+                    continue;
+                }
+                if ($this->isTitleRow($row)) {
+                    continue;
+                }
 
-            if (!$mapeo['success']) {
-                return $mapeo;
+                $mapeoTry = $this->mapearEncabezados($row);
+                if ($mapeoTry['success']) {
+                    $headerIndex = $idx;
+                    $mapeo = $mapeoTry;
+                    break;
+                }
             }
 
-            // Procesar filas
-            $resultado = $this->procesarFilasExcel(array_slice($data, 1), $mapeo['indices']);
+            if ($headerIndex === null || !$mapeo) {
+                return ['success' => false, 'message' => 'No se encontraron encabezados validos en el archivo Excel.'];
+            }
 
-            return $resultado;
+            if (!isset($mapeo['indices']['nodo']) && empty($this->contextNodoId)) {
+                return [
+                    'success' => false,
+                    'message' => 'No se pudo determinar el nodo para la importación. Seleccione un nodo en los filtros o incluya una columna "Nodo" en el archivo.',
+                ];
+            }
+
+            if (!isset($mapeo['indices']['linea']) && empty($this->contextLineaId)) {
+                return [
+                    'success' => false,
+                    'message' => 'No se pudo determinar la línea para la importación. Seleccione una línea en los filtros o incluya una columna "Línea" en el archivo.',
+                ];
+            }
+
+            $dataRows = array_slice($rows, $headerIndex + 1);
+            $primerNumeroLinea = ($headerIndex + 2);
+
+            return $this->procesarFilasExcel($dataRows, $mapeo['indices'], $primerNumeroLinea);
         } catch (Exception $e) {
             return ['success' => false, 'message' => 'Error al procesar Excel: ' . $e->getMessage()];
         }
@@ -125,7 +239,7 @@ class MaterialImportService
      */
     private function detectarDelimitador($linea)
     {
-        $delimitadores = [',', ';', '\t', '|'];
+        $delimitadores = [',', ';', "\t", '|'];
         $maxCampos = 0;
         $mejorDelimitador = ',';
 
@@ -145,25 +259,42 @@ class MaterialImportService
      */
     private function mapearEncabezados($encabezados)
     {
-        // Ahora solo se requieren: código, nodo, línea
+        // Formatos soportados:
+        // - Lista Maestra (Excel/CSV) con titulo + estos encabezados
+        // - Export anterior del sistema (compatibilidad)
+
         $camposRequeridos = [
-            'codigo' => ['codigo', 'código', 'codigo de material', 'código de material', 'cod material', 'codigo material', 'código sap', 'codigo sap', 'sap', 'cod_sap', 'code'],
-            'nodo' => ['nodo', 'id nodo', 'nodo id', 'centro', 'centro de formación', 'centro de formacion'],
-            'linea' => ['linea', 'línea', 'linea id', 'línea id', 'id linea', 'id línea', 'line', 'línea de negocio', 'linea de negocio'],
+            'nombre' => [
+                'nombre',
+                'nombre del material',
+                'nombre material',
+                'product name'
+            ],
         ];
 
-        // Campos opcionales
         $camposOpcionales = [
-            'descripcion' => ['descripcion', 'descripción', 'desc', 'descripción del material'],
-            'cantidad' => ['cantidad', 'qty', 'stock', 'existencia', 'existencias'],
-            'nombre' => ['nombre', 'nombre del material', 'product name'],
-            'fecha_adquisicion' => ['fecha de adquisición', 'fecha adquisicion', 'fecha adquisición', 'fecha compra', 'fecha de compra', 'fecha', 'date'],
+            'id' => ['no de consecutivo', 'no consecutivo', 'consecutivo', '#', 'id'],
+            'codigo' => ['codigo', 'código', 'codigo de material', 'código de material', 'codigo material', 'código sap', 'codigo sap', 'sap', 'cod_sap', 'code'],
+            'descripcion' => ['descripcion material', 'descripción material', 'descripcion', 'descripción', 'desc'],
+            'fecha_adquisicion' => ['fecha de compra', 'fecha compra', 'fecha de adquisicion', 'fecha de adquisición', 'fecha adquisicion', 'fecha adquisición', 'fecha', 'date'],
             'valor_compra' => ['valor de compra', 'valor compra', 'precio compra', 'precio de compra', 'costo', 'price', 'valor', 'cost'],
-            'categoria' => ['categoría', 'categoria', 'categoria', 'product category', 'tipo'],
-            'presentacion' => ['presentación', 'presentacion', 'presentation', 'formato'],
-            'medida' => ['medida', 'unidad de medida', 'unidad medida', 'unit', 'um', 'unidad'],
-            'proveedor' => ['proveedor', 'supplier', 'fabricante', 'manufacturer'],
-            'marca' => ['marca', 'brand', 'fabricante'],
+            'fecha_fabricacion' => ['fecha de fabricacion', 'fecha fabricación', 'fecha fabricacion'],
+            'fecha_vencimiento' => ['fecha de vencimiento', 'fecha vencimiento', 'vencimiento'],
+            'fabricante' => ['fabricante', 'manufacturer', 'marca'],
+            'medida' => ['unidad de medida', 'unidad medida', 'medida', 'unit', 'um', 'unidad'],
+            'presentacion' => ['presentacion', 'presentación', 'presentation', 'formato'],
+            'categoria' => ['categoría', 'categoria', 'product category', 'tipo'],
+            'cantidad_requerida' => ['cantidad requerida', 'cant requerida', 'requerida', 'qty requerida'],
+            'cantidad' => ['cantidad en stock', 'cantidad stock', 'stock', 'existencia', 'existencias', 'cantidad'],
+            'cantidad_faltante' => ['cantidad faltante', 'faltante'],
+            'ubicacion' => ['ubicación', 'ubicacion', 'lugar', 'localizacion', 'localización'],
+            'observacion' => ['observación', 'observacion', 'observaciones', 'nota', 'notas', 'comentario', 'comentarios'],
+
+            // Compatibilidad con export anterior
+            'nodo' => ['nodo', 'id nodo', 'nodo id', 'centro', 'centro de formación', 'centro de formacion'],
+            'linea' => ['linea', 'línea', 'linea id', 'línea id', 'id linea', 'id línea', 'line', 'línea de negocio', 'linea de negocio'],
+            'proveedor' => ['proveedor', 'supplier'],
+            'marca' => ['marca', 'brand'],
             'estado' => ['estado', 'status', 'estatus'],
         ];
 
@@ -188,19 +319,36 @@ class MaterialImportService
             }
         }
 
-        // Verificar campos obligatorios: código, nodo, línea
-        if (!isset($indices['codigo']) || !isset($indices['nodo']) || !isset($indices['linea'])) {
-            $faltantes = [];
-            if (!isset($indices['codigo'])) $faltantes[] = 'Código';
-            if (!isset($indices['nodo'])) $faltantes[] = 'Nodo';
-            if (!isset($indices['linea'])) $faltantes[] = 'Línea';
-            // Depuración: mostrar encabezados normalizados detectados
-            $headersNorm = array_map(fn($h) => $this->normalizarHeader($h), $encabezados);
-
-            return [
-                'success' => false,
-                'message' => 'El archivo debe contener al menos las columnas: ' . implode(' y ', $faltantes) . '. Encabezados detectados: ' . implode(', ', $headersNorm),
-            ];
+        // Verificar campos obligatorios
+        foreach (array_keys($camposRequeridos) as $campoReq) {
+            if (!isset($indices[$campoReq])) {
+                $headersNorm = array_map(fn($h) => $this->normalizarHeader($h), $encabezados);
+                return [
+                    'success' => false,
+                    'message' => 'El archivo debe contener al menos la columna: Nombre del material. Encabezados detectados: ' . implode(', ', $headersNorm),
+                    'encabezados_esperados' => [
+                        'No de consecutivo',
+                        'Código',
+                        'Nodo',
+                        'Línea',
+                        'Nombre del material',
+                        'Descripción material',
+                        'Fecha de compra',
+                        'Valor de compra',
+                        'Fecha de fabricación',
+                        'Fecha de vencimiento',
+                        'Fabricante',
+                        'Unidad de medida',
+                        'Presentación',
+                        'Categoría',
+                        'Cantidad requerida',
+                        'Cantidad en Stock',
+                        'Cantidad faltante',
+                        'Ubicación',
+                        'Observación'
+                    ],
+                ];
+            }
         }
 
         return ['success' => true, 'indices' => $indices];
@@ -214,8 +362,11 @@ class MaterialImportService
         // Convertir a string seguro
         $header = (string)$header;
 
+        // Remover BOM UTF-8 si viene en el primer encabezado
+        $header = preg_replace('/^\xEF\xBB\xBF/', '', $header);
+
         // Reemplazar espacios no separables (nbsp) y recortar
-        $header = str_replace(['\xC2\xA0', "\u00A0"], ' ', $header);
+        $header = str_replace(["\xC2\xA0", "\u{00A0}"], ' ', $header);
         $header = trim($header);
 
         // Minusculas
@@ -274,8 +425,48 @@ class MaterialImportService
     {
         if ($value === null) return '';
         $value = (string)$value;
-        $value = str_replace(["\xC2\xA0", "\u00A0"], ' ', $value);
+        $value = preg_replace('/^\xEF\xBB\xBF/', '', $value);
+        $value = str_replace(["\xC2\xA0", "\u{00A0}"], ' ', $value);
         return trim($value);
+    }
+
+    /** True si una fila esta vacia (todas las celdas en blanco). */
+    private function isEmptyRow($row)
+    {
+        if (!is_array($row)) {
+            return true;
+        }
+
+        foreach ($row as $cell) {
+            if ($this->cleanCell($cell) !== '') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /** True si la fila corresponde al titulo "Lista maestra..." (para saltarla). */
+    private function isTitleRow($row)
+    {
+        if (!is_array($row)) {
+            return false;
+        }
+
+        $nonEmpty = [];
+        foreach ($row as $cell) {
+            $val = $this->cleanCell($cell);
+            if ($val !== '') {
+                $nonEmpty[] = $val;
+            }
+        }
+
+        if (count($nonEmpty) !== 1) {
+            return false;
+        }
+
+        $text = $this->normalizarHeader($nonEmpty[0]);
+        return $text !== '' && str_contains($text, 'lista maestra de materiales');
     }
 
     /** Resuelve nodo por id o nombre (case/tildes insensible). */
@@ -294,11 +485,26 @@ class MaterialImportService
         }
 
         $buscado = $this->normalizarHeader($valor);
+        $matches = [];
+
         foreach ($this->cacheNodos as $nodo) {
             $nombreNodo = $this->normalizarHeader($nodo['nombre'] ?? '');
             if ($buscado !== '' && $nombreNodo === $buscado) {
                 return (int)$nodo['id'];
             }
+            if ($buscado !== '' && $nombreNodo !== '' && str_contains($nombreNodo, $buscado)) {
+                $matches[] = (int)$nodo['id'];
+            }
+            if ($buscado !== '' && $nombreNodo !== '' && str_contains($buscado, $nombreNodo)) {
+                $matches[] = (int)$nodo['id'];
+            }
+        }
+
+        $matches = array_values(array_unique($matches));
+
+        // Si solo hay un match parcial, usarlo
+        if (count($matches) === 1) {
+            return $matches[0];
         }
 
         return null;
@@ -318,11 +524,128 @@ class MaterialImportService
         }
 
         $buscado = $this->normalizarHeader($valor);
+        $matches = [];
+
         foreach ($this->cacheLineas as $linea) {
             $nombreLinea = $this->normalizarHeader($linea['nombre'] ?? '');
             if ($buscado !== '' && $nombreLinea === $buscado) {
                 return (int)$linea['id'];
             }
+            if ($buscado !== '' && $nombreLinea !== '' && str_contains($nombreLinea, $buscado)) {
+                $matches[] = (int)$linea['id'];
+            }
+            if ($buscado !== '' && $nombreLinea !== '' && str_contains($buscado, $nombreLinea)) {
+                $matches[] = (int)$linea['id'];
+            }
+        }
+
+        $matches = array_values(array_unique($matches));
+
+        if (count($matches) === 1) {
+            return $matches[0];
+        }
+
+        return null;
+    }
+
+    /** Parsea enteros tolerando separadores (1.000 / 1,000). */
+    private function parseIntValue($value, $default = 0)
+    {
+        $value = $this->cleanCell($value);
+        if ($value === '') return $default;
+
+        $raw = preg_replace('/[^0-9\-]+/', '', $value);
+        if ($raw === '' || $raw === '-') return $default;
+
+        return (int)$raw;
+    }
+
+    /** Parsea moneda tolerando $ y separadores locales. Retorna float|null. */
+    private function parseMoney($value)
+    {
+        $value = $this->cleanCell($value);
+        if ($value === '') return null;
+
+        $lower = function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
+        if (in_array($lower, ['na', 'n/a', 'no aplica'], true)) {
+            return null;
+        }
+
+        $raw = preg_replace('/[^0-9,\.\-]+/', '', $value);
+        if ($raw === '' || $raw === '-' || $raw === '.' || $raw === ',') {
+            return null;
+        }
+
+        $commaPos = strrpos($raw, ',');
+        $dotPos = strrpos($raw, '.');
+
+        if ($commaPos !== false && $dotPos !== false) {
+            $decimalSep = ($commaPos > $dotPos) ? ',' : '.';
+            $thousandSep = ($decimalSep === ',') ? '.' : ',';
+            $raw = str_replace($thousandSep, '', $raw);
+            $raw = str_replace($decimalSep, '.', $raw);
+        } elseif ($commaPos !== false) {
+            $parts = explode(',', $raw);
+            if (count($parts) === 2 && strlen($parts[1]) <= 2) {
+                $raw = str_replace('.', '', $raw);
+                $raw = str_replace(',', '.', $raw);
+            } else {
+                $raw = str_replace(',', '', $raw);
+            }
+        } elseif ($dotPos !== false) {
+            $parts = explode('.', $raw);
+            if (count($parts) === 2 && strlen($parts[1]) <= 2) {
+                $raw = str_replace(',', '', $raw);
+            } else {
+                $raw = str_replace('.', '', $raw);
+            }
+        }
+
+        return (float)$raw;
+    }
+
+    /** Convierte una fecha a Y-m-d (soporta dd/mm/yyyy). Retorna null si no es valida. */
+    private function parseDateToYmd($value)
+    {
+        $value = $this->cleanCell($value);
+        if ($value === '') return null;
+
+        $lower = function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
+        if (in_array($lower, ['na', 'n/a', 'no aplica'], true)) {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            if (class_exists('\\PhpOffice\\PhpSpreadsheet\\Shared\\Date')) {
+                try {
+                    $dt = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((float)$value);
+                    return $dt->format('Y-m-d');
+                } catch (Exception $e) {
+                    // continuar
+                }
+            }
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+            return $value;
+        }
+
+        if (preg_match('/^(\d{1,2})[\\\/\-](\d{1,2})[\\\/\-](\d{2,4})$/', $value, $m)) {
+            $day = (int)$m[1];
+            $month = (int)$m[2];
+            $year = (int)$m[3];
+            if ($year < 100) {
+                $year += 2000;
+            }
+
+            if (checkdate($month, $day, $year)) {
+                return sprintf('%04d-%02d-%02d', $year, $month, $day);
+            }
+        }
+
+        $ts = strtotime($value);
+        if ($ts !== false) {
+            return date('Y-m-d', $ts);
         }
 
         return null;
@@ -331,7 +654,7 @@ class MaterialImportService
     /**
      * Procesa las filas del CSV.
      */
-    private function procesarFilas($lineas, $delimitador, $indices)
+    private function procesarFilas($lineas, $delimitador, $indices, $primerNumeroLinea = 2)
     {
         $insertados = 0;
         $actualizados = 0;
@@ -341,42 +664,62 @@ class MaterialImportService
         foreach ($lineas as $numeroLinea => $linea) {
             $campos = str_getcsv($linea, $delimitador);
 
-            $material = $this->extraerDatosFila($campos, $indices);
-
-            if (!$material['codigo']) {
-                $advertencias[] = "Fila " . ($numeroLinea + 2) . ": código vacío, ignorada";
+            if ($this->isEmptyRow($campos)) {
                 continue;
             }
 
+            $numeroArchivo = $primerNumeroLinea + $numeroLinea;
+
+            $material = $this->extraerDatosFila($campos, $indices);
+
             // Validar material
-            $validacion = $this->validarMaterial($material, $numeroLinea + 2);
+            $validacion = $this->validarMaterial($material, $numeroArchivo);
             if (!$validacion['valido']) {
                 $advertencias = array_merge($advertencias, $validacion['advertencias']);
                 continue;
             }
 
             // Verificar referencias
-            if (!$this->validarReferencias($material, $numeroLinea + 2, $advertencias)) {
+            if (!$this->validarReferencias($material, $numeroArchivo, $advertencias)) {
                 continue;
             }
 
             // Insertar o actualizar
             try {
-                $existente = $this->materialModel->findByCodigoNodoLinea(
-                    $material['codigo'],
-                    $material['nodo_id'],
-                    $material['linea_id']
-                );
-
-                if ($existente) {
-                    $this->materialModel->update($existente['id'], $material);
-                    $actualizados++;
+                $idArchivo = (int)($material['id'] ?? 0);
+                if ($idArchivo > 0) {
+                    $existente = $this->materialModel->getById($idArchivo);
+                    if ($existente) {
+                        $this->materialModel->update($idArchivo, $material);
+                        $actualizados++;
+                    } else {
+                        $this->materialModel->create($material);
+                        $insertados++;
+                    }
                 } else {
-                    $this->materialModel->create($material);
-                    $insertados++;
+                    $codigoKey = trim((string)($material['codigo'] ?? ''));
+                    $nodoKey = (int)($material['nodo_id'] ?? 0);
+                    $lineaKey = (int)($material['linea_id'] ?? 0);
+
+                    $existente = null;
+                    if ($codigoKey !== '' && strcasecmp($codigoKey, 'Pendiente') !== 0) {
+                        $existente = $this->materialModel->findByCodigoNodoLinea($codigoKey, $nodoKey, $lineaKey);
+                    }
+
+                    if (!$existente && strcasecmp($codigoKey, 'Pendiente') === 0 && !empty($material['nombre'])) {
+                        $existente = $this->materialModel->findByNombreNodoLinea($material['nombre'], $nodoKey, $lineaKey);
+                    }
+
+                    if ($existente) {
+                        $this->materialModel->update($existente['id'], $material);
+                        $actualizados++;
+                    } else {
+                        $this->materialModel->create($material);
+                        $insertados++;
+                    }
                 }
             } catch (Exception $e) {
-                $errores[] = "Fila " . ($numeroLinea + 2) . ": " . $e->getMessage();
+                $errores[] = "Fila " . $numeroArchivo . ": " . $e->getMessage();
             }
         }
 
@@ -392,7 +735,7 @@ class MaterialImportService
     /**
      * Procesa las filas de Excel.
      */
-    private function procesarFilasExcel($filas, $indices)
+    private function procesarFilasExcel($filas, $indices, $primerNumeroLinea = 2)
     {
         $insertados = 0;
         $actualizados = 0;
@@ -400,41 +743,60 @@ class MaterialImportService
         $advertencias = [];
 
         foreach ($filas as $numeroLinea => $campos) {
-            $material = $this->extraerDatosFila($campos, $indices);
-
-            if (!$material['codigo']) {
-                $advertencias[] = "Fila " . ($numeroLinea + 2) . ": código vacío, ignorada";
+            $numeroArchivo = $primerNumeroLinea + $numeroLinea;
+            if ($this->isEmptyRow($campos)) {
                 continue;
             }
 
+            $material = $this->extraerDatosFila($campos, $indices);
+
             // Validar material
-            $validacion = $this->validarMaterial($material, $numeroLinea + 2);
+            $validacion = $this->validarMaterial($material, $numeroArchivo);
             if (!$validacion['valido']) {
                 $advertencias = array_merge($advertencias, $validacion['advertencias']);
                 continue;
             }
 
             // Verificar referencias
-            if (!$this->validarReferencias($material, $numeroLinea + 2, $advertencias)) {
+            if (!$this->validarReferencias($material, $numeroArchivo, $advertencias)) {
                 continue;
             }
 
             try {
-                $existente = $this->materialModel->findByCodigoNodoLinea(
-                    $material['codigo'],
-                    $material['nodo_id'],
-                    $material['linea_id']
-                );
-
-                if ($existente) {
-                    $this->materialModel->update($existente['id'], $material);
-                    $actualizados++;
+                $idArchivo = (int)($material['id'] ?? 0);
+                if ($idArchivo > 0) {
+                    $existente = $this->materialModel->getById($idArchivo);
+                    if ($existente) {
+                        $this->materialModel->update($idArchivo, $material);
+                        $actualizados++;
+                    } else {
+                        $this->materialModel->create($material);
+                        $insertados++;
+                    }
                 } else {
-                    $this->materialModel->create($material);
-                    $insertados++;
+                    $codigoKey = trim((string)($material['codigo'] ?? ''));
+                    $nodoKey = (int)($material['nodo_id'] ?? 0);
+                    $lineaKey = (int)($material['linea_id'] ?? 0);
+
+                    $existente = null;
+                    if ($codigoKey !== '' && strcasecmp($codigoKey, 'Pendiente') !== 0) {
+                        $existente = $this->materialModel->findByCodigoNodoLinea($codigoKey, $nodoKey, $lineaKey);
+                    }
+
+                    if (!$existente && strcasecmp($codigoKey, 'Pendiente') === 0 && !empty($material['nombre'])) {
+                        $existente = $this->materialModel->findByNombreNodoLinea($material['nombre'], $nodoKey, $lineaKey);
+                    }
+
+                    if ($existente) {
+                        $this->materialModel->update($existente['id'], $material);
+                        $actualizados++;
+                    } else {
+                        $this->materialModel->create($material);
+                        $insertados++;
+                    }
                 }
             } catch (Exception $e) {
-                $errores[] = "Fila " . ($numeroLinea + 2) . ": " . $e->getMessage();
+                $errores[] = "Fila " . $numeroArchivo . ": " . $e->getMessage();
             }
         }
 
@@ -515,15 +877,14 @@ class MaterialImportService
             return false;
         }
 
-        // Verificar que existan en BD
+        // Verificar que el nodo exista
         $nodoValido = $this->nodoModel->getById($material['nodo_id']);
-        $lineaValida = $this->lineaModel->getById($material['linea_id']);
-
         if (!$nodoValido) {
             $advertencias[] = "Fila $numeroLinea: nodo ID {$material['nodo_id']} no existe en la base de datos";
             return false;
         }
 
+        $lineaValida = $this->lineaModel->getById($material['linea_id']);
         if (!$lineaValida) {
             $advertencias[] = "Fila $numeroLinea: línea ID {$material['linea_id']} no existe en la base de datos";
             return false;
@@ -537,69 +898,95 @@ class MaterialImportService
      */
     private function extraerDatosFila($campos, $indices)
     {
-        $material = [
-            'codigo' => $this->cleanCell($campos[$indices['codigo']] ?? ''),
-            'descripcion' => isset($indices['descripcion']) ? $this->cleanCell($campos[$indices['descripcion']] ?? '') : '',
-            'cantidad' => isset($indices['cantidad']) ? intval($this->cleanCell($campos[$indices['cantidad']] ?? 0)) : 0,
-            'nombre' => isset($indices['nombre']) ? $this->cleanCell($campos[$indices['nombre']] ?? '') : '',
-            'estado' => 1,
-        ];
+        $material = [];
 
-        // Fallback de nombre con descripción si falta nombre
-        if (!$material['nombre'] && !empty($material['descripcion'])) {
+        $material['id'] = isset($indices['id']) ? $this->parseIntValue($campos[$indices['id']] ?? 0, 0) : 0;
+
+        $material['codigo'] = isset($indices['codigo']) ? $this->cleanCell($campos[$indices['codigo']] ?? '') : '';
+        if ($material['codigo'] === '') {
+            $material['codigo'] = 'Pendiente';
+        }
+
+        if (strlen($material['codigo']) > 50) {
+            $material['codigo'] = substr($material['codigo'], 0, 50);
+        }
+
+        $material['nombre'] = $this->cleanCell($campos[$indices['nombre']] ?? '');
+
+        $material['descripcion'] = isset($indices['descripcion']) ? $this->cleanCell($campos[$indices['descripcion']] ?? '') : '';
+        if ($material['nombre'] === '' && $material['descripcion'] !== '') {
             $material['nombre'] = $material['descripcion'];
         }
 
-        // Agregar campos opcionales si existen
-        if (isset($indices['fecha_adquisicion'])) {
-            $fecha = $this->cleanCell($campos[$indices['fecha_adquisicion']] ?? '');
-            if ($fecha) {
-                // Intentar convertir a formato Y-m-d
-                $timestamp = strtotime($fecha);
-                if ($timestamp !== false) {
-                    $material['fecha_adquisicion'] = date('Y-m-d', $timestamp);
-                }
-            }
+        if (strlen($material['nombre']) > 100) {
+            $material['nombre'] = substr($material['nombre'], 0, 100);
         }
 
-        if (isset($indices['valor_compra'])) {
-            $valor = $this->cleanCell($campos[$indices['valor_compra']] ?? '');
-            if ($valor) {
-                // Limpiar y convertir a número decimal
-                $valor = str_replace([',', '.'], ['', '.'], $valor); // Normalizar decimales
-                $valor = floatval($valor);
-                if ($valor > 0) {
-                    $material['valor_compra'] = $valor;
-                }
-            }
-        }
+        $material['fecha_adquisicion'] = isset($indices['fecha_adquisicion']) ? ($this->parseDateToYmd($campos[$indices['fecha_adquisicion']] ?? '') ?? null) : null;
+        $material['valor_compra'] = isset($indices['valor_compra']) ? $this->parseMoney($campos[$indices['valor_compra']] ?? '') : null;
 
-        if (isset($indices['categoria'])) {
-            $material['categoria'] = $this->cleanCell($campos[$indices['categoria']] ?? '');
-        }
+        $material['fecha_fabricacion'] = isset($indices['fecha_fabricacion']) ? ($this->parseDateToYmd($campos[$indices['fecha_fabricacion']] ?? '') ?? null) : null;
+        $material['fecha_vencimiento'] = isset($indices['fecha_vencimiento']) ? ($this->parseDateToYmd($campos[$indices['fecha_vencimiento']] ?? '') ?? null) : null;
 
-        if (isset($indices['presentacion'])) {
-            $material['presentacion'] = $this->cleanCell($campos[$indices['presentacion']] ?? '');
-        }
+        $material['fabricante'] = isset($indices['fabricante']) ? $this->cleanCell($campos[$indices['fabricante']] ?? '') : '';
+        $material['medida'] = isset($indices['medida']) ? $this->cleanCell($campos[$indices['medida']] ?? '') : '';
+        $material['presentacion'] = isset($indices['presentacion']) ? $this->cleanCell($campos[$indices['presentacion']] ?? '') : '';
+        $material['categoria'] = isset($indices['categoria']) ? $this->cleanCell($campos[$indices['categoria']] ?? '') : '';
 
-        if (isset($indices['medida'])) {
-            $material['medida'] = $this->cleanCell($campos[$indices['medida']] ?? '');
-        }
+        if (strlen($material['fabricante']) > 200) $material['fabricante'] = substr($material['fabricante'], 0, 200);
+        if (strlen($material['medida']) > 50) $material['medida'] = substr($material['medida'], 0, 50);
+        if (strlen($material['presentacion']) > 100) $material['presentacion'] = substr($material['presentacion'], 0, 100);
+        if (strlen($material['categoria']) > 100) $material['categoria'] = substr($material['categoria'], 0, 100);
 
+        $material['cantidad_requerida'] = isset($indices['cantidad_requerida']) ? $this->parseIntValue($campos[$indices['cantidad_requerida']] ?? 0, 0) : 0;
+        $material['cantidad'] = isset($indices['cantidad']) ? $this->parseIntValue($campos[$indices['cantidad']] ?? 0, 0) : 0;
+
+        $material['ubicacion'] = isset($indices['ubicacion']) ? $this->cleanCell($campos[$indices['ubicacion']] ?? '') : '';
+        $material['observacion'] = isset($indices['observacion']) ? $this->cleanCell($campos[$indices['observacion']] ?? '') : '';
+
+        if (strlen($material['ubicacion']) > 200) $material['ubicacion'] = substr($material['ubicacion'], 0, 200);
+
+        // Compatibilidad si el archivo trae proveedor/marca
         if (isset($indices['proveedor'])) {
             $material['proveedor'] = $this->cleanCell($campos[$indices['proveedor']] ?? '');
         }
-
         if (isset($indices['marca'])) {
             $material['marca'] = $this->cleanCell($campos[$indices['marca']] ?? '');
         }
 
-        // Resolver nodo y línea (id o nombre)
-        $nodoVal = $this->cleanCell($campos[$indices['nodo']] ?? '');
-        $lineaVal = $this->cleanCell($campos[$indices['linea']] ?? '');
-        $material['nodo_id'] = $this->resolveNodoId($nodoVal);
-        $material['linea_id'] = $this->resolveLineaId($lineaVal);
+        // Resolver nodo y línea (si vienen en el archivo), si no usar contexto
+        $nodoId = null;
+        if (isset($indices['nodo'])) {
+            $nodoRaw = $this->cleanCell($campos[$indices['nodo']] ?? '');
+            if ($nodoRaw === '') {
+                $nodoId = $this->contextNodoId;
+            } else {
+                $nodoId = $this->resolveNodoId($nodoRaw);
+            }
+        } else {
+            $nodoId = $this->contextNodoId;
+        }
 
+        // Restriccion de seguridad: dinamizador solo puede importar a su nodo
+        if ($this->importRol === 'dinamizador' && !empty($this->contextNodoId)) {
+            $nodoId = $this->contextNodoId;
+        }
+        $material['nodo_id'] = $nodoId;
+
+        $lineaId = null;
+        if (isset($indices['linea'])) {
+            $lineaRaw = $this->cleanCell($campos[$indices['linea']] ?? '');
+            if ($lineaRaw === '') {
+                $lineaId = $this->contextLineaId;
+            } else {
+                $lineaId = $this->resolveLineaId($lineaRaw);
+            }
+        } else {
+            $lineaId = $this->contextLineaId;
+        }
+        $material['linea_id'] = $lineaId;
+
+        $material['estado'] = 1;
         if (isset($indices['estado'])) {
             $material['estado'] = $this->parseEstado($this->cleanCell($campos[$indices['estado']] ?? ''));
         }

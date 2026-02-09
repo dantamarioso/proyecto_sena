@@ -231,10 +231,16 @@ CREATE TABLE `materiales` (
   `presentacion` varchar(100) DEFAULT NULL,
   `medida` varchar(50) DEFAULT NULL,
   `cantidad` int(11) DEFAULT 0,
+  `cantidad_requerida` int(11) NOT NULL DEFAULT 0,
   `valor_compra` decimal(15,2) DEFAULT NULL,
+  `fecha_fabricacion` date DEFAULT NULL,
+  `fecha_vencimiento` date DEFAULT NULL,
+  `fabricante` varchar(200) DEFAULT NULL,
+  `ubicacion` varchar(200) DEFAULT NULL,
   `proveedor` varchar(200) DEFAULT NULL,
   `marca` varchar(100) DEFAULT NULL,
   `descripcion` text DEFAULT NULL,
+  `observacion` text DEFAULT NULL,
   `estado` tinyint(4) DEFAULT 1,
   `creado_por` int(11) DEFAULT NULL,
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -245,10 +251,10 @@ CREATE TABLE `materiales` (
 -- Volcado de datos para la tabla `materiales`
 --
 
-INSERT INTO `materiales` (`id`, `codigo`, `nodo_id`, `linea_id`, `nombre`, `fecha_adquisicion`, `categoria`, `presentacion`, `medida`, `cantidad`, `valor_compra`, `proveedor`, `marca`, `descripcion`, `estado`, `creado_por`, `fecha_creacion`, `fecha_actualizacion`) VALUES
-(1, '1', 9, 1, 'prueba', NULL, NULL, NULL, NULL, 10, NULL, NULL, NULL, 'prueba', 1, NULL, '2025-11-25 23:20:27', '2025-12-01 16:43:38'),
-(2, 'wqq', 2, 1, 'wqw', NULL, NULL, NULL, NULL, 232, NULL, NULL, NULL, 'qwqw', 1, NULL, '2025-11-26 20:16:17', '2025-11-28 14:17:31'),
-(3, '2454g', 3, 1, 'jgbhj', NULL, NULL, NULL, NULL, 5, NULL, NULL, NULL, 'gdghfr', 1, NULL, '2025-12-01 15:42:46', '2025-12-01 16:20:54');
+INSERT INTO `materiales` (`id`, `codigo`, `nodo_id`, `linea_id`, `nombre`, `fecha_adquisicion`, `categoria`, `presentacion`, `medida`, `cantidad`, `cantidad_requerida`, `valor_compra`, `fecha_fabricacion`, `fecha_vencimiento`, `fabricante`, `ubicacion`, `proveedor`, `marca`, `descripcion`, `observacion`, `estado`, `creado_por`, `fecha_creacion`, `fecha_actualizacion`) VALUES
+(1, '1', 9, 1, 'prueba', NULL, NULL, NULL, NULL, 10, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'prueba', NULL, 1, NULL, '2025-11-25 23:20:27', '2025-12-01 16:43:38'),
+(2, 'wqq', 2, 1, 'wqw', NULL, NULL, NULL, NULL, 232, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'qwqw', NULL, 1, NULL, '2025-11-26 20:16:17', '2025-11-28 14:17:31'),
+(3, '2454g', 3, 1, 'jgbhj', NULL, NULL, NULL, NULL, 5, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'gdghfr', NULL, 1, NULL, '2025-12-01 15:42:46', '2025-12-01 16:20:54');
 
 -- --------------------------------------------------------
 
@@ -551,7 +557,6 @@ ALTER TABLE `linea_nodo`
 --
 ALTER TABLE `materiales`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uk_codigo` (`codigo`),
   ADD KEY `idx_codigo` (`codigo`),
   ADD KEY `idx_nombre` (`nombre`),
   ADD KEY `idx_linea_id` (`linea_id`),
@@ -560,7 +565,8 @@ ALTER TABLE `materiales`
   ADD KEY `idx_creado_por` (`creado_por`),
   ADD KEY `idx_fecha_creacion` (`fecha_creacion`),
   ADD KEY `idx_cantidad` (`cantidad`),
-  ADD KEY `idx_linea_nodo` (`linea_id`,`nodo_id`);
+  ADD KEY `idx_linea_nodo` (`linea_id`,`nodo_id`),
+  ADD KEY `idx_materiales_codigo_nodo_linea` (`codigo`,`nodo_id`,`linea_id`);
 
 --
 -- Indices de la tabla `material_archivos`

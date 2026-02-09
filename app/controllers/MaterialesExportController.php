@@ -43,26 +43,41 @@ class MaterialesExportController extends Controller
         $formato = $_GET['formato'] ?? 'csv';
         $filtros = $this->buildFilters();
 
+        // Aplicar permisos al export (igual que el listado)
+        $rol = $_SESSION['user']['rol'] ?? 'usuario';
+        if ($rol === 'dinamizador') {
+            $filtros['nodo_id'] = $_SESSION['user']['nodo_id'] ?? null;
+        } elseif ($rol === 'usuario') {
+            $filtros['nodo_id'] = $_SESSION['user']['nodo_id'] ?? null;
+            $filtros['linea_id'] = $_SESSION['user']['linea_id'] ?? null;
+        }
+
         $materiales = $this->getMaterialesFiltrados($filtros);
-        $lineas = $this->lineaModel->all() ?? [];
-        $nodos = $this->nodoModel->all() ?? [];
+
+        $nodoNombre = '';
+        if (!empty($filtros['nodo_id'])) {
+            $nodo = $this->nodoModel->getById((int)$filtros['nodo_id']);
+            $nodoNombre = $nodo['nombre'] ?? '';
+        }
 
         switch ($formato) {
             case 'pdf':
                 $this->exportService->exportToPDF($materiales);
                 break;
             case 'excel':
-                $this->exportService->exportToExcel($materiales, 'materiales', $lineas, $nodos);
+                $this->exportService->exportToExcel($materiales, 'lista_maestra_materiales', ['nodo_nombre' => $nodoNombre]);
                 break;
             case 'txt':
                 $this->exportService->exportToTXT($materiales);
                 break;
             case 'zip':
-                $this->exportService->exportToZip($materiales, 'materiales', $lineas, $nodos);
+                $lineas = $this->lineaModel->all() ?? [];
+                $nodos = $this->nodoModel->all() ?? [];
+                $this->exportService->exportToZip($materiales, 'lista_maestra_materiales', $lineas, $nodos, ['nodo_nombre' => $nodoNombre]);
                 break;
             case 'csv':
             default:
-                $this->exportService->exportToCSV($materiales);
+                $this->exportService->exportToCSV($materiales, 'lista_maestra_materiales', ['nodo_nombre' => $nodoNombre]);
                 break;
         }
     }
@@ -77,7 +92,13 @@ class MaterialesExportController extends Controller
         $filtros = $this->buildFilters();
         $materiales = $this->getMaterialesFiltrados($filtros);
 
-        $this->exportService->exportToCSV($materiales);
+        $nodoNombre = '';
+        if (!empty($filtros['nodo_id'])) {
+            $nodo = $this->nodoModel->getById((int)$filtros['nodo_id']);
+            $nodoNombre = $nodo['nombre'] ?? '';
+        }
+
+        $this->exportService->exportToCSV($materiales, 'lista_maestra_materiales', ['nodo_nombre' => $nodoNombre]);
     }
 
     /**
@@ -162,12 +183,8 @@ class MaterialesExportController extends Controller
      */
     private function getMaterialesFiltrados($filtros)
     {
-        if (!empty($filtros['buscar']) || !empty($filtros['linea']) || isset($filtros['estado'])) {
-            return $this->materialModel->search(
-                $filtros['buscar'] ?? '',
-                $filtros['linea'] ?? null,
-                $filtros['estado'] ?? null
-            );
+        if (!empty($filtros)) {
+            return $this->materialModel->searchAvanzado($filtros);
         }
 
         return $this->materialModel->all();
@@ -180,24 +197,35 @@ class MaterialesExportController extends Controller
     {
         $filtros = [];
 
-        if (!empty($_GET['buscar'])) {
-            $filtros['buscar'] = trim($_GET['buscar']);
+        $busqueda = $_GET['busqueda'] ?? ($_GET['buscar'] ?? '');
+        if (trim($busqueda) !== '') {
+            $filtros['busqueda'] = trim($busqueda);
         }
 
-        if (!empty($_GET['nodo'])) {
-            $filtros['nodo'] = (int)$_GET['nodo'];
+        $nodoId = $_GET['nodo_id'] ?? ($_GET['nodo'] ?? null);
+        if (!empty($nodoId)) {
+            $filtros['nodo_id'] = (int)$nodoId;
         }
 
-        if (!empty($_GET['linea'])) {
-            $filtros['linea'] = (int)$_GET['linea'];
+        $lineaId = $_GET['linea_id'] ?? ($_GET['linea'] ?? null);
+        if (!empty($lineaId)) {
+            $filtros['linea_id'] = (int)$lineaId;
         }
 
-        if (!empty($_GET['estado'])) {
-            $filtros['estado'] = $_GET['estado'];
+        if (isset($_GET['estado']) && $_GET['estado'] !== '') {
+            $filtros['estado'] = (int)$_GET['estado'];
         }
 
-        if (isset($_GET['cantidad_baja']) && $_GET['cantidad_baja'] === '1') {
-            $filtros['cantidad_baja'] = true;
+        if (!empty($_GET['categoria'])) {
+            $filtros['categoria'] = trim($_GET['categoria']);
+        }
+
+        if (!empty($_GET['proveedor'])) {
+            $filtros['proveedor'] = trim($_GET['proveedor']);
+        }
+
+        if (!empty($_GET['cantidad'])) {
+            $filtros['cantidad'] = $_GET['cantidad'];
         }
 
         return $filtros;

@@ -127,6 +127,22 @@ async function verDetalles(materialId) {
             const fechaAdquisicion = material.fecha_adquisicion 
                 ? new Date(material.fecha_adquisicion + 'T00:00:00').toLocaleDateString('es-CO')
                 : 'No especificada';
+
+            const fechaFabricacion = material.fecha_fabricacion
+                ? new Date(material.fecha_fabricacion + 'T00:00:00').toLocaleDateString('es-CO')
+                : 'No especificada';
+
+            const fechaVencimiento = material.fecha_vencimiento
+                ? new Date(material.fecha_vencimiento + 'T00:00:00').toLocaleDateString('es-CO')
+                : 'No especificada';
+
+            const cantidadStock = parseInt(material.cantidad) || 0;
+            const cantidadRequerida = parseInt(material.cantidad_requerida) || 0;
+            const cantidadFaltante = cantidadRequerida - cantidadStock;
+
+            const fabricante = (material.fabricante || material.marca || material.proveedor || '').toString();
+            const ubicacion = (material.ubicacion || '').toString();
+            const observacion = (material.observacion || '').toString();
             
             detallesDiv.innerHTML = `
                 <div class="row mb-3">
@@ -156,12 +172,22 @@ async function verDetalles(materialId) {
                         <h6 class="card-title mb-3">Información del Producto</h6>
                         <div class="row mb-2">
                             <div class="col-md-6">
-                                <small class="text-muted d-block">Fecha de Adquisición</small>
+                                <small class="text-muted d-block">Fecha de Compra</small>
                                 <strong>${fechaAdquisicion}</strong>
                             </div>
                             <div class="col-md-6">
                                 <small class="text-muted d-block">Categoría</small>
                                 <strong>${escapeHtml(material.categoria || 'No especificada')}</strong>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <small class="text-muted d-block">Fecha de Fabricación</small>
+                                <strong>${fechaFabricacion}</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted d-block">Fecha de Vencimiento</small>
+                                <strong>${fechaVencimiento}</strong>
                             </div>
                         </div>
                         <div class="row mb-2">
@@ -174,8 +200,8 @@ async function verDetalles(materialId) {
                                 <strong>${escapeHtml(material.medida || 'N/A')}</strong>
                             </div>
                             <div class="col-md-4">
-                                <small class="text-muted d-block">Cantidad</small>
-                                <strong class="text-primary">${parseInt(material.cantidad)}</strong>
+                                <small class="text-muted d-block">Cantidad en Stock</small>
+                                <strong class="text-primary">${cantidadStock}</strong>
                             </div>
                         </div>
                         <div class="row">
@@ -184,14 +210,35 @@ async function verDetalles(materialId) {
                                 <strong>${valorCompra}</strong>
                             </div>
                             <div class="col-md-4">
+                                <small class="text-muted d-block">Fabricante</small>
+                                <strong>${escapeHtml(fabricante || 'No especificado')}</strong>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Ubicación</small>
+                                <strong>${escapeHtml(ubicacion || 'No especificada')}</strong>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Cantidad Requerida</small>
+                                <strong>${cantidadRequerida}</strong>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Cantidad Faltante</small>
+                                <strong class="${cantidadFaltante > 0 ? 'text-danger' : 'text-success'}">${cantidadFaltante > 0 ? cantidadFaltante : 0}</strong>
+                            </div>
+                            <div class="col-md-4">
                                 <small class="text-muted d-block">Proveedor</small>
                                 <strong>${escapeHtml(material.proveedor || 'No especificado')}</strong>
                             </div>
-                            <div class="col-md-4">
-                                <small class="text-muted d-block">Marca</small>
-                                <strong>${escapeHtml(material.marca || 'No especificada')}</strong>
-                            </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <p class="mb-2"><strong>Observación:</strong></p>
+                        <p class="mb-0">${escapeHtml(observacion || 'No especificada')}</p>
                     </div>
                 </div>
 
@@ -234,8 +281,8 @@ function abrirModalMovimiento(materialId, tipo) {
     const row = document.querySelector(`.material-row[data-id="${materialId}"]`);
     if (!row) return;
 
-    const nombreMaterial = row.querySelector('td:nth-child(3)').textContent.trim();
-    const cantidadActualText = row.querySelector('td:nth-child(6)').textContent.trim();
+    const nombreMaterial = (row.querySelector('.material-nombre')?.textContent || '').trim();
+    const cantidadActualText = (row.querySelector('.material-cantidad')?.textContent || '0').trim();
     const cantidadActualNum = parseInt(cantidadActualText);
 
     // Llenar datos del modal
@@ -338,7 +385,7 @@ function confirmarEliminar(materialId) {
     const row = document.querySelector(`.material-row[data-id="${materialId}"]`);
     if (!row) return;
 
-    const nombreMaterial = row.querySelector('td:nth-child(3)').textContent.trim();
+    const nombreMaterial = (row.querySelector('.material-nombre')?.textContent || '').trim();
 
     if (!confirm(`¿Estás seguro de que deseas eliminar el material "${nombreMaterial}"?`)) {
         return;
@@ -507,6 +554,12 @@ function importarMateriales() {
 
     const formData = new FormData();
     formData.append('archivo', archivo);
+
+     // Contexto opcional (para archivos sin Nodo/Línea)
+     const nodoId = document.getElementById('filtro-nodo')?.value || '';
+     const lineaId = document.getElementById('filtro-linea')?.value || '';
+     if (nodoId) formData.append('nodo_id', nodoId);
+     if (lineaId) formData.append('linea_id', lineaId);
 
     fetch(`${window.BASE_URL}/?url=materialesimport/importar`, {
         method: 'POST',

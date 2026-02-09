@@ -108,9 +108,12 @@ class MaterialesController extends Controller
             $errores[] = 'La cantidad no puede ser negativa.';
         }
 
-        $materialModel = new Material();
-        if ($materialModel->codigoExiste($data['codigo'], $exceptoId)) {
-            $errores[] = 'El código del producto ya existe en el sistema.';
+        if (isset($data['cantidad_requerida']) && $data['cantidad_requerida'] !== '') {
+            if (!is_numeric($data['cantidad_requerida'])) {
+                $errores[] = 'La cantidad requerida debe ser un número entero.';
+            } elseif (intval($data['cantidad_requerida']) < 0) {
+                $errores[] = 'La cantidad requerida no puede ser negativa.';
+            }
         }
 
         return $errores;
@@ -292,13 +295,19 @@ class MaterialesController extends Controller
                 'linea_id' => intval($_POST['linea_id'] ?? 0),
                 'nodo_id' => null,
                 'fecha_adquisicion' => trim($_POST['fecha_adquisicion'] ?? ''),
+                'fecha_fabricacion' => trim($_POST['fecha_fabricacion'] ?? ''),
+                'fecha_vencimiento' => trim($_POST['fecha_vencimiento'] ?? ''),
                 'categoria' => trim($_POST['categoria'] ?? ''),
                 'presentacion' => trim($_POST['presentacion'] ?? ''),
-                'MEDIDA' => trim($_POST['MEDIDA'] ?? ''),
+                'medida' => trim($_POST['medida'] ?? ''),
                 'cantidad' => intval($_POST['cantidad'] ?? 0),
+                'cantidad_requerida' => intval($_POST['cantidad_requerida'] ?? 0),
                 'valor_compra' => trim($_POST['valor_compra'] ?? ''),
                 'proveedor' => trim($_POST['proveedor'] ?? ''),
                 'marca' => trim($_POST['marca'] ?? ''),
+                'fabricante' => trim($_POST['fabricante'] ?? ''),
+                'ubicacion' => trim($_POST['ubicacion'] ?? ''),
+                'observacion' => trim($_POST['observacion'] ?? ''),
                 'estado' => intval($_POST['estado'] ?? 1),
             ];
 
@@ -403,13 +412,19 @@ class MaterialesController extends Controller
                 'linea_id' => intval($_POST['linea_id'] ?? 0),
                 'nodo_id' => null,
                 'fecha_adquisicion' => trim($_POST['fecha_adquisicion'] ?? ''),
+                'fecha_fabricacion' => trim($_POST['fecha_fabricacion'] ?? ''),
+                'fecha_vencimiento' => trim($_POST['fecha_vencimiento'] ?? ''),
                 'categoria' => trim($_POST['categoria'] ?? ''),
                 'presentacion' => trim($_POST['presentacion'] ?? ''),
-                'MEDIDA' => trim($_POST['MEDIDA'] ?? ''),
+                'medida' => trim($_POST['medida'] ?? ''),
                 'cantidad' => intval($_POST['cantidad'] ?? 0),
+                'cantidad_requerida' => intval($_POST['cantidad_requerida'] ?? 0),
                 'valor_compra' => trim($_POST['valor_compra'] ?? ''),
                 'proveedor' => trim($_POST['proveedor'] ?? ''),
                 'marca' => trim($_POST['marca'] ?? ''),
+                'fabricante' => trim($_POST['fabricante'] ?? ''),
+                'ubicacion' => trim($_POST['ubicacion'] ?? ''),
+                'observacion' => trim($_POST['observacion'] ?? ''),
                 'estado' => intval($_POST['estado'] ?? 1),
             ];
 
@@ -426,7 +441,7 @@ class MaterialesController extends Controller
             if (empty($errores)) {
                 if ($materialModel->update($id, $data)) {
                     $cambios = [];
-                    foreach (['codigo', 'nombre', 'descripcion', 'nodo_id', 'linea_id', 'fecha_adquisicion', 'categoria', 'presentacion', 'medida', 'cantidad', 'valor_compra', 'proveedor', 'marca', 'estado'] as $campo) {
+                    foreach (['codigo', 'nombre', 'descripcion', 'nodo_id', 'linea_id', 'fecha_adquisicion', 'fecha_fabricacion', 'fecha_vencimiento', 'categoria', 'presentacion', 'medida', 'cantidad', 'cantidad_requerida', 'valor_compra', 'fabricante', 'ubicacion', 'observacion', 'proveedor', 'marca', 'estado'] as $campo) {
                         $valorAnterior = $material[$campo] ?? null;
                         $valorNuevo = $data[$campo] ?? null;
 

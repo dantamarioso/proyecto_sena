@@ -56,7 +56,7 @@ if (!isset($_SESSION['user'])) {
                 <!-- Importar CSV: Solo admin y dinamizador -->
                 <?php if (in_array($rol, ['admin', 'dinamizador'])) : ?>
                     <button type="button" class="btn btn-primary btn-sm w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#modalImportar">
-                        <i class="bi bi-upload"></i> Importar CSV
+                        <i class="bi bi-upload"></i> Importar Excel/CSV
                     </button>
                 <?php endif; ?>
 
@@ -192,7 +192,7 @@ if (!isset($_SESSION['user'])) {
                             <tr class="material-row" data-id="<?= $m['id'] ?>">
                                 <td><?= $m['id'] ?></td>
                                 <td><code><?= htmlspecialchars($m['codigo']) ?></code></td>
-                                <td><strong><?= htmlspecialchars($m['nombre']) ?></strong></td>
+                                <td class="material-nombre"><strong><?= htmlspecialchars($m['nombre']) ?></strong></td>
                                 <td class="d-none d-md-table-cell">
                                     <small><?= htmlspecialchars(substr($m['descripcion'], 0, 50)) ?><?= strlen($m['descripcion']) > 50 ? '...' : '' ?></small>
                                 </td>
@@ -204,7 +204,7 @@ if (!isset($_SESSION['user'])) {
                                 <td class="d-none d-md-table-cell">
                                     <span class="badge bg-primary"><?= htmlspecialchars($m['linea_nombre'] ?? 'N/A') ?></span>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center material-cantidad">
                                     <strong><?= intval($m['cantidad']) ?></strong>
                                 </td>
                                 <td class="text-center">
@@ -317,7 +317,7 @@ if (!isset($_SESSION['user'])) {
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Importar Materiales desde CSV</h5>
+                <h5 class="modal-title">Importar Lista Maestra (CSV/XLSX)</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -326,8 +326,9 @@ if (!isset($_SESSION['user'])) {
                     <ul class="mb-0 mt-2">
                         <ul>
                             <li>El archivo debe ser <strong>CSV, TXT o XLSX</strong> con máximo <strong>5 MB</strong></li>
-                            <li>Campos requeridos: <strong>Código</strong>, <strong>Nombre</strong>, <strong>Línea o Linea_ID</strong></li>
-                            <li>Campos opcionales: Descripción, Cantidad, Estado, Nodo_ID</li>
+                            <li>Campos requeridos: <strong>Nombre del material</strong></li>
+                            <li><strong>Nodo</strong> y <strong>Línea</strong>: inclúyelos en el archivo (por <strong>ID</strong> o <strong>nombre</strong>) o selecciona los filtros antes de importar</li>
+                            <li>Campos opcionales: Código, Descripción material, Fechas, Valor de compra, Fabricante, Unidad de medida, Presentación, Categoría, Cantidad requerida, Cantidad en Stock, Ubicación, Observación</li>
                             <li>Los datos se limpiarán automáticamente (espacios, mayúsculas, etc.)</li>
                             <li>Para CSV/TXT: Se detectará automáticamente el delimitador (coma, punto y coma, tabulación)</li>
                         </ul>
@@ -476,6 +477,28 @@ if (!isset($_SESSION['user'])) {
 <script>
     // Cargar conteo de documentos para cada material
     document.addEventListener('DOMContentLoaded', () => {
+        const buildMaterialFiltersQuery = () => {
+            const params = new URLSearchParams();
+
+            const busqueda = document.getElementById('busqueda')?.value || '';
+            const nodo = document.getElementById('filtro-nodo')?.value || '';
+            const linea = document.getElementById('filtro-linea')?.value || '';
+            const categoria = document.getElementById('filtro-categoria')?.value || '';
+            const proveedor = document.getElementById('filtro-proveedor')?.value || '';
+            const estado = document.getElementById('filtro-estado')?.value || '';
+            const cantidad = document.getElementById('filtro-cantidad')?.value || '';
+
+            if (busqueda) params.append('busqueda', busqueda);
+            if (nodo) params.append('nodo_id', nodo);
+            if (linea) params.append('linea_id', linea);
+            if (categoria) params.append('categoria', categoria);
+            if (proveedor) params.append('proveedor', proveedor);
+            if (estado !== '') params.append('estado', estado);
+            if (cantidad) params.append('cantidad', cantidad);
+
+            return params.toString();
+        };
+
         const materials = document.querySelectorAll('[id^="docs-"]');
         materials.forEach(badge => {
             const match = badge.id.match(/docs-(\d+)/);
@@ -486,13 +509,16 @@ if (!isset($_SESSION['user'])) {
         });
 
         // Botones de descarga
-        document.getElementById('btn-descargar-xlsx').addEventListener('click', () => {
-            const btn = this;
+        document.getElementById('btn-descargar-xlsx').addEventListener('click', (e) => {
+            const btn = e.currentTarget;
             const originalText = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
 
-            fetch(`${window.BASE_URL}/?url=materialesexport/exportar&formato=excel`)
+            const query = buildMaterialFiltersQuery();
+            const url = `${window.BASE_URL}/?url=materialesexport/exportar&formato=excel${query ? `&${query}` : ''}`;
+
+            fetch(url)
                 .then(response => {
                     if (!response.ok) throw new Error('Error descargando');
                     return response.blob();
@@ -532,13 +558,16 @@ if (!isset($_SESSION['user'])) {
             modalDescargarCSV.show();
         });
 
-        document.getElementById('btn-descargar-txt').addEventListener('click', () => {
-            const btn = this;
+        document.getElementById('btn-descargar-txt').addEventListener('click', (e) => {
+            const btn = e.currentTarget;
             const originalText = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
 
-            fetch(`${window.BASE_URL}/?url=materialesexport/exportar&formato=txt`)
+            const query = buildMaterialFiltersQuery();
+            const url = `${window.BASE_URL}/?url=materialesexport/exportar&formato=txt${query ? `&${query}` : ''}`;
+
+            fetch(url)
                 .then(response => {
                     if (!response.ok) throw new Error('Error descargando');
                     return response.blob();
@@ -566,13 +595,16 @@ if (!isset($_SESSION['user'])) {
                     btn.innerHTML = originalText;
                 });
         });
-        document.getElementById('btn-descargar-pdf').addEventListener('click', () => {
-            const btn = this;
+        document.getElementById('btn-descargar-pdf').addEventListener('click', (e) => {
+            const btn = e.currentTarget;
             const originalText = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
 
-            fetch(`${window.BASE_URL}/?url=materialesexport/exportar&formato=pdf`)
+            const query = buildMaterialFiltersQuery();
+            const url = `${window.BASE_URL}/?url=materialesexport/exportar&formato=pdf${query ? `&${query}` : ''}`;
+
+            fetch(url)
                 .then(response => {
                     if (!response.ok) throw new Error('Error descargando');
                     return response.blob();
@@ -608,7 +640,10 @@ if (!isset($_SESSION['user'])) {
             btn.disabled = true;
             btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
 
-            fetch(`${window.BASE_URL}/?url=materialesexport/exportar&formato=csv`)
+            const query = buildMaterialFiltersQuery();
+            const url = `${window.BASE_URL}/?url=materialesexport/exportar&formato=csv${query ? `&${query}` : ''}`;
+
+            fetch(url)
                 .then(response => {
                     if (!response.ok) throw new Error('Error descargando');
                     return response.blob();
@@ -643,7 +678,10 @@ if (!isset($_SESSION['user'])) {
             btn.disabled = true;
             btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
 
-            fetch(`${window.BASE_URL}/?url=materialesexport/exportar&formato=zip`)
+            const query = buildMaterialFiltersQuery();
+            const url = `${window.BASE_URL}/?url=materialesexport/exportar&formato=zip${query ? `&${query}` : ''}`;
+
+            fetch(url)
                 .then(response => {
                     if (!response.ok) throw new Error('Error descargando');
                     return response.blob();

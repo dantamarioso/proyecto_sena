@@ -43,7 +43,7 @@ if ($editId > 0) {
                         <div class="mb-3">
                             <label class="form-label">Código de Material *</label>
                             <input type="text" name="codigo" class="form-control" placeholder="Ej: MAT-001" required maxlength="50">
-                            <small class="form-text text-muted">Código único del material</small>
+                            <small class="form-text text-muted">Código de referencia del material</small>
                         </div>
 
                         <?php
@@ -113,8 +113,20 @@ if ($editId > 0) {
 
                         <!-- Fecha de Adquisición -->
                         <div class="mb-3">
-                            <label class="form-label">Fecha de Adquisición</label>
+                            <label class="form-label">Fecha de Compra</label>
                             <input type="date" name="fecha_adquisicion" class="form-control">
+                        </div>
+
+                        <!-- Fechas de fabricación y vencimiento -->
+                        <div class="row">
+                            <div class="col-12 col-md-6 mb-3">
+                                <label class="form-label">Fecha de Fabricación</label>
+                                <input type="date" name="fecha_fabricacion" class="form-control">
+                            </div>
+                            <div class="col-12 col-md-6 mb-3">
+                                <label class="form-label">Fecha de Vencimiento</label>
+                                <input type="date" name="fecha_vencimiento" class="form-control">
+                            </div>
                         </div>
 
                         <!-- Categoría, Presentación, Medida -->
@@ -133,11 +145,18 @@ if ($editId > 0) {
                             </div>
                         </div>
 
-                        <!-- Cantidad -->
-                        <div class="mb-3">
-                            <label class="form-label">Cantidad *</label>
-                            <input type="number" name="cantidad" class="form-control" placeholder="0" value="0" min="0" step="1" required>
-                            <small class="form-text text-muted">Solo se aceptan números enteros</small>
+                        <!-- Cantidades -->
+                        <div class="row">
+                            <div class="col-12 col-md-6 mb-3">
+                                <label class="form-label">Cantidad en Stock *</label>
+                                <input type="number" name="cantidad" class="form-control" placeholder="0" value="0" min="0" step="1" required>
+                                <small class="form-text text-muted">Solo se aceptan números enteros</small>
+                            </div>
+                            <div class="col-12 col-md-6 mb-3">
+                                <label class="form-label">Cantidad Requerida</label>
+                                <input type="number" name="cantidad_requerida" class="form-control" placeholder="0" value="0" min="0" step="1">
+                                <small class="form-text text-muted">Usado para calcular cantidad faltante</small>
+                            </div>
                         </div>
 
                         <!-- Valor de Compra -->
@@ -147,22 +166,38 @@ if ($editId > 0) {
                             <small class="form-text text-muted">Valor unitario en pesos colombianos</small>
                         </div>
 
-                        <!-- Proveedor y Marca -->
+                        <!-- Fabricante / Proveedor / Marca -->
                         <div class="row">
-                            <div class="col-12 col-md-6 mb-3">
+                            <div class="col-12 col-md-4 mb-3">
+                                <label class="form-label">Fabricante</label>
+                                <input type="text" name="fabricante" class="form-control" placeholder="Ej: BASF" maxlength="200">
+                            </div>
+                            <div class="col-12 col-md-4 mb-3">
                                 <label class="form-label">Proveedor</label>
                                 <input type="text" name="proveedor" class="form-control" placeholder="Nombre del proveedor" maxlength="200">
                             </div>
-                            <div class="col-12 col-md-6 mb-3">
+                            <div class="col-12 col-md-4 mb-3">
                                 <label class="form-label">Marca</label>
                                 <input type="text" name="marca" class="form-control" placeholder="Marca del producto" maxlength="100">
                             </div>
+                        </div>
+
+                        <!-- Ubicación -->
+                        <div class="mb-3">
+                            <label class="form-label">Ubicación</label>
+                            <input type="text" name="ubicacion" class="form-control" placeholder="Ej: Diseño de productos" maxlength="200">
                         </div>
 
                         <!-- Descripción -->
                         <div class="mb-3">
                             <label class="form-label">Descripción</label>
                             <textarea name="descripcion" class="form-control" rows="3" placeholder="Detalles adicionales del material..."></textarea>
+                        </div>
+
+                        <!-- Observación -->
+                        <div class="mb-3">
+                            <label class="form-label">Observación</label>
+                            <textarea name="observacion" class="form-control" rows="3" placeholder="Observaciones, estado del material, notas..."></textarea>
                         </div>
 
                         <!-- Estado -->

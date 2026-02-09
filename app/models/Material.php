@@ -113,10 +113,12 @@ class Material extends Model
 
         $stmt = $this->db->prepare('
             INSERT INTO materiales 
-            (codigo, nodo_id, linea_id, nombre, fecha_adquisicion, categoria, presentacion, 
-             medida, cantidad, valor_compra, proveedor, marca, descripcion, estado) 
+            (codigo, nodo_id, linea_id, nombre, fecha_adquisicion, categoria, presentacion,
+             medida, cantidad, cantidad_requerida, valor_compra, fecha_fabricacion, fecha_vencimiento,
+             fabricante, ubicacion, proveedor, marca, descripcion, observacion, estado)
             VALUES (:codigo, :nodo_id, :linea_id, :nombre, :fecha_adquisicion, :categoria, :presentacion,
-                    :medida, :cantidad, :valor_compra, :proveedor, :marca, :descripcion, :estado)
+                    :medida, :cantidad, :cantidad_requerida, :valor_compra, :fecha_fabricacion, :fecha_vencimiento,
+                    :fabricante, :ubicacion, :proveedor, :marca, :descripcion, :observacion, :estado)
         ');
 
         if (
@@ -130,10 +132,18 @@ class Material extends Model
                 ':presentacion' => $data['presentacion'] ?? null,
                 ':medida' => $data['medida'] ?? null,
                 ':cantidad' => intval($data['cantidad'] ?? 0),
-                ':valor_compra' => !empty($data['valor_compra']) ? floatval($data['valor_compra']) : null,
+                ':cantidad_requerida' => intval($data['cantidad_requerida'] ?? 0),
+                ':valor_compra' => (isset($data['valor_compra']) && $data['valor_compra'] !== '' && $data['valor_compra'] !== null)
+                    ? floatval($data['valor_compra'])
+                    : null,
+                ':fecha_fabricacion' => !empty($data['fecha_fabricacion']) ? $data['fecha_fabricacion'] : null,
+                ':fecha_vencimiento' => !empty($data['fecha_vencimiento']) ? $data['fecha_vencimiento'] : null,
+                ':fabricante' => $data['fabricante'] ?? null,
+                ':ubicacion' => $data['ubicacion'] ?? null,
                 ':proveedor' => $data['proveedor'] ?? null,
                 ':marca' => $data['marca'] ?? null,
                 ':descripcion' => $data['descripcion'] ?? null,
+                ':observacion' => $data['observacion'] ?? null,
                 ':estado' => $data['estado'] ?? 1,
             ])
         ) {
@@ -163,10 +173,16 @@ class Material extends Model
                 presentacion = :presentacion,
                 medida = :medida,
                 cantidad = :cantidad,
+                cantidad_requerida = :cantidad_requerida,
                 valor_compra = :valor_compra,
+                fecha_fabricacion = :fecha_fabricacion,
+                fecha_vencimiento = :fecha_vencimiento,
+                fabricante = :fabricante,
+                ubicacion = :ubicacion,
                 proveedor = :proveedor,
                 marca = :marca,
                 descripcion = :descripcion,
+                observacion = :observacion,
                 estado = :estado,
                 fecha_actualizacion = NOW()
             WHERE id = :id
@@ -183,10 +199,18 @@ class Material extends Model
             ':presentacion' => $data['presentacion'] ?? null,
             ':medida' => $data['medida'] ?? null,
             ':cantidad' => intval($data['cantidad']),
-            ':valor_compra' => !empty($data['valor_compra']) ? floatval($data['valor_compra']) : null,
+            ':cantidad_requerida' => intval($data['cantidad_requerida'] ?? 0),
+            ':valor_compra' => (isset($data['valor_compra']) && $data['valor_compra'] !== '' && $data['valor_compra'] !== null)
+                ? floatval($data['valor_compra'])
+                : null,
+            ':fecha_fabricacion' => !empty($data['fecha_fabricacion']) ? $data['fecha_fabricacion'] : null,
+            ':fecha_vencimiento' => !empty($data['fecha_vencimiento']) ? $data['fecha_vencimiento'] : null,
+            ':fabricante' => $data['fabricante'] ?? null,
+            ':ubicacion' => $data['ubicacion'] ?? null,
             ':proveedor' => $data['proveedor'] ?? null,
             ':marca' => $data['marca'] ?? null,
             ':descripcion' => $data['descripcion'] ?? null,
+            ':observacion' => $data['observacion'] ?? null,
             ':estado' => $data['estado'],
         ]);
     }
@@ -433,6 +457,28 @@ class Material extends Model
         ');
         $stmt->execute([
             ':codigo' => $codigo,
+            ':nodo_id' => $nodoId,
+            ':linea_id' => $lineaId,
+        ]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /** Buscar material por nombre + nodo + línea (fallback cuando el código es "Pendiente"). */
+    public function findByNombreNodoLinea($nombre, $nodoId, $lineaId)
+    {
+        $stmt = $this->db->prepare('
+            SELECT m.*, 
+                   l.nombre as linea_nombre,
+                   n.nombre as nodo_nombre
+            FROM materiales m 
+            LEFT JOIN lineas l ON m.linea_id = l.id 
+            LEFT JOIN nodos n ON m.nodo_id = n.id
+            WHERE m.nombre = :nombre AND m.nodo_id = :nodo_id AND m.linea_id = :linea_id
+            LIMIT 1
+        ');
+        $stmt->execute([
+            ':nombre' => $nombre,
             ':nodo_id' => $nodoId,
             ':linea_id' => $lineaId,
         ]);
