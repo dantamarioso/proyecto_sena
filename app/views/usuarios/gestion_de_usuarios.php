@@ -71,11 +71,11 @@ if (!isset($_SESSION['user'])) {
         <!-- Tabla Responsiva -->
         <div class="card">
             <div class="table-responsive">
-                <table class="table table-striped align-middle mb-0">
+                <table id="tabla-usuarios" class="table table-striped align-middle mb-0 js-datatable" data-dt-scroll-y="60vh" data-dt-external-search="1">
                     <thead>
                         <tr>
                             <th style="width: 40px;">#</th>
-                            <th style="width: 50px;">Foto</th>
+                            <th style="width: 50px;" class="no-sort">Foto</th>
                             <th>Nombre</th>
                             <th style="min-width: 180px;">Correo</th>
                             <th style="min-width: 120px;">Usuario</th>
@@ -83,12 +83,14 @@ if (!isset($_SESSION['user'])) {
                             <th style="min-width: 100px;">Nodo</th>
                             <th style="min-width: 100px;">Línea</th>
                             <th style="width: 80px;">Estado</th>
-                            <th style="width: 120px;" class="text-center">Acciones</th>
+                            <th style="width: 120px;" class="text-center no-sort">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="usuarios-body">
                         <?php foreach ($usuarios as $u) : ?>
-                            <tr data-user-id="<?= $u['id'] ?>">
+                            <tr data-user-id="<?= $u['id'] ?>"
+                                data-rol="<?= htmlspecialchars($u['rol'] ?? 'usuario') ?>"
+                                data-estado="<?= (int)($u['estado'] ?? 0) ?>">
                                 <td><?= $u['id'] ?></td>
                                 <td>
                                     <?php if ($u['foto']) : ?>
@@ -236,17 +238,6 @@ if (!isset($_SESSION['user'])) {
                 </table>
             </div>
 
-            <!-- Paginación -->
-            <div class="card-footer bg-light">
-                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
-                    <small id="usuarios-info" class="text-muted"></small>
-                    <div class="d-flex gap-2 align-items-center">
-                        <button class="btn btn-sm btn-outline-secondary" id="btn-prev">&laquo;</button>
-                        <span id="pagina-actual" class="mx-2">1</span>
-                        <button class="btn btn-sm btn-outline-secondary" id="btn-next">&raquo;</button>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>

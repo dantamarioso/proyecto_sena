@@ -109,15 +109,15 @@ class MaterialArchivo extends Model
                 return false;
             }
 
-            $insertId = $this->db->lastInsertId();
-            $log("✅ ÉXITO: Insertado con ID $insertId");
+             $insertId = (int)$this->db->lastInsertId();
+             $log("✅ ÉXITO: Insertado con ID $insertId");
 
-            return true;
-        } catch (Exception $e) {
-            $log('EXCEPTION: ' . $e->getMessage());
+             return $insertId;
+         } catch (Exception $e) {
+             $log('EXCEPTION: ' . $e->getMessage());
 
-            return false;
-        }
+             return false;
+         }
     }
 
     /**

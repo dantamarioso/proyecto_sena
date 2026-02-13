@@ -68,9 +68,10 @@ class MaterialExportService
             10 => 'date',
         ]);
 
+        $consecutivo = 1;
         foreach ($materiales as $material) {
-            $req = (int)($material['cantidad_requerida'] ?? 0);
-            $stock = (int)($material['cantidad'] ?? 0);
+            $req = (float)($material['cantidad_requerida'] ?? 0);
+            $stock = (float)($material['cantidad'] ?? 0);
             $faltante = $req - $stock;
 
             $fabricante = $material['fabricante'] ?? '';
@@ -79,7 +80,7 @@ class MaterialExportService
             }
 
             $excel->addRow([
-                $material['id'] ?? '',
+                $consecutivo,
                 $material['codigo'] ?? '',
                 $material['nodo_nombre'] ?? '',
                 $material['linea_nombre'] ?? '',
@@ -99,6 +100,8 @@ class MaterialExportService
                 $material['ubicacion'] ?? '',
                 $material['observacion'] ?? ''
             ]);
+
+            $consecutivo++;
         }
 
         $excel->download($filename . '.xlsx');
@@ -150,9 +153,10 @@ class MaterialExportService
         fputcsv($output, $headers, ';');
 
         // Datos
+        $consecutivo = 1;
         foreach ($materiales as $material) {
-            $req = (int)($material['cantidad_requerida'] ?? 0);
-            $stock = (int)($material['cantidad'] ?? 0);
+            $req = (float)($material['cantidad_requerida'] ?? 0);
+            $stock = (float)($material['cantidad'] ?? 0);
             $faltante = $req - $stock;
 
             $fabricante = $material['fabricante'] ?? '';
@@ -166,7 +170,7 @@ class MaterialExportService
             }
 
             fputcsv($output, [
-                $material['id'] ?? '',
+                $consecutivo,
                 $material['codigo'] ?? '',
                 $material['nodo_nombre'] ?? '',
                 $material['linea_nombre'] ?? '',
@@ -186,6 +190,8 @@ class MaterialExportService
                 $material['ubicacion'] ?? '',
                 $material['observacion'] ?? ''
             ], ';');
+
+            $consecutivo++;
         }
 
         fclose($output);
@@ -325,9 +331,10 @@ class MaterialExportService
         fputcsv($handle, array_merge(['Lista maestra de materiales - Tecnoparque Nodo ' . $nodoDisplay], array_fill(0, max(count($headers) - 1, 0), '')), ';');
         fputcsv($handle, $headers, ';');
 
+        $consecutivo = 1;
         foreach ($materiales as $material) {
-            $req = (int)($material['cantidad_requerida'] ?? 0);
-            $stock = (int)($material['cantidad'] ?? 0);
+            $req = (float)($material['cantidad_requerida'] ?? 0);
+            $stock = (float)($material['cantidad'] ?? 0);
             $faltante = $req - $stock;
 
             $fabricante = $material['fabricante'] ?? '';
@@ -341,7 +348,7 @@ class MaterialExportService
             }
 
             fputcsv($handle, [
-                $material['id'] ?? '',
+                $consecutivo,
                 $material['codigo'] ?? '',
                 $material['nodo_nombre'] ?? '',
                 $material['linea_nombre'] ?? '',
@@ -361,6 +368,8 @@ class MaterialExportService
                 $material['ubicacion'] ?? '',
                 $material['observacion'] ?? ''
             ], ';');
+
+            $consecutivo++;
         }
         fclose($handle);
 

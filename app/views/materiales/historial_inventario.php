@@ -66,7 +66,7 @@ if (!isset($_SESSION['user'])) {
         <!-- Tabla de Historial -->
         <div class="card">
             <div class="table-responsive">
-                <table class="table table-striped align-middle mb-0">
+                <table id="tabla-historial" class="table table-striped align-middle mb-0 js-datatable" data-dt-scroll-y="60vh">
                     <thead>
                         <tr>
                             <th style="width: 50px;">#</th>
@@ -77,9 +77,9 @@ if (!isset($_SESSION['user'])) {
                             <th class="text-center" style="width: 80px;">Cantidad</th>
                             <th>Usuario</th>
                             <th>Descripción</th>
-                            <th class="text-center" style="width: 100px;">Documentos</th>
+                            <th class="text-center no-sort" style="width: 100px;">Documentos</th>
                             <th class="text-center" style="width: 120px;">Fecha</th>
-                            <th class="text-center" style="width: 60px;">Acciones</th>
+                            <th class="text-center no-sort" style="width: 60px;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="historial-body">
@@ -126,7 +126,7 @@ if (!isset($_SESSION['user'])) {
                                     </td>
                                     <td class="text-center">
                                         <?php if ($mov['tipo_registro'] === 'movimiento') : ?>
-                                            <strong><?= intval($mov['cantidad']) ?></strong>
+                                            <strong><?= htmlspecialchars(formatearCantidad($mov['cantidad'] ?? 0)) ?></strong>
                                         <?php else : ?>
                                             <span class="text-muted">-</span>
                                         <?php endif; ?>
@@ -252,6 +252,14 @@ if (!isset($_SESSION['user'])) {
             "'": '&#039;'
         };
         return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Formatea cantidad a max 3 decimales, sin ceros extra
+    function formatCantidad(value, decimals = 3) {
+        const num = Number(String(value ?? '0').replace(',', '.'));
+        if (!isFinite(num)) return '0';
+        const fixed = num.toFixed(decimals);
+        return fixed.replace(/\.?0+$/, '');
     }
 
     // Función para obtener detalles del movimiento
@@ -429,7 +437,7 @@ if (!isset($_SESSION['user'])) {
                                 <strong>Medida:</strong> ${escapeHtml(detalles.medida || 'N/A')}
                             </div>
                             <div class="col-md-4 mb-2">
-                                <strong>Cantidad:</strong> ${parseInt(detalles.cantidad || 0)}
+                                <strong>Cantidad:</strong> ${formatCantidad(detalles.cantidad || 0)}
                             </div>
                         </div>
                         <div class="row">
@@ -524,10 +532,12 @@ if (!isset($_SESSION['user'])) {
                 let lineaNombre = mov.linea_nombre || 'Sin línea asignada';
                 console.log('Línea encontrada:', lineaNombre);
 
-                // Calcular cantidad anterior
+                // Calcular cantidad anterior (forzar a numero para evitar concatenacion)
+                const cantidadMov = parseFloat(String(mov.cantidad ?? '0').replace(',', '.')) || 0;
+                const cantidadActual = parseFloat(String(mov.cantidad_actual ?? '0').replace(',', '.')) || 0;
                 const cantidadAnterior = mov.tipo_movimiento === 'entrada' ?
-                    mov.cantidad_actual - mov.cantidad :
-                    mov.cantidad_actual + mov.cantidad;
+                    (cantidadActual - cantidadMov) :
+                    (cantidadActual + cantidadMov);
 
                 detallesDiv.innerHTML = `
                     <div class="row mb-4">
@@ -567,17 +577,17 @@ if (!isset($_SESSION['user'])) {
                             <div class="row text-center">
                                 <div class="col-4">
                                     <p class="text-muted mb-1">Cantidad Anterior</p>
-                                    <p class="h5"><strong>${parseInt(cantidadAnterior)}</strong></p>
+                                    <p class="h5"><strong>${formatCantidad(cantidadAnterior)}</strong></p>
                                 </div>
                                 <div class="col-4">
                                     <p class="text-muted mb-1">${tipoMovimiento}</p>
                                     <p class="h5 ${mov.tipo_movimiento === 'entrada' ? 'text-success' : 'text-danger'}">
-                                        <strong>${mov.tipo_movimiento === 'entrada' ? '+' : '-'}${parseInt(mov.cantidad)}</strong>
+                                        <strong>${mov.tipo_movimiento === 'entrada' ? '+' : '-'}${formatCantidad(cantidadMov)}</strong>
                                     </p>
                                 </div>
                                 <div class="col-4">
                                     <p class="text-muted mb-1">Cantidad Actual</p>
-                                    <p class="h5"><strong>${parseInt(mov.cantidad_actual)}</strong></p>
+                                    <p class="h5"><strong>${formatCantidad(cantidadActual)}</strong></p>
                                 </div>
                             </div>
                         </div>
@@ -729,45 +739,123 @@ if (!isset($_SESSION['user'])) {
             });
         }
 
-        // Cargar conteo de documentos para cada material
-        const documentosBadges = document.querySelectorAll('[id^="docs-count-"]');
-        documentosBadges.forEach(badge => {
-            const materialId = badge.dataset.materialId;
-            if (materialId && materialId > 0) {
-                cargarDocumentosHistorial(materialId, badge.id);
+        // Cargar conteo de documentos por página (DataTables)
+        setTimeout(() => {
+            try {
+                cargarDocsHistorialVisiblesDataTable();
+            } catch (e) {
+                // no-op
             }
-        });
+        }, 0);
     });
 
     // Función para cargar conteo de documentos en historial
+    const historialDocsCache = new Map();
+    const historialDocsPending = new Set();
+
+    function aplicarBadgeHistorial(badgeElement, count) {
+        if (!badgeElement) return;
+        const c = Number(count || 0) || 0;
+
+        const countSpan = badgeElement.querySelector('.count-value');
+        if (countSpan) {
+            countSpan.textContent = c;
+        }
+
+        if (c === 0) {
+            badgeElement.classList.remove('bg-secondary', 'bg-primary');
+            badgeElement.classList.add('bg-danger');
+            badgeElement.title = 'Sin documentos';
+        } else {
+            badgeElement.classList.remove('bg-secondary', 'bg-danger');
+            badgeElement.classList.add('bg-primary');
+            badgeElement.title = `${c} documento${c !== 1 ? 's' : ''} adjunto${c !== 1 ? 's' : ''}`;
+        }
+    }
+
     function cargarDocumentosHistorial(materialId, badgeId) {
         const badgeElement = document.getElementById(badgeId);
         if (!badgeElement) return;
 
-        fetch(`${window.BASE_URL}/materialesarchivos/contar?material_id=${materialId}`)
+        const mid = String(materialId);
+
+        if (historialDocsCache.has(mid)) {
+            aplicarBadgeHistorial(badgeElement, historialDocsCache.get(mid));
+            return;
+        }
+
+        if (historialDocsPending.has(mid)) {
+            return;
+        }
+
+        historialDocsPending.add(mid);
+
+        fetch(`${window.BASE_URL}/materialesarchivos/contar?material_id=${encodeURIComponent(mid)}`)
             .then(response => response.json())
             .then(data => {
-                const countSpan = badgeElement.querySelector('.count-value');
-                if (countSpan) {
-                    countSpan.textContent = data.count || 0;
-                }
-
-                // Cambiar color del badge según cantidad
-                if (data.count === 0) {
-                    badgeElement.classList.remove('bg-secondary');
-                    badgeElement.classList.add('bg-danger');
-                    badgeElement.title = 'Sin documentos';
-                } else if (data.count > 0) {
-                    badgeElement.classList.remove('bg-secondary', 'bg-danger');
-                    badgeElement.classList.add('bg-primary');
-                    badgeElement.title = `${data.count} documento${data.count !== 1 ? 's' : ''} adjunto${data.count !== 1 ? 's' : ''}`;
-                }
+                const count = Number(data.count || 0) || 0;
+                historialDocsCache.set(mid, count);
+                aplicarBadgeHistorial(badgeElement, count);
             })
             .catch(err => {
                 console.error("Error cargando documentos:", err);
                 const countSpan = badgeElement.querySelector('.count-value');
                 if (countSpan) countSpan.textContent = '?';
+            })
+            .finally(() => {
+                historialDocsPending.delete(mid);
             });
+    }
+
+    function cargarDocsHistorialVisiblesDataTable() {
+        const tableEl = document.getElementById('tabla-historial');
+        if (!tableEl || !window.jQuery || !window.jQuery.fn || !window.jQuery.fn.DataTable) {
+            // Fallback: cargar lo que exista en el DOM
+            document.querySelectorAll('[id^="docs-count-"]').forEach(badge => {
+                const materialId = badge.dataset.materialId;
+                if (materialId && materialId > 0) {
+                    cargarDocumentosHistorial(materialId, badge.id);
+                }
+            });
+            return;
+        }
+
+        const $table = window.jQuery(tableEl);
+
+        const attachIfReady = () => {
+            if (!window.jQuery.fn.DataTable.isDataTable(tableEl)) return false;
+
+            const dt = $table.DataTable();
+
+            const loadCurrentPage = () => {
+                const nodes = dt.rows({ page: 'current' }).nodes().toArray();
+                nodes.forEach(row => {
+                    const badge = row.querySelector('.doc-count-badge');
+                    if (!badge) return;
+                    const materialId = badge.dataset.materialId;
+                    if (materialId && materialId > 0) {
+                        cargarDocumentosHistorial(materialId, badge.id);
+                    }
+                });
+            };
+
+            if (!tableEl.dataset.docsHooked) {
+                tableEl.dataset.docsHooked = '1';
+                $table.on('draw.dt', loadCurrentPage);
+            }
+
+            loadCurrentPage();
+            return true;
+        };
+
+        if (attachIfReady()) return;
+
+        const start = Date.now();
+        const timer = setInterval(() => {
+            if (attachIfReady() || (Date.now() - start) > 2500) {
+                clearInterval(timer);
+            }
+        }, 50);
     }
 
     // Permitir hacer clic en el badge para ver documentos

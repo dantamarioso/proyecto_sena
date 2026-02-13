@@ -242,7 +242,7 @@ $archivos = isset($archivos) ? $archivos : [];
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: `id=${archivoId}`,
+                body: `archivo_id=${archivoId}`,
                 credentials: 'include'
             })
             .then(response => response.json())

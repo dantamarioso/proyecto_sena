@@ -82,6 +82,51 @@
 }
 
 /* =====================================================
+   DATATABLES (SCROLL PERSISTENTE)
+===================================================== */
+
+/* Ocultar tablas mejoradas hasta que DataTables este listo (evita ver la tabla vieja por segundos) */
+html.dt-enhancing table.js-datatable,
+html.dt-enhancing .dataTables_wrapper {
+    visibility: hidden;
+}
+
+.table-responsive.datatable-enhanced {
+    overflow: visible !important;
+}
+
+.dataTables_wrapper .dataTables_scrollHead table {
+    margin-bottom: 0 !important;
+}
+
+.dataTables_wrapper .dataTables_scrollBody {
+    border: 1px solid #dee2e6;
+    border-top: 0;
+    scrollbar-gutter: stable;
+}
+
+.dataTables_wrapper .dataTables_info {
+    padding-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Scrollbars (WebKit) */
+.dataTables_wrapper .dataTables_scrollBody::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.dataTables_wrapper .dataTables_scrollBody::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.dataTables_wrapper .dataTables_scrollBody::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+/* =====================================================
    VARIANTES DE TABLA
 ===================================================== */
 

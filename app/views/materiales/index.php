@@ -170,7 +170,7 @@ if (!isset($_SESSION['user'])) {
         <!-- Tabla Responsiva -->
         <div class="card">
             <div class="table-responsive">
-                <table class="table table-striped align-middle mb-0">
+                <table id="tabla-materiales" class="table table-striped align-middle mb-0 js-datatable" data-dt-scroll-y="60vh" data-dt-external-search="1">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -182,14 +182,21 @@ if (!isset($_SESSION['user'])) {
                             <?php endif; ?>
                             <th class="d-none d-md-table-cell">Línea</th>
                             <th class="text-center">Cantidad</th>
-                            <th class="text-center">Documentos</th>
+                            <th class="text-center no-sort">Documentos</th>
                             <th class="d-none d-sm-table-cell">Estado</th>
-                            <th class="text-center">Acciones</th>
+                            <th class="text-center no-sort">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="materiales-body">
                         <?php foreach ($materiales as $m) : ?>
-                            <tr class="material-row" data-id="<?= $m['id'] ?>">
+                            <tr class="material-row"
+                                data-id="<?= $m['id'] ?>"
+                                data-nodo-id="<?= (int)($m['nodo_id'] ?? 0) ?>"
+                                data-linea-id="<?= (int)($m['linea_id'] ?? 0) ?>"
+                                data-categoria="<?= htmlspecialchars($m['categoria'] ?? '') ?>"
+                                data-proveedor="<?= htmlspecialchars($m['proveedor'] ?? '') ?>"
+                                data-estado="<?= (int)($m['estado'] ?? 0) ?>"
+                                data-cantidad="<?= htmlspecialchars((string)($m['cantidad'] ?? '0')) ?>">
                                 <td><?= $m['id'] ?></td>
                                 <td><code><?= htmlspecialchars($m['codigo']) ?></code></td>
                                 <td class="material-nombre"><strong><?= htmlspecialchars($m['nombre']) ?></strong></td>
@@ -205,7 +212,7 @@ if (!isset($_SESSION['user'])) {
                                     <span class="badge bg-primary"><?= htmlspecialchars($m['linea_nombre'] ?? 'N/A') ?></span>
                                 </td>
                                 <td class="text-center material-cantidad">
-                                    <strong><?= intval($m['cantidad']) ?></strong>
+                                    <strong><?= htmlspecialchars(formatearCantidad($m['cantidad'])) ?></strong>
                                 </td>
                                 <td class="text-center">
                                     <a href="<?= BASE_URL ?>/materiales/detalles?id=<?= $m['id'] ?>" class="text-decoration-none" title="Ver detalles y archivos">
@@ -457,8 +464,8 @@ if (!isset($_SESSION['user'])) {
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Cantidad a registrar</label>
-                    <input type="number" id="mov-cantidad" class="form-control" placeholder="0" min="1" step="1">
-                    <small class="form-text text-muted" id="mov-cantidad-help">Solo se aceptan números enteros</small>
+                    <input type="number" id="mov-cantidad" class="form-control" placeholder="0" min="0.001" step="0.001" inputmode="decimal">
+                    <small class="form-text text-muted" id="mov-cantidad-help">Se aceptan decimales (hasta 3)</small>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Descripción (opcional)</label>
@@ -499,14 +506,14 @@ if (!isset($_SESSION['user'])) {
             return params.toString();
         };
 
-        const materials = document.querySelectorAll('[id^="docs-"]');
-        materials.forEach(badge => {
-            const match = badge.id.match(/docs-(\d+)/);
-            if (match) {
-                const materialId = match[1];
-                cargarDocumentos(materialId);
+        // Cargar conteo de documentos por página (DataTables)
+        setTimeout(() => {
+            try {
+                cargarDocsVisiblesDataTable();
+            } catch (e) {
+                // no-op
             }
-        });
+        }, 0);
 
         // Botones de descarga
         document.getElementById('btn-descargar-xlsx').addEventListener('click', (e) => {
@@ -711,24 +718,107 @@ if (!isset($_SESSION['user'])) {
         });
     });
 
+    const docsCache = new Map();
+    const docsPending = new Set();
+
+    function setDocsBadge(badgeElement, count) {
+        if (!badgeElement) return;
+        const c = Number(count || 0) || 0;
+
+        // Reutilizar el mismo span (evitar anidar badges)
+        badgeElement.classList.remove('bg-secondary', 'bg-primary', 'bg-danger');
+        badgeElement.innerHTML = '';
+
+        if (c <= 0) {
+            badgeElement.classList.add('bg-secondary');
+            badgeElement.innerHTML = '<i class="bi bi-file-earmark"></i> Sin docs';
+        } else {
+            badgeElement.classList.add('bg-primary');
+            badgeElement.innerHTML = `<i class="bi bi-file-earmark"></i> ${c} doc${c !== 1 ? 's' : ''}`;
+        }
+    }
+
     function cargarDocumentos(materialId) {
         const badgeElement = document.getElementById(`docs-${materialId}`);
         if (!badgeElement) return;
 
+        if (docsCache.has(materialId)) {
+            setDocsBadge(badgeElement, docsCache.get(materialId));
+            return;
+        }
+
+        if (docsPending.has(materialId)) {
+            return;
+        }
+
+        docsPending.add(materialId);
+
         fetch(`${window.BASE_URL}/materialesarchivos/contar?material_id=${materialId}`)
             .then(response => response.json())
             .then(data => {
-                let badge = '';
-                if (data.count === 0) {
-                    badge = '<span class="badge bg-secondary">Sin docs</span>';
-                } else {
-                    badge = `<span class="badge bg-primary">${data.count} doc${data.count !== 1 ? 's' : ''}</span>`;
-                }
-                badgeElement.innerHTML = badge;
+                const count = Number(data.count || 0) || 0;
+                docsCache.set(materialId, count);
+                setDocsBadge(badgeElement, count);
             })
             .catch(err => {
                 console.error("Error cargando documentos:", err);
-                badgeElement.innerHTML = '<span class="badge bg-danger">Error</span>';
+                badgeElement.classList.remove('bg-secondary', 'bg-primary');
+                badgeElement.classList.add('bg-danger');
+                badgeElement.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Error';
+            })
+            .finally(() => {
+                docsPending.delete(materialId);
             });
     }
+
+    function cargarDocsVisiblesDataTable() {
+        const tableEl = document.getElementById('tabla-materiales');
+        if (!tableEl || !window.jQuery || !window.jQuery.fn || !window.jQuery.fn.DataTable) {
+            // Fallback: cargar lo que exista en el DOM
+            document.querySelectorAll('[id^="docs-"]').forEach(badge => {
+                const match = badge.id.match(/docs-(\d+)/);
+                if (match) cargarDocumentos(match[1]);
+            });
+            return;
+        }
+
+        const $table = window.jQuery(tableEl);
+
+        const attachIfReady = () => {
+            if (!window.jQuery.fn.DataTable.isDataTable(tableEl)) return false;
+
+            const dt = $table.DataTable();
+
+            const loadCurrentPage = () => {
+                const nodes = dt.rows({ page: 'current' }).nodes().toArray();
+                nodes.forEach(row => {
+                    const badge = row.querySelector('[id^="docs-"]');
+                    if (!badge) return;
+                    const match = badge.id.match(/docs-(\d+)/);
+                    if (match) cargarDocumentos(match[1]);
+                });
+            };
+
+            // Evitar duplicar eventos
+            if (!tableEl.dataset.docsHooked) {
+                tableEl.dataset.docsHooked = '1';
+                $table.on('draw.dt', loadCurrentPage);
+            }
+
+            loadCurrentPage();
+            return true;
+        };
+
+        if (attachIfReady()) return;
+
+        // Esperar inicialización (por si el script corre muy rápido)
+        const start = Date.now();
+        const timer = setInterval(() => {
+            if (attachIfReady() || (Date.now() - start) > 2500) {
+                clearInterval(timer);
+            }
+        }, 50);
+    }
+
+    // Nota: el conteo se inicializa dentro del DOMContentLoaded con setTimeout(0)
 </script>

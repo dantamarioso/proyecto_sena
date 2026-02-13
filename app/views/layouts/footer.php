@@ -13,6 +13,16 @@
             <?php $v = time(); // Cache buster para desarrollo
             ?>
 
+            <!-- jQuery (requerido por DataTables) -->
+            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+            <!-- DataTables (Bootstrap 5) -->
+            <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+            <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
+            <!-- Inicialización DataTables (tablas con .js-datatable) -->
+            <script src="/proyecto_sena/public/js/datatables-init.js?v=<?= $v ?>"></script>
+
             <!-- Utilidades JS -->
             <script src="/proyecto_sena/public/js/utilidades.js?v=<?= $v ?>"></script>
 

@@ -560,6 +560,29 @@ class MaterialImportService
         return (int)$raw;
     }
 
+    /**
+     * Parsea decimales (hasta 3) tolerando separadores locales.
+     * Retorna string normalizado con 3 decimales (ej: 1.140) para guardar en DECIMAL.
+     */
+    private function parseDecimalValue($value, $default = '0.000', $scale = 3)
+    {
+        $value = $this->cleanCell($value);
+        if ($value === '') return $default;
+
+        $lower = function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
+        if (in_array($lower, ['na', 'n/a', 'no aplica'], true)) {
+            return $default;
+        }
+
+        $err = null;
+        $norm = NumberHelper::normalizeDecimal($value, (int)$scale, false, false, $err);
+        if ($norm === null || $err) {
+            return $default;
+        }
+
+        return $norm;
+    }
+
     /** Parsea moneda tolerando $ y separadores locales. Retorna float|null. */
     private function parseMoney($value)
     {
@@ -630,7 +653,7 @@ class MaterialImportService
             return $value;
         }
 
-        if (preg_match('/^(\d{1,2})[\\\/\-](\d{1,2})[\\\/\-](\d{2,4})$/', $value, $m)) {
+        if (preg_match('#^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$#', $value, $m)) {
             $day = (int)$m[1];
             $month = (int)$m[2];
             $year = (int)$m[3];
@@ -938,8 +961,8 @@ class MaterialImportService
         if (strlen($material['presentacion']) > 100) $material['presentacion'] = substr($material['presentacion'], 0, 100);
         if (strlen($material['categoria']) > 100) $material['categoria'] = substr($material['categoria'], 0, 100);
 
-        $material['cantidad_requerida'] = isset($indices['cantidad_requerida']) ? $this->parseIntValue($campos[$indices['cantidad_requerida']] ?? 0, 0) : 0;
-        $material['cantidad'] = isset($indices['cantidad']) ? $this->parseIntValue($campos[$indices['cantidad']] ?? 0, 0) : 0;
+        $material['cantidad_requerida'] = isset($indices['cantidad_requerida']) ? $this->parseDecimalValue($campos[$indices['cantidad_requerida']] ?? '', '0.000', 3) : '0.000';
+        $material['cantidad'] = isset($indices['cantidad']) ? $this->parseDecimalValue($campos[$indices['cantidad']] ?? '', '0.000', 3) : '0.000';
 
         $material['ubicacion'] = isset($indices['ubicacion']) ? $this->cleanCell($campos[$indices['ubicacion']] ?? '') : '';
         $material['observacion'] = isset($indices['observacion']) ? $this->cleanCell($campos[$indices['observacion']] ?? '') : '';

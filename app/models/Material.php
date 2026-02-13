@@ -131,8 +131,8 @@ class Material extends Model
                 ':categoria' => $data['categoria'] ?? null,
                 ':presentacion' => $data['presentacion'] ?? null,
                 ':medida' => $data['medida'] ?? null,
-                ':cantidad' => intval($data['cantidad'] ?? 0),
-                ':cantidad_requerida' => intval($data['cantidad_requerida'] ?? 0),
+                ':cantidad' => $data['cantidad'] ?? '0.000',
+                ':cantidad_requerida' => $data['cantidad_requerida'] ?? '0.000',
                 ':valor_compra' => (isset($data['valor_compra']) && $data['valor_compra'] !== '' && $data['valor_compra'] !== null)
                     ? floatval($data['valor_compra'])
                     : null,
@@ -198,8 +198,8 @@ class Material extends Model
             ':categoria' => $data['categoria'] ?? null,
             ':presentacion' => $data['presentacion'] ?? null,
             ':medida' => $data['medida'] ?? null,
-            ':cantidad' => intval($data['cantidad']),
-            ':cantidad_requerida' => intval($data['cantidad_requerida'] ?? 0),
+            ':cantidad' => $data['cantidad'] ?? '0.000',
+            ':cantidad_requerida' => $data['cantidad_requerida'] ?? '0.000',
             ':valor_compra' => (isset($data['valor_compra']) && $data['valor_compra'] !== '' && $data['valor_compra'] !== null)
                 ? floatval($data['valor_compra'])
                 : null,
@@ -398,7 +398,7 @@ class Material extends Model
 
         return $stmt->execute([
             ':id' => $id,
-            ':cantidad' => intval($cantidad),
+            ':cantidad' => $cantidad,
         ]);
     }
 
@@ -784,6 +784,86 @@ class Material extends Model
         }
 
         $sql .= ' ORDER BY m.nombre ASC';
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /* =========================================================
+       ALERTAS - MATERIALES VENCIDOS
+    ========================================================== */
+
+    /** Contar materiales vencidos (fecha_vencimiento <= hoy) con filtros opcionales. */
+    public function countVencidos($nodoId = null, $lineaId = null)
+    {
+        $sql = '
+            SELECT COUNT(*) as total
+            FROM materiales m
+            WHERE m.estado = 1
+              AND m.fecha_vencimiento IS NOT NULL
+              AND m.fecha_vencimiento <= CURDATE()
+        ';
+
+        $params = [];
+
+        if ($nodoId !== null) {
+            $sql .= ' AND m.nodo_id = :nodo_id';
+            $params[':nodo_id'] = (int)$nodoId;
+        }
+
+        if ($lineaId !== null) {
+            $sql .= ' AND m.linea_id = :linea_id';
+            $params[':linea_id'] = (int)$lineaId;
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return (int)($row['total'] ?? 0);
+    }
+
+    /** Listar materiales vencidos con datos de nodo/linea (limitado). */
+    public function getVencidos($nodoId = null, $lineaId = null, $limit = 20)
+    {
+        $limit = (int)$limit;
+        if ($limit <= 0) {
+            $limit = 20;
+        }
+
+        $sql = '
+            SELECT m.id,
+                   m.codigo,
+                   m.nombre,
+                   m.fecha_vencimiento,
+                   m.nodo_id,
+                   m.linea_id,
+                   l.nombre as linea_nombre,
+                   n.nombre as nodo_nombre,
+                   DATEDIFF(CURDATE(), m.fecha_vencimiento) as dias_vencido
+            FROM materiales m
+            LEFT JOIN lineas l ON m.linea_id = l.id
+            LEFT JOIN nodos n ON m.nodo_id = n.id
+            WHERE m.estado = 1
+              AND m.fecha_vencimiento IS NOT NULL
+              AND m.fecha_vencimiento <= CURDATE()
+        ';
+
+        $params = [];
+
+        if ($nodoId !== null) {
+            $sql .= ' AND m.nodo_id = :nodo_id';
+            $params[':nodo_id'] = (int)$nodoId;
+        }
+
+        if ($lineaId !== null) {
+            $sql .= ' AND m.linea_id = :linea_id';
+            $params[':linea_id'] = (int)$lineaId;
+        }
+
+        $sql .= ' ORDER BY m.fecha_vencimiento ASC, m.nombre ASC LIMIT ' . $limit;
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);

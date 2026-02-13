@@ -48,10 +48,9 @@ class MaterialFileService
             'material_id' => $materialId,
             'nombre_original' => $file['name'],
             'nombre_archivo' => $filename,
-            'ruta' => 'uploads/materiales/' . $filename,
-            'tipo' => $file['type'],
-            'tamano' => $file['size'],
-            'subido_por' => $userId,
+            'tipo_archivo' => $file['type'] ?? 'application/octet-stream',
+            'tamano' => $file['size'] ?? 0,
+            'usuario_id' => $userId,
         ]);
 
         if (!$archivoId) {
@@ -127,7 +126,7 @@ class MaterialFileService
         }
 
         // Validar extensión
-        $allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png', 'txt'];
+        $allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'jpg', 'jpeg', 'png'];
         $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
         if (!in_array($extension, $allowedExtensions)) {

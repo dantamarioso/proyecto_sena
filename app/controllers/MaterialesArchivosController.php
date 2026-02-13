@@ -109,7 +109,7 @@ class MaterialesArchivosController extends Controller
         $this->requireAuth();
 
         try {
-            $archivoId = $_POST['archivo_id'] ?? null;
+            $archivoId = $_POST['archivo_id'] ?? ($_POST['id'] ?? null);
 
             if (!$archivoId) {
                 http_response_code(400);

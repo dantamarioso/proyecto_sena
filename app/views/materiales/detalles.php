@@ -83,7 +83,21 @@ $archivos = $archivoModel->getByMaterial($materialId);
                     <div class="col-md-6">
                         <div class="mb-3">
                             <h6 class="text-muted">Fecha de Vencimiento</h6>
-                            <p class="mb-0"><?= !empty($material['fecha_vencimiento']) ? date('d/m/Y', strtotime($material['fecha_vencimiento'])) : 'No especificada' ?></p>
+                            <?php
+                            $fechaV = $material['fecha_vencimiento'] ?? null;
+                            $hoy = date('Y-m-d');
+                            $estaVencido = (!empty($fechaV) && $fechaV <= $hoy);
+                            ?>
+                            <p class="mb-0">
+                                <?= !empty($fechaV) ? date('d/m/Y', strtotime($fechaV)) : 'No especificada' ?>
+                                <?php if (empty($fechaV)) : ?>
+                                    <span class="badge bg-secondary ms-2">Sin fecha</span>
+                                <?php elseif ($estaVencido) : ?>
+                                    <span class="badge bg-danger ms-2">Vencido</span>
+                                <?php else : ?>
+                                    <span class="badge bg-success ms-2">Vigente</span>
+                                <?php endif; ?>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -104,29 +118,33 @@ $archivos = $archivoModel->getByMaterial($materialId);
                     <div class="col-md-4">
                         <div class="mb-3">
                             <h6 class="text-muted">Cantidad en Stock</h6>
-                            <p class="mb-0"><span class="badge bg-info"><?= intval($material['cantidad']) ?></span></p>
+                            <p class="mb-0"><span class="badge bg-info"><?= htmlspecialchars(formatearCantidad($material['cantidad'] ?? 0)) ?></span></p>
                         </div>
                     </div>
                 </div>
 
                 <?php
-                $req = intval($material['cantidad_requerida'] ?? 0);
-                $stock = intval($material['cantidad'] ?? 0);
-                $faltante = $req - $stock;
+                $reqVal = (float)($material['cantidad_requerida'] ?? 0);
+                $stockVal = (float)($material['cantidad'] ?? 0);
+                $faltanteVal = $reqVal - $stockVal;
+
+                $req = formatearCantidad($material['cantidad_requerida'] ?? 0);
+                $stock = formatearCantidad($material['cantidad'] ?? 0);
+                $faltante = ($faltanteVal > 0) ? formatearCantidad($faltanteVal) : '0';
                 ?>
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <div class="mb-3">
                             <h6 class="text-muted">Cantidad Requerida</h6>
-                            <p class="mb-0"><span class="badge bg-secondary"><?= $req ?></span></p>
+                            <p class="mb-0"><span class="badge bg-secondary"><?= htmlspecialchars($req) ?></span></p>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
                             <h6 class="text-muted">Cantidad Faltante</h6>
                             <p class="mb-0">
-                                <?php if ($faltante > 0) : ?>
-                                    <span class="badge bg-danger"><?= $faltante ?></span>
+                                <?php if ((float)$faltante > 0) : ?>
+                                    <span class="badge bg-danger"><?= htmlspecialchars($faltante) ?></span>
                                 <?php else : ?>
                                     <span class="badge bg-success">0</span>
                                 <?php endif; ?>

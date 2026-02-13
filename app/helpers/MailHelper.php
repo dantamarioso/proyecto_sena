@@ -13,14 +13,15 @@ class MailHelper
 {
     public static function sendCode($correo, $asunto, $codigo, $tipo = 'recuperacion')
     {
-        if (!class_exists(PHPMailer::class)) {
-            error_log('MailHelper error: PHPMailer no esta disponible. Ejecute "composer install".');
-            return false;
-        }
-
-        $mail = new PHPMailer(true);
-
         try {
+            if (!class_exists(PHPMailer::class)) {
+                error_log('MailHelper error: PHPMailer no esta disponible. Ejecute "composer install".');
+                return false;
+            }
+
+            // Instanciar dentro del try para evitar fatales por clases faltantes
+            $mail = new PHPMailer(true);
+
             // Cargar variables de entorno
             $mailHost = EnvHelper::get('MAIL_HOST', 'smtp.gmail.com');
             $mailPort = EnvHelper::get('MAIL_PORT', '587');

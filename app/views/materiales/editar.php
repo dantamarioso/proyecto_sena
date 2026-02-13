@@ -133,12 +133,12 @@ if (!in_array($rol, ['admin', 'dinamizador'])) {
                     <div class="row">
                         <div class="col-12 col-md-6 mb-3">
                             <label class="form-label">Cantidad en Stock *</label>
-                            <input type="number" name="cantidad" class="form-control" placeholder="0" value="<?= intval($material['cantidad']) ?>" min="0" step="1" required>
-                            <small class="form-text text-muted">Solo se aceptan números enteros. Use entrada/salida para registrar cambios</small>
+                            <input type="number" name="cantidad" class="form-control" placeholder="0" value="<?= htmlspecialchars(formatearCantidad($material['cantidad'] ?? 0)) ?>" min="0" step="0.001" inputmode="decimal" required>
+                            <small class="form-text text-muted">Se aceptan decimales (hasta 3). Use entrada/salida para registrar cambios</small>
                         </div>
                         <div class="col-12 col-md-6 mb-3">
                             <label class="form-label">Cantidad Requerida</label>
-                            <input type="number" name="cantidad_requerida" class="form-control" placeholder="0" value="<?= intval($material['cantidad_requerida'] ?? 0) ?>" min="0" step="1">
+                            <input type="number" name="cantidad_requerida" class="form-control" placeholder="0" value="<?= htmlspecialchars(formatearCantidad($material['cantidad_requerida'] ?? 0)) ?>" min="0" step="0.001" inputmode="decimal">
                         </div>
                     </div>
 

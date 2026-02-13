@@ -42,3 +42,7 @@
 [2025-12-05 20:10:20] MaterialArchivo::create() - Usuario ID: 1
 [2025-12-05 20:10:20] MaterialArchivo::create() - SQL: INSERT material_id=1, usuario_id=1, archivo=GFPI-F-023-V6_nuevo.docx
 [2025-12-05 20:10:20] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 2
+[2026-02-13 15:58:25] MaterialArchivo::create() - INICIANDO
+[2026-02-13 15:58:25] MaterialArchivo::create() - Usuario ID: 1
+[2026-02-13 15:58:25] MaterialArchivo::create() - SQL: INSERT material_id=3, usuario_id=1, archivo=Hoja_de_vida.pdf
+[2026-02-13 15:58:25] MaterialArchivo::create() - ✅ ÉXITO: Insertado con ID 1

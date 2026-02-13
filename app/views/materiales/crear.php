@@ -149,12 +149,12 @@ if ($editId > 0) {
                         <div class="row">
                             <div class="col-12 col-md-6 mb-3">
                                 <label class="form-label">Cantidad en Stock *</label>
-                                <input type="number" name="cantidad" class="form-control" placeholder="0" value="0" min="0" step="1" required>
-                                <small class="form-text text-muted">Solo se aceptan números enteros</small>
+                                <input type="number" name="cantidad" class="form-control" placeholder="0" value="0" min="0" step="0.001" inputmode="decimal" required>
+                                <small class="form-text text-muted">Se aceptan decimales (hasta 3)</small>
                             </div>
                             <div class="col-12 col-md-6 mb-3">
                                 <label class="form-label">Cantidad Requerida</label>
-                                <input type="number" name="cantidad_requerida" class="form-control" placeholder="0" value="0" min="0" step="1">
+                                <input type="number" name="cantidad_requerida" class="form-control" placeholder="0" value="0" min="0" step="0.001" inputmode="decimal">
                                 <small class="form-text text-muted">Usado para calcular cantidad faltante</small>
                             </div>
                         </div>

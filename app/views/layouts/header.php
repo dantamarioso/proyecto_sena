@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dt-enhancing">
 
 <head>
     <meta charset="UTF-8">
@@ -21,7 +21,16 @@
 
         // Construir URL base
         window.BASE_URL = currentProtocol + '//' + currentHost + '/proyecto_sena/public';
+
     </script>
+
+    <!-- Anti-parpadeo DataTables: ocultar tablas mejoradas desde el primer paint -->
+    <style>
+        html.dt-enhancing table.js-datatable,
+        html.dt-enhancing .dataTables_wrapper {
+            visibility: hidden;
+        }
+    </style>
 
     <!-- Google Fonts - Work Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,6 +48,9 @@
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- DataTables (Bootstrap 5) -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

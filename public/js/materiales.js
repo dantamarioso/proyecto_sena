@@ -74,8 +74,73 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * Aplicar filtros a la tabla
  */
+let materialesDtFilterRegistered = false;
+
+function getMaterialesDataTable() {
+    if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.DataTable) return null;
+    const tableEl = document.getElementById('tabla-materiales');
+    if (!tableEl) return null;
+    if (!window.jQuery.fn.DataTable.isDataTable(tableEl)) return null;
+    return window.jQuery(tableEl).DataTable();
+}
+
+function registerMaterialesDtFilter() {
+    if (materialesDtFilterRegistered) return;
+    if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.dataTable) return;
+
+    window.jQuery.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+        if (!settings || !settings.nTable || settings.nTable.id !== 'tabla-materiales') {
+            return true;
+        }
+
+        const tr = settings.aoData && settings.aoData[dataIndex] ? settings.aoData[dataIndex].nTr : null;
+        if (!tr) return true;
+
+        const filtroNodo = document.getElementById('filtro-nodo')?.value || '';
+        const filtroLinea = document.getElementById('filtro-linea')?.value || '';
+        const filtroCategoria = document.getElementById('filtro-categoria')?.value || '';
+        const filtroProveedor = document.getElementById('filtro-proveedor')?.value || '';
+        const filtroEstado = document.getElementById('filtro-estado')?.value || '';
+        const filtroStock = document.getElementById('filtro-cantidad')?.value || '';
+
+        const nodoId = tr.getAttribute('data-nodo-id') || '';
+        const lineaId = tr.getAttribute('data-linea-id') || '';
+        const categoria = tr.getAttribute('data-categoria') || '';
+        const proveedor = tr.getAttribute('data-proveedor') || '';
+        const estado = tr.getAttribute('data-estado') || '';
+        const cantidadRaw = tr.getAttribute('data-cantidad') || '0';
+        const cantidad = parseFloat(String(cantidadRaw).replace(',', '.')) || 0;
+
+        if (filtroNodo && String(nodoId) !== String(filtroNodo)) return false;
+        if (filtroLinea && String(lineaId) !== String(filtroLinea)) return false;
+        if (filtroCategoria && String(categoria) !== String(filtroCategoria)) return false;
+        if (filtroProveedor && String(proveedor) !== String(filtroProveedor)) return false;
+        if (filtroEstado !== '' && String(estado) !== String(filtroEstado)) return false;
+
+        if (filtroStock) {
+            if (filtroStock === '0' && cantidad !== 0) return false;
+            if (filtroStock === 'bajo' && !(cantidad > 0 && cantidad < 10)) return false;
+            if (filtroStock === 'normal' && !(cantidad >= 10)) return false;
+        }
+
+        return true;
+    });
+
+    materialesDtFilterRegistered = true;
+}
+
 function aplicarFiltros() {
-    const busqueda = (document.getElementById('busqueda')?.value || '').toLowerCase();
+    const dt = getMaterialesDataTable();
+    if (dt) {
+        registerMaterialesDtFilter();
+        const busqueda = (document.getElementById('busqueda')?.value || '').trim();
+        dt.search(busqueda);
+        dt.page('first');
+        dt.draw();
+        return;
+    }
+
+    const busqueda = (document.getElementById('busqueda')?.value || '').trim();
     const nodo = document.getElementById('filtro-nodo')?.value || '';
     const linea = document.getElementById('filtro-linea')?.value || '';
     const categoria = document.getElementById('filtro-categoria')?.value || '';
@@ -99,6 +164,19 @@ function aplicarFiltros() {
  * Limpiar filtros
  */
 function limpiarFiltros() {
+    const dt = getMaterialesDataTable();
+    if (dt) {
+        const ids = ['busqueda', 'filtro-nodo', 'filtro-linea', 'filtro-categoria', 'filtro-proveedor', 'filtro-estado', 'filtro-cantidad'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        dt.search('');
+        dt.page('first');
+        dt.draw();
+        return;
+    }
+
     window.location.href = `${window.BASE_URL}/?url=materiales/index`;
 }
 
@@ -136,9 +214,24 @@ async function verDetalles(materialId) {
                 ? new Date(material.fecha_vencimiento + 'T00:00:00').toLocaleDateString('es-CO')
                 : 'No especificada';
 
-            const cantidadStock = parseInt(material.cantidad) || 0;
-            const cantidadRequerida = parseInt(material.cantidad_requerida) || 0;
-            const cantidadFaltante = cantidadRequerida - cantidadStock;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const venceDate = material.fecha_vencimiento ? new Date(material.fecha_vencimiento + 'T00:00:00') : null;
+            const tieneVencimiento = !!(material.fecha_vencimiento);
+            const estaVencido = !!(tieneVencimiento && venceDate && !isNaN(venceDate.getTime()) && venceDate <= today);
+            const estadoVencimiento = !tieneVencimiento
+                ? { text: 'Sin fecha', cls: 'bg-secondary' }
+                : (estaVencido
+                    ? { text: 'Vencido', cls: 'bg-danger' }
+                    : { text: 'Vigente', cls: 'bg-success' });
+
+            const cantidadStockNum = parseFloat(String(material.cantidad ?? '0').replace(',', '.')) || 0;
+            const cantidadRequeridaNum = parseFloat(String(material.cantidad_requerida ?? '0').replace(',', '.')) || 0;
+            const cantidadFaltanteNum = cantidadRequeridaNum - cantidadStockNum;
+
+            const cantidadStock = formatCantidad(cantidadStockNum);
+            const cantidadRequerida = formatCantidad(cantidadRequeridaNum);
+            const cantidadFaltante = formatCantidad(Math.max(cantidadFaltanteNum, 0));
 
             const fabricante = (material.fabricante || material.marca || material.proveedor || '').toString();
             const ubicacion = (material.ubicacion || '').toString();
@@ -187,7 +280,10 @@ async function verDetalles(materialId) {
                             </div>
                             <div class="col-md-6">
                                 <small class="text-muted d-block">Fecha de Vencimiento</small>
-                                <strong>${fechaVencimiento}</strong>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <strong>${fechaVencimiento}</strong>
+                                    <span class="badge ${estadoVencimiento.cls}">${estadoVencimiento.text}</span>
+                                </div>
                             </div>
                         </div>
                         <div class="row mb-2">
@@ -225,7 +321,7 @@ async function verDetalles(materialId) {
                             </div>
                             <div class="col-md-4">
                                 <small class="text-muted d-block">Cantidad Faltante</small>
-                                <strong class="${cantidadFaltante > 0 ? 'text-danger' : 'text-success'}">${cantidadFaltante > 0 ? cantidadFaltante : 0}</strong>
+                                <strong class="${cantidadFaltanteNum > 0 ? 'text-danger' : 'text-success'}">${cantidadFaltanteNum > 0 ? cantidadFaltante : '0'}</strong>
                             </div>
                             <div class="col-md-4">
                                 <small class="text-muted d-block">Proveedor</small>
@@ -283,21 +379,21 @@ function abrirModalMovimiento(materialId, tipo) {
 
     const nombreMaterial = (row.querySelector('.material-nombre')?.textContent || '').trim();
     const cantidadActualText = (row.querySelector('.material-cantidad')?.textContent || '0').trim();
-    const cantidadActualNum = parseInt(cantidadActualText);
+    const cantidadActualNum = parseFloat(String(cantidadActualText).replace(',', '.')) || 0;
 
     // Llenar datos del modal
     document.getElementById('movimiento-titulo').textContent = `Registrar ${tipo === 'entrada' ? 'Entrada' : 'Salida'} de Inventario`;
     document.getElementById('mov-material').value = `${nombreMaterial} (Actual: ${cantidadActualText})`;
     document.getElementById('mov-cantidad').value = '';
-    document.getElementById('mov-cantidad').max = tipo === 'salida' ? cantidadActualNum : '';
+    document.getElementById('mov-cantidad').max = tipo === 'salida' ? String(cantidadActualNum) : '';
     
     // Actualizar texto de ayuda
     const ayudaText = document.getElementById('mov-cantidad-help');
     if (tipo === 'salida') {
-        ayudaText.textContent = `Solo se aceptan números enteros. Máximo: ${cantidadActualNum} unidades disponibles.`;
+        ayudaText.textContent = `Se aceptan decimales (hasta 3). Máximo: ${formatCantidad(cantidadActualNum)} disponibles.`;
         ayudaText.classList.add('text-warning');
     } else {
-        ayudaText.textContent = 'Solo se aceptan números enteros';
+        ayudaText.textContent = 'Se aceptan decimales (hasta 3)';
         ayudaText.classList.remove('text-warning');
     }
     
@@ -316,20 +412,21 @@ function abrirModalMovimiento(materialId, tipo) {
  * Guardar movimiento de inventario
  */
 async function guardarMovimiento() {
-    const cantidad = parseInt(document.getElementById('mov-cantidad').value);
+    const rawCantidad = (document.getElementById('mov-cantidad').value || '').trim().replace(',', '.');
+    const cantidad = parseFloat(rawCantidad);
     const descripcion = document.getElementById('mov-descripcion').value;
     const erroresDiv = document.getElementById('movimiento-errors');
 
     // Validar cantidad
-    if (isNaN(cantidad) || cantidad <= 0) {
-        erroresDiv.innerHTML = 'La cantidad debe ser un número entero positivo.';
+    if (!/^\d+(\.\d{1,3})?$/.test(rawCantidad) || isNaN(cantidad) || cantidad <= 0) {
+        erroresDiv.innerHTML = 'La cantidad debe ser un número positivo (máximo 3 decimales).';
         erroresDiv.style.display = 'block';
         return;
     }
 
     // Validar SALIDA: no puede ser más que la cantidad disponible
     if (movimientoActual.tipo === 'salida' && cantidad > movimientoActual.cantidadActual) {
-        erroresDiv.innerHTML = `<strong>Error:</strong> No puedes sacar ${cantidad} unidades. Solo hay ${movimientoActual.cantidadActual} disponibles.`;
+        erroresDiv.innerHTML = `<strong>Error:</strong> No puedes sacar ${formatCantidad(cantidad)}. Solo hay ${formatCantidad(movimientoActual.cantidadActual)} disponibles.`;
         erroresDiv.style.display = 'block';
         return;
     }
@@ -337,7 +434,7 @@ async function guardarMovimiento() {
     const formData = new FormData();
     formData.append('material_id', movimientoActual.id);
     formData.append('tipo_movimiento', movimientoActual.tipo);
-    formData.append('cantidad', cantidad);
+    formData.append('cantidad', rawCantidad);
     formData.append('motivo', descripcion);
 
     try {
@@ -376,6 +473,16 @@ async function guardarMovimiento() {
         erroresDiv.innerHTML = 'Error al registrar el movimiento. Intenta de nuevo.';
         erroresDiv.style.display = 'block';
     }
+}
+
+/**
+ * Formatea cantidad a max 3 decimales, sin ceros extra.
+ */
+function formatCantidad(value, decimals = 3) {
+    const num = Number(value);
+    if (!isFinite(num)) return '0';
+    const fixed = num.toFixed(decimals);
+    return fixed.replace(/\.?0+$/, '');
 }
 
 /**

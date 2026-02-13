@@ -143,7 +143,7 @@ function setupNotifications() {
     let notificationsModal = document.getElementById('notificationsModal');
     
     if (!notificationsBtn || !notificationsModal) {
-        return; // No es admin
+        return;
     }
 
     const closeModalBtn = document.getElementById('closeNotificationsModal');
@@ -203,7 +203,7 @@ function setupNotifications() {
 
     function loadNotifications() {
         // Agregar timestamp para evitar caché
-        const url = BASE_URL + '/usuarios/getPendingNotifications?t=' + Date.now();
+        const url = BASE_URL + '/alertas/get?t=' + Date.now();
         
         fetch(url, {
             method: 'GET',
@@ -215,11 +215,12 @@ function setupNotifications() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    updateNotificationBadge(data.count);
-                    updateNotificationsList(data.users);
+                    const total = Number(data.count_total ?? data.count ?? 0) || 0;
+                    updateNotificationBadge(total, data);
+                    updateNotificationsList(data);
                     
                     // AUTO-CERRAR MODAL si no hay notificaciones
-                    if (data.count === 0 && notificationsModal.style.display === 'flex') {
+                    if (total === 0 && notificationsModal.style.display === 'flex') {
                         notificationsModal.style.display = 'none';
                         document.body.style.overflow = '';
                     }
@@ -227,25 +228,37 @@ function setupNotifications() {
             });
     }
 
-    function updateNotificationBadge(count) {
+    function updateNotificationBadge(count, payload) {
         if (count > 0) {
             notificationBadge.textContent = count;
             notificationBadge.style.display = 'inline-block';
-            notificationCount.textContent = count + ' pendiente' + (count > 1 ? 's' : '');
+
+            const u = Number(payload?.count_usuarios_pendientes ?? 0) || 0;
+            const m = Number(payload?.count_materiales_vencidos ?? 0) || 0;
+            const parts = [];
+            if (m > 0) parts.push(m + ' material' + (m > 1 ? 'es' : '') + ' vencido' + (m > 1 ? 's' : ''));
+            if (u > 0) parts.push(u + ' usuario' + (u > 1 ? 's' : '') + ' pendiente' + (u > 1 ? 's' : ''));
+            notificationCount.textContent = parts.length ? parts.join(' • ') : (count + ' alerta' + (count > 1 ? 's' : ''));
             
             // Agregar animación a la campana
             notificationsBtn.classList.add('has-notifications');
         } else {
             notificationBadge.style.display = 'none';
-            notificationCount.textContent = '0 pendientes';
+            notificationCount.textContent = '0 alertas';
             
             // Quitar animación
             notificationsBtn.classList.remove('has-notifications');
         }
     }
 
-    function updateNotificationsList(users) {
-        if (users.length === 0) {
+    function updateNotificationsList(payload) {
+        const materiales = Array.isArray(payload?.materiales_vencidos) ? payload.materiales_vencidos : [];
+        const usuarios = Array.isArray(payload?.usuarios_pendientes) ? payload.usuarios_pendientes : (Array.isArray(payload?.users) ? payload.users : []);
+
+        const totalMateriales = Number(payload?.count_materiales_vencidos ?? materiales.length ?? 0) || 0;
+        const totalUsuarios = Number(payload?.count_usuarios_pendientes ?? usuarios.length ?? 0) || 0;
+
+        if (materiales.length === 0 && usuarios.length === 0) {
             notificationsList.innerHTML = `
                 <div class="notification-empty">
                     <i class="bi bi-check-circle"></i>
@@ -255,16 +268,43 @@ function setupNotifications() {
             return;
         }
 
-        notificationsList.innerHTML = users.map(user => `
-            <div class="notification-item" onclick="openUserAssignment(${user.id})" title="Click para asignar rol, nodo y línea">
-                <strong>
-                    <i class="bi bi-person-plus-fill"></i>
-                    ${escapeHtml(user.nombre)}
-                </strong>
-                <small><i class="bi bi-envelope"></i> ${escapeHtml(user.correo)}</small>
-                <small><i class="bi bi-clock"></i> ${formatDate(user.fecha_creacion)}</small>
-            </div>
-        `).join('');
+        let html = '';
+
+        if (materiales.length > 0) {
+            html += `<div class="px-3 pt-3 pb-1 text-uppercase text-muted small">Materiales vencidos (${totalMateriales})</div>`;
+            html += materiales.map(mat => {
+                const nodo = mat.nodo_nombre || 'Sin nodo';
+                const linea = mat.linea_nombre || 'Sin línea';
+                return `
+                    <div class="notification-item" onclick="openMaterialDetails(${mat.id})" title="Click para ver detalles del material">
+                        <strong>
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            ${escapeHtml(mat.nombre)}
+                        </strong>
+                        <small><i class="bi bi-upc-scan"></i> ${escapeHtml(mat.codigo)}</small>
+                        <small><i class="bi bi-geo-alt"></i> ${escapeHtml(nodo)} • ${escapeHtml(linea)}</small>
+                        <small><i class="bi bi-calendar-x"></i> Fecha vencimiento: ${formatDateOnly(mat.fecha_vencimiento)}</small>
+                        <small><i class="bi bi-x-circle"></i> Estado: <strong>VENCIDO</strong></small>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        if (usuarios.length > 0) {
+            html += `<div class="px-3 pt-3 pb-1 text-uppercase text-muted small">Usuarios pendientes (${totalUsuarios})</div>`;
+            html += usuarios.map(user => `
+                <div class="notification-item" onclick="openUserAssignment(${user.id})" title="Click para asignar rol, nodo y línea">
+                    <strong>
+                        <i class="bi bi-person-plus-fill"></i>
+                        ${escapeHtml(user.nombre)}
+                    </strong>
+                    <small><i class="bi bi-envelope"></i> ${escapeHtml(user.correo)}</small>
+                    <small><i class="bi bi-clock"></i> ${formatDate(user.fecha_creacion)}</small>
+                </div>
+            `).join('');
+        }
+
+        notificationsList.innerHTML = html;
     }
 
     function formatDate(dateString) {
@@ -281,12 +321,35 @@ function setupNotifications() {
         return date.toLocaleDateString('es-ES');
     }
 
+    function formatDateOnly(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString + 'T00:00:00');
+        if (isNaN(date.getTime())) return 'N/A';
+        return date.toLocaleDateString('es-ES');
+    }
+
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 }
+
+// Abrir detalles de material desde notificaciones
+window.openMaterialDetails = function(materialId) {
+    const modal = document.getElementById('notificationsModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && window.innerWidth <= 768) {
+        sidebar.classList.remove('mobile-open');
+    }
+
+    window.location.href = BASE_URL + '/materiales/detalles?id=' + materialId;
+};
 
 // Función global para abrir el modal de asignación de usuario
 window.openUserAssignment = function(userId) {

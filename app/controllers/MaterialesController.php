@@ -80,7 +80,7 @@ class MaterialesController extends Controller
         }
     }
 
-    private function validarMaterial($data, $exceptoId = null)
+    private function validarMaterial(&$data, $exceptoId = null)
     {
         $errores = [];
 
@@ -100,21 +100,28 @@ class MaterialesController extends Controller
             $errores[] = 'Debe seleccionar una línea.';
         }
 
-        if (!isset($data['cantidad']) || $data['cantidad'] === '') {
-            $errores[] = 'La cantidad es obligatoria.';
-        } elseif (!is_numeric($data['cantidad'])) {
-            $errores[] = 'La cantidad debe ser un número entero.';
-        } elseif (intval($data['cantidad']) < 0) {
-            $errores[] = 'La cantidad no puede ser negativa.';
+        // Cantidad (DECIMAL, hasta 3 decimales)
+        $cantidadError = null;
+        $cantidadNorm = NumberHelper::normalizeDecimal($data['cantidad'] ?? '', 3, false, true, $cantidadError);
+        if ($cantidadNorm === null) {
+            if ($cantidadError === 'El valor es obligatorio.') {
+                $errores[] = 'La cantidad es obligatoria.';
+            } elseif ($cantidadError) {
+                $errores[] = 'La cantidad debe ser un número válido (máximo 3 decimales). Ej: 1.14, 1.234';
+            } else {
+                $errores[] = 'La cantidad es obligatoria.';
+            }
+        } else {
+            $data['cantidad'] = $cantidadNorm;
         }
 
-        if (isset($data['cantidad_requerida']) && $data['cantidad_requerida'] !== '') {
-            if (!is_numeric($data['cantidad_requerida'])) {
-                $errores[] = 'La cantidad requerida debe ser un número entero.';
-            } elseif (intval($data['cantidad_requerida']) < 0) {
-                $errores[] = 'La cantidad requerida no puede ser negativa.';
-            }
+        // Cantidad requerida (opcional, hasta 3 decimales)
+        $reqError = null;
+        $reqNorm = NumberHelper::normalizeDecimal($data['cantidad_requerida'] ?? '', 3, false, false, $reqError);
+        if ($reqError) {
+            $errores[] = 'La cantidad requerida debe ser un número válido (máximo 3 decimales).';
         }
+        $data['cantidad_requerida'] = $reqNorm ?? '0.000';
 
         return $errores;
     }
@@ -300,8 +307,8 @@ class MaterialesController extends Controller
                 'categoria' => trim($_POST['categoria'] ?? ''),
                 'presentacion' => trim($_POST['presentacion'] ?? ''),
                 'medida' => trim($_POST['medida'] ?? ''),
-                'cantidad' => intval($_POST['cantidad'] ?? 0),
-                'cantidad_requerida' => intval($_POST['cantidad_requerida'] ?? 0),
+                'cantidad' => trim($_POST['cantidad'] ?? ''),
+                'cantidad_requerida' => trim($_POST['cantidad_requerida'] ?? ''),
                 'valor_compra' => trim($_POST['valor_compra'] ?? ''),
                 'proveedor' => trim($_POST['proveedor'] ?? ''),
                 'marca' => trim($_POST['marca'] ?? ''),
@@ -330,7 +337,7 @@ class MaterialesController extends Controller
                 $materialId = $materialModel->create($data);
 
                 if ($materialId) {
-                    if ($data['cantidad'] > 0) {
+                    if ((float)$data['cantidad'] > 0) {
                         $movimientoData = [
                             'material_id' => $materialId,
                             'usuario_id' => $_SESSION['user']['id'],
@@ -417,8 +424,8 @@ class MaterialesController extends Controller
                 'categoria' => trim($_POST['categoria'] ?? ''),
                 'presentacion' => trim($_POST['presentacion'] ?? ''),
                 'medida' => trim($_POST['medida'] ?? ''),
-                'cantidad' => intval($_POST['cantidad'] ?? 0),
-                'cantidad_requerida' => intval($_POST['cantidad_requerida'] ?? 0),
+                'cantidad' => trim($_POST['cantidad'] ?? ''),
+                'cantidad_requerida' => trim($_POST['cantidad_requerida'] ?? ''),
                 'valor_compra' => trim($_POST['valor_compra'] ?? ''),
                 'proveedor' => trim($_POST['proveedor'] ?? ''),
                 'marca' => trim($_POST['marca'] ?? ''),

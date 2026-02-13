@@ -134,12 +134,29 @@ class MaterialesHistorialController extends Controller
         try {
             $material_id = $_POST['material_id'] ?? null;
             $tipo_movimiento = $_POST['tipo_movimiento'] ?? null;
-            $cantidad = $_POST['cantidad'] ?? null;
+            $cantidad = trim($_POST['cantidad'] ?? '');
             $motivo = $_POST['motivo'] ?? null;
 
-            if (!$material_id || !$tipo_movimiento || !$cantidad) {
+            if (!$material_id || !$tipo_movimiento || $cantidad === '') {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'message' => 'Datos incompletos']);
+                exit;
+            }
+
+            if (!in_array($tipo_movimiento, ['entrada', 'salida'], true)) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Tipo de movimiento inválido']);
+                exit;
+            }
+
+            $cantidadError = null;
+            $cantidadNorm = NumberHelper::normalizeDecimal($cantidad, 3, false, true, $cantidadError);
+            if ($cantidadNorm === null || (float)$cantidadNorm <= 0) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'La cantidad debe ser un número mayor a 0 (máximo 3 decimales).',
+                ]);
                 exit;
             }
 
@@ -148,7 +165,7 @@ class MaterialesHistorialController extends Controller
             $success = $this->materialModel->registrarMovimiento([
                 'material_id' => (int)$material_id,
                 'tipo_movimiento' => $tipo_movimiento,
-                'cantidad' => (int)$cantidad,
+                'cantidad' => $cantidadNorm,
                 'usuario_id' => $usuario_id,
                 'motivo' => $motivo
             ]);
