@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+require_once __DIR__ . '/../models/Audit.php';
+
 
 /**
  * Servicio para manejar importaciones de materiales.
@@ -17,6 +19,9 @@ class MaterialImportService
     private $contextLineaId = null;
 
     private $importRol = 'usuario';
+
+    private $importSource = 'csv';
+    private $importFileName = '';
 
     private $cacheLineas = null;
     private $cacheNodos = null;
@@ -51,11 +56,100 @@ class MaterialImportService
             $formato = $data['formato'] ?? 'csv';
         }
 
+        $this->importSource = $formato;
+        $this->importFileName = $file['name'] ?? '';
+
         if ($formato === 'excel') {
             return $this->formatResult($this->importFromExcel($file));
         }
 
         return $this->formatResult($this->importFromCSV($file));
+    }
+
+    /**
+     * Registrar auditoría de materiales durante importación.
+     */
+    private function registrarAuditoriaImportacion($accion, $materialId, $detalles)
+    {
+        try {
+            if (!isset($_SESSION['user']['id'])) {
+                return;
+            }
+
+            $userId = (int)$_SESSION['user']['id'];
+            $audit = new Audit();
+            $audit->registrarCambio(
+                $userId,
+                'materiales',
+                (int)$materialId,
+                $accion,
+                $detalles,
+                $userId
+            );
+        } catch (Exception $e) {
+            // Silencioso
+        }
+    }
+
+    /**
+     * Construye el array de cambios {campo: {antes, despues}}.
+     * - Para crear: $before puede ser null (antes=null).
+     */
+    private function construirCambiosAuditoria($before, $after, $esCreacion = false)
+    {
+        $campos = [
+            'codigo',
+            'nombre',
+            'descripcion',
+            'nodo_id',
+            'linea_id',
+            'fecha_adquisicion',
+            'fecha_fabricacion',
+            'fecha_vencimiento',
+            'categoria',
+            'presentacion',
+            'medida',
+            'cantidad',
+            'cantidad_requerida',
+            'valor_compra',
+            'fabricante',
+            'ubicacion',
+            'observacion',
+            'proveedor',
+            'marca',
+            'estado',
+        ];
+
+        $cambios = [];
+
+        foreach ($campos as $campo) {
+            $valorAnterior = $before[$campo] ?? null;
+            $valorNuevo = array_key_exists($campo, $after) ? $after[$campo] : null;
+
+            if ($campo === 'nodo_id' || $campo === 'linea_id') {
+                if ((int)$valorAnterior !== (int)$valorNuevo) {
+                    $cambios[$campo] = ['antes' => $valorAnterior, 'despues' => $valorNuevo];
+                }
+                continue;
+            }
+
+            if ($valorAnterior !== $valorNuevo) {
+                $cambios[$campo] = ['antes' => $valorAnterior, 'despues' => $valorNuevo];
+            }
+        }
+
+        // Metadata de importación
+        $origen = 'importacion_' . ($this->importSource ?: 'archivo');
+        $cambios['origen'] = ['antes' => null, 'despues' => $origen];
+        if (!empty($this->importFileName)) {
+            $cambios['archivo'] = ['antes' => null, 'despues' => $this->importFileName];
+        }
+
+        if (empty($cambios) || (count($cambios) === 1 && isset($cambios['origen']))) {
+            $cambios = ['nota' => ['antes' => null, 'despues' => $esCreacion ? 'Material creado (sin cambios detectados)' : 'Sin cambios detectados']];
+        }
+
+        return $cambios;
     }
 
     /**
@@ -713,11 +807,18 @@ class MaterialImportService
                 if ($idArchivo > 0) {
                     $existente = $this->materialModel->getById($idArchivo);
                     if ($existente) {
-                        $this->materialModel->update($idArchivo, $material);
-                        $actualizados++;
+                        if ($this->materialModel->update($idArchivo, $material)) {
+                            $actualizados++;
+                            $detalles = $this->construirCambiosAuditoria($existente, $material, false);
+                            $this->registrarAuditoriaImportacion('actualizar', $idArchivo, $detalles);
+                        }
                     } else {
-                        $this->materialModel->create($material);
-                        $insertados++;
+                        $newId = $this->materialModel->create($material);
+                        if ($newId) {
+                            $insertados++;
+                            $detalles = $this->construirCambiosAuditoria(null, $material, true);
+                            $this->registrarAuditoriaImportacion('crear', $newId, $detalles);
+                        }
                     }
                 } else {
                     $codigoKey = trim((string)($material['codigo'] ?? ''));
@@ -734,11 +835,18 @@ class MaterialImportService
                     }
 
                     if ($existente) {
-                        $this->materialModel->update($existente['id'], $material);
-                        $actualizados++;
+                        if ($this->materialModel->update($existente['id'], $material)) {
+                            $actualizados++;
+                            $detalles = $this->construirCambiosAuditoria($existente, $material, false);
+                            $this->registrarAuditoriaImportacion('actualizar', $existente['id'], $detalles);
+                        }
                     } else {
-                        $this->materialModel->create($material);
-                        $insertados++;
+                        $newId = $this->materialModel->create($material);
+                        if ($newId) {
+                            $insertados++;
+                            $detalles = $this->construirCambiosAuditoria(null, $material, true);
+                            $this->registrarAuditoriaImportacion('crear', $newId, $detalles);
+                        }
                     }
                 }
             } catch (Exception $e) {
@@ -790,11 +898,18 @@ class MaterialImportService
                 if ($idArchivo > 0) {
                     $existente = $this->materialModel->getById($idArchivo);
                     if ($existente) {
-                        $this->materialModel->update($idArchivo, $material);
-                        $actualizados++;
+                        if ($this->materialModel->update($idArchivo, $material)) {
+                            $actualizados++;
+                            $detalles = $this->construirCambiosAuditoria($existente, $material, false);
+                            $this->registrarAuditoriaImportacion('actualizar', $idArchivo, $detalles);
+                        }
                     } else {
-                        $this->materialModel->create($material);
-                        $insertados++;
+                        $newId = $this->materialModel->create($material);
+                        if ($newId) {
+                            $insertados++;
+                            $detalles = $this->construirCambiosAuditoria(null, $material, true);
+                            $this->registrarAuditoriaImportacion('crear', $newId, $detalles);
+                        }
                     }
                 } else {
                     $codigoKey = trim((string)($material['codigo'] ?? ''));
@@ -811,11 +926,18 @@ class MaterialImportService
                     }
 
                     if ($existente) {
-                        $this->materialModel->update($existente['id'], $material);
-                        $actualizados++;
+                        if ($this->materialModel->update($existente['id'], $material)) {
+                            $actualizados++;
+                            $detalles = $this->construirCambiosAuditoria($existente, $material, false);
+                            $this->registrarAuditoriaImportacion('actualizar', $existente['id'], $detalles);
+                        }
                     } else {
-                        $this->materialModel->create($material);
-                        $insertados++;
+                        $newId = $this->materialModel->create($material);
+                        if ($newId) {
+                            $insertados++;
+                            $detalles = $this->construirCambiosAuditoria(null, $material, true);
+                            $this->registrarAuditoriaImportacion('crear', $newId, $detalles);
+                        }
                     }
                 }
             } catch (Exception $e) {

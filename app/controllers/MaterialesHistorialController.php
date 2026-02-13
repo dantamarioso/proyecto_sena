@@ -48,7 +48,7 @@ class MaterialesHistorialController extends Controller
 
         // Obtener historial de movimientos
         $historial = [];
-        if ($filtros['tipo_movimiento'] !== 'eliminado' && $filtros['tipo_movimiento'] !== 'cambio') {
+        if (!in_array($filtros['tipo_movimiento'], ['eliminado', 'cambio', 'creado'], true)) {
             $historial = $this->materialModel->getHistorialMovimientos($material_id, $filtros);
         }
 
@@ -65,8 +65,14 @@ class MaterialesHistorialController extends Controller
             $cambios = $this->materialModel->getHistorialCambios($material_id, $filtros);
         }
 
+        // Obtener creaciones de auditoría (CREATE)
+        $creaciones = [];
+        if (empty($filtros['tipo_movimiento']) || $filtros['tipo_movimiento'] === 'creado') {
+            $creaciones = $this->materialModel->getHistorialCreaciones($material_id, $filtros);
+        }
+
         // Combinar movimientos, eliminaciones y cambios, y ordenar por fecha
-        $historialCompleto = $this->combinarHistorial($historial, $eliminaciones, $cambios);
+        $historialCompleto = $this->combinarHistorial($historial, $eliminaciones, $cambios, $creaciones);
 
         // Filtrar historial según permisos del usuario
         $historialCompleto = $this->filtrarPorPermisos($historialCompleto);
@@ -185,7 +191,7 @@ class MaterialesHistorialController extends Controller
     /**
      * Combinar historial de movimientos, eliminaciones y cambios.
      */
-    private function combinarHistorial($historial, $eliminaciones, $cambios)
+    private function combinarHistorial($historial, $eliminaciones, $cambios, $creaciones = [])
     {
         $historialCompleto = [];
 
@@ -202,6 +208,11 @@ class MaterialesHistorialController extends Controller
         foreach ($cambios as $cambio) {
             $cambio['tipo_registro'] = 'cambio';
             $historialCompleto[] = $cambio;
+        }
+
+        foreach ($creaciones as $creacion) {
+            $creacion['tipo_registro'] = 'creacion';
+            $historialCompleto[] = $creacion;
         }
 
         return $historialCompleto;

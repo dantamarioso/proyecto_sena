@@ -10,6 +10,7 @@
 
     const DT_DEFAULT_SCROLL_Y = '60vh';
     const dtInstances = [];
+    const dtByTable = new WeakMap();
     let revealTriggered = false;
 
     function dtReady() {
@@ -52,10 +53,21 @@
         };
     }
 
+    function registerInstance(tableEl, dt) {
+        if (!tableEl || !dt) return;
+        if (dtByTable.has(tableEl)) return;
+        dtByTable.set(tableEl, dt);
+        dtInstances.push(dt);
+    }
+
     function initDataTableFor(tableEl, onInitComplete) {
         const $ = window.jQuery;
         if (!tableEl || !dtReady()) return null;
-        if ($.fn.DataTable.isDataTable(tableEl)) return $(tableEl).DataTable();
+        if ($.fn.DataTable.isDataTable(tableEl)) {
+            const dtExisting = $(tableEl).DataTable();
+            registerInstance(tableEl, dtExisting);
+            return dtExisting;
+        }
 
         const $table = $(tableEl);
         const scrollY = $table.data('dtScrollY') || DT_DEFAULT_SCROLL_Y;
@@ -102,7 +114,7 @@
             $responsive.css('overflow', 'visible');
         }
 
-        dtInstances.push(dt);
+        registerInstance(tableEl, dt);
         return dt;
     }
 
@@ -228,7 +240,7 @@
             if ($ && $.fn && $.fn.DataTable && $.fn.DataTable.isDataTable && $.fn.DataTable.isDataTable(tableEl)) {
                 initializedAny = true;
                 const dt = $(tableEl).DataTable();
-                dtInstances.push(dt);
+                registerInstance(tableEl, dt);
                 if (tableEl.id === 'tabla-usuarios') {
                     wireUsuariosTable(dt, tableEl);
                 }
@@ -262,6 +274,9 @@
             document.documentElement.classList.remove('dt-enhancing');
         }
     });
+
+    // Iniciar lo antes posible (el script se carga al final del body)
+    initAllTables();
 
     // Fallback: si DataTables no carga, mostrar tabla normal
     window.setTimeout(function () {

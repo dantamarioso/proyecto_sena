@@ -169,7 +169,7 @@ if (!isset($_SESSION['user'])) {
 
         <!-- Tabla Responsiva -->
         <div class="card">
-            <div class="table-responsive">
+            <div class="table-responsive datatable-container">
                 <table id="tabla-materiales" class="table table-striped align-middle mb-0 js-datatable" data-dt-scroll-y="60vh" data-dt-external-search="1">
                     <thead>
                         <tr>

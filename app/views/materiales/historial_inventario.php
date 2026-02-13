@@ -42,6 +42,7 @@ if (!isset($_SESSION['user'])) {
                             <option value="">Todos</option>
                             <option value="entrada" <?= $filtros['tipo_movimiento'] === 'entrada' ? 'selected' : '' ?>>Entrada</option>
                             <option value="salida" <?= $filtros['tipo_movimiento'] === 'salida' ? 'selected' : '' ?>>Salida</option>
+                            <option value="creado" <?= $filtros['tipo_movimiento'] === 'creado' ? 'selected' : '' ?>>Creado</option>
                             <option value="cambio" <?= $filtros['tipo_movimiento'] === 'cambio' ? 'selected' : '' ?>>Cambio</option>
                             <option value="eliminado" <?= $filtros['tipo_movimiento'] === 'eliminado' ? 'selected' : '' ?>>Eliminado</option>
                         </select>
@@ -65,7 +66,7 @@ if (!isset($_SESSION['user'])) {
 
         <!-- Tabla de Historial -->
         <div class="card">
-            <div class="table-responsive">
+            <div class="table-responsive datatable-container">
                 <table id="tabla-historial" class="table table-striped align-middle mb-0 js-datatable" data-dt-scroll-y="60vh">
                     <thead>
                         <tr>
@@ -114,6 +115,10 @@ if (!isset($_SESSION['user'])) {
                                                     <i class="bi bi-dash-lg"></i> Salida
                                                 </span>
                                             <?php endif; ?>
+                                        <?php elseif ($mov['tipo_registro'] === 'creacion') : ?>
+                                            <span class="badge bg-primary">
+                                                <i class="bi bi-plus-circle"></i> Creado
+                                            </span>
                                         <?php elseif ($mov['tipo_registro'] === 'cambio') : ?>
                                             <span class="badge bg-warning text-dark">
                                                 <i class="bi bi-pencil"></i> Cambio
@@ -146,6 +151,8 @@ if (!isset($_SESSION['user'])) {
                                     <td>
                                         <?php if ($mov['tipo_registro'] === 'movimiento') : ?>
                                             <small class="text-muted"><?= htmlspecialchars($mov['descripcion'] ?? '') ?></small>
+                                        <?php elseif ($mov['tipo_registro'] === 'creacion') : ?>
+                                            <small class="text-muted">Material creado</small>
                                         <?php elseif ($mov['tipo_registro'] === 'cambio') : ?>
                                             <small class="text-muted">Propiedades modificadas</small>
                                         <?php else : ?>
@@ -167,6 +174,10 @@ if (!isset($_SESSION['user'])) {
                                     <td class="text-center">
                                         <?php if ($mov['tipo_registro'] === 'movimiento') : ?>
                                             <button class="btn btn-info btn-sm btn-detalles" data-id="<?= $mov['id'] ?>" title="Ver detalles">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        <?php elseif ($mov['tipo_registro'] === 'creacion') : ?>
+                                            <button class="btn btn-primary btn-sm btn-detalles-cambio" data-detalles="<?= htmlspecialchars(json_encode(json_decode($mov['detalles'], true))) ?>" title="Ver detalles">
                                                 <i class="bi bi-eye"></i>
                                             </button>
                                         <?php elseif ($mov['tipo_registro'] === 'cambio') : ?>
@@ -217,6 +228,12 @@ if (!isset($_SESSION['user'])) {
                         <small class="text-muted">
                             <i class="bi bi-pencil text-warning"></i>
                             Cambios: <strong><?= count(array_filter($historial, fn($m) => ($m['tipo_registro'] ?? null) === 'cambio')) ?></strong>
+                        </small>
+                    </div>
+                    <div class="col-12 col-md-2">
+                        <small class="text-muted">
+                            <i class="bi bi-plus-circle text-primary"></i>
+                            Creados: <strong><?= count(array_filter($historial, fn($m) => ($m['tipo_registro'] ?? null) === 'creacion')) ?></strong>
                         </small>
                     </div>
                 </div>
@@ -299,13 +316,15 @@ if (!isset($_SESSION['user'])) {
                 'estado': 'Estado'
             };
 
-            // Iterar sobre cada campo que cambió
+            // Iterar sobre cada campo
             for (const [campo, cambio] of Object.entries(detalles)) {
-                if (typeof cambio === 'object' && cambio.antes !== undefined && cambio.despues !== undefined) {
+                const nombreCampo = nombresAmigables[campo] || campo;
+
+                // Formato preferido: {antes, despues}
+                if (cambio && typeof cambio === 'object' && cambio.antes !== undefined && cambio.despues !== undefined) {
                     hayCambios = true;
-                    const nombreCampo = nombresAmigables[campo] || campo;
-                    const valorAntes = escapeHtml(String(cambio.antes || 'N/A'));
-                    const valorDespues = escapeHtml(String(cambio.despues || 'N/A'));
+                    const valorAntes = escapeHtml(String(cambio.antes ?? 'N/A'));
+                    const valorDespues = escapeHtml(String(cambio.despues ?? 'N/A'));
 
                     cambiosHTML += `
                         <div class="card mb-3 border-left-3" style="border-left: 3px solid #ffc107;">
@@ -324,7 +343,31 @@ if (!isset($_SESSION['user'])) {
                             </div>
                         </div>
                     `;
+                    continue;
                 }
+
+                // Formato alterno (ej: creaciones antiguas): valor directo
+                hayCambios = true;
+                let valorPlano = cambio;
+                if (valorPlano === null || valorPlano === undefined || valorPlano === '') {
+                    valorPlano = 'N/A';
+                } else if (typeof valorPlano === 'object') {
+                    try {
+                        valorPlano = JSON.stringify(valorPlano);
+                    } catch (e) {
+                        valorPlano = String(valorPlano);
+                    }
+                }
+
+                cambiosHTML += `
+                    <div class="card mb-3 border-left-3" style="border-left: 3px solid #0d6efd;">
+                        <div class="card-body">
+                            <h6 class="card-title" style="color:#0d6efd;">${nombreCampo}</h6>
+                            <p class="text-muted mb-1">Valor:</p>
+                            <p class="mb-0"><code>${escapeHtml(String(valorPlano))}</code></p>
+                        </div>
+                    </div>
+                `;
             }
 
             if (!hayCambios) {
