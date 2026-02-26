@@ -248,6 +248,15 @@ class AuthController extends Controller
         ]);
     }
 
+    public function terminos()
+    {
+        $this->view('auth/terminos', [
+            'isRegisterPage' => true,
+            'pageStyles' => ['terminos'],
+            'pageScripts' => [],
+        ]);
+    }
+
     public function verifyEmail()
     {
         if (!isset($_SESSION['register_correo'])) {
